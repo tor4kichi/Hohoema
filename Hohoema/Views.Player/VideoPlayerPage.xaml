@@ -1,0 +1,192 @@
+﻿<Page x:Class="Hohoema.Views.Player.VideoPlayerPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:local="using:Hohoema.Views.Player"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      mc:Ignorable="d"
+      xmlns:i="using:Microsoft.Xaml.Interactivity"
+      xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+      xmlns:models="using:Hohoema.Models.Application"
+      xmlns:mybehavior="using:Hohoema.Views.Behaviors"
+      xmlns:viewmodel="using:Hohoema.ViewModels"
+      xmlns:sidepaneVM="using:Hohoema.ViewModels.Player.PlayerSidePaneContent"
+      xmlns:logicalTrigger="using:AdaptiveTriggerLibrary.Triggers.LogicalTriggers"
+      xmlns:connectivityTrigger="using:AdaptiveTriggerLibrary.Triggers.ConnectivityTriggers"
+      xmlns:intractionTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInteractionTriggers"
+      xmlns:uiTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInterfaceTriggers"
+      xmlns:myTrigger="using:Hohoema.Views.StateTrigger"
+      xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
+      xmlns:media="using:Microsoft.Xaml.Interactions.Media"
+      xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI"
+      xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+      xmlns:iconPack="using:MahApps.Metro.IconPacks"
+      xmlns:model="using:Hohoema.Models"
+      xmlns:winui="using:Microsoft.UI.Xaml.Controls"
+      xmlns:controls="using:Hohoema.Views.Controls"
+      xmlns:system1="using:System"
+      xmlns:templateselector="using:Hohoema.Views.TemplateSelector"
+      xmlns:windowsTriggers="using:WindowsStateTriggers" 
+      xmlns:players="using:Hohoema.Views.Player"
+      xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
+      xmlns:myExt="using:Hohoema.Views.Extensions"
+      xmlns:muxc="using:Microsoft.UI.Xaml" 
+      xmlns:playerModels="using:Hohoema.Services.Player" 
+      xmlns:playerUI="using:Hohoema.Views.Player.VideoPlayerUI"
+      x:Name="RootLayout"
+      NavigationCacheMode="Required"
+      d:DesignHeight="300"
+      d:DesignWidth="400">
+  <UserControl.Resources>
+    
+    <local:PlayerSidePaneContentTemplateSelecter x:Key="PlayerSidePaneContentTemplateSelecter">
+      <local:PlayerSidePaneContentTemplateSelecter.Empty>
+        <DataTemplate>
+          <!-- empty -->
+        </DataTemplate>
+      </local:PlayerSidePaneContentTemplateSelecter.Empty>
+      <local:PlayerSidePaneContentTemplateSelecter.Playlist>
+        <DataTemplate>
+          <local:PlaylistSidePaneContent />
+        </DataTemplate>
+      </local:PlayerSidePaneContentTemplateSelecter.Playlist>
+      <local:PlayerSidePaneContentTemplateSelecter.Comments>
+        <DataTemplate>
+          <local:VideoCommentSidePaneContent />
+        </DataTemplate>
+      </local:PlayerSidePaneContentTemplateSelecter.Comments>
+      <local:PlayerSidePaneContentTemplateSelecter.Settings>
+        <DataTemplate>
+          <local:VideoSettingsSidePaneContent />
+        </DataTemplate>
+      </local:PlayerSidePaneContentTemplateSelecter.Settings>
+      <local:PlayerSidePaneContentTemplateSelecter.RelatedVideos>
+        <DataTemplate>
+          <local:RelatedVideosSidePaneContent />
+        </DataTemplate>
+      </local:PlayerSidePaneContentTemplateSelecter.RelatedVideos>
+    </local:PlayerSidePaneContentTemplateSelecter>
+
+    
+  </UserControl.Resources>
+  <Grid x:Name="LayoutRoot">
+    <SplitView PanePlacement="Right" x:Name="PlayerSplitView" IsTabStop="False" IsPaneOpen="{x:Bind _vm.PlayerSplitViewIsPaneOpen, Mode=TwoWay}"
+                 PaneBackground="{ThemeResource ApplicationContentBackgroundBrush}"
+                 >
+      <i:Interaction.Behaviors>
+        <!-- 子要素方向にあるContentControl にフォーカスが移ると KeyboardAccelerator のイベントを吸ってしまうので IsEnabledを変更してフォーカスを剥がす -->
+        <core:EventTriggerBehavior EventName="PaneOpening">
+          <core:ChangePropertyAction TargetObject="{x:Bind SidePaneContentControl}" PropertyName="IsEnabled" Value="True" />
+        </core:EventTriggerBehavior>
+        <!-- サイドペインが閉じられたら コンテンツVMをリセット -->
+        <core:EventTriggerBehavior EventName="PaneClosed">
+          <core:ChangePropertyAction TargetObject="{x:Bind _vm}" PropertyName="SidePaneType" Value="{x:Bind players:PlayerSidePaneContentType.None}" />
+          <core:ChangePropertyAction TargetObject="{x:Bind SidePaneContentControl}" PropertyName="IsEnabled" Value="False" />
+        </core:EventTriggerBehavior>
+      </i:Interaction.Behaviors>
+      <SplitView.Pane>
+        <Grid x:Name="PlayerSidePaneLayout">
+          <ContentControl x:Name="SidePaneContentControl" IsEnabled="False" Content="{x:Bind _vm.SidePaneViewModel, Mode=OneWay}" ContentTemplateSelector="{StaticResource PlayerSidePaneContentTemplateSelecter}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" />
+        </Grid>
+      </SplitView.Pane>
+      <SplitView.Content>
+        <!-- Media Control -->
+        <Grid x:Name="MediaControl"
+                >
+          
+          <!-- 映像表示 -->
+          <MediaPlayerElement x:Name="MediaPlayerElement" AutoPlay="True">
+            <i:Interaction.Behaviors>
+              <mybehavior:MediaPlayerSetter MediaPlayer="{x:Bind _vm.MediaPlayer}" />
+              <mybehavior:MediaPlayerElementContentHeightGetter ContentHeight="{x:Bind CommentRederer.Height, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            </i:Interaction.Behaviors>
+          </MediaPlayerElement>
+          
+          <!-- コメント表示 -->
+          <local:CommentRenderer 
+              x:Name="CommentRederer" 
+              MediaPlayer="{x:Bind _vm.MediaPlayer}" 
+              Comments="{x:Bind _vm.CommentPlayer.DisplayingComments, Mode=OneWay}" 
+              Visibility="{x:Bind _vm.PlayerSettings.IsCommentDisplay_Video, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}" 
+              CommentSizeScale="{x:Bind _vm.PlayerSettings.DefaultCommentFontScale, Mode=OneWay}" 
+              CommentDefaultColor="{x:Bind _vm.PlayerSettings.CommentColor, Mode=OneWay}"
+              DefaultDisplayDuration="{x:Bind _vm.PlayerSettings.CommentDisplayDuration, Mode=OneWay}" 
+              Opacity="{x:Bind _vm.PlayerSettings.CommentOpacity, Mode=OneWay}"
+              />
+
+          <!-- コントロールUI -->
+          <uwpControls:SwitchPresenter x:Name="PlayerControlUISwitchPresenter" Value="{x:Bind _vm.ApplicationLayoutManager.InteractionMode}">
+            <uwpControls:Case Value="{x:Bind models:ApplicationInteractionMode.Mouse}">
+              <playerUI:DesktopPlayerUI />
+            </uwpControls:Case>
+            <uwpControls:Case Value="{x:Bind models:ApplicationInteractionMode.Controller}">
+              <playerUI:DesktopPlayerUI />
+            </uwpControls:Case>
+            <uwpControls:Case Value="{x:Bind models:ApplicationInteractionMode.Touch}">
+              <playerUI:DesktopPlayerUI />
+            </uwpControls:Case>
+          </uwpControls:SwitchPresenter>
+        </Grid>
+      </SplitView.Content>
+    </SplitView>
+
+
+    <VisualStateManager.VisualStateGroups>
+                            
+      <!-- SplitViewのペインを開いた時のサイズ（最小サイズがOpePaneLaneghになるためレイアウトが崩れる場合がある）-->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{Binding PlayerView.IsCompactOverlay, Mode=OneWay}" />
+            <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}"/>
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="PlayerSplitView.OpenPaneLength" Value="0" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <hardTrigger:DeviceFamilyTrigger Condition="Mobile" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="PlayerSplitView.OpenPaneLength" Value="300" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.TV}" />
+            <hardTrigger:DeviceFamilyTrigger Condition="Xbox" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="PlayerSplitView.OpenPaneLength" Value="450" />
+            <Setter Target="PlayerSidePaneLayout.Margin" Value="0 27 0 27" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <hardTrigger:DeviceFamilyTrigger Condition="Desktop" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="PlayerSplitView.OpenPaneLength" Value="450" />
+            <Setter Target="PlayerSidePaneLayout.Padding" Value="0 32 0 0" /> <!-- ウィンドウタイトルバーへの対応 -->
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+
+                        
+      <!-- サイドペインの内容毎の表示切替 -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{Binding SidePaneType, Mode=OneWay}" EqualTo="Comment" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="PlayerSplitView.DisplayMode" Value="Inline" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+    </VisualStateManager.VisualStateGroups>
+
+
+  </Grid>
+</Page>

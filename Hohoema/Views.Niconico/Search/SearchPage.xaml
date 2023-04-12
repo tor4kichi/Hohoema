@@ -1,0 +1,199 @@
+﻿<Page
+  x:Class="Hohoema.Views.Pages.Niconico.Search.SearchPage"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:local="using:Hohoema.Views"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:view="using:Hohoema.Views"
+  xmlns:i="using:Microsoft.Xaml.Interactivity"
+  xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+  xmlns:mybehavior="using:Hohoema.Views.Behaviors"
+  xmlns:controls="using:Hohoema.Views.Controls"
+  xmlns:iconPack="using:MahApps.Metro.IconPacks"
+  xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
+  xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+  xmlns:uwpextensions="using:Microsoft.Toolkit.Uwp.UI"
+  xmlns:templateSelector="using:Hohoema.Views.TemplateSelector" 
+  xmlns:windowsStateTriggers="using:WindowsStateTriggers" 
+  xmlns:appModels="using:Hohoema.Models.Application"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
+  xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+  DataContext="{x:Null}"
+  NavigationCacheMode="Enabled"
+    mc:Ignorable="d">
+  <Page.Resources>
+    <DataTemplate x:Key="SearchHistoryItemTemplate">
+      <Grid Margin="0">
+        <TextBlock Text="{Binding Keyword}" TextWrapping="Wrap" />
+      </Grid>
+    </DataTemplate>
+  </Page.Resources>
+  <Grid MaxWidth="960">
+
+    <uwpControls:DockPanel Margin="0 0 0 0" x:Name="ContentLayout">
+      
+      <uwpControls:DockPanel x:Name="SearchUIContainer" Margin="0" uwpControls:DockPanel.Dock="Top" >
+
+        <ComboBox x:Name="SearchTargetListView" ItemsSource="{Binding TargetListItems}" SelectedItem="{Binding SelectedTarget.Value, Mode=TwoWay}" 
+                        HorizontalAlignment="Stretch" TabIndex="1" IsTabStop="True" UseSystemFocusVisuals="True" 
+                  uwpControls:DockPanel.Dock="Left"
+                  VerticalAlignment="Center"
+                  Margin="0 0 8 0"                  
+                        >
+          <i:Interaction.Behaviors>
+            <core:EventTriggerBehavior EventName="SelectionChanged">
+              <core:InvokeCommandAction Command="{Binding DoSearchCommand}" />
+            </core:EventTriggerBehavior>
+          </i:Interaction.Behaviors>
+          <ComboBox.ItemTemplate>
+            <DataTemplate>
+              <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}" />
+            </DataTemplate>
+          </ComboBox.ItemTemplate>
+        </ComboBox>
+        
+        <!-- 検索 -->
+        <uwpControls:DockPanel Margin="0 0 0 0" MaxWidth="960">
+          <DropDownButton uwpControls:DockPanel.Dock="Right"
+                              Margin="0 0 8 0"
+                              Height="32"
+                              Width="64"                          
+                              >
+            <DropDownButton.Content>
+              <SymbolIcon Symbol="Clock" />
+            </DropDownButton.Content>
+            <DropDownButton.Flyout>
+              <Flyout>
+                <ListView ItemsSource="{Binding SearchHistoryItems}" DisplayMemberPath="Keyword"
+                              SelectionMode="None"
+                              IsItemClickEnabled="True"
+                              >
+                  <i:Interaction.Behaviors>
+                    <core:EventTriggerBehavior EventName="ItemClick">
+                      <core:InvokeCommandAction Command="{Binding SearchHistoryItemCommand}" InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+                    </core:EventTriggerBehavior>
+                  </i:Interaction.Behaviors>
+
+                </ListView>
+              </Flyout>
+            </DropDownButton.Flyout>
+          </DropDownButton>
+
+          <Button Margin="8 0" Command="{Binding DoSearchCommand}" Width="80" Height="32" MinHeight="40" uwpControls:DockPanel.Dock="Right" UseSystemFocusVisuals="True">
+            <StackPanel Orientation="Horizontal">
+              <SymbolIcon Symbol="Find" />
+            </StackPanel>
+          </Button>
+
+          <TextBox x:Name="SearchTextBox" Text="{Binding SearchText.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" InputScope="Search" Margin="0 0 0 0" Height="40" FontSize="16" Style="{StaticResource BGTransparentTextBoxStyle}">
+            <i:Interaction.Behaviors>
+              <mybehavior:KeyboardTrigger Key="Enter">
+                <mybehavior:KeyboardTrigger.Actions>
+                  <core:InvokeCommandAction Command="{Binding DoSearchCommand}" />
+                  <mybehavior:HideInputPaneAction />
+                </mybehavior:KeyboardTrigger.Actions>
+              </mybehavior:KeyboardTrigger>
+              <core:EventTriggerBehavior EventName="GotFocus">
+                <core:CallMethodAction TargetObject="{x:Bind SearchTextBox}" MethodName="SelectAll" />
+              </core:EventTriggerBehavior>
+            </i:Interaction.Behaviors>
+          </TextBox>
+        </uwpControls:DockPanel>
+      </uwpControls:DockPanel>
+
+      <Frame x:Name="SearchResultFrame" CacheSize="0" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" DataContext="{x:Null}"
+             Transitions="{StaticResource SuppressNavigationTransitionCollection}"
+             ContentTransitions="{StaticResource SuppressNavigationTransitionCollection}"
+             Background="{ThemeResource ApplicationContentBackgroundBrush}"
+             >
+      </Frame>
+
+    </uwpControls:DockPanel>
+
+    <VisualStateManager.VisualStateGroups>
+
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <AdaptiveTrigger MinWindowWidth="641" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="TitleText.Margin" Value="0 0 0 0" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <AdaptiveTrigger MinWindowWidth="0" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="TitleText.Margin" Value="72 0 0 0" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      
+      
+      <!-- レイアウトモード -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}">
+              <windowsStateTriggers:EqualsStateTrigger.EqualTo>
+                <appModels:ApplicationLayout>TV</appModels:ApplicationLayout>
+              </windowsStateTriggers:EqualsStateTrigger.EqualTo>
+            </windowsStateTriggers:EqualsStateTrigger>
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="SearchUIContainer.Padding" Value="{StaticResource ContentListViewHeaderMargin_TV}" />
+            <Setter Target="ContentLayout.MaxWidth" Value="1280" />
+            <Setter Target="SearchTargetListView.Margin" Value="0 0 0 0" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}">
+              <windowsStateTriggers:EqualsStateTrigger.EqualTo>
+                <appModels:ApplicationLayout>Desktop</appModels:ApplicationLayout>
+              </windowsStateTriggers:EqualsStateTrigger.EqualTo>
+            </windowsStateTriggers:EqualsStateTrigger>
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="ContentLayout.Margin" Value="0 0 0 0" />
+            <Setter Target="SearchTargetListView.Margin" Value="0 0 0 0" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}">
+              <windowsStateTriggers:EqualsStateTrigger.EqualTo>
+                <appModels:ApplicationLayout>Tablet</appModels:ApplicationLayout>
+              </windowsStateTriggers:EqualsStateTrigger.EqualTo>
+            </windowsStateTriggers:EqualsStateTrigger>
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <!--
+            <Setter Target="ContentLayout.Margin" Value="{StaticResource ContentPageMargin_Tablet}" />
+            -->
+            <Setter Target="SearchTargetListView.Margin" Value="0 0 0 0" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}">
+              <windowsStateTriggers:EqualsStateTrigger.EqualTo>
+                <appModels:ApplicationLayout>Mobile</appModels:ApplicationLayout>
+              </windowsStateTriggers:EqualsStateTrigger.EqualTo>
+            </windowsStateTriggers:EqualsStateTrigger>
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <!--
+            <Setter Target="ContentLayout.Margin" Value="{StaticResource ContentPageMargin_Mobile}" />
+            -->
+            <Setter Target="SearchTargetListView.Margin" Value="0 0 0 0" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      
+    </VisualStateManager.VisualStateGroups>
+  </Grid>
+</Page>

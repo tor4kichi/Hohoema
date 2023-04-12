@@ -220,9 +220,22 @@ Notification_SuccessAddSubscriptionSourceWithLabel = 「{0}」を新着チェッ
 Notification_FailedSubscriptionUpdate = 新着動画の更新に失敗しました
 Notification_SuccessAddToWatchLaterWithAddedCount = 新着動画 {0} 件を あとで見る に追加しました
 
+SubscGroup_DefaultGroupName = デフォルト
+AddSubscriptionGroup_InputSubscGroupName_Title = 購読グループ名を決める
+SubscGroup_CreateGroup = 購読グループを作成
+SubscGroup_ContextMenuItemTitle = 購読グループを変更
+SubscGroup_SelectGroup = 購読グループを選択
+SubscGroup_Rename = 購読グループのリネーム
+SubscGroup_DeleteComfirmDialogContent = 購読グループを削除しても、購読に設定しているグループは「デフォルト」に変更されるため安全に削除できます。\n削除してもよろしいですか？
+SubscGroup_DeleteComfirmDialogTitle = {0} のグループを削除してもいい？
+
+VideoNoItem = 表示できる動画はありません
+
+
+
 
 #### Settings ####
-MenuPaneDisplayMode = メニューの表示方法
+MenuPaneDisplayMode = メニューの表示位置
 NavigationViewPaneDisplayMode.Auto = 自動
 NavigationViewPaneDisplayMode.Left = 左に常に表示
 NavigationViewPaneDisplayMode.Top = 上部に常に表示
@@ -560,7 +573,7 @@ LiveContentPayRequired = 有料
 LiveContentChannelContent = CH
 LiveContentOfficialContent = 公式
 LiveContentTimeshiftEnabled = TS
-LiveContentCommunityMemberOnly = 限定
+LiveContentCommunityMemberOnly = メンバー限定
 LiveSearchPageSortOrder.RecentDesc = 放送日時が近い順
 LiveSearchPageSortOrder.RecentAsc = 放送日時が遠い順
 LiveSearchPageSortOrder.TimeshiftCountDesc = タイムシフト予約数が多い順
@@ -579,6 +592,29 @@ LiveContentThumbnailBadgeReserved = 放送予定
 LiveContentThumbnailBadgeOnair = LIVE
 LiveContentThumbnailBadgePastAndTimeshiftPresent = タイムシフト
 LiveContentThumbnailBadgePastAndTimeshiftNotPresent = 公開終了
+
+Status.BEFORE_RELEASE = 開場前
+Status.RELEASED = 放送予定
+Status.ON_AIR = 放送中
+Status.ENDED = 過去の放送
+Sort.RecentDesc = 放送日時が遠い順
+Sort.RecentAsc = 放送日時が近い順
+Sort.Popular = 人気順
+Sort.TimeshiftReservationsDesc = TS予約数が多い順
+Sort.TimeshiftReservationsAsc = TS予約数が少ない順
+Sort.ViewersDesc = 来場者数が多い順
+Sort.ViewersAsc = 来場者数が少ない順
+Sort.CommentsDesc = コメント数が多い順
+Sort.CommentsAsc = コメント数が少ない順
+Sort.UserLevelDesc = ユーザーレベルが高い順
+Sort.UserLevelAsc = ユーザーレベルが低い順
+Sort.CommunityCreatedDesc = コミュニティ作成が古い順
+Sort.CommunityCreatedAsc = コミュニティ作成が新しい順
+Provider.COMMUNITY = コミュニティ
+Provider.CHANNEL = チャンネル
+Provider.OFFICIAL = 公式
+
+
 
 LiveViewCount = 来場
 LiveCommentCount = コメ

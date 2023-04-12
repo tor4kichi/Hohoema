@@ -1,0 +1,43 @@
+﻿<MenuFlyout
+    x:Class="Hohoema.Views.Flyouts.RankingGenreItemFlyout"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Hohoema.Views.Flyouts"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" 
+  xmlns:ranking="using:Hohoema.ViewModels.Niconico.Ranking"
+  mc:Ignorable="d">
+
+  <MenuFlyoutItem Text="{i18nExt:Localize Key=AddFavoriteRankingTag}"
+                  CommandParameter="{Binding}"
+                  Visibility="{Binding IsFavorite, Mode=OneWay, Converter={StaticResource BooleanToVisibilityInverted}}"
+                  >
+    <MenuFlyoutItem.Command>
+      <ranking:FavoriteRankingGenreItemCommand />
+    </MenuFlyoutItem.Command>
+  </MenuFlyoutItem>
+
+  <MenuFlyoutItem Text="{i18nExt:Localize Key=RemoveFavoriteRankingTag}"
+                  CommandParameter="{Binding}"
+                  Visibility="{Binding IsFavorite, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}"
+                  >
+    <MenuFlyoutItem.Command>
+      <ranking:UnFavoriteRankingGenreItemCommand />
+    </MenuFlyoutItem.Command>
+  </MenuFlyoutItem>
+
+  <MenuFlyoutSeparator Visibility="{Binding IsFavorite, Mode=OneWay, Converter={StaticResource BooleanToVisibilityInverted}}" />
+
+  <MenuFlyoutItem Text="{i18nExt:Localize Key=HiddenThisRankingTag}"
+                  CommandParameter="{Binding}"
+                  Visibility="{Binding IsFavorite, Mode=OneWay, Converter={StaticResource BooleanToVisibilityInverted}}"
+                  >
+    <MenuFlyoutItem.Command>
+      <ranking:HiddenRankingGenreItemCommand />
+    </MenuFlyoutItem.Command>
+  </MenuFlyoutItem>
+
+
+
+</MenuFlyout>

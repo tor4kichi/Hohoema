@@ -21,6 +21,7 @@
     <WindowsXamlEnableOverview>true</WindowsXamlEnableOverview>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
     <LangVersion>preview</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
@@ -133,595 +134,567 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Contracts\AppLifecycle\IToastActivationAware.cs" />
+    <Compile Include="Contracts\Navigations\NavigationMessengerExtension.cs" />
+    <Compile Include="Contracts\ViewModels\IWatchHistory.cs" />
     <Compile Include="Database\HohoemaLiteDbContext.cs" />
     <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="Hohoema.GlobalUsings.cs" />
     <Compile Include="IsExternalInit.cs" />
     <Compile Include="Locales\LocaleToDisplayNameConverter.cs" />
     <Compile Include="Locales\LocalizeConverter.cs" />
     <Compile Include="Locales\LocalizeWithParameterConverter.cs" />
-    <Compile Include="Models.UseCase\ApplicationLayoutManager.cs" />
-    <Compile Include="Models.UseCase\Maintenance\VideoThumbnailImageCacheMaintenance.cs" />
-    <Compile Include="Models.UseCase\Migration\CommentFilteringNGScoreZeroFixture.cs" />
-    <Compile Include="Models.UseCase\Migration\DatabaseMigrate_0_25_0.cs" />
-    <Compile Include="Models.UseCase\Migration\IMigateAsync.cs" />
-    <Compile Include="Models.UseCase\Migration\MigrationCommentFilteringSettings.cs" />
-    <Compile Include="Models.UseCase\Migration\SearchPageQueryMigrate_0_26_0.cs" />
-    <Compile Include="Models.UseCase\Migration\SearchTargetMigration_V_1_1_0.cs" />
-    <Compile Include="Models.UseCase\Migration\SettingsMigration_V_0_23_0.cs" />
-    <Compile Include="Models.UseCase\Migration\SubscriptionMigration_1_3_13.cs" />
-    <Compile Include="Models.UseCase\Niconico.Player\AppWindowSecondaryViewPlayerManager.cs" />
-    <Compile Include="Models.UseCase\Niconico.Player\IPlayerView.cs" />
-    <Compile Include="Models.UseCase\PageNavigation\IPageNavigatable.cs" />
-    <Compile Include="Models.UseCase\PageNavigation\NavigationTriggerFromExternal.cs" />
-    <Compile Include="Models.UseCase\Hohoema.LocalMylist\LocalMylistManager.cs" />
-    <Compile Include="Models.UseCase\Playlist\AutoSkipToPlaylistNextVideoWhenPlayFailed.cs" />
-    <Compile Include="Models.UseCase\Playlist\PlaylistFactory\ChannelVideoPlaylistFactory.cs" />
-    <Compile Include="Models.UseCase\Playlist\PlaylistFactory\CommunityVideoPlaylistFactory.cs" />
-    <Compile Include="Models.UseCase\Playlist\PlaylistFactory\LocalMylistPlaylistFactory.cs" />
-    <Compile Include="Models.UseCase\Playlist\PlaylistFactory\SearchWithKeywordPlaylistFactory.cs" />
-    <Compile Include="Models.UseCase\Playlist\PlaylistItemsSourceResolver.cs" />
-    <Compile Include="Models.UseCase\Playlist\PlaylistFactory\MylistPlaylistFactory.cs" />
-    <Compile Include="Models.UseCase\Playlist\PlaylistFactory\SeriesVideoPlaylistFactory.cs" />
-    <Compile Include="Models.UseCase\Playlist\PlaylistFactory\UserVideoPlaylistFactory.cs" />
-    <Compile Include="Models.UseCase\Subscriptions\SyncWatchHistoryOnLoggedIn.cs" />
-    <Compile Include="Models.UseCase\VideoCache\Events\EndCacheSaveFolderChangingMessage.cs" />
-    <Compile Include="Models.UseCase\VideoCache\Events\StartCacheSaveFolderChangingAsyncRequestMessage.cs" />
-    <Compile Include="Models.UseCase\VideoCache\Events\VideoCacheProgressChangedMessage.cs" />
-    <Compile Include="Models.UseCase\VideoCache\Events\VideoCacheStatusChangedMessage.cs" />
-    <Compile Include="Models.UseCase\VideoCache\Migration\VideoCacheDatabaseMigration_V_0_29_0.cs" />
-    <Compile Include="Models.UseCase\Niconico.Player\CloseToastNotificationWhenPlayStarted.cs" />
-    <Compile Include="Models.UseCase\Niconico.Player\Events\VideoPlayedMessage.cs" />
-    <Compile Include="Models.UseCase\Playlist\MylistResolver.cs" />
-    <Compile Include="Models.UseCase\Niconico.Player\Comment\CommentDisplayingRangeExtractor.cs" />
-    <Compile Include="Models.UseCase\Niconico.Player\Comment\CommentFilteringFacade.cs" />
-    <Compile Include="Models.UseCase\Niconico.Player\Comment\VideoCommentPlayer.cs" />
-    <Compile Include="Models.UseCase\Niconico.Player\KeepActiveDisplayWhenPlaying.cs" />
-    <Compile Include="Models.UseCase\Niconico.Player\ObservableMediaPlayer.cs" />
-    <Compile Include="Models.UseCase\Niconico.Player\RelatedVideoContentsAggregator.cs" />
-    <Compile Include="Models.UseCase\Niconico.Player\VideoEndedRecommendation.cs" />
-    <Compile Include="Models.UseCase\Niconico.Player\VideoPlayRequestBridgeToPlayer.cs" />
-    <Compile Include="Models.UseCase\Niconico.Player\VideoStreamingOriginOrchestrator.cs" />
-    <Compile Include="Models.UseCase\Playlist\PlaylistSelectDialogService.cs" />
-    <Compile Include="Models.UseCase\Playlist\LoginUserOwnedMylistManager.cs" />
-    <Compile Include="Presentation.Navigations\IViewLocator.cs" />
-    <Compile Include="Presentation.Navigations\NavigationAwareViewModelBase.cs" />
-    <Compile Include="Presentation.Navigations\NavigationParametersExtensions.cs" />
-    <Compile Include="Presentation.Navigations\NavigationService.cs" />
-    <Compile Include="Presentation.Services\CurrentActiveWindowUIContextService.cs" />
-    <Compile Include="Presentation.Services\INotificationService.cs" />
-    <Compile Include="Presentation.Services\NotificationService.cs" />
-    <Compile Include="Presentation.ViewModels\CommandBase.cs" />
-    <Compile Include="Presentation.ViewModels\Hohoema.LocalMylist\LocalMylistCreateCommand.cs" />
-    <Compile Include="Presentation.ViewModels\HohoemaVideoListException.cs" />
-    <Compile Include="Presentation.ViewModels\Navigation.Commands\OpenVideoOwnerMylistListCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Navigation.Commands\OpenVideoOwnerSeriesListCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Navigation.Commands\OpenVideoOwnerVideoListCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.User\UserInfoViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\PlaylistPlayFromHereCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\VideoPlayCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Video\VideoItemsSelectionContext.cs" />
-    <Compile Include="Models.UseCase\Niconico.Video\WatchHistoryManager.cs" />
-    <Compile Include="Models.UseCase\Subscriptions\NewFeedVideosProcesser.cs" />
-    <Compile Include="Models.UseCase\Subscriptions\SubscriptionUpdateManager.cs" />
-    <Compile Include="Models.UseCase\VideoCache\VideoCacheDownloadOperationManager.cs" />
-    <Compile Include="Models.UseCase\VideoCache\VideoCacheFolderManager.cs" />
-    <Compile Include="Presentation.Services\DialogService.cs" />
-    <Compile Include="Presentation.ViewModels\NavigationQueryHelper.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowContext.cs" />
-    <Compile Include="Models.UseCase\Niconico.Account\NiconicoLoginService.cs" />
-    <Compile Include="Presentation.Services\NoProcessUIScreenContext.cs" />
-    <Compile Include="Models.UseCase\CheckingClipboardAndNotificationService.cs" />
-    <Compile Include="Models.UseCase\VideoCache\NotificationCacheVideoDeletedService.cs" />
-    <Compile Include="Models.UseCase\Niconico.Follow\FollowNotificationAndConfirmListener.cs" />
-    <Compile Include="Models.UseCase\PageNavigation\PageManager.cs" />
-    <Compile Include="Models.UseCase\PageNavigation\PageManagerSearchExtention.cs" />
-    <Compile Include="Models.UseCase\PageNavigation\PagePayload\LoginRedirectPayload.cs" />
-    <Compile Include="Models.UseCase\PageNavigation\PagePayload\MylistPagePayload.cs" />
-    <Compile Include="Models.UseCase\PageNavigation\PagePayload\PagePayloadBase.cs" />
-    <Compile Include="Models.UseCase\PageNavigation\PagePayload\Search\ISearchPagePayloadContent.cs" />
-    <Compile Include="Models.UseCase\PageNavigation\PagePayload\Search\KeywordSearchPagePayloadContent.cs" />
-    <Compile Include="Models.UseCase\PageNavigation\PagePayload\Search\LiveSearchPagePayloadContent.cs" />
-    <Compile Include="Models.UseCase\PageNavigation\PagePayload\Search\SearchPagePayload.cs" />
-    <Compile Include="Models.UseCase\PageNavigation\PagePayload\Search\SearchPagePayloadContentBase.cs" />
-    <Compile Include="Models.UseCase\PageNavigation\PagePayload\Search\SearchPagePayloadContentHelper.cs" />
-    <Compile Include="Models.UseCase\PageNavigation\PagePayload\Search\TagSearchPagePayloadContent.cs" />
-    <Compile Include="Models.UseCase\PageNavigation\PagePayload\Search\VideoSearchOption.cs" />
-    <Compile Include="Models.UseCase\PageNavigation\PagePayload\SecondaryViewNavigatePayload.cs" />
-    <Compile Include="Models.UseCase\PageNavigation\PagePayload\VideoPlayPayload.cs" />
-    <Compile Include="Models.UseCase\Niconico.Player\Events\ChangePlayerDisplayViewRequestMessage.cs" />
-    <Compile Include="Models.UseCase\Niconico.Player\Events\PlayerEvents.cs" />
-    <Compile Include="Models.UseCase\Niconico.Player\PrimaryViewPlayerManager.cs" />
-    <Compile Include="Models.UseCase\Niconico.Player\SecondaryViewPlayerManager.cs" />
-    <Compile Include="Presentation.ViewModels\Player\ShowPrimaryViewCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Player\TogglePlayerDisplayViewCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowMylistGroupViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowChannelGroupViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowCommunityGroupViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowTagGroupViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowUserGroupViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Follow\IFollowContext.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Likes\VideoLikesContext.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Live\LiveInfoListItemViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Share\CopyToClipboardWithShareTextCommand.cs" />
-    <Compile Include="Presentation.Services\UINavigation\UINavigationButtons.cs" />
-    <Compile Include="Presentation.Services\UINavigation\UINavigationManager.cs" />
-    <Compile Include="Presentation.ViewModels\Community\CommunityLiveInfoViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\Community\CommunityNewsViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\Community\CommunityVideoInfoViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\Community\CurrentLiveInfoViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Ranking\FavoriteRankingGenreGroupItem.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Ranking\HiddenGenreItem.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Ranking\RankingGenreItem.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Ranking\RankingItem.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Share\CopyToClipboardCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Share\OpenLinkCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Share\OpenShareUICommand.cs" />
-    <Compile Include="Presentation.ViewModels\Player\Video\ChangeVideoQualityCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Player\Video\VideoTogglePlayPauseCommand.cs" />
-    <Compile Include="Presentation.ViewModels\PrimaryWindowCoreLayout\IDraggableAreaAware.cs" />
-    <Compile Include="Presentation.Views.Pages\Hohoema.Subscription\SubscVideoListPage.xaml.cs">
+    <Compile Include="Services\ApplicationLayoutManager.cs" />
+    <Compile Include="Services\LocalizeService.cs" />
+    <Compile Include="Contracts\Navigations\INavigationService.cs" />
+    <Compile Include="Services\Player\AppWindowSecondaryViewPlayerManager.cs" />
+    <Compile Include="Contracts\Player\IPlayerView.cs" />
+    <Compile Include="Contracts\Navigations\IPageNavigatable.cs" />
+    <Compile Include="Services\Navigations\NavigationTriggerFromExternal.cs" />
+    <Compile Include="Services\Playlist\AutoSkipToPlaylistNextVideoWhenPlayFailed.cs" />
+    <Compile Include="Services\Subscriptions\SyncWatchHistoryOnLoggedIn.cs" />
+    <Compile Include="Services\VideoCache\Events\EndCacheSaveFolderChangingMessage.cs" />
+    <Compile Include="Services\VideoCache\Events\StartCacheSaveFolderChangingAsyncRequestMessage.cs" />
+    <Compile Include="Services\VideoCache\Events\VideoCacheProgressChangedMessage.cs" />
+    <Compile Include="Services\VideoCache\Events\VideoCacheStatusChangedMessage.cs" />
+    <Compile Include="Services\VideoCache\Migration\VideoCacheDatabaseMigration_V_0_29_0.cs" />
+    <Compile Include="Services\Player\CloseToastNotificationWhenPlayStarted.cs" />
+    <Compile Include="Contracts\Player\VideoPlayedMessage.cs" />
+    <Compile Include="Services\Player\Videos\VideoCommentPlayer.cs" />
+    <Compile Include="Services\Player\KeepActiveDisplayWhenPlaying.cs" />
+    <Compile Include="Services\Player\ObservableMediaPlayer.cs" />
+    <Compile Include="Services\Player\Videos\RelatedVideoContentsAggregator.cs" />
+    <Compile Include="Services\Player\Videos\VideoEndedRecommendation.cs" />
+    <Compile Include="Services\Player\Videos\VideoPlayRequestBridgeToPlayer.cs" />
+    <Compile Include="Services\Player\Videos\VideoStreamingOriginOrchestrator.cs" />
+    <Compile Include="Services\Playlist\PlaylistSelectDialogService.cs" />
+    <Compile Include="Contracts\Navigations\IViewLocator.cs" />
+    <Compile Include="Contracts\Navigations\NavigationAwareViewModelBase.cs" />
+    <Compile Include="Services\Navigations\NavigationService.cs" />
+    <Compile Include="Services\CurrentActiveWindowUIContextService.cs" />
+    <Compile Include="Services\NotificationService.cs" />
+    <Compile Include="ViewModels\CommandBase.cs" />
+    <Compile Include="ViewModels\Hohoema.LocalMylist\LocalMylistCreateCommand.cs" />
+    <Compile Include="ViewModels\HohoemaVideoListException.cs" />
+    <Compile Include="ViewModels\Navigation.Commands\OpenVideoOwnerMylistListCommand.cs" />
+    <Compile Include="ViewModels\Navigation.Commands\OpenVideoOwnerSeriesListCommand.cs" />
+    <Compile Include="ViewModels\Navigation.Commands\OpenVideoOwnerVideoListCommand.cs" />
+    <Compile Include="ViewModels\Niconico.User\UserInfoViewModel.cs" />
+    <Compile Include="ViewModels\Niconico.Video\Commands\PlaylistPlayFromHereCommand.cs" />
+    <Compile Include="ViewModels\Niconico.Video\Commands\VideoPlayCommand.cs" />
+    <Compile Include="ViewModels\Niconico.Video\VideoItemsSelectionContext.cs" />
+    <Compile Include="Services\Subscriptions\SubscriptionUpdateManager.cs" />
+    <Compile Include="Services\VideoCache\VideoCacheDownloadOperationManager.cs" />
+    <Compile Include="Services\VideoCache\VideoCacheFolderManager.cs" />
+    <Compile Include="Services\DialogService.cs" />
+    <Compile Include="ViewModels\NavigationQueryHelper.cs" />
+    <Compile Include="ViewModels\Niconico.Follow\FollowContext.cs" />
+    <Compile Include="Services\NiconicoLoginService.cs" />
+    <Compile Include="Services\NoProcessUIScreenContext.cs" />
+    <Compile Include="Services\CheckingClipboardAndNotificationService.cs" />
+    <Compile Include="Services\VideoCache\NotificationCacheVideoDeletedService.cs" />
+    <Compile Include="Services\Navigations\PageManager.cs" />
+    <Compile Include="Services\Navigations\PageManagerSearchExtention.cs" />
+    <Compile Include="Services\Navigations\PagePayload\LoginRedirectPayload.cs" />
+    <Compile Include="Services\Navigations\PagePayload\MylistPagePayload.cs" />
+    <Compile Include="Services\Navigations\PagePayload\PagePayloadBase.cs" />
+    <Compile Include="Services\Navigations\PagePayload\Search\ISearchPagePayloadContent.cs" />
+    <Compile Include="Services\Navigations\PagePayload\Search\KeywordSearchPagePayloadContent.cs" />
+    <Compile Include="Services\Navigations\PagePayload\Search\LiveSearchPagePayloadContent.cs" />
+    <Compile Include="Services\Navigations\PagePayload\Search\SearchPagePayload.cs" />
+    <Compile Include="Services\Navigations\PagePayload\Search\SearchPagePayloadContentBase.cs" />
+    <Compile Include="Services\Navigations\PagePayload\Search\SearchPagePayloadContentHelper.cs" />
+    <Compile Include="Services\Navigations\PagePayload\Search\TagSearchPagePayloadContent.cs" />
+    <Compile Include="Services\Navigations\PagePayload\Search\VideoSearchOption.cs" />
+    <Compile Include="Services\Navigations\PagePayload\SecondaryViewNavigatePayload.cs" />
+    <Compile Include="Services\Navigations\PagePayload\VideoPlayPayload.cs" />
+    <Compile Include="Contracts\Player\ChangePlayerDisplayViewRequestMessage.cs" />
+    <Compile Include="Contracts\Player\PlayRequestMessage.cs" />
+    <Compile Include="Services\Player\PrimaryViewPlayerManager.cs" />
+    <Compile Include="Services\Player\SecondaryViewPlayerManager.cs" />
+    <Compile Include="ViewModels\Player\ShowPrimaryViewCommand.cs" />
+    <Compile Include="ViewModels\Player\TogglePlayerDisplayViewCommand.cs" />
+    <Compile Include="ViewModels\Niconico.Follow\FollowListup\FollowMylistGroupViewModel.cs" />
+    <Compile Include="ViewModels\Niconico.Follow\FollowListup\FollowChannelGroupViewModel.cs" />
+    <Compile Include="ViewModels\Niconico.Follow\FollowListup\FollowCommunityGroupViewModel.cs" />
+    <Compile Include="ViewModels\Niconico.Follow\FollowListup\FollowTagGroupViewModel.cs" />
+    <Compile Include="ViewModels\Niconico.Follow\FollowListup\FollowUserGroupViewModel.cs" />
+    <Compile Include="ViewModels\Niconico.Follow\IFollowContext.cs" />
+    <Compile Include="ViewModels\Niconico.Likes\VideoLikesContext.cs" />
+    <Compile Include="ViewModels\Niconico.Live\LiveInfoListItemViewModel.cs" />
+    <Compile Include="ViewModels\Niconico.Share\CopyToClipboardWithShareTextCommand.cs" />
+    <Compile Include="Views\UINavigation\UINavigationManager.cs" />
+    <Compile Include="ViewModels\Community\CommunityLiveInfoViewModel.cs" />
+    <Compile Include="ViewModels\Community\CommunityNewsViewModel.cs" />
+    <Compile Include="ViewModels\Community\CommunityVideoInfoViewModel.cs" />
+    <Compile Include="ViewModels\Community\CurrentLiveInfoViewModel.cs" />
+    <Compile Include="ViewModels\Niconico.Ranking\FavoriteRankingGenreGroupItem.cs" />
+    <Compile Include="ViewModels\Niconico.Ranking\HiddenGenreItem.cs" />
+    <Compile Include="ViewModels\Niconico.Ranking\RankingGenreItem.cs" />
+    <Compile Include="ViewModels\Niconico.Ranking\RankingItem.cs" />
+    <Compile Include="ViewModels\Niconico.Share\CopyToClipboardCommand.cs" />
+    <Compile Include="ViewModels\Niconico.Share\OpenLinkCommand.cs" />
+    <Compile Include="ViewModels\Niconico.Share\OpenShareUICommand.cs" />
+    <Compile Include="ViewModels\Player\Video\ChangeVideoQualityCommand.cs" />
+    <Compile Include="ViewModels\Player\Video\VideoTogglePlayPauseCommand.cs" />
+    <Compile Include="ViewModels\PrimaryWindowCoreLayout\IDraggableAreaAware.cs" />
+    <Compile Include="Views.Hohoema\Subscription\SubscVideoListPage.xaml.cs">
       <DependentUpon>SubscVideoListPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Hohoema.Subscription\SubscVideoListPageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Hohoema.VideoCache\CacheManagementPageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Hohoema.LocalMylist\LocalPlaylistManagePageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Hohoema.LocalMylist\LocalPlaylistPageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\DebugPageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.Community\CommunityViewModel.cs" />
-    <Compile Include="Presentation.Views.Player\LegacyVideoPlayerPage.xaml.cs">
+    <Compile Include="Views.Hohoema\Subscription\SubscVideoListPageViewModel.cs" />
+    <Compile Include="Views.Hohoema\VideoCache\CacheManagementPageViewModel.cs" />
+    <Compile Include="Views.Hohoema\LocalMylist\LocalPlaylistManagePageViewModel.cs" />
+    <Compile Include="Views.Hohoema\LocalMylist\LocalPlaylistPageViewModel.cs" />
+    <Compile Include="Views\DebugPageViewModel.cs" />
+    <Compile Include="Views.Niconico\Community\CommunityViewModel.cs" />
+    <Compile Include="Views.Player\LegacyVideoPlayerPage.xaml.cs">
       <DependentUpon>LegacyVideoPlayerPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Player\LegacyVideoPlayerPageViewModel.cs" />
-    <Compile Include="Presentation.Views.Player\VideoPlayerUI\DesktopPlayerUI.xaml.cs">
+    <Compile Include="Views.Player\LegacyVideoPlayerPageViewModel.cs" />
+    <Compile Include="Views.Player\VideoPlayerUI\DesktopPlayerUI.xaml.cs">
       <DependentUpon>DesktopPlayerUI.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Player\VideoPlayerUI\VideoQualityListItemContainerStyleSelector.cs" />
-    <Compile Include="Presentation.Views\Converters\ColorToBrushConverter.cs" />
-    <Compile Include="Presentation.Views\Converters\StringJoinConverter.cs" />
-    <Compile Include="Presentation.Views\Interaction\Input\PointerCursolAutoHideBehavior.cs" />
-    <Compile Include="Presentation.Views\Mylist\MylistCardView.cs" />
-    <Compile Include="Presentation.Views\Flyouts\ChannelInfoFlyout.xaml.cs">
+    <Compile Include="Views.Player\VideoPlayerUI\VideoQualityListItemContainerStyleSelector.cs" />
+    <Compile Include="Views\Converters\ColorToBrushConverter.cs" />
+    <Compile Include="Views\Converters\StringJoinConverter.cs" />
+    <Compile Include="Views\Interaction\Input\PointerCursolAutoHideBehavior.cs" />
+    <Compile Include="Views\Mylist\MylistCardView.cs" />
+    <Compile Include="Views\Flyouts\ChannelInfoFlyout.xaml.cs">
       <DependentUpon>ChannelInfoFlyout.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views\Flyouts\UserInfoFlyout.xaml.cs">
+    <Compile Include="Views\Flyouts\UserInfoFlyout.xaml.cs">
       <DependentUpon>UserInfoFlyout.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\SettingsPageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Hohoema.Subscription\SubscriptionManagementPageViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\Subscriptions\AddKeywordSearchSubscriptionCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Subscriptions\AddSubscriptionCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Subscriptions\AddTagSearchSubscriptionCommand.cs" />
-    <Compile Include="Presentation.Views.Pages\Hohoema.Queue\VideoQueuePageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\BlankPageViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Series\UserSeriesItemViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Series\SeriesOwnerViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowGroupViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowIncrementalSourceBase.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowUserViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowUserIncrementalSource.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowTagIncrementalSource.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowTagViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowMylistIncrementalSource.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowMylistViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowChannelIncrementalSource.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowChannelViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowCommunityIncrementalSource.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowCommunityViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchHistoryListItemViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Search\VideoSearchIncrementalSource.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.Channel\ChannelVideoPageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.Community\CommunityPageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.Community\CommunityVideoPageViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Live\NicoLiveUserIdAddToNGCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Live\NicoLiveUserIdRemoveFromNGCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Live\OpenBroadcasterInfoCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Live\OpenLiveContentCommand.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.Live\LiveInfomationPageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.Mylist\MylistPageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.Mylist\OwnerMylistManagePageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.Mylist\UserMylistPageViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Search\RemoveSearchHistoryCommand.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchPageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchResultKeywordPageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchResultLivePageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchResultTagPageViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Search\VideoSearchSortOptionListItem.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.Series\SeriesPageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.Series\UserSeriesPageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.Follow\FollowManagePageViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Account\LogoutFromNiconicoCommand.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.NicoRepo\NicoRepoPageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.Live\TimeshiftPageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.Activity\WatchHistoryPageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.User\UserInfoPageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.User\UserVideoPageViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\VideoCache.Commands\CacheAddRequestCommand.cs" />
-    <Compile Include="Presentation.ViewModels\VideoCache.Commands\CacheDeleteRequestCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\HiddenVideoOwnerAddCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\HiddenVideoOwnerRemoveCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\LocalPlaylistAddItemCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\LocalPlaylistCreateCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\LocalPlaylistDeleteCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\LocalPlaylistRemoveItemCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\MylistAddItemCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\MylistCopyItemCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\MylistCreateCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\MylistMoveItemCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\MylistRemoveItemCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\OpenVideoOwnerPageCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\PlaylistPlayAllCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\RemoveWatchedItemsInAfterWatchPlaylistCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\SelectionAllSelectCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\SelectionExitCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\SelectionModeToggleCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\SelectionStartCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\VideoContentSelectionCommandBase.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\QueueAddItemCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\QueueRemoveItemCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\WatchHistoryRemoveAllCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\WatchHistoryRemoveItemCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Video\VideoListItemControlViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.VideoRanking\RankingCategoryListPageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.VideoRanking\RankingCategoryPageViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Ranking\Messages\RankingGenreCustomizeEvent.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Ranking\FavoriteRankingGenreItemCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Ranking\HiddenRankingGenreItemCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Ranking\UnFavoriteRankingGenreItemCommand.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.Video\VideoInfomationPageViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\Flyouts\FollowItemFlyoutViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\Flyouts\MylistItemFlyoutViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\Flyouts\SubscriptionItemFlyoutViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\HohoemaListingPageItemBase.cs" />
-    <Compile Include="Presentation.ViewModels\HohoemaListingPageViewModelBase.cs" />
-    <Compile Include="Presentation.ViewModels\HohoemaSecondaryViewFrameViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\HohoemaPageViewModelBase.cs" />
-    <Compile Include="Presentation.ViewModels\IHohoemaListItem.cs" />
-    <Compile Include="Presentation.ViewModels\Navigation.Commands\OpenPageWithIdCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Navigation.Commands\SearchCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Player\CommentCommandEditerViewModel.cs" />
-    <Compile Include="Presentation.Views.Player\LivePlayerPageViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\Player\MediaPlayerSeekCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Player\MediaPlayerSetPlaybackRateCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Player\MediaPlayerToggleMuteCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Player\MediaPlayerVolumeChangeCommand.cs" />
-    <Compile Include="Presentation.Views.Player\PlayerSidePaneContentType.cs" />
-    <Compile Include="Presentation.Views.Player\VideoPlayerUI\NallowPlayerUI.xaml.cs">
+    <Compile Include="Views\SettingsPageViewModel.cs" />
+    <Compile Include="Views.Hohoema\Subscription\SubscriptionManagementPageViewModel.cs" />
+    <Compile Include="ViewModels\Subscriptions\AddKeywordSearchSubscriptionCommand.cs" />
+    <Compile Include="ViewModels\Subscriptions\AddSubscriptionCommand.cs" />
+    <Compile Include="ViewModels\Subscriptions\AddTagSearchSubscriptionCommand.cs" />
+    <Compile Include="Views.Hohoema\Queue\VideoQueuePageViewModel.cs" />
+    <Compile Include="Views\BlankPageViewModel.cs" />
+    <Compile Include="ViewModels\Niconico.Series\UserSeriesItemViewModel.cs" />
+    <Compile Include="ViewModels\Niconico.Series\SeriesOwnerViewModel.cs" />
+    <Compile Include="ViewModels\Niconico.Follow\FollowListup\FollowGroupViewModel.cs" />
+    <Compile Include="ViewModels\Niconico.Follow\FollowListup\FollowIncrementalSourceBase.cs" />
+    <Compile Include="ViewModels\Niconico.Follow\FollowListup\FollowUserViewModel.cs" />
+    <Compile Include="ViewModels\Niconico.Follow\FollowListup\FollowUserIncrementalSource.cs" />
+    <Compile Include="ViewModels\Niconico.Follow\FollowListup\FollowTagIncrementalSource.cs" />
+    <Compile Include="ViewModels\Niconico.Follow\FollowListup\FollowTagViewModel.cs" />
+    <Compile Include="ViewModels\Niconico.Follow\FollowListup\FollowMylistIncrementalSource.cs" />
+    <Compile Include="ViewModels\Niconico.Follow\FollowListup\FollowMylistViewModel.cs" />
+    <Compile Include="ViewModels\Niconico.Follow\FollowListup\FollowChannelIncrementalSource.cs" />
+    <Compile Include="ViewModels\Niconico.Follow\FollowListup\FollowChannelViewModel.cs" />
+    <Compile Include="ViewModels\Niconico.Follow\FollowListup\FollowCommunityIncrementalSource.cs" />
+    <Compile Include="ViewModels\Niconico.Follow\FollowListup\FollowCommunityViewModel.cs" />
+    <Compile Include="Views.Niconico\Search\SearchHistoryListItemViewModel.cs" />
+    <Compile Include="ViewModels\Niconico.Search\VideoSearchIncrementalSource.cs" />
+    <Compile Include="Views.Niconico\Channel\ChannelVideoPageViewModel.cs" />
+    <Compile Include="Views.Niconico\Community\CommunityPageViewModel.cs" />
+    <Compile Include="Views.Niconico\Community\CommunityVideoPageViewModel.cs" />
+    <Compile Include="ViewModels\Niconico.Live\NicoLiveUserIdAddToNGCommand.cs" />
+    <Compile Include="ViewModels\Niconico.Live\NicoLiveUserIdRemoveFromNGCommand.cs" />
+    <Compile Include="ViewModels\Niconico.Live\OpenBroadcasterInfoCommand.cs" />
+    <Compile Include="ViewModels\Niconico.Live\OpenLiveContentCommand.cs" />
+    <Compile Include="Views.Niconico\Live\LiveInfomationPageViewModel.cs" />
+    <Compile Include="Views.Niconico\Mylist\MylistPageViewModel.cs" />
+    <Compile Include="Views.Niconico\Mylist\OwnerMylistManagePageViewModel.cs" />
+    <Compile Include="Views.Niconico\Mylist\UserMylistPageViewModel.cs" />
+    <Compile Include="ViewModels\Niconico.Search\RemoveSearchHistoryCommand.cs" />
+    <Compile Include="Views.Niconico\Search\SearchPageViewModel.cs" />
+    <Compile Include="Views.Niconico\Search\SearchResultKeywordPageViewModel.cs" />
+    <Compile Include="Views.Niconico\Search\SearchResultLivePageViewModel.cs" />
+    <Compile Include="Views.Niconico\Search\SearchResultTagPageViewModel.cs" />
+    <Compile Include="ViewModels\Niconico.Search\VideoSearchSortOptionListItem.cs" />
+    <Compile Include="Views.Niconico\Series\SeriesPageViewModel.cs" />
+    <Compile Include="Views.Niconico\Series\UserSeriesPageViewModel.cs" />
+    <Compile Include="Views.Niconico\Follow\FollowManagePageViewModel.cs" />
+    <Compile Include="ViewModels\Niconico.Account\LogoutFromNiconicoCommand.cs" />
+    <Compile Include="Views.Niconico\NicoRepo\NicoRepoPageViewModel.cs" />
+    <Compile Include="Views.Niconico\Live\TimeshiftPageViewModel.cs" />
+    <Compile Include="Views.Niconico\Activity\WatchHistoryPageViewModel.cs" />
+    <Compile Include="Views.Niconico\User\UserInfoPageViewModel.cs" />
+    <Compile Include="Views.Niconico\User\UserVideoPageViewModel.cs" />
+    <Compile Include="ViewModels\VideoCache.Commands\CacheAddRequestCommand.cs" />
+    <Compile Include="ViewModels\VideoCache.Commands\CacheDeleteRequestCommand.cs" />
+    <Compile Include="ViewModels\Niconico.Video\Commands\HiddenVideoOwnerAddCommand.cs" />
+    <Compile Include="ViewModels\Niconico.Video\Commands\HiddenVideoOwnerRemoveCommand.cs" />
+    <Compile Include="ViewModels\Niconico.Video\Commands\LocalPlaylistAddItemCommand.cs" />
+    <Compile Include="ViewModels\Niconico.Video\Commands\LocalPlaylistCreateCommand.cs" />
+    <Compile Include="ViewModels\Niconico.Video\Commands\LocalPlaylistDeleteCommand.cs" />
+    <Compile Include="ViewModels\Niconico.Video\Commands\LocalPlaylistRemoveItemCommand.cs" />
+    <Compile Include="ViewModels\Niconico.Video\Commands\MylistAddItemCommand.cs" />
+    <Compile Include="ViewModels\Niconico.Video\Commands\MylistCopyItemCommand.cs" />
+    <Compile Include="ViewModels\Niconico.Video\Commands\MylistCreateCommand.cs" />
+    <Compile Include="ViewModels\Niconico.Video\Commands\MylistMoveItemCommand.cs" />
+    <Compile Include="ViewModels\Niconico.Video\Commands\MylistRemoveItemCommand.cs" />
+    <Compile Include="ViewModels\Niconico.Video\Commands\OpenVideoOwnerPageCommand.cs" />
+    <Compile Include="ViewModels\Niconico.Video\Commands\PlaylistPlayAllCommand.cs" />
+    <Compile Include="ViewModels\Niconico.Video\Commands\RemoveWatchedItemsInAfterWatchPlaylistCommand.cs" />
+    <Compile Include="ViewModels\Niconico.Video\Commands\SelectionAllSelectCommand.cs" />
+    <Compile Include="ViewModels\Niconico.Video\Commands\SelectionExitCommand.cs" />
+    <Compile Include="ViewModels\Niconico.Video\Commands\SelectionModeToggleCommand.cs" />
+    <Compile Include="ViewModels\Niconico.Video\Commands\SelectionStartCommand.cs" />
+    <Compile Include="ViewModels\Niconico.Video\Commands\VideoContentSelectionCommandBase.cs" />
+    <Compile Include="ViewModels\Niconico.Video\Commands\QueueAddItemCommand.cs" />
+    <Compile Include="ViewModels\Niconico.Video\Commands\QueueRemoveItemCommand.cs" />
+    <Compile Include="ViewModels\Niconico.Video\Commands\WatchHistoryRemoveAllCommand.cs" />
+    <Compile Include="ViewModels\Niconico.Video\Commands\WatchHistoryRemoveItemCommand.cs" />
+    <Compile Include="ViewModels\Niconico.Video\VideoListItemControlViewModel.cs" />
+    <Compile Include="Views.Niconico\VideoRanking\RankingCategoryListPageViewModel.cs" />
+    <Compile Include="Views.Niconico\VideoRanking\RankingCategoryPageViewModel.cs" />
+    <Compile Include="ViewModels\Niconico.Ranking\Messages\RankingGenreCustomizeEvent.cs" />
+    <Compile Include="ViewModels\Niconico.Ranking\FavoriteRankingGenreItemCommand.cs" />
+    <Compile Include="ViewModels\Niconico.Ranking\HiddenRankingGenreItemCommand.cs" />
+    <Compile Include="ViewModels\Niconico.Ranking\UnFavoriteRankingGenreItemCommand.cs" />
+    <Compile Include="Views.Niconico\Video\VideoInfomationPageViewModel.cs" />
+    <Compile Include="ViewModels\Flyouts\FollowItemFlyoutViewModel.cs" />
+    <Compile Include="ViewModels\Flyouts\MylistItemFlyoutViewModel.cs" />
+    <Compile Include="ViewModels\Flyouts\SubscriptionItemFlyoutViewModel.cs" />
+    <Compile Include="ViewModels\HohoemaListingPageItemBase.cs" />
+    <Compile Include="ViewModels\HohoemaListingPageViewModelBase.cs" />
+    <Compile Include="ViewModels\HohoemaSecondaryViewFrameViewModel.cs" />
+    <Compile Include="ViewModels\HohoemaPageViewModelBase.cs" />
+    <Compile Include="ViewModels\IHohoemaListItem.cs" />
+    <Compile Include="ViewModels\Navigation.Commands\OpenPageWithIdCommand.cs" />
+    <Compile Include="ViewModels\Navigation.Commands\SearchCommand.cs" />
+    <Compile Include="ViewModels\Player\CommentCommandEditerViewModel.cs" />
+    <Compile Include="Views.Player\LivePlayerPageViewModel.cs" />
+    <Compile Include="ViewModels\Player\MediaPlayerSeekCommand.cs" />
+    <Compile Include="ViewModels\Player\MediaPlayerSetPlaybackRateCommand.cs" />
+    <Compile Include="ViewModels\Player\MediaPlayerToggleMuteCommand.cs" />
+    <Compile Include="ViewModels\Player\MediaPlayerVolumeChangeCommand.cs" />
+    <Compile Include="Views.Player\PlayerSidePaneContentType.cs" />
+    <Compile Include="Views.Player\VideoPlayerUI\NallowPlayerUI.xaml.cs">
       <DependentUpon>NallowPlayerUI.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Player\VideoPlayerUI\SeekbarSlider.xaml.cs">
+    <Compile Include="Views.Player\VideoPlayerUI\SeekbarSlider.xaml.cs">
       <DependentUpon>SeekbarSlider.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Player\_PlayerSidePaneContent\EmptySidePaneContentViewModel.cs" />
-    <Compile Include="Presentation.Views.Player\_PlayerSidePaneContent\LiveCommentsSidePaneContentViewModel.cs" />
-    <Compile Include="Presentation.Views.Player\_PlayerSidePaneContent\PlaylistSidePaneContentViewModel.cs" />
-    <Compile Include="Presentation.Views.Player\_PlayerSidePaneContent\RelatedVideosSidePaneContentViewModel.cs" />
-    <Compile Include="Presentation.Views.Player\_PlayerSidePaneContent\SettingsSidePaneContentViewModel.cs" />
-    <Compile Include="Presentation.Views.Player\_PlayerSidePaneContent\SidePaneContentViewModelBase.cs" />
-    <Compile Include="Presentation.Views.Player\_PlayerSidePaneContent\VideoCommentSidePaneContentViewModel.cs" />
-    <Compile Include="Presentation.Views.Player\VideoPlayerPageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\PrimaryWindowCoreLayoutViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\PrimaryWindowCoreLayout\LiveMenuSubPageContent.cs" />
-    <Compile Include="Presentation.ViewModels\PrimaryWindowCoreLayout\MenuItemBase.cs" />
-    <Compile Include="Presentation.ViewModels\PrimaryWindowCoreLayout\MenuItemViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\PrimaryWindowCoreLayout\SeparatorMenuItemViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\PrimaryWindowCoreLayout\VideoMenuSubPageContent.cs" />
-    <Compile Include="Presentation.ViewModels\PrimaryWindowCoreLayout\QueueMenuItemViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\SelectableItem.cs" />
-    <Compile Include="Presentation.Views.Pages\Hohoema.VideoCache\CacheManagementPage.xaml.cs">
+    <Compile Include="Views.Player\_PlayerSidePaneContent\EmptySidePaneContentViewModel.cs" />
+    <Compile Include="Views.Player\_PlayerSidePaneContent\LiveCommentsSidePaneContentViewModel.cs" />
+    <Compile Include="Views.Player\_PlayerSidePaneContent\PlaylistSidePaneContentViewModel.cs" />
+    <Compile Include="Views.Player\_PlayerSidePaneContent\RelatedVideosSidePaneContentViewModel.cs" />
+    <Compile Include="Views.Player\_PlayerSidePaneContent\SettingsSidePaneContentViewModel.cs" />
+    <Compile Include="Views.Player\_PlayerSidePaneContent\SidePaneContentViewModelBase.cs" />
+    <Compile Include="Views.Player\_PlayerSidePaneContent\VideoCommentSidePaneContentViewModel.cs" />
+    <Compile Include="Views.Player\VideoPlayerPageViewModel.cs" />
+    <Compile Include="Views\PrimaryWindowCoreLayoutViewModel.cs" />
+    <Compile Include="ViewModels\PrimaryWindowCoreLayout\LiveMenuSubPageContent.cs" />
+    <Compile Include="ViewModels\PrimaryWindowCoreLayout\MenuItemBase.cs" />
+    <Compile Include="ViewModels\PrimaryWindowCoreLayout\MenuItemViewModel.cs" />
+    <Compile Include="ViewModels\PrimaryWindowCoreLayout\SeparatorMenuItemViewModel.cs" />
+    <Compile Include="ViewModels\PrimaryWindowCoreLayout\VideoMenuSubPageContent.cs" />
+    <Compile Include="ViewModels\PrimaryWindowCoreLayout\QueueMenuItemViewModel.cs" />
+    <Compile Include="ViewModels\SelectableItem.cs" />
+    <Compile Include="Views.Hohoema\VideoCache\CacheManagementPage.xaml.cs">
       <DependentUpon>CacheManagementPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Hohoema.LocalMylist\LocalPlaylistManagePage.xaml.cs">
+    <Compile Include="Views.Hohoema\LocalMylist\LocalPlaylistManagePage.xaml.cs">
       <DependentUpon>LocalPlaylistManagePage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Hohoema.LocalMylist\LocalPlaylistPage.xaml.cs">
+    <Compile Include="Views.Hohoema\LocalMylist\LocalPlaylistPage.xaml.cs">
       <DependentUpon>LocalPlaylistPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\SettingsPage.xaml.cs">
+    <Compile Include="Views\SettingsPage.xaml.cs">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Hohoema.Subscription\SubscriptionManagementPage.xaml.cs">
+    <Compile Include="Views.Hohoema\Subscription\SubscriptionManagementPage.xaml.cs">
       <DependentUpon>SubscriptionManagementPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Hohoema.Queue\VideoQueuePage.xaml.cs">
+    <Compile Include="Views.Hohoema\Queue\VideoQueuePage.xaml.cs">
       <DependentUpon>VideoQueuePage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\BlankPage.xaml.cs">
+    <Compile Include="Views\BlankPage.xaml.cs">
       <DependentUpon>BlankPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.Channel\ChannelVideoPage.xaml.cs">
+    <Compile Include="Views.Niconico\Channel\ChannelVideoPage.xaml.cs">
       <DependentUpon>ChannelVideoPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.Search\CommunityInfoControl.xaml.cs">
+    <Compile Include="Views.Niconico\Search\CommunityInfoControl.xaml.cs">
       <DependentUpon>CommunityInfoControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.Community\CommunityPage.xaml.cs">
+    <Compile Include="Views.Niconico\Community\CommunityPage.xaml.cs">
       <DependentUpon>CommunityPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.Community\CommunityVideoPage.xaml.cs">
+    <Compile Include="Views.Niconico\Community\CommunityVideoPage.xaml.cs">
       <DependentUpon>CommunityVideoPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\DebugPage.xaml.cs">
+    <Compile Include="Views\DebugPage.xaml.cs">
       <DependentUpon>DebugPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views\Controls\ListItem\HohoemaListItemMiniCard.xaml.cs">
+    <Compile Include="Views\Controls\ListItem\HohoemaListItemMiniCard.xaml.cs">
       <DependentUpon>HohoemaListItemMiniCard.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views\Controls\ListItem\HohoemaListItemVideo.xaml.cs">
+    <Compile Include="Views\Controls\ListItem\HohoemaListItemVideo.xaml.cs">
       <DependentUpon>HohoemaListItemVideo.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.Live\LiveInfomationPage.xaml.cs">
+    <Compile Include="Views.Niconico\Live\LiveInfomationPage.xaml.cs">
       <DependentUpon>LiveInfomationPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.Live\LiveVideoListItem.xaml.cs">
+    <Compile Include="Views.Niconico\Live\LiveVideoListItem.xaml.cs">
       <DependentUpon>LiveVideoListItem.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.Mylist\MylistPage.xaml.cs">
+    <Compile Include="Views.Niconico\Mylist\MylistPage.xaml.cs">
       <DependentUpon>MylistPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.Mylist\OwnerMylistManagePage.xaml.cs">
+    <Compile Include="Views.Niconico\Mylist\OwnerMylistManagePage.xaml.cs">
       <DependentUpon>OwnerMylistManagePage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.Mylist\UserMylistPage.xaml.cs">
+    <Compile Include="Views.Niconico\Mylist\UserMylistPage.xaml.cs">
       <DependentUpon>UserMylistPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchHistoryListItem.xaml.cs">
+    <Compile Include="Views.Niconico\Search\SearchHistoryListItem.xaml.cs">
       <DependentUpon>SearchHistoryListItem.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchPage.xaml.cs">
+    <Compile Include="Views.Niconico\Search\SearchPage.xaml.cs">
       <DependentUpon>SearchPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchResultKeywordPage.xaml.cs">
+    <Compile Include="Views.Niconico\Search\SearchResultKeywordPage.xaml.cs">
       <DependentUpon>SearchResultKeywordPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchResultLivePage.xaml.cs">
+    <Compile Include="Views.Niconico\Search\SearchResultLivePage.xaml.cs">
       <DependentUpon>SearchResultLivePage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchResultTagPage.xaml.cs">
+    <Compile Include="Views.Niconico\Search\SearchResultTagPage.xaml.cs">
       <DependentUpon>SearchResultTagPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.Series\SeriesPage.xaml.cs">
+    <Compile Include="Views.Niconico\Series\SeriesPage.xaml.cs">
       <DependentUpon>SeriesPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.Series\UserSeriesPage.xaml.cs">
+    <Compile Include="Views.Niconico\Series\UserSeriesPage.xaml.cs">
       <DependentUpon>UserSeriesPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.Follow\FollowManagePage.xaml.cs">
+    <Compile Include="Views.Niconico\Follow\FollowManagePage.xaml.cs">
       <DependentUpon>FollowManagePage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.NicoRepo\NicoRepoPage.xaml.cs">
+    <Compile Include="Views.Niconico\NicoRepo\NicoRepoPage.xaml.cs">
       <DependentUpon>NicoRepoPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.Live\TimeshiftPage.xaml.cs">
+    <Compile Include="Views.Niconico\Live\TimeshiftPage.xaml.cs">
       <DependentUpon>TimeshiftPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.Activity\WatchHistoryPage.xaml.cs">
+    <Compile Include="Views.Niconico\Activity\WatchHistoryPage.xaml.cs">
       <DependentUpon>WatchHistoryPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.User\UserInfoPage.xaml.cs">
+    <Compile Include="Views.Niconico\User\UserInfoPage.xaml.cs">
       <DependentUpon>UserInfoPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.User\UserVideoPage.xaml.cs">
+    <Compile Include="Views.Niconico\User\UserVideoPage.xaml.cs">
       <DependentUpon>UserVideoPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views\Controls\VideoList\VideoItemsListView.xaml.cs">
+    <Compile Include="Views\Controls\VideoList\VideoItemsListView.xaml.cs">
       <DependentUpon>VideoItemsListView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.VideoRanking\RankingCategoryListPage.xaml.cs">
+    <Compile Include="Views.Niconico\VideoRanking\RankingCategoryListPage.xaml.cs">
       <DependentUpon>RankingCategoryListPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.VideoRanking\RankingCategoryPage.xaml.cs">
+    <Compile Include="Views.Niconico\VideoRanking\RankingCategoryPage.xaml.cs">
       <DependentUpon>RankingCategoryPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.Video\VideoInfomationPage.xaml.cs">
+    <Compile Include="Views.Niconico\Video\VideoInfomationPage.xaml.cs">
       <DependentUpon>VideoInfomationPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views\Controls\AppTitleBar.xaml.cs">
+    <Compile Include="Views\Controls\AppTitleBar.xaml.cs">
       <DependentUpon>AppTitleBar.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views\Controls\DelayedAutoTriggerButton.xaml.cs">
+    <Compile Include="Views\Controls\DelayedAutoTriggerButton.xaml.cs">
       <DependentUpon>DelayedAutoTriggerButton.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views\Controls\IchibaItemCard.xaml.cs">
+    <Compile Include="Views\Controls\IchibaItemCard.xaml.cs">
       <DependentUpon>IchibaItemCard.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views\Controls\LiteInAppNotification\LiteInAppNotification.Constants.cs" />
-    <Compile Include="Presentation.Views\Controls\LiteInAppNotification\LiteInAppNotification.Properties.cs" />
-    <Compile Include="Presentation.Views\Controls\LiteInAppNotification\LiteInAppNotification.cs" />
-    <Compile Include="Presentation.Views\Controls\TransientContainer\TransientContainer.cs" />
-    <Compile Include="Presentation.Views\Controls\TransientContainer\TransientContainer.Properties.cs" />
-    <Compile Include="Presentation.Views\Controls\VideoList\VideoListItemControl\VideoListItemControl.cs" />
-    <Compile Include="Presentation.Views\Controls\VideoList\VideoListItem\VideoListItem.cs" />
-    <Compile Include="Presentation.Views\Converters\CacheStateToColorBrushConverter.cs" />
-    <Compile Include="Presentation.Views\Converters\DateTimetoStringConverter.cs" />
-    <Compile Include="Presentation.Views\Converters\EnumToNumberConverter.cs" />
-    <Compile Include="Presentation.Views\Converters\ExpiredDateTimeToStringConverter.cs" />
-    <Compile Include="Presentation.Views\Converters\InvertVisibilityConverter.cs" />
-    <Compile Include="Presentation.Views\Converters\ItemClickEventArgsConverter.cs" />
-    <Compile Include="Presentation.Views\Converters\PageTypeToIconConverter.cs" />
-    <Compile Include="Presentation.Views\Converters\RelationalDateTimeConverter.cs" />
-    <Compile Include="Presentation.Views\Converters\SoundVolumeConveter.cs" />
-    <Compile Include="Presentation.Views\Converters\StringToUriConverter.cs" />
-    <Compile Include="Presentation.Views\Converters\SwipeSeekValueToTimeSpan.cs" />
-    <Compile Include="Presentation.Views\Converters\TiemSpanToLocalizedStringConverter.cs" />
-    <Compile Include="Presentation.Views\Converters\TimeSpanToMovieLengthStringValueConverter.cs" />
-    <Compile Include="Presentation.Views\Converters\TimeSpanToSecondsConverter.cs" />
-    <Compile Include="Presentation.Views\Converters\ToKMGTPEZYConverter.cs" />
-    <Compile Include="Presentation.Views\Converters\ToUserFriendlyNumber.cs" />
-    <Compile Include="Presentation.Views\Converters\TransparentColorConverter.cs" />
-    <Compile Include="Presentation.Views\Converters\VideoPositionToTimeConverter.cs" />
-    <Compile Include="Presentation.Views\Dialogs\AdvancedSelectDialog.xaml.cs">
+    <Compile Include="Views\Controls\LiteInAppNotification\LiteInAppNotification.Constants.cs" />
+    <Compile Include="Views\Controls\LiteInAppNotification\LiteInAppNotification.Properties.cs" />
+    <Compile Include="Views\Controls\LiteInAppNotification\LiteInAppNotification.cs" />
+    <Compile Include="Views\Controls\TransientContainer\TransientContainer.cs" />
+    <Compile Include="Views\Controls\TransientContainer\TransientContainer.Properties.cs" />
+    <Compile Include="Views\Controls\VideoList\VideoListItemControl\VideoListItemControl.cs" />
+    <Compile Include="Views\Controls\VideoList\VideoListItem\VideoListItem.cs" />
+    <Compile Include="Views\Converters\CacheStateToColorBrushConverter.cs" />
+    <Compile Include="Views\Converters\DateTimetoStringConverter.cs" />
+    <Compile Include="Views\Converters\EnumToNumberConverter.cs" />
+    <Compile Include="Views\Converters\ExpiredDateTimeToStringConverter.cs" />
+    <Compile Include="Views\Converters\InvertVisibilityConverter.cs" />
+    <Compile Include="Views\Converters\ItemClickEventArgsConverter.cs" />
+    <Compile Include="Views\Converters\PageTypeToIconConverter.cs" />
+    <Compile Include="Views\Converters\RelationalDateTimeConverter.cs" />
+    <Compile Include="Views\Converters\SoundVolumeConveter.cs" />
+    <Compile Include="Views\Converters\StringToUriConverter.cs" />
+    <Compile Include="Views\Converters\SwipeSeekValueToTimeSpan.cs" />
+    <Compile Include="Views\Converters\TiemSpanToLocalizedStringConverter.cs" />
+    <Compile Include="Views\Converters\TimeSpanToMovieLengthStringValueConverter.cs" />
+    <Compile Include="Views\Converters\TimeSpanToSecondsConverter.cs" />
+    <Compile Include="Views\Converters\ToKMGTPEZYConverter.cs" />
+    <Compile Include="Views\Converters\ToUserFriendlyNumber.cs" />
+    <Compile Include="Views\Converters\TransparentColorConverter.cs" />
+    <Compile Include="Views\Converters\VideoPositionToTimeConverter.cs" />
+    <Compile Include="Views\Dialogs\AdvancedSelectDialog.xaml.cs">
       <DependentUpon>AdvancedSelectDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views\Dialogs\HohoemaErrorReportDialog.xaml.cs">
+    <Compile Include="Views\Dialogs\HohoemaErrorReportDialog.xaml.cs">
       <DependentUpon>HohoemaErrorReportDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views\Dialogs\MarkdownTextDialog.xaml.cs">
+    <Compile Include="Views\Dialogs\MarkdownTextDialog.xaml.cs">
       <DependentUpon>MarkdownTextDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views\Dialogs\MultiChoiceDialog.xaml.cs">
+    <Compile Include="Views\Dialogs\MultiChoiceDialog.xaml.cs">
       <DependentUpon>MultiChoiceDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views\Dialogs\NiconicoLoginDialog.xaml.cs">
+    <Compile Include="Views\Dialogs\NiconicoLoginDialog.xaml.cs">
       <DependentUpon>NiconicoLoginDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views\Dialogs\NiconicoTwoFactorAuthDialog.xaml.cs">
+    <Compile Include="Views\Dialogs\NiconicoTwoFactorAuthDialog.xaml.cs">
       <DependentUpon>NiconicoTwoFactorAuthDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views\Dialogs\TwoFactorAuthDialog.xaml.cs">
+    <Compile Include="Views\Dialogs\TwoFactorAuthDialog.xaml.cs">
       <DependentUpon>TwoFactorAuthDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views\Dialogs\_ContentSelectDialog\ChoiceFromListSelectableContainer.cs" />
-    <Compile Include="Presentation.Views\Dialogs\_ContentSelectDialog\ContentSelectDialog.xaml.cs">
+    <Compile Include="Views\Dialogs\_ContentSelectDialog\ContentSelectDialog.xaml.cs">
       <DependentUpon>ContentSelectDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views\Dialogs\_ContentSelectDialog\ContentSelectDialogContext.cs" />
-    <Compile Include="Presentation.Views\Dialogs\_ContentSelectDialog\ContentSelectDialogDefaultSet.cs" />
-    <Compile Include="Presentation.Views\Dialogs\_ContentSelectDialog\ISelectableContainer.cs" />
-    <Compile Include="Presentation.Views\Dialogs\_ContentSelectDialog\SelectableContainerBase.cs" />
-    <Compile Include="Presentation.Views\Dialogs\_ContentSelectDialog\SelectDialogPayload.cs" />
-    <Compile Include="Presentation.Views\Dialogs\_ContentSelectDialog\TextInputSelectableContainer.cs" />
-    <Compile Include="Presentation.Views\Dialogs\_EditMylistGroupDialog\EditMylistGroupDialog.xaml.cs">
+    <Compile Include="Views\Dialogs\_ContentSelectDialog\ContentSelectDialogContext.cs" />
+    <Compile Include="Views\Dialogs\_EditMylistGroupDialog\EditMylistGroupDialog.xaml.cs">
       <DependentUpon>EditMylistGroupDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views\Dialogs\_EditMylistGroupDialog\EditMylistGroupDialogContext.cs" />
-    <Compile Include="Presentation.Views\Dialogs\_TextInputDialog\TextInputDialog.xaml.cs">
+    <Compile Include="Views\Dialogs\_EditMylistGroupDialog\EditMylistGroupDialogContext.cs" />
+    <Compile Include="Views\Dialogs\_TextInputDialog\TextInputDialog.xaml.cs">
       <DependentUpon>TextInputDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views\Dialogs\_TextInputDialog\TextInputDialogContext.cs" />
-    <Compile Include="Presentation.Views\Extensions\ContextFlyoutExtension.cs" />
-    <Compile Include="Presentation.Views\Extensions\DependencyObjectExtensions.cs" />
-    <Compile Include="Presentation.Views\Extensions\Flyout\FlyoutCustomContext.cs" />
-    <Compile Include="Presentation.Views\Extensions\ListViewBase\GroupHeaderContextFlyoutTemplate.cs" />
-    <Compile Include="Presentation.Views\Extensions\ListViewBase\ItemContextFlyoutTemplate.cs" />
-    <Compile Include="Presentation.Views\Extensions\ListViewBase\ListViewItemDeferInitialize.cs" />
-    <Compile Include="Presentation.Views\Extensions\ListViewBase\ListViewSelectedItemsGetter.cs" />
-    <Compile Include="Presentation.Views\Extensions\ListViewBase\ListViewVerticalOffsetGetter.cs" />
-    <Compile Include="Presentation.Views\Extensions\LocalizeExtension.cs" />
-    <Compile Include="Presentation.Views\Extensions\MediaPlayer\MediaPlayerElementContentHeightGetter.cs" />
-    <Compile Include="Presentation.Views\Extensions\MediaPlayer\MediaPlayerSetter.cs" />
-    <Compile Include="Presentation.Views\Extensions\VIsualStateManager\DebugCurrentState.cs" />
-    <Compile Include="Presentation.Views\Extensions\WebView\IgnoreScrolling.cs" />
-    <Compile Include="Presentation.Views\Extensions\WebView\LoadHtmlString.cs" />
-    <Compile Include="Presentation.Views\Extensions\WebView\PreventSpoilerXYNavigationInWebView.cs" />
-    <Compile Include="Presentation.Views\Extensions\WebView\WebViewAutoResizeToContent.cs" />
-    <Compile Include="Presentation.Views\Extensions\WebView\WebViewNotifyUriClicked.cs" />
-    <Compile Include="Presentation.Views\Flyouts\LiveListItemFlyout.xaml.cs">
+    <Compile Include="Views\Dialogs\_TextInputDialog\TextInputDialogContext.cs" />
+    <Compile Include="Views\Extensions\ContextFlyoutExtension.cs" />
+    <Compile Include="Views\Extensions\DependencyObjectExtensions.cs" />
+    <Compile Include="Views\Extensions\Flyout\FlyoutCustomContext.cs" />
+    <Compile Include="Views\Extensions\ListViewBase\GroupHeaderContextFlyoutTemplate.cs" />
+    <Compile Include="Views\Extensions\ListViewBase\ItemContextFlyoutTemplate.cs" />
+    <Compile Include="Views\Extensions\ListViewBase\ListViewItemDeferInitialize.cs" />
+    <Compile Include="Views\Extensions\ListViewBase\ListViewSelectedItemsGetter.cs" />
+    <Compile Include="Views\Extensions\ListViewBase\ListViewVerticalOffsetGetter.cs" />
+    <Compile Include="Views\Extensions\LocalizeExtension.cs" />
+    <Compile Include="Views\Extensions\MediaPlayer\MediaPlayerElementContentHeightGetter.cs" />
+    <Compile Include="Views\Extensions\MediaPlayer\MediaPlayerSetter.cs" />
+    <Compile Include="Views\Extensions\VIsualStateManager\DebugCurrentState.cs" />
+    <Compile Include="Views\Extensions\WebView\IgnoreScrolling.cs" />
+    <Compile Include="Views\Extensions\WebView\LoadHtmlString.cs" />
+    <Compile Include="Views\Extensions\WebView\PreventSpoilerXYNavigationInWebView.cs" />
+    <Compile Include="Views\Extensions\WebView\WebViewAutoResizeToContent.cs" />
+    <Compile Include="Views\Extensions\WebView\WebViewNotifyUriClicked.cs" />
+    <Compile Include="Views\Flyouts\LiveListItemFlyout.xaml.cs">
       <DependentUpon>LiveListItemFlyout.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views\Flyouts\MylistItemFlyout.xaml.cs">
+    <Compile Include="Views\Flyouts\MylistItemFlyout.xaml.cs">
       <DependentUpon>MylistItemFlyout.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views\Flyouts\RankingGenreItemFlyout.xaml.cs">
+    <Compile Include="Views\Flyouts\RankingGenreItemFlyout.xaml.cs">
       <DependentUpon>RankingGenreItemFlyout.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views\Flyouts\RankingGenreItemGroupFlyout.xaml.cs">
+    <Compile Include="Views\Flyouts\RankingGenreItemGroupFlyout.xaml.cs">
       <DependentUpon>RankingGenreItemGroupFlyout.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views\Flyouts\SearchHistoryListItemFlyout.xaml.cs">
+    <Compile Include="Views\Flyouts\SearchHistoryListItemFlyout.xaml.cs">
       <DependentUpon>SearchHistoryListItemFlyout.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views\Flyouts\SubscriptionItemFlyout.xaml.cs">
+    <Compile Include="Views\Flyouts\SubscriptionItemFlyout.xaml.cs">
       <DependentUpon>SubscriptionItemFlyout.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views\Flyouts\VideoItemFlyout.xaml.cs">
+    <Compile Include="Views\Flyouts\VideoItemFlyout.xaml.cs">
       <DependentUpon>VideoItemFlyout.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views\Helpers\SystemThemeHelper.cs" />
-    <Compile Include="Presentation.Views\Helpers\VisibilityExtension.cs" />
-    <Compile Include="Presentation.Views\Helpers\VisualTreeExtention.cs" />
-    <Compile Include="Presentation.Views\Controls\HohoemaInAppNotification.xaml.cs">
+    <Compile Include="Views\Helpers\SystemThemeHelper.cs" />
+    <Compile Include="Views\Helpers\VisibilityExtension.cs" />
+    <Compile Include="Views\Helpers\VisualTreeExtention.cs" />
+    <Compile Include="Views\Controls\HohoemaInAppNotification.xaml.cs">
       <DependentUpon>HohoemaInAppNotification.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views\Interaction\Actions\CallDisposeAction.cs" />
-    <Compile Include="Presentation.Views\Interaction\Actions\ScrollViewerVerticalPositionSettingsAction.cs" />
-    <Compile Include="Presentation.Views\Interaction\Behaviors\FocusGetter.cs" />
-    <Compile Include="Presentation.Views\Interaction\Behaviors\ListViewItemTappedCommand.cs" />
-    <Compile Include="Presentation.Views\Interaction\Behaviors\ListViewScrollFollowsToItemBehavior.cs" />
-    <Compile Include="Presentation.Views\Interaction\Behaviors\MultiSelection.cs" />
-    <Compile Include="Presentation.Views\Interaction\Behaviors\SetFocus.cs" />
-    <Compile Include="Presentation.Views\Interaction\Behaviors\VisiblityFadeChanger.cs" />
-    <Compile Include="Presentation.Views\Interaction\Flyout\CloseFlyoutAction.cs" />
-    <Compile Include="Presentation.Views\Interaction\Flyout\MenuFlyoutItemsSetter.cs" />
-    <Compile Include="Presentation.Views\Interaction\Flyout\MenuFlyoutSubItemItemsSetter.cs" />
-    <Compile Include="Presentation.Views\Interaction\Flyout\OpenFlyout.cs" />
-    <Compile Include="Presentation.Views\Interaction\Input\HideInputPaneAction.cs" />
-    <Compile Include="Presentation.Views\Interaction\Input\KeyboardTrigger.cs" />
-    <Compile Include="Presentation.Views\Interaction\Input\MouseWheelTrigger.cs" />
-    <Compile Include="Presentation.Views\Interaction\Input\Swipe.cs" />
-    <Compile Include="Presentation.Views\Interaction\Input\UINavigationTrigger.cs" />
-    <Compile Include="Presentation.Views\Interaction\Input\XYNavigationExtentions.cs" />
-    <Compile Include="Presentation.Views\MediaElementExtention.cs" />
-    <Compile Include="Presentation.Views\NoUIProcessScreen.xaml.cs">
+    <Compile Include="Views\Interaction\Actions\CallDisposeAction.cs" />
+    <Compile Include="Views\Interaction\Actions\ScrollViewerVerticalPositionSettingsAction.cs" />
+    <Compile Include="Views\Interaction\Behaviors\FocusGetter.cs" />
+    <Compile Include="Views\Interaction\Behaviors\ListViewItemTappedCommand.cs" />
+    <Compile Include="Views\Interaction\Behaviors\ListViewScrollFollowsToItemBehavior.cs" />
+    <Compile Include="Views\Interaction\Behaviors\MultiSelection.cs" />
+    <Compile Include="Views\Interaction\Behaviors\SetFocus.cs" />
+    <Compile Include="Views\Interaction\Behaviors\VisiblityFadeChanger.cs" />
+    <Compile Include="Views\Interaction\Flyout\CloseFlyoutAction.cs" />
+    <Compile Include="Views\Interaction\Flyout\MenuFlyoutItemsSetter.cs" />
+    <Compile Include="Views\Interaction\Flyout\MenuFlyoutSubItemItemsSetter.cs" />
+    <Compile Include="Views\Interaction\Flyout\OpenFlyout.cs" />
+    <Compile Include="Views\Interaction\Input\HideInputPaneAction.cs" />
+    <Compile Include="Views\Interaction\Input\KeyboardTrigger.cs" />
+    <Compile Include="Views\Interaction\Input\MouseWheelTrigger.cs" />
+    <Compile Include="Views\Interaction\Input\Swipe.cs" />
+    <Compile Include="Views\UINavigation\UINavigationTrigger.cs" />
+    <Compile Include="Views\Interaction\Input\XYNavigationExtentions.cs" />
+    <Compile Include="Views\MediaElementExtention.cs" />
+    <Compile Include="Views\NoUIProcessScreen.xaml.cs">
       <DependentUpon>NoUIProcessScreen.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Player\CommentCommandEditer.xaml.cs">
+    <Compile Include="Views.Player\CommentCommandEditer.xaml.cs">
       <DependentUpon>CommentCommandEditer.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Player\LivePlayerPage.xaml.cs">
+    <Compile Include="Views.Player\LivePlayerPage.xaml.cs">
       <DependentUpon>LivePlayerPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Player\VideoPlayerPage.xaml.cs">
+    <Compile Include="Views.Player\VideoPlayerPage.xaml.cs">
       <DependentUpon>VideoPlayerPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Player\_CommentRenderer\CommentRenderer.xaml.cs">
+    <Compile Include="Views.Player\_CommentRenderer\CommentRenderer.xaml.cs">
       <DependentUpon>CommentRenderer.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Player\_CommentRenderer\CommentRendererHelper.cs" />
-    <Compile Include="Presentation.Views.Player\_CommentRenderer\CommentUI.xaml.cs">
+    <Compile Include="Views.Player\_CommentRenderer\CommentRendererHelper.cs" />
+    <Compile Include="Views.Player\_CommentRenderer\CommentUI.xaml.cs">
       <DependentUpon>CommentUI.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Player\_DownloadProgress\DownloadProgressBar.xaml.cs">
+    <Compile Include="Views.Player\_DownloadProgress\DownloadProgressBar.xaml.cs">
       <DependentUpon>DownloadProgressBar.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Player\_DownloadProgress\ProgressBarFragment.xaml.cs">
+    <Compile Include="Views.Player\_DownloadProgress\ProgressBarFragment.xaml.cs">
       <DependentUpon>ProgressBarFragment.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Player\_DownloadProgress\ProgressFragment.cs" />
-    <Compile Include="Presentation.Views.Player\_PlayerSidePaneContent\LiveCommentsSidePaneContent.xaml.cs">
+    <Compile Include="Views.Player\_DownloadProgress\ProgressFragment.cs" />
+    <Compile Include="Views.Player\_PlayerSidePaneContent\LiveCommentsSidePaneContent.xaml.cs">
       <DependentUpon>LiveCommentsSidePaneContent.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Player\_PlayerSidePaneContent\LiveSettingsSidePaneContent.xaml.cs">
+    <Compile Include="Views.Player\_PlayerSidePaneContent\LiveSettingsSidePaneContent.xaml.cs">
       <DependentUpon>LiveSettingsSidePaneContent.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Player\_PlayerSidePaneContent\PlaylistSidePaneContent.xaml.cs">
+    <Compile Include="Views.Player\_PlayerSidePaneContent\PlaylistSidePaneContent.xaml.cs">
       <DependentUpon>PlaylistSidePaneContent.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Player\_PlayerSidePaneContent\RelatedVideosSidePaneContent.xaml.cs">
+    <Compile Include="Views.Player\_PlayerSidePaneContent\RelatedVideosSidePaneContent.xaml.cs">
       <DependentUpon>RelatedVideosSidePaneContent.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Player\_PlayerSidePaneContent\VideoCommentSidePaneContent.xaml.cs">
+    <Compile Include="Views.Player\_PlayerSidePaneContent\VideoCommentSidePaneContent.xaml.cs">
       <DependentUpon>VideoCommentSidePaneContent.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Player\_PlayerSidePaneContent\VideoSettingsSidePaneContent.xaml.cs">
+    <Compile Include="Views.Player\_PlayerSidePaneContent\VideoSettingsSidePaneContent.xaml.cs">
       <DependentUpon>VideoSettingsSidePaneContent.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\PrimaryWindowCoreLayout.xaml.cs">
+    <Compile Include="Views\PrimaryWindowCoreLayout.xaml.cs">
       <DependentUpon>PrimaryWindowCoreLayout.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\SecondaryWindowCoreLayout.xaml.cs">
+    <Compile Include="Views\SecondaryWindowCoreLayout.xaml.cs">
       <DependentUpon>SecondaryWindowCoreLayout.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views\StateTrigger\CompactOverlayViewModeTrigger.cs" />
-    <Compile Include="Presentation.Views\StateTrigger\CompositeStateTrigger.cs" />
-    <Compile Include="Presentation.Views\StateTrigger\EqualConditionStateTrigger.cs" />
-    <Compile Include="Presentation.Views\StateTrigger\FlyoutIsOpenStateTrigger.cs" />
-    <Compile Include="Presentation.Views\StateTrigger\FocusTrigger.cs" />
-    <Compile Include="Presentation.Views\StateTrigger\InvertibleStateTrigger.cs" />
-    <Compile Include="Presentation.Views\StateTrigger\IsShowWithPrimaryViewTrigger.cs" />
-    <Compile Include="Presentation.Views\StateTrigger\IsShowWithSecondaryViewTrigger.cs" />
-    <Compile Include="Presentation.Views\StateTrigger\IsSupportCompactOverlayTrigger.cs" />
-    <Compile Include="Presentation.Views\StateTrigger\PointerFocusTrigger.cs" />
-    <Compile Include="Presentation.Views\StateTrigger\IsAssignableFromStateTrigger.cs" />
-    <Compile Include="Presentation.Views\StateTrigger\UIIntractionTriggerBase.cs" />
-    <Compile Include="Presentation.Views\StateTrigger\WindowActiveTrigger.cs" />
-    <Compile Include="Presentation.Views\StateTrigger\WindowInWindowViewModeTrigger.cs" />
-    <Compile Include="Presentation.Views\TemplateSelector\ContentTemplateSelector.cs" />
-    <Compile Include="Presentation.Views\TemplateSelector\HohoemaFlyoutTemplateSelector.cs" />
-    <Compile Include="Presentation.Views\TemplateSelector\MenuSubPageTemplateSelector.cs" />
-    <Compile Include="Presentation.Views\TemplateSelector\NullableTemplateSelector.cs" />
-    <Compile Include="Presentation.Views.Player\_PlayerSidePaneContent\PlayerSidePaneContentTemplateSelector.cs" />
-    <Compile Include="Presentation.Views\TemplateSelector\TypeBasedTemplateSelector.cs" />
-    <Compile Include="Presentation.Views\TemplateSelector\ValueDataTemplateSelector.cs" />
+    <Compile Include="Views\StateTrigger\CompactOverlayViewModeTrigger.cs" />
+    <Compile Include="Views\StateTrigger\CompositeStateTrigger.cs" />
+    <Compile Include="Views\StateTrigger\EqualConditionStateTrigger.cs" />
+    <Compile Include="Views\StateTrigger\FlyoutIsOpenStateTrigger.cs" />
+    <Compile Include="Views\StateTrigger\FocusTrigger.cs" />
+    <Compile Include="Views\StateTrigger\InvertibleStateTrigger.cs" />
+    <Compile Include="Views\StateTrigger\IsShowWithPrimaryViewTrigger.cs" />
+    <Compile Include="Views\StateTrigger\IsShowWithSecondaryViewTrigger.cs" />
+    <Compile Include="Views\StateTrigger\IsSupportCompactOverlayTrigger.cs" />
+    <Compile Include="Views\StateTrigger\PointerFocusTrigger.cs" />
+    <Compile Include="Views\StateTrigger\IsAssignableFromStateTrigger.cs" />
+    <Compile Include="Views\StateTrigger\UIIntractionTriggerBase.cs" />
+    <Compile Include="Views\StateTrigger\WindowActiveTrigger.cs" />
+    <Compile Include="Views\StateTrigger\WindowInWindowViewModeTrigger.cs" />
+    <Compile Include="Views\TemplateSelector\ContentTemplateSelector.cs" />
+    <Compile Include="Views\TemplateSelector\HohoemaFlyoutTemplateSelector.cs" />
+    <Compile Include="Views\TemplateSelector\MenuSubPageTemplateSelector.cs" />
+    <Compile Include="Views\TemplateSelector\NullableTemplateSelector.cs" />
+    <Compile Include="Views.Player\_PlayerSidePaneContent\PlayerSidePaneContentTemplateSelector.cs" />
+    <Compile Include="Views\TemplateSelector\TypeBasedTemplateSelector.cs" />
+    <Compile Include="Views\TemplateSelector\ValueDataTemplateSelector.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Styles\VideoListItemControlDefaultTemplate.xaml.cs">
       <DependentUpon>VideoListItemControlDefaultTemplate.xaml</DependentUpon>
@@ -895,353 +868,351 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Models.UseCase\Niconico.Player\Playlist\" />
-    <Folder Include="Presentation.ViewModels\Niconico.Mylist\" />
-    <Folder Include="Presentation.ViewModels\Player\PlayerSidePaneContent\" />
-    <Folder Include="Presentation.ViewModels\Playlist\Commands\" />
+    <Folder Include="ViewModels\Player\PlayerSidePaneContent\" />
+    <Folder Include="ViewModels\Playlist\Commands\" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="Presentation.Views.Pages\Hohoema.Subscription\SubscVideoListPage.xaml">
+    <Page Include="Views.Hohoema\Subscription\SubscVideoListPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Presentation.Views.Pages\Hohoema.VideoCache\CacheManagementPage.xaml">
+    <Page Include="Views.Hohoema\VideoCache\CacheManagementPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Hohoema.LocalMylist\LocalPlaylistManagePage.xaml">
+    <Page Include="Views.Hohoema\LocalMylist\LocalPlaylistManagePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Presentation.Views.Pages\Hohoema.LocalMylist\LocalPlaylistPage.xaml">
+    <Page Include="Views.Hohoema\LocalMylist\LocalPlaylistPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Player\LegacyVideoPlayerPage.xaml">
+    <Page Include="Views.Player\LegacyVideoPlayerPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Player\VideoPlayerUI\DesktopPlayerUI.xaml">
+    <Page Include="Views.Player\VideoPlayerUI\DesktopPlayerUI.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Presentation.Views\Mylist\MylistCardView.xaml">
+    <Page Include="Views\Mylist\MylistCardView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Presentation.Views\Flyouts\ChannelInfoFlyout.xaml">
+    <Page Include="Views\Flyouts\ChannelInfoFlyout.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Presentation.Views\Flyouts\UserInfoFlyout.xaml">
+    <Page Include="Views\Flyouts\UserInfoFlyout.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Presentation.Views.Pages\SettingsPage.xaml">
+    <Page Include="Views\SettingsPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Hohoema.Subscription\SubscriptionManagementPage.xaml">
+    <Page Include="Views.Hohoema\Subscription\SubscriptionManagementPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Hohoema.Queue\VideoQueuePage.xaml">
+    <Page Include="Views.Hohoema\Queue\VideoQueuePage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\BlankPage.xaml">
+    <Page Include="Views\BlankPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.Channel\ChannelVideoPage.xaml">
+    <Page Include="Views.Niconico\Channel\ChannelVideoPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.Search\CommunityInfoControl.xaml">
+    <Page Include="Views.Niconico\Search\CommunityInfoControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.Community\CommunityPage.xaml">
+    <Page Include="Views.Niconico\Community\CommunityPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.Community\CommunityVideoPage.xaml">
+    <Page Include="Views.Niconico\Community\CommunityVideoPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\DebugPage.xaml">
+    <Page Include="Views\DebugPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Player\VideoPlayerUI\NallowPlayerUI.xaml">
+    <Page Include="Views.Player\VideoPlayerUI\NallowPlayerUI.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Presentation.Views.Player\VideoPlayerUI\SeekbarSlider.xaml">
+    <Page Include="Views.Player\VideoPlayerUI\SeekbarSlider.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Presentation.Views\Controls\ListItem\HohoemaListItemMiniCard.xaml">
+    <Page Include="Views\Controls\ListItem\HohoemaListItemMiniCard.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views\Controls\ListItem\HohoemaListItemVideo.xaml">
+    <Page Include="Views\Controls\ListItem\HohoemaListItemVideo.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.Live\LiveInfomationPage.xaml">
+    <Page Include="Views.Niconico\Live\LiveInfomationPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.Live\LiveVideoListItem.xaml">
+    <Page Include="Views.Niconico\Live\LiveVideoListItem.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.Mylist\MylistPage.xaml">
+    <Page Include="Views.Niconico\Mylist\MylistPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.Mylist\OwnerMylistManagePage.xaml">
+    <Page Include="Views.Niconico\Mylist\OwnerMylistManagePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.Mylist\UserMylistPage.xaml">
+    <Page Include="Views.Niconico\Mylist\UserMylistPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.Search\SearchHistoryListItem.xaml">
+    <Page Include="Views.Niconico\Search\SearchHistoryListItem.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.Search\SearchPage.xaml">
+    <Page Include="Views.Niconico\Search\SearchPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.Search\SearchResultKeywordPage.xaml">
+    <Page Include="Views.Niconico\Search\SearchResultKeywordPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.Search\SearchResultLivePage.xaml">
+    <Page Include="Views.Niconico\Search\SearchResultLivePage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.Search\SearchResultTagPage.xaml">
+    <Page Include="Views.Niconico\Search\SearchResultTagPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.Series\SeriesPage.xaml">
+    <Page Include="Views.Niconico\Series\SeriesPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.Series\UserSeriesPage.xaml">
+    <Page Include="Views.Niconico\Series\UserSeriesPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.Follow\FollowManagePage.xaml">
+    <Page Include="Views.Niconico\Follow\FollowManagePage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.NicoRepo\NicoRepoPage.xaml">
+    <Page Include="Views.Niconico\NicoRepo\NicoRepoPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.Live\TimeshiftPage.xaml">
+    <Page Include="Views.Niconico\Live\TimeshiftPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.Activity\WatchHistoryPage.xaml">
+    <Page Include="Views.Niconico\Activity\WatchHistoryPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.User\UserInfoPage.xaml">
+    <Page Include="Views.Niconico\User\UserInfoPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.User\UserVideoPage.xaml">
+    <Page Include="Views.Niconico\User\UserVideoPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views\Controls\VideoList\VideoItemsListView.xaml">
+    <Page Include="Views\Controls\VideoList\VideoItemsListView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.VideoRanking\RankingCategoryListPage.xaml">
+    <Page Include="Views.Niconico\VideoRanking\RankingCategoryListPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.VideoRanking\RankingCategoryPage.xaml">
+    <Page Include="Views.Niconico\VideoRanking\RankingCategoryPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.Video\VideoInfomationPage.xaml">
+    <Page Include="Views.Niconico\Video\VideoInfomationPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views\Controls\AppTitleBar.xaml">
+    <Page Include="Views\Controls\AppTitleBar.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Presentation.Views\Controls\DelayedAutoTriggerButton.xaml">
+    <Page Include="Views\Controls\DelayedAutoTriggerButton.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views\Controls\IchibaItemCard.xaml">
+    <Page Include="Views\Controls\IchibaItemCard.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views\Controls\LiteInAppNotification\LiteInAppNotification.xaml">
+    <Page Include="Views\Controls\LiteInAppNotification\LiteInAppNotification.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Presentation.Views\Controls\TransientContainer\TransientContainer.xaml">
+    <Page Include="Views\Controls\TransientContainer\TransientContainer.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views\Controls\VideoList\VideoListItemControl\VideoListItemControl.xaml">
+    <Page Include="Views\Controls\VideoList\VideoListItemControl\VideoListItemControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Presentation.Views\Controls\VideoList\VideoListItem\VideoListItem.xaml">
+    <Page Include="Views\Controls\VideoList\VideoListItem\VideoListItem.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Presentation.Views\Dialogs\AdvancedSelectDialog.xaml">
+    <Page Include="Views\Dialogs\AdvancedSelectDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views\Dialogs\HohoemaErrorReportDialog.xaml">
+    <Page Include="Views\Dialogs\HohoemaErrorReportDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Presentation.Views\Dialogs\MarkdownTextDialog.xaml">
+    <Page Include="Views\Dialogs\MarkdownTextDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views\Dialogs\MultiChoiceDialog.xaml">
+    <Page Include="Views\Dialogs\MultiChoiceDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views\Dialogs\NiconicoLoginDialog.xaml">
+    <Page Include="Views\Dialogs\NiconicoLoginDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views\Dialogs\NiconicoTwoFactorAuthDialog.xaml">
+    <Page Include="Views\Dialogs\NiconicoTwoFactorAuthDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views\Dialogs\TwoFactorAuthDialog.xaml">
+    <Page Include="Views\Dialogs\TwoFactorAuthDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views\Dialogs\_ContentSelectDialog\ContentSelectDialog.xaml">
+    <Page Include="Views\Dialogs\_ContentSelectDialog\ContentSelectDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views\Dialogs\_EditMylistGroupDialog\EditMylistGroupDialog.xaml">
+    <Page Include="Views\Dialogs\_EditMylistGroupDialog\EditMylistGroupDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views\Dialogs\_TextInputDialog\TextInputDialog.xaml">
+    <Page Include="Views\Dialogs\_TextInputDialog\TextInputDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views\Flyouts\LiveListItemFlyout.xaml">
+    <Page Include="Views\Flyouts\LiveListItemFlyout.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views\Flyouts\MylistItemFlyout.xaml">
+    <Page Include="Views\Flyouts\MylistItemFlyout.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views\Flyouts\RankingGenreItemFlyout.xaml">
+    <Page Include="Views\Flyouts\RankingGenreItemFlyout.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views\Flyouts\RankingGenreItemGroupFlyout.xaml">
+    <Page Include="Views\Flyouts\RankingGenreItemGroupFlyout.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views\Flyouts\SearchHistoryListItemFlyout.xaml">
+    <Page Include="Views\Flyouts\SearchHistoryListItemFlyout.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views\Flyouts\SubscriptionItemFlyout.xaml">
+    <Page Include="Views\Flyouts\SubscriptionItemFlyout.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views\Flyouts\VideoItemFlyout.xaml">
+    <Page Include="Views\Flyouts\VideoItemFlyout.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views\Controls\HohoemaInAppNotification.xaml">
+    <Page Include="Views\Controls\HohoemaInAppNotification.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views\NoUIProcessScreen.xaml">
+    <Page Include="Views\NoUIProcessScreen.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Player\CommentCommandEditer.xaml">
+    <Page Include="Views.Player\CommentCommandEditer.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Player\LivePlayerPage.xaml">
+    <Page Include="Views.Player\LivePlayerPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Player\VideoPlayerPage.xaml">
+    <Page Include="Views.Player\VideoPlayerPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Player\_CommentRenderer\CommentRenderer.xaml">
+    <Page Include="Views.Player\_CommentRenderer\CommentRenderer.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Player\_CommentRenderer\CommentUI.xaml">
+    <Page Include="Views.Player\_CommentRenderer\CommentUI.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Player\_DownloadProgress\DownloadProgressBar.xaml">
+    <Page Include="Views.Player\_DownloadProgress\DownloadProgressBar.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Player\_DownloadProgress\ProgressBarFragment.xaml">
+    <Page Include="Views.Player\_DownloadProgress\ProgressBarFragment.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Player\_PlayerSidePaneContent\LiveCommentsSidePaneContent.xaml">
+    <Page Include="Views.Player\_PlayerSidePaneContent\LiveCommentsSidePaneContent.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Player\_PlayerSidePaneContent\LiveSettingsSidePaneContent.xaml">
+    <Page Include="Views.Player\_PlayerSidePaneContent\LiveSettingsSidePaneContent.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Player\_PlayerSidePaneContent\PlaylistSidePaneContent.xaml">
+    <Page Include="Views.Player\_PlayerSidePaneContent\PlaylistSidePaneContent.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Player\_PlayerSidePaneContent\RelatedVideosSidePaneContent.xaml">
+    <Page Include="Views.Player\_PlayerSidePaneContent\RelatedVideosSidePaneContent.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Player\_PlayerSidePaneContent\VideoCommentSidePaneContent.xaml">
+    <Page Include="Views.Player\_PlayerSidePaneContent\VideoCommentSidePaneContent.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Player\_PlayerSidePaneContent\VideoSettingsSidePaneContent.xaml">
+    <Page Include="Views.Player\_PlayerSidePaneContent\VideoSettingsSidePaneContent.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\PrimaryWindowCoreLayout.xaml">
+    <Page Include="Views\PrimaryWindowCoreLayout.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\SecondaryWindowCoreLayout.xaml">
+    <Page Include="Views\SecondaryWindowCoreLayout.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -1292,6 +1263,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\LibLisencies\_lisence_summary.json" />
+    <None Include=".editorconfig" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
     <None Include="NicoPlayerHohoema_TemporaryKey.pfx" />
   </ItemGroup>
@@ -1304,9 +1276,9 @@
     </SDKReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Hohoema.Models\Hohoema.Models.csproj">
+    <ProjectReference Include="..\Hohoema.Core\Hohoema.Core.csproj">
       <Project>{5877a9ca-2d3a-4b8b-86ca-d77e6d68cf98}</Project>
-      <Name>Hohoema.Models</Name>
+      <Name>Hohoema.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
