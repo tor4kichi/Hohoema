@@ -135,10 +135,6 @@ public sealed class SubscriptionUpdateManager
                 using (_timerUpdateCancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
                 {
                     var result = await _subscriptionManager.RefreshFeedUpdateResultAsync(m.Value, _timerUpdateCancellationTokenSource.Token);
-                    if (result.IsSuccessed)
-                    {
-                        NotifyFeedUpdateResult(new[] {result});
-                    }
                 }
 
                 _timerUpdateCancellationTokenSource = null;
