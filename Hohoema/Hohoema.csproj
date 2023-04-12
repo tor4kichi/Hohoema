@@ -152,14 +152,6 @@
     <Compile Include="Contracts\Navigations\IPageNavigatable.cs" />
     <Compile Include="Services\Navigations\NavigationTriggerFromExternal.cs" />
     <Compile Include="Services\Playlist\AutoSkipToPlaylistNextVideoWhenPlayFailed.cs" />
-    <Compile Include="Services\Playlist\PlaylistFactory\ChannelVideoPlaylistFactory.cs" />
-    <Compile Include="Services\Playlist\PlaylistFactory\CommunityVideoPlaylistFactory.cs" />
-    <Compile Include="Services\Playlist\PlaylistFactory\LocalMylistPlaylistFactory.cs" />
-    <Compile Include="Services\Playlist\PlaylistFactory\SearchWithKeywordPlaylistFactory.cs" />
-    <Compile Include="Services\Playlist\PlaylistItemsSourceResolver.cs" />
-    <Compile Include="Services\Playlist\PlaylistFactory\MylistPlaylistFactory.cs" />
-    <Compile Include="Services\Playlist\PlaylistFactory\SeriesVideoPlaylistFactory.cs" />
-    <Compile Include="Services\Playlist\PlaylistFactory\UserVideoPlaylistFactory.cs" />
     <Compile Include="Services\Subscriptions\SyncWatchHistoryOnLoggedIn.cs" />
     <Compile Include="Services\VideoCache\Events\EndCacheSaveFolderChangingMessage.cs" />
     <Compile Include="Services\VideoCache\Events\StartCacheSaveFolderChangingAsyncRequestMessage.cs" />
@@ -167,8 +159,7 @@
     <Compile Include="Services\VideoCache\Events\VideoCacheStatusChangedMessage.cs" />
     <Compile Include="Services\VideoCache\Migration\VideoCacheDatabaseMigration_V_0_29_0.cs" />
     <Compile Include="Services\Player\CloseToastNotificationWhenPlayStarted.cs" />
-    <Compile Include="Services\Player\Messages\VideoPlayedMessage.cs" />
-    <Compile Include="Services\Playlist\MylistResolver.cs" />
+    <Compile Include="Contracts\Player\VideoPlayedMessage.cs" />
     <Compile Include="Services\Player\Videos\VideoCommentPlayer.cs" />
     <Compile Include="Services\Player\KeepActiveDisplayWhenPlaying.cs" />
     <Compile Include="Services\Player\ObservableMediaPlayer.cs" />
@@ -217,8 +208,8 @@
     <Compile Include="Services\Navigations\PagePayload\Search\VideoSearchOption.cs" />
     <Compile Include="Services\Navigations\PagePayload\SecondaryViewNavigatePayload.cs" />
     <Compile Include="Services\Navigations\PagePayload\VideoPlayPayload.cs" />
-    <Compile Include="Services\Player\Messages\ChangePlayerDisplayViewRequestMessage.cs" />
-    <Compile Include="Services\Player\Messages\PlayRequestMessage.cs" />
+    <Compile Include="Contracts\Player\ChangePlayerDisplayViewRequestMessage.cs" />
+    <Compile Include="Contracts\Player\PlayRequestMessage.cs" />
     <Compile Include="Services\Player\PrimaryViewPlayerManager.cs" />
     <Compile Include="Services\Player\SecondaryViewPlayerManager.cs" />
     <Compile Include="ViewModels\Player\ShowPrimaryViewCommand.cs" />

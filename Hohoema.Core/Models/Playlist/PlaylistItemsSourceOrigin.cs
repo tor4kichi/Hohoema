@@ -11,4 +11,5 @@ public enum PlaylistItemsSourceOrigin
     CommunityVideos,
     SearchWithKeyword,
     SearchWithTag,
+    SubscriptionGroup,
 }

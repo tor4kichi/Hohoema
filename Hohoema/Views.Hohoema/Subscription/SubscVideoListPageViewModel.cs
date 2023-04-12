@@ -8,7 +8,7 @@ using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Subscriptions;
 using Hohoema.Services;
 using Hohoema.Services.Niconico;
-using Hohoema.Services.Player.Events;
+using Hohoema.Contracts.Player;
 using Hohoema.ViewModels.Niconico.Video.Commands;
 using Hohoema.ViewModels.VideoListPage;
 using I18NPortable;
@@ -22,12 +22,14 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Hohoema.Models.Playlist;
 
 namespace Hohoema.ViewModels.Pages.Hohoema.Subscription;
 
 public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBase<object>
 {
     private readonly IMessenger _messenger;
+    private readonly ILocalizeService _localizeService;
     private readonly PageManager _pageManager;
     private readonly SubscriptionManager _subscriptionManager;
     private readonly NicoVideoProvider _nicoVideoProvider;
@@ -66,6 +68,7 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
     public SubscVideoListPageViewModel(
         ILogger logger,
         IMessenger messenger,
+        ILocalizeService localizeService,
         PageManager pageManager,
         SubscriptionManager subscriptionManager,
         NicoVideoProvider nicoVideoProvider,
@@ -77,6 +80,7 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
         : base(logger)
     {
         _messenger = messenger;
+        _localizeService = localizeService;
         _pageManager = pageManager;
         _subscriptionManager = subscriptionManager;
         _nicoVideoProvider = nicoVideoProvider;
@@ -160,7 +164,7 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
             }
 
             var nicoVideo = _nicoVideoProvider.GetCachedVideoInfo(videoId);
-            var itemVM = new SubscVideoListItemViewModel(feed, nicoVideo, _subscriptionManager);
+            var itemVM = new SubscVideoListItemViewModel(feed, nicoVideo, _subscriptionManager, CreatePlaylist());
             ItemsView.Insert(0, itemVM);
         });
     }
@@ -171,9 +175,17 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
         _messenger.Unregister<NewSubscFeedVideoMessage>(this);
     }
 
+    private SubscriptionGroupPlaylist CreatePlaylist()
+    {
+        return new SubscriptionGroupPlaylist(SelectedSubscGroup, _subscriptionManager, _nicoVideoProvider, _localizeService);
+    }
+
     protected override (int PageSize, IIncrementalSource<object> IncrementalSource) GenerateIncrementalSource()
     {
-        return (SubscVideoListIncrementalLoadingSource.PageSize, new SubscVideoListIncrementalLoadingSource(SelectedSubscGroup, _subscriptionManager, _nicoVideoProvider) { LastCheckedAt = LastCheckedAt });
+        return (
+            SubscVideoListIncrementalLoadingSource.PageSize,
+            new SubscVideoListIncrementalLoadingSource(SelectedSubscGroup, CreatePlaylist(), _subscriptionManager, _nicoVideoProvider, _messenger) { LastCheckedAt = LastCheckedAt }
+            );
     }
 
 
@@ -228,19 +240,25 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
 
 public sealed class SubscVideoListIncrementalLoadingSource : IIncrementalSource<object>
 {
+    private readonly SubscriptionGroupPlaylist _subscriptionGroupPlaylist;
     private readonly SubscriptionManager _subscriptionManager;
     private readonly NicoVideoProvider _nicoVideoProvider;
+    private readonly IMessenger _messenger;
     public const int PageSize = 20;
 
     public SubscVideoListIncrementalLoadingSource(
         SubscriptionGroup? subscriptionGroup,
+        SubscriptionGroupPlaylist subscriptionGroupPlaylist,
         SubscriptionManager subscriptionManager,
-        NicoVideoProvider nicoVideoProvider
+        NicoVideoProvider nicoVideoProvider,
+        IMessenger messenger
         )
     {
         SubscriptionGroup = subscriptionGroup;
+        _subscriptionGroupPlaylist = subscriptionGroupPlaylist;
         _subscriptionManager = subscriptionManager;
         _nicoVideoProvider = nicoVideoProvider;
+        _messenger = messenger;
     }
     
     public DateTime LastCheckedAt { get; set; }
@@ -279,26 +297,42 @@ public sealed class SubscVideoListIncrementalLoadingSource : IIncrementalSource<
                 )
             {
                 isCheckedSeparatorInserted = true;
-                resultItems.Add(new SubscVideoSeparatorListItemViewModel(LastCheckedAt));
+
+                if (resultItems.Any())
+                {
+                    var playlistItemToken = new PlaylistItemToken(_subscriptionGroupPlaylist, SubscriptionGroupPlaylist.DefaultSortOption, (resultItems.Last() as IVideoContent)!);
+                    resultItems.Add(new SubscVideoSeparatorListItemViewModel(LastCheckedAt, _messenger, playlistItemToken));
+                }
             }
 
             _videoIds.Add(videoId);
             var nicoVideo = _nicoVideoProvider.GetCachedVideoInfo(videoId);
-            resultItems.Add(new SubscVideoListItemViewModel(video, nicoVideo, _subscriptionManager));
+            resultItems.Add(new SubscVideoListItemViewModel(video, nicoVideo, _subscriptionManager, _subscriptionGroupPlaylist));
         }
 
         return Task.FromResult<IEnumerable<object>>(resultItems);
     }
 }
 
-public sealed class SubscVideoSeparatorListItemViewModel
+public sealed partial class SubscVideoSeparatorListItemViewModel : IPlaylistItemPlayable
 {
-    public SubscVideoSeparatorListItemViewModel(DateTime checkedDate)
+    private readonly IMessenger _messenger;
+    private readonly PlaylistItemToken _subscriptionGroupPlaylistItemToken;
+
+    public SubscVideoSeparatorListItemViewModel(
+        DateTime checkedDate,
+        IMessenger messenger,
+        PlaylistItemToken subscriptionGroupPlaylistItemToken
+        )
     {
         CheckedDate = checkedDate;
+        _messenger = messenger;
+        _subscriptionGroupPlaylistItemToken = subscriptionGroupPlaylistItemToken;
     }
 
     public DateTime CheckedDate { get; }
+
+    public PlaylistItemToken? PlaylistItemToken => _subscriptionGroupPlaylistItemToken;
 
     public string Localize(DateTime date)
     {
@@ -313,20 +347,29 @@ public sealed class SubscVideoSeparatorListItemViewModel
         else
         {
             return $"ここまで視聴済み {date:g}";
-        }
-        
-    }
+        }        
+    }    
 }
 
-public sealed partial class SubscVideoListItemViewModel : VideoListItemControlViewModel
+public sealed partial class SubscVideoListItemViewModel
+    : VideoListItemControlViewModel
+    , IPlaylistItemPlayable
 {
-    public SubscVideoListItemViewModel(SubscFeedVideo feedVideo, NicoVideo video, SubscriptionManager subscriptionManager) : base(video)
+    public SubscVideoListItemViewModel(
+        SubscFeedVideo feedVideo,
+        NicoVideo video,
+        SubscriptionManager subscriptionManager,
+        SubscriptionGroupPlaylist subscriptionGroupPlaylist
+        ) : base(video)
     {
         FeedVideo = feedVideo;
         _subscriptionManager = subscriptionManager;
+        _subscriptionGroupPlaylist = subscriptionGroupPlaylist;
+        PlaylistItemToken = new PlaylistItemToken(_subscriptionGroupPlaylist, SubscriptionGroupPlaylist.DefaultSortOption, this);
     }
 
     public SubscFeedVideo FeedVideo { get; }
 
     private readonly SubscriptionManager _subscriptionManager;
+    private readonly SubscriptionGroupPlaylist _subscriptionGroupPlaylist;    
 }

@@ -1,6 +1,6 @@
 ﻿#nullable enable
 using CommunityToolkit.Mvvm.Messaging;
-using Hohoema.Services.Player.Events;
+using Hohoema.Contracts.Player;
 
 namespace Hohoema.ViewModels.Player;
 

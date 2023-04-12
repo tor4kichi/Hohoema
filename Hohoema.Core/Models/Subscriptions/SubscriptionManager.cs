@@ -235,6 +235,16 @@ public sealed class SubscriptionManager
         return _subscriptionRegistrationRepository.TryGetSubscriptionGroup(sourceType, id, out outSourceEntity, out outGroup);
     }
 
+    public SubscriptionGroup? GetSubscriptionGroup(ObjectId subscriptionGroupId)
+    {
+        return _subscriptionGroupRepository.FindById(subscriptionGroupId);
+    }
+
+    public int GetSubscriptionGroupVideosCount(SubscriptionGroup? group) 
+    {
+        return GetSubscriptionGroupSubscriptions(group)
+            .Sum(_subscFeedVideoRepository.GetVideoCount);
+    }
 
     public DateTime GetLastUpdatedAt(ObjectId subscriptionId)
     {
@@ -342,21 +352,31 @@ public sealed class SubscriptionManager
         return _subscFeedVideoRepository.GetVideos(skip, limit);
     }
 
-    public IEnumerable<SubscFeedVideo> GetSubscFeedVideos(SubscriptionGroup? group, int skip = 0, int limit = int.MaxValue)
+    private IEnumerable<Subscription> GetSubscriptionGroupSubscriptions(SubscriptionGroup? group = null)
     {
         return (group != null
             ? _subscriptionRegistrationRepository.Find(x => x.Group!.GroupId == group.GroupId)
             : _subscriptionRegistrationRepository.Find(x => x.Group == null)
-            )
+            );
+    }
+
+    public IEnumerable<SubscFeedVideo> GetSubscFeedVideos(SubscriptionGroup? group, int skip = 0, int limit = int.MaxValue)
+    {
+        return GetSubscriptionGroupSubscriptions(group)
             .SelectMany(subsc => _subscFeedVideoRepository.GetVideos(subsc.Id))
-            .Distinct()
+            .Distinct(SubscFeedVideoEqualityComparer.Default)
             .OrderByDescending(x => x.PostAt)
             .Skip(skip)
             .Take(limit)
             ;
+    }
 
-        //var subscSources = _subscriptionRegistrationRepository.Find(x => x.Group == group);
-        //return _subscFeedVideoRepository.GetVideos(subscSources.Select(x => x.Id), skip, limit);
+    public IEnumerable<SubscFeedVideo> GetSubscFeedVideosRaw(SubscriptionGroup? group)
+    {
+        return GetSubscriptionGroupSubscriptions(group)
+            .SelectMany(subsc => _subscFeedVideoRepository.GetVideos(subsc.Id))
+            .Distinct(SubscFeedVideoEqualityComparer.Default)
+            ;
     }
 
     public IEnumerable<SubscFeedVideo> GetSubscFeedVideosForMarkAsChecked(DateTime targetPostAt)
@@ -368,10 +388,7 @@ public sealed class SubscriptionManager
     {
         Guard.IsNotEqualTo(group.GroupId, ObjectId.Empty);
 
-        var subscIds = group != null
-            ? _subscriptionRegistrationRepository.Find(x => x.Group!.GroupId == group.GroupId).Select(x => x.Id)
-            : _subscriptionRegistrationRepository.Find(Query.All()).Select(x => x.Id)
-            ;
+        var subscIds = GetSubscriptionGroupSubscriptions(group).Select(x => x.Id);
 
         return _subscFeedVideoRepository.GetVideosForMarkAsChecked(subscIds, targetPostAt);
     }

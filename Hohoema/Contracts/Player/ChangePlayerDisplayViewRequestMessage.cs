@@ -1,7 +1,7 @@
 ﻿#nullable enable
 using CommunityToolkit.Mvvm.Messaging.Messages;
 
-namespace Hohoema.Services.Player.Events;
+namespace Hohoema.Contracts.Player;
 
 public sealed class ChangePlayerDisplayViewRequestMessage : ValueChangedMessage<long>
 {

@@ -6,7 +6,7 @@ using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.PageNavigation;
 using Hohoema.Models.Playlist;
 using Hohoema.Models.VideoCache;
-using Hohoema.Services.Player.Events;
+using Hohoema.Contracts.Player;
 using Hohoema.Services.Playlist;
 using LiteDB;
 using Microsoft.Toolkit.Uwp.Notifications;
@@ -136,6 +136,6 @@ public sealed class NavigationTriggerFromExternal
 
     public void PlayLiveVideoFromExternal(LiveId liveId)
     {
-        _messenger.Send(new PlayerPlayLiveRequestMessage(new() { LiveId = liveId }));
+        _messenger.Send(new PlayLiveRequestMessage(liveId));
     }
 }

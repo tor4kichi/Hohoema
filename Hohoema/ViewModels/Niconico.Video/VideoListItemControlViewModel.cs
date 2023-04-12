@@ -6,7 +6,7 @@ using Hohoema.Models.Niconico.Mylist;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Playlist;
 using Hohoema.Models.VideoCache;
-using Hohoema.Services.Player.Events;
+using Hohoema.Contracts.Player;
 using Hohoema.Services.VideoCache.Events;
 using Hohoema.ViewModels.Niconico.Video.Commands;
 using Hohoema.ViewModels.Pages.VideoListPage.Commands;

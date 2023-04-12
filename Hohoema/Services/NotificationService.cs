@@ -10,7 +10,7 @@ using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Notification;
 using Hohoema.Models.PageNavigation;
 using Hohoema.Models.Playlist;
-using Hohoema.Services.Player.Events;
+using Hohoema.Contracts.Player;
 using I18NPortable;
 using Microsoft.Toolkit.Uwp.Notifications;
 using NiconicoToolkit;
@@ -175,7 +175,7 @@ public sealed class HohoemaNotificationService
                         Label = "WatchLiveStreaming".Translate(),
                         Command = new RelayCommand(() =>
                         {
-                            _messenger.Send(new PlayerPlayLiveRequestMessage(new() { LiveId = liveId }));
+                            _messenger.Send(new PlayLiveRequestMessage(liveId));
 
                             NotificationService.DismissInAppNotification();
                         })

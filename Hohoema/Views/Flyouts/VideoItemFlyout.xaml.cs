@@ -122,6 +122,7 @@ public sealed partial class VideoItemFlyout : MenuFlyout
         RemoveWatchHisotryItem.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<WatchHistoryRemoveItemCommand>();
         AddWatchAfter.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<QueueAddItemCommand>();
         RemoveWatchAfter.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<QueueRemoveItemCommand>();
+        PlaylistPlayFromHere.Command = new PlaylistPlayFromHereCommand(_messenger);
 
         OpenVideoInfoPage.Command = PageManager.OpenPageCommand;
         OpenOwnerMylistsPage.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<OpenVideoOwnerMylistListCommand>();
@@ -211,14 +212,12 @@ public sealed partial class VideoItemFlyout : MenuFlyout
 
 
         // ここから連続再生
-        if (!isMultipleSelection 
-            && content is not null
-            && playlist is not null
+        if (!isMultipleSelection
+            && content is IPlaylistItemPlayable playlistItemPlayable
             )
         {
             PlaylistPlayFromHere.Visibility = Visibility.Visible;
-            PlaylistPlayFromHere.Command = new PlaylistPlayFromHereCommand(playlist, _messenger);
-            PlaylistPlayFromHere.CommandParameter = content;
+            PlaylistPlayFromHere.CommandParameter = playlistItemPlayable;
         }
         else
         {

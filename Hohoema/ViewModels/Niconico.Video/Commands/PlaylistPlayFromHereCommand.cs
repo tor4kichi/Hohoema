@@ -6,12 +6,10 @@ namespace Hohoema.ViewModels.Niconico.Video.Commands;
 
 public sealed class PlaylistPlayFromHereCommand : CommandBase
 {
-    private readonly IPlaylist _playlist;
     private readonly IMessenger _messenger;
 
-    public PlaylistPlayFromHereCommand(IPlaylist playlist, IMessenger messenger)
+    public PlaylistPlayFromHereCommand(IMessenger messenger)
     {
-        _playlist = playlist;
         _messenger = messenger;
     }
 

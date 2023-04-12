@@ -1,7 +1,7 @@
 ﻿#nullable enable
 using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.Niconico.Live;
-using Hohoema.Services.Player.Events;
+using Hohoema.Contracts.Player;
 
 namespace Hohoema.ViewModels.Niconico.Live;
 
@@ -23,7 +23,7 @@ public sealed class OpenLiveContentCommand : CommandBase
     {
         if (parameter is ILiveContent liveContent)
         {
-            _messenger.Send(new PlayerPlayLiveRequestMessage(new () { LiveId = liveContent.LiveId }));
+            _messenger.Send(new PlayLiveRequestMessage(liveContent.LiveId));
         }
     }
 }

@@ -23,6 +23,20 @@ public sealed class SubscFeedVideo
     public DateTime FeedUpdateAt { get; set; }
 }
 
+public sealed class SubscFeedVideoEqualityComparer : IEqualityComparer<SubscFeedVideo>
+{
+    public static readonly SubscFeedVideoEqualityComparer Default = new SubscFeedVideoEqualityComparer();
+    public bool Equals(SubscFeedVideo x, SubscFeedVideo y)
+    {
+        return string.Equals(x.VideoId, y.VideoId, StringComparison.Ordinal);
+    }
+
+    public int GetHashCode(SubscFeedVideo obj)
+    {
+        return obj.VideoId.GetHashCode();
+    }
+}
+
 
 public sealed class SubscFeedVideoRepository
 {
@@ -39,6 +53,11 @@ public sealed class SubscFeedVideoRepository
         public DateTime GetLatestPostAt(ObjectId subscId)
         {
             return _collection.Find(x => x.SourceSubscId == subscId).Max(x => x.PostAt);
+        }
+
+        public int GetVideoCount(ObjectId subscId)
+        {
+            return _collection.Count(x => x.SourceSubscId == subscId);
         }
     }
 
@@ -115,5 +134,10 @@ public sealed class SubscFeedVideoRepository
                 yield return feed;
             }
         }
+    }
+
+    internal int GetVideoCount(Subscription subsc)
+    {
+        return _subscFeedVideoRepository.GetVideoCount(subsc.Id);
     }
 }
