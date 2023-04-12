@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using Hohoema.Contracts.Services;
+using Hohoema.Contracts.Subscriptions;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Playlist;
 using LiteDB;
@@ -100,7 +101,7 @@ public sealed class SubscriptionGroupPlaylistFactory : IPlaylistFactory
 
     public ValueTask<IPlaylist> Create(PlaylistId playlistId)
     {
-        var group = _subscriptionManager.GetSubscriptionGroup(new ObjectId(playlistId.Id));
+        var group = _subscriptionManager.GetSubscriptionGroup(SubscriptionGroupId.Parse(playlistId.Id));
         return new (new SubscriptionGroupPlaylist(group, _subscriptionManager, _nicoVideoProvider, _localizeService));
     }
 

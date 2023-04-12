@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
+using Hohoema.Contracts.Subscriptions;
 using Hohoema.Infra;
 using LiteDB;
 using Microsoft.Toolkit.Diagnostics;
@@ -15,6 +16,11 @@ namespace Hohoema.Models.Subscriptions;
 
 public sealed class SubscriptionRegistrationRepository : LiteDBServiceBase<Subscription>
 {    
+    static SubscriptionRegistrationRepository()
+    {
+        BsonMapper.Global.RegisterType(x => x.AsPrimitive(), x => new SusbcriptionId(x.AsObjectId));
+    }
+
     public SubscriptionRegistrationRepository(LiteDatabase database)
         : base(database, "SubscriptionSourceEntity" /* 最初に利用したテーブル名を維持したい */ )
     {
@@ -55,7 +61,7 @@ public sealed class SubscriptionRegistrationRepository : LiteDBServiceBase<Subsc
     {
         Guard.IsFalse(IsExist(entity), "IsExist(entity)");
 
-        entity.Id = ObjectId.NewObjectId();
+        entity.SubscriptionId = SusbcriptionId.NewObjectId();
         
         // Note: エンティティが登録されていない状態で .Max() を呼ぶと
         //       InvalidOperationException が発生する (LiteDb 5.0.16)
@@ -69,6 +75,16 @@ public sealed class SubscriptionRegistrationRepository : LiteDBServiceBase<Subsc
         }
         BsonValue result = base.CreateItem(entity);
         return result;
+    }
+
+    internal bool DeleteItem(SusbcriptionId subscriptionId)
+    {
+        return base.DeleteItem(subscriptionId.AsPrimitive());
+    }
+
+    internal Subscription FindById(SusbcriptionId id)
+    {
+        return base.FindById(id.AsPrimitive());
     }
 }
 
@@ -87,7 +103,7 @@ public enum SubscriptionSourceType
 public sealed class Subscription
 {
     [BsonId]
-    public ObjectId Id { get; internal set; }
+    public SusbcriptionId SubscriptionId { get; internal set; }
     public int SortIndex { get; set; }
     public string Label { get; set; } = string.Empty;
     public SubscriptionSourceType SourceType { get; set; }

@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using CommunityToolkit.Mvvm.Messaging.Messages;
+using Hohoema.Contracts.Subscriptions;
 using Hohoema.Models.LocalMylist;
 using Hohoema.Models.Niconico.NicoRepo;
 using Hohoema.Models.Niconico.Video;
@@ -98,7 +99,7 @@ public sealed class BackupManager
             SubscriptionItems = _subscriptionRegistrationRepository.ReadAllItems()
                 .Select(x => new SubscriptionBackupEntry
                 {
-                    Id = x.Id,
+                    Id = x.SubscriptionId.AsPrimitive(),
                     Label = x.Label,
                     SourceType = x.SourceType switch
                     {
@@ -259,7 +260,7 @@ public sealed class BackupManager
 
             Subscription entity = new()
             {
-                Id = s.Id ?? ObjectId.NewObjectId(),
+                SubscriptionId = s.Id is not null ? new SusbcriptionId(s.Id) : SusbcriptionId.NewObjectId(),
                 Label = s.Label,
                 SourceType = sourceType,
                 SourceParameter = s.SourceParameter,

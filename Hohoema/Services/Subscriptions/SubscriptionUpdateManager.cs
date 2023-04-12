@@ -321,7 +321,7 @@ public sealed class SubscriptionUpdateManager
     {
         if (!updateResults.Any()) { return; }
 
-        SubscriptionGroup _defaultSubscGroup = new SubscriptionGroup(ObjectId.Empty, "SubscGroup_DefaultGroupName".Translate());
+        SubscriptionGroup _defaultSubscGroup = new SubscriptionGroup(SubscriptionGroupId.DefaultGroupId, "SubscGroup_DefaultGroupName".Translate());
         var resultByGroupId = updateResults.Where(x => x.IsSuccessed && x.NewVideos.Count > 0).GroupBy(x => x.Entity.Group ?? _defaultSubscGroup, SubscriptionGroupComparer.Default);
 
         if (!resultByGroupId.Any()) { return; }
@@ -357,7 +357,7 @@ public sealed class SubscriptionUpdateManager
     public void TestNotification()
     {
         List<SubscriptionFeedUpdateResult> results = new();
-        var sources = _subscriptionManager.GetAllSubscriptionSourceEntities().Take(3);
+        var sources = _subscriptionManager.GetAllSubscriptions().Take(3);
         foreach (var source in sources)
         {
             var videos = _subscriptionManager.GetSubscFeedVideos(source, 0, 5).Select(x => new NicoVideo() { Id = x.VideoId, Title = x.Title }).ToList();

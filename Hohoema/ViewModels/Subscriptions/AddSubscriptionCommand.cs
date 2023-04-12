@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using Hohoema.Contracts.Subscriptions;
 using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Channel;
 using Hohoema.Models.Niconico.Mylist;
@@ -91,7 +92,7 @@ public sealed class AddSubscriptionCommand : CommandBase
 
             bool alreadyAdded = _subscriptionManager.TryGetSubscriptionGroup(result.sourceType, result.id, out Subscription? alreadySource, out SubscriptionGroup? defaultGroup);
 
-            var groups = new[] { new SubscriptionGroup(LiteDB.ObjectId.Empty, "SubscGroup_DefaultGroupName".Translate()) }
+            var groups = new[] { new SubscriptionGroup(SubscriptionGroupId.DefaultGroupId, "SubscGroup_DefaultGroupName".Translate()) }
                 .Concat(_subscriptionManager.GetSubscGroups())                
                 .ToList();
 
@@ -105,7 +106,7 @@ public sealed class AddSubscriptionCommand : CommandBase
 
             if (selectedGroup == null) { return; }
 
-            if (selectedGroup.GroupId == LiteDB.ObjectId.Empty)
+            if (selectedGroup.GroupId == SubscriptionGroupId.DefaultGroupId)
             {
                 selectedGroup = null;
             }
@@ -115,7 +116,7 @@ public sealed class AddSubscriptionCommand : CommandBase
                 var subscription = _subscriptionManager.AddSubscription(result.sourceType, result.id, result.label!, selectedGroup);
                 if (subscription != null)
                 {
-                    Debug.WriteLine($"subscription added: {subscription.Id} {subscription.Label} {subscription.Id}");
+                    Debug.WriteLine($"subscription added: {subscription.SubscriptionId} {subscription.Label} {subscription.SubscriptionId}");
                     _notificationService.ShowLiteInAppNotification_Success("Notification_SuccessAddSubscriptionSourceWithLabel".Translate(subscription.Label));
 
                     //Analytics.TrackEvent("Subscription_Added", new Dictionary<string, string>
@@ -129,7 +130,7 @@ public sealed class AddSubscriptionCommand : CommandBase
                 alreadySource.Group = selectedGroup!;
                 _subscriptionManager.UpdateSubscription(alreadySource);
 
-                Debug.WriteLine($"subscription updated: {alreadySource.Id} {alreadySource.Label} {alreadySource.Id}");
+                Debug.WriteLine($"subscription updated: {alreadySource.SubscriptionId} {alreadySource.Label} {alreadySource.SubscriptionId}");
                 _notificationService.ShowLiteInAppNotification_Success("Notification_SuccessAddSubscriptionSourceWithLabel".Translate(alreadySource.Label));
             }
         }

@@ -53,7 +53,7 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
     public IReactiveProperty<bool> IsAutoUpdateEnabled { get; }
 
     public ObservableCollection<SubscriptionGroup> SubscriptionGroups { get; } = new();
-    private readonly SubscriptionGroup _defaultSubscGroup = new SubscriptionGroup(ObjectId.Empty, "SubscGroup_DefaultGroupName".Translate());
+    private readonly SubscriptionGroup _defaultSubscGroup = new SubscriptionGroup(SubscriptionGroupId.DefaultGroupId, "SubscGroup_DefaultGroupName".Translate());
 
     void IRecipient<SettingsRestoredMessage>.Receive(SettingsRestoredMessage message)
     {
@@ -131,14 +131,14 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
         }
 
         Subscriptions.Clear();
-        foreach (var subscInfo in _subscriptionManager.GetAllSubscriptionSourceEntities().OrderBy(x => x.SortIndex))
+        foreach (var subscInfo in _subscriptionManager.GetAllSubscriptions().OrderBy(x => x.SortIndex))
         {
             var vm = new SubscriptionViewModel(_logger, _messenger, _queuePlaylist, subscInfo, this, _subscriptionManager, _pageManager, _dialogService, _VideoPlayWithQueueCommand);
             var latestVideo = _subscriptionManager.GetSubscFeedVideos(subscInfo, 0, 1).FirstOrDefault();            
             if (latestVideo != null)
             {
                 var items = _nicoVideoProvider.GetCachedVideoInfoItems(new[] { (VideoId)latestVideo.VideoId });
-                vm.UpdateFeedResult(items, _subscriptionManager.GetLastUpdatedAt(subscInfo.Id));
+                vm.UpdateFeedResult(items, _subscriptionManager.GetLastUpdatedAt(subscInfo.SubscriptionId));
             }
             Subscriptions.Add(vm);
         }
@@ -155,7 +155,7 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
         _messenger.Register<SubscriptionDeletedMessage>(this, (r, m) =>
         {
             var entityId = m.Value;
-            var target = Subscriptions.FirstOrDefault(x => x._source.Id == entityId);
+            var target = Subscriptions.FirstOrDefault(x => x._source.SubscriptionId == entityId);
             if (target == null) { return; }
 
             _scheduler.Schedule(() =>

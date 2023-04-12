@@ -130,8 +130,10 @@
     <Compile Include="Contracts\Services\INotificationService.cs" />
     <Compile Include="Contracts\Services\ISelectionDialogService.cs" />
     <Compile Include="Contracts\Subscriptions\SubscriptionFeedVideoMessages.cs" />
+    <Compile Include="Contracts\Subscriptions\SubscriptionGroupId.cs" />
     <Compile Include="Contracts\Subscriptions\SubscriptionGroupMessages.cs" />
     <Compile Include="Contracts\Subscriptions\SubscriptionMessages.cs" />
+    <Compile Include="Contracts\Subscriptions\SusbcriptionId.cs" />
     <Compile Include="IsExternalInit.cs" />
     <Compile Include="MessengerObservableExtensions.cs" />
     <Compile Include="Models\Application\AppearanceSettings.cs" />
@@ -383,6 +385,11 @@
     </PackageReference>
     <PackageReference Include="System.Threading.Tasks.Extensions">
       <Version>4.5.4</Version>
+    </PackageReference>
+    <PackageReference Include="UnitGenerator">
+      <Version>1.4.10</Version>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="XTSSharp.NetStandard">
       <Version>1.0.0</Version>

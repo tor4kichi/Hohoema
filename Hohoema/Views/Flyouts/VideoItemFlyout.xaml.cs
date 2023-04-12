@@ -213,11 +213,11 @@ public sealed partial class VideoItemFlyout : MenuFlyout
 
         // ここから連続再生
         if (!isMultipleSelection
-            && content is IPlaylistItemPlayable playlistItemPlayable
+            && content is IPlaylistItemPlayable playable && playable.PlaylistItemToken is not null and var token && token.Playlist is ISortablePlaylist
             )
         {
             PlaylistPlayFromHere.Visibility = Visibility.Visible;
-            PlaylistPlayFromHere.CommandParameter = playlistItemPlayable;
+            PlaylistPlayFromHere.CommandParameter = playable;
         }
         else
         {

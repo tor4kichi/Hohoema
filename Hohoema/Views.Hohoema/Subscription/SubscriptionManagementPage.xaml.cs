@@ -2,6 +2,7 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
+using Hohoema.Contracts.Subscriptions;
 using Hohoema.Models.Subscriptions;
 using Hohoema.ViewModels.Pages.Hohoema.Subscription;
 using Hohoema.Views.Flyouts;
@@ -85,7 +86,7 @@ public sealed partial class SubscriptionManagementPage : Page
                 CommandParameter = subscGroup,
                 IsChecked = subscVM.Group != null 
                     ? subscVM.Group.GroupId == subscGroup.GroupId 
-                    : subscGroup.GroupId == ObjectId.Empty
+                    : subscGroup.GroupId == SubscriptionGroupId.DefaultGroupId
             });
         }        
     }

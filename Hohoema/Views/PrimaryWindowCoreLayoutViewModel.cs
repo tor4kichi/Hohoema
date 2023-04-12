@@ -1028,7 +1028,7 @@ public sealed class SubscriptionMenuItemViewModel
         SubscGroups = new (
             new[] 
             {
-                new SubscriptionGroup(ObjectId.Empty, "SubscGroup_DefaultGroupName".Translate()),
+                new SubscriptionGroup(SubscriptionGroupId.DefaultGroupId, "SubscGroup_DefaultGroupName".Translate()),
             }
             .Concat(_subscriptionManager.GetSubscGroups())
             .Select(ToMenuItemVM)
@@ -1078,10 +1078,10 @@ public sealed class SubscriptionMenuItemViewModel
 
 public sealed class SubscriptionGroupNavigateAwareMenuItemViewModel : NavigateAwareMenuItemViewModel
 {
-    public SubscriptionGroupNavigateAwareMenuItemViewModel(ObjectId groupId, string label, HohoemaPageType pageType, INavigationParameters paramaeter = null) : base(label, pageType, paramaeter)
+    public SubscriptionGroupNavigateAwareMenuItemViewModel(SubscriptionGroupId groupId, string label, HohoemaPageType pageType, INavigationParameters paramaeter = null) : base(label, pageType, paramaeter)
     {
         GroupId = groupId;
     }
 
-    public ObjectId GroupId { get; }
+    public SubscriptionGroupId GroupId { get; }
 }

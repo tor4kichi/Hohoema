@@ -16,9 +16,9 @@ public sealed class SubscriptionAddedMessage : ValueChangedMessage<Subscription>
     }
 }
 
-public sealed class SubscriptionDeletedMessage : ValueChangedMessage<ObjectId>
+public sealed class SubscriptionDeletedMessage : ValueChangedMessage<SusbcriptionId>
 {
-    public SubscriptionDeletedMessage(ObjectId value) : base(value)
+    public SubscriptionDeletedMessage(SusbcriptionId value) : base(value)
     {
     }
 }

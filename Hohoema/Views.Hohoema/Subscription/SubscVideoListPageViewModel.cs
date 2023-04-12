@@ -89,7 +89,7 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
         ApplicationLayoutManager = applicationLayoutManager;
         SelectionModeToggleCommand = selectionModeToggleCommand;
         SubscriptionGroups = new (_subscriptionManager.GetSubscGroups());
-        _defaultSubscGroup = new SubscriptionGroup(ObjectId.Empty, "SubscGroup_DefaultGroupName".Translate());
+        _defaultSubscGroup = new SubscriptionGroup(SubscriptionGroupId.DefaultGroupId, "SubscGroup_DefaultGroupName".Translate());
         _selectedSubscGroup = null;
     }
 
@@ -110,10 +110,11 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
         
         try
         {
-            if (parameters.TryGetValue("SubscGroupId", out string idStr))
-            {
-                ObjectId subscriptionId = new ObjectId(idStr);
-                if (SubscriptionGroups.Skip(1).FirstOrDefault(x => x.GroupId == subscriptionId) is not null and var group)
+            if (parameters.TryGetValue("SubscGroupId", out string idStr)
+                && SubscriptionGroupId.TryParse(idStr, out SubscriptionGroupId subscriptionId)
+                )
+            {                
+                if (SubscriptionGroups.Skip(1).FirstOrDefault(x => x!.GroupId == subscriptionId) is not null and var group)
                 {
                     SelectedSubscGroup = group;
                 }
@@ -202,7 +203,7 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
         {
             if (SelectedSubscGroup != null && !SelectedSubscGroup.IsInvalidId)
             {                
-                LastCheckedAt = _subscriptionManager.GetLastUpdatedAt(SelectedSubscGroup.GroupId);
+                LastCheckedAt = _subscriptionManager.GetLastCheckedAt(SelectedSubscGroup.GroupId);
             }            
             else
             {
@@ -273,7 +274,7 @@ public sealed class SubscVideoListIncrementalLoadingSource : IIncrementalSource<
         IEnumerable<SubscFeedVideo> videos;
         if (SubscriptionGroup != null)
         {
-            videos = SubscriptionGroup.GroupId != ObjectId.Empty
+            videos = SubscriptionGroup.GroupId != SubscriptionGroupId.DefaultGroupId
                 ? _subscriptionManager.GetSubscFeedVideos(SubscriptionGroup, pageIndex * pageSize, pageSize)
                 : _subscriptionManager.GetSubscFeedVideos(default(SubscriptionGroup), pageIndex * pageSize, pageSize)
                 ;

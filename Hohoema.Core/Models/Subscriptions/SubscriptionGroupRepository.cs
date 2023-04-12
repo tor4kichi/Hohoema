@@ -1,4 +1,5 @@
-﻿using Hohoema.Infra;
+﻿using Hohoema.Contracts.Subscriptions;
+using Hohoema.Infra;
 using LiteDB;
 using System;
 using System.Collections.Generic;
@@ -10,9 +11,14 @@ namespace Hohoema.Models.Subscriptions;
 
 public sealed class SubscriptionGroupRepository : LiteDBServiceBase<SubscriptionGroup>
 {
+    static SubscriptionGroupRepository()
+    {
+        BsonMapper.Global.RegisterType(x => x.AsPrimitive(), x => new SubscriptionGroupId(x.AsObjectId));
+    }
+
     public SubscriptionGroupRepository(LiteDatabase liteDatabase) : base(liteDatabase)
     {
-        
+
     }
 
     public override BsonValue CreateItem(SubscriptionGroup item)
@@ -20,6 +26,16 @@ public sealed class SubscriptionGroupRepository : LiteDBServiceBase<Subscription
         item.Order = GetNewOrder();
         return base.CreateItem(item);
     }
+
+    internal bool DeleteItem(SubscriptionGroupId groupId)
+    {
+        return base.DeleteItem(groupId.AsPrimitive());
+    }
+
+    internal SubscriptionGroup FindById(SubscriptionGroupId subscriptionGroupId)
+    {
+        return base.FindById(subscriptionGroupId.AsPrimitive());
+    }    
 
     private int GetNewOrder()
     {
@@ -53,17 +69,17 @@ public sealed class SubscriptionGroupComparer : IEqualityComparer<SubscriptionGr
 public sealed class SubscriptionGroup : IComparable<SubscriptionGroup>, IEquatable<SubscriptionGroup>
 {
     [BsonId]
-    public ObjectId GroupId { get; }
+    public SubscriptionGroupId GroupId { get; }
 
     public string Name { get; set; } = string.Empty;
 
     public int Order { get; set; } = 0;
 
     [BsonIgnore]
-    public bool IsInvalidId => GroupId == ObjectId.Empty;
+    public bool IsInvalidId => GroupId == SubscriptionGroupId.DefaultGroupId;
 
     [BsonCtor]
-    public SubscriptionGroup(ObjectId _id, string name)
+    public SubscriptionGroup(SubscriptionGroupId _id, string name)
     {
         GroupId = _id;
         Name = name;
@@ -71,7 +87,7 @@ public sealed class SubscriptionGroup : IComparable<SubscriptionGroup>, IEquatab
 
     public SubscriptionGroup(string name)
     {
-        GroupId = ObjectId.NewObjectId();
+        GroupId = SubscriptionGroupId.NewGroupId();
         Name = name;
     }
 
