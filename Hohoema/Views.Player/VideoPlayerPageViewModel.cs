@@ -437,10 +437,17 @@ public partial class VideoPlayerPageViewModel : HohoemaPageViewModelBase
                     {
                         CommentPlayer.ClearCurrentSession();
 
-                        // 削除状態をチェック（再生準備より先に行う）
-                        var (res, video) = await NicoVideoProvider.GetVideoInfoAsync(item.VideoId);
-                        VideoInfo = video;
-                        CheckDeleted(res);
+                        try
+                        {
+                            // 削除状態をチェック（再生準備より先に行う）
+                            var (res, video) = await NicoVideoProvider.GetVideoInfoAsync(item.VideoId);
+                            VideoInfo = video;
+                            CheckDeleted(res);
+                        }
+                        catch 
+                        {
+                            VideoInfo = NicoVideoProvider.GetCachedVideoInfo(item.VideoId);
+                        }
 
                         VideoId = VideoInfo.VideoId;
 
