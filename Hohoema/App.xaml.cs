@@ -33,6 +33,7 @@ using Hohoema.Services.VideoCache;
 using Hohoema.ViewModels;
 using Hohoema.ViewModels.Niconico.Video;
 using Hohoema.Views.Pages;
+using I18NPortable;
 using LiteDB;
 using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Uwp.Helpers;
@@ -302,9 +303,9 @@ public sealed partial class App : Application
 
         LiteDatabase tempDb = new($"Filename={Path.Combine(ApplicationData.Current.TemporaryFolder.Path, "thumbnail_cache.db")};{listDbUpgradeConnectionStringParam}");
         container.UseInstance<LiteDatabase>(tempDb, serviceKey: "TempDb");
-        container.Register<ThumbnailCacheManager>(reuse: new SingletonReuse(), made: Made.Of(() => new ThumbnailCacheManager(tempDb)));
+        container.Register<ThumbnailCacheManager>(reuse: Reuse.Singleton, made: Made.Of(() => new ThumbnailCacheManager(tempDb)));
         
-        container.RegisterDelegate<NicoVideoCacheRepository>((c) => new NicoVideoCacheRepository(tempDb), new SingletonReuse());
+        container.RegisterDelegate<NicoVideoCacheRepository>((c) => new NicoVideoCacheRepository(tempDb), Reuse.Singleton);
         container.RegisterDelegate(c => new SubscFeedVideoRepository(tempDb));
         container.RegisterDelegate<IPlayerView>(c =>
         {
@@ -315,65 +316,71 @@ public sealed partial class App : Application
         });
 
         // MediaPlayerを各ウィンドウごとに一つずつ作るように
-        container.Register<MediaPlayer>(reuse: new SingletonReuse());
+        container.Register<MediaPlayer>(reuse: Reuse.Singleton);
 
         // 再生プレイリスト管理のクラスは各ウィンドウごとに一つずつ作成
-        container.Register<HohoemaPlaylistPlayer>(reuse: new SingletonReuse());
+        container.Register<HohoemaPlaylistPlayer>(reuse: Reuse.Singleton);
 
         // Service
-        container.Register<PageManager>(reuse: new SingletonReuse());
-        container.Register<PrimaryViewPlayerManager>(reuse: new SingletonReuse());
-        container.Register<SecondaryViewPlayerManager>(reuse: new SingletonReuse());
-        container.Register<AppWindowSecondaryViewPlayerManager>(reuse: new SingletonReuse());
-        container.Register<NiconicoLoginService>(reuse: new SingletonReuse());
-        container.Register<DialogService>(reuse: new SingletonReuse());
+        container.Register<PageManager>(reuse: Reuse.Singleton);
+        container.Register<PrimaryViewPlayerManager>(reuse: Reuse.Singleton);
+        container.Register<SecondaryViewPlayerManager>(reuse: Reuse.Singleton);
+        container.Register<AppWindowSecondaryViewPlayerManager>(reuse: Reuse.Singleton);
+        container.Register<NiconicoLoginService>(reuse: Reuse.Singleton);
+        container.Register<DialogService>(reuse: Reuse.Singleton);
         container.RegisterMapping<IDialogService, DialogService>();
         container.RegisterMapping<IMylistGroupDialogService, DialogService>();
         container.RegisterMapping<ISelectionDialogService, DialogService>();
-        container.Register<INotificationService, NotificationService>(reuse: new SingletonReuse());
-        container.Register<NoUIProcessScreenContext>(reuse: new SingletonReuse());
-        container.Register<CurrentActiveWindowUIContextService>(reuse: new SingletonReuse());
-        container.Register<ILocalizeService, LocalizeService>();
-        container.Register<SubscriptionUpdateManager>(reuse: new SingletonReuse());
+        container.Register<INotificationService, NotificationService>(reuse: Reuse.Singleton);
+        container.Register<NoUIProcessScreenContext>(reuse: Reuse.Singleton);
+        container.Register<CurrentActiveWindowUIContextService>(reuse: Reuse.Singleton);
+        container.Register<SubscriptionUpdateManager>(reuse: Reuse.Singleton);
         container.RegisterMapping<IToastActivationAware, SubscriptionUpdateManager>(ifAlreadyRegistered: IfAlreadyRegistered.AppendNotKeyed);
-        container.Register<NavigationTriggerFromExternal>(reuse: new SingletonReuse());
+        container.Register<NavigationTriggerFromExternal>(reuse: Reuse.Singleton);
         container.RegisterMapping<IToastActivationAware, NavigationTriggerFromExternal>(ifAlreadyRegistered: IfAlreadyRegistered.AppendNotKeyed);
 
+        // container.Register<ILocalizeService, LocalizeService>(); とした場合に
+        // - System.PlatformNotSupportedException
+        // - Dynamic code generation is not supported on this platform.
+        // と例外が出てしまうのでインスタンス登録で代用している
+        container.RegisterInstance<ILocalizeService>(new LocalizeService());
+
+
         // Models
-        container.Register<AppearanceSettings>(reuse: new SingletonReuse());
-        container.Register<PinSettings>(reuse: new SingletonReuse());
-        container.Register<PlayerSettings>(reuse: new SingletonReuse());
-        container.Register<VideoFilteringSettings>(reuse: new SingletonReuse());
-        container.Register<VideoRankingSettings>(reuse: new SingletonReuse());
-        container.Register<NicoRepoSettings>(reuse: new SingletonReuse());
-        container.Register<CommentFliteringRepository>(reuse: new SingletonReuse());
-        container.Register<QueuePlaylist>(reuse: new SingletonReuse());
+        container.Register<AppearanceSettings>(reuse: Reuse.Singleton);
+        container.Register<PinSettings>(reuse: Reuse.Singleton);
+        container.Register<PlayerSettings>(reuse: Reuse.Singleton);
+        container.Register<VideoFilteringSettings>(reuse: Reuse.Singleton);
+        container.Register<VideoRankingSettings>(reuse: Reuse.Singleton);
+        container.Register<NicoRepoSettings>(reuse: Reuse.Singleton);
+        container.Register<CommentFliteringRepository>(reuse: Reuse.Singleton);
+        container.Register<QueuePlaylist>(reuse: Reuse.Singleton);
 
-        container.Register<NicoVideoProvider>(reuse: new SingletonReuse());
+        container.Register<NicoVideoProvider>(reuse: Reuse.Singleton);
 
 
-        container.Register<NiconicoSession>(reuse: new SingletonReuse());
-        container.Register<NicoVideoSessionOwnershipManager>(reuse: new SingletonReuse());
+        container.Register<NiconicoSession>(reuse: Reuse.Singleton);
+        container.Register<NicoVideoSessionOwnershipManager>(reuse: Reuse.Singleton);
 
-        container.Register<LoginUserOwnedMylistManager>(reuse: new SingletonReuse());
+        container.Register<LoginUserOwnedMylistManager>(reuse: Reuse.Singleton);
 
-        container.Register<SubscriptionManager>(reuse: new SingletonReuse());
+        container.Register<SubscriptionManager>(reuse: Reuse.Singleton);
 
-        container.Register<Models.VideoCache.VideoCacheManager>(reuse: new SingletonReuse());
-        container.Register<Models.VideoCache.VideoCacheSettings>(reuse: new SingletonReuse());
+        container.Register<Models.VideoCache.VideoCacheManager>(reuse: Reuse.Singleton);
+        container.Register<Models.VideoCache.VideoCacheSettings>(reuse: Reuse.Singleton);
 
         // UseCase
-        container.Register<VideoCommentPlayer>(reuse: new SingletonReuse());
-        container.Register<CommentFilteringFacade>(reuse: new SingletonReuse());
-        container.Register<MediaPlayerSoundVolumeManager>(reuse: new SingletonReuse());
-        container.Register<LocalMylistManager>(reuse: new SingletonReuse());
-        container.Register<VideoItemsSelectionContext>(reuse: new SingletonReuse());
-        container.Register<WatchHistoryManager>(reuse: new SingletonReuse());
-        container.Register<ApplicationLayoutManager>(reuse: new SingletonReuse());
+        container.Register<VideoCommentPlayer>(reuse: Reuse.Singleton);
+        container.Register<CommentFilteringFacade>(reuse: Reuse.Singleton);
+        container.Register<MediaPlayerSoundVolumeManager>(reuse: Reuse.Singleton);
+        container.Register<LocalMylistManager>(reuse: Reuse.Singleton);
+        container.Register<VideoItemsSelectionContext>(reuse: Reuse.Singleton);
+        container.Register<WatchHistoryManager>(reuse: Reuse.Singleton);
+        container.Register<ApplicationLayoutManager>(reuse: Reuse.Singleton);
 
-        container.Register<VideoCacheFolderManager>(reuse: new SingletonReuse());
+        container.Register<VideoCacheFolderManager>(reuse: Reuse.Singleton);
 
-        container.Register<IPlaylistFactoryResolver, PlaylistItemsSourceResolver>(reuse: new SingletonReuse());
+        container.Register<IPlaylistFactoryResolver, PlaylistItemsSourceResolver>(reuse: Reuse.Singleton);
 
     }
     
