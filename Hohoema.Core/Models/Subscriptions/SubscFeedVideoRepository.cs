@@ -101,15 +101,26 @@ public sealed class SubscFeedVideoRepository
         return _subscFeedVideoRepository.Find(Query.All(nameof(SubscFeedVideo.PostAt), Query.Descending)).Skip(skip).Take(limit);
     }
 
-    public IEnumerable<SubscFeedVideo> GetVideosForMarkAsChecked(DateTime targetDateTime)
+    public IEnumerable<SubscFeedVideo> GetVideosOlderAt(DateTime targetTime, int skip = 0, int limit = int.MaxValue)
     {
-        return _subscFeedVideoRepository.Find(x => x.PostAt < targetDateTime).OrderByDescending(x => x.PostAt);
+        return _subscFeedVideoRepository.Find(x => x.PostAt < targetTime).Where(x => true).OrderByDescending(x => x.PostAt).Skip(skip).Take(limit);
     }
 
-    public IEnumerable<SubscFeedVideo> GetVideosForMarkAsChecked(IEnumerable<SusbcriptionId> subscIds, DateTime targetDateTime)
+    public IEnumerable<SubscFeedVideo> GetVideosOlderAt(IEnumerable<SusbcriptionId> subscIds, DateTime targetTime, int skip = 0, int limit = int.MaxValue)
     {
         HashSet<SusbcriptionId> idHashSet = subscIds.ToHashSet();
-        return _subscFeedVideoRepository.Find(x => x.PostAt < targetDateTime).Where(x => idHashSet.Contains(x.SourceSubscId)).OrderByDescending(x => x.PostAt);
+        return _subscFeedVideoRepository.Find(x => x.PostAt < targetTime).Where(x => idHashSet.Contains(x.SourceSubscId)).OrderByDescending(x => x.PostAt).Skip(skip).Take(limit);
+    }
+
+    public IEnumerable<SubscFeedVideo> GetVideosNewerAt(DateTime targetTime, int skip = 0, int limit = int.MaxValue)
+    {
+        return _subscFeedVideoRepository.Find(x => targetTime < x.PostAt).Where(x => true).OrderByDescending(x => x.PostAt).Skip(skip).Take(limit);
+    }
+
+    public IEnumerable<SubscFeedVideo> GetVideosNewerAt(IEnumerable<SusbcriptionId> subscIds, DateTime targetTime, int skip = 0, int limit = int.MaxValue)
+    {
+        HashSet<SusbcriptionId> idHashSet = subscIds.ToHashSet();
+        return _subscFeedVideoRepository.Find(x => targetTime < x.PostAt).Where(x => idHashSet.Contains(x.SourceSubscId)).OrderByDescending(x => x.PostAt).Skip(skip).Take(limit);
     }
 
     public DateTime GetLatestTimeOnSubscVideo(SusbcriptionId subscId)

@@ -52,6 +52,8 @@
 
             <CommandBar.PrimaryCommands>
 
+              <AppBarToggleButton Label="{i18nExt:Localize Key=SubscVideosDisplayChecked}" IsChecked="{x:Bind _vm.IsDisplayChecked, Mode=TwoWay}" />
+
               <AppBarElementContainer VerticalContentAlignment="Stretch">
                 <DropDownButton Content="チェック済みにマーク">
                   <DropDownButton.Flyout>
@@ -147,7 +149,7 @@
     </videoList:VideoItemsListView>
 
     <Grid x:Name="EmptyItemsLayout" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center">
-      <TextBlock Text="{i18nExt:Localize Key=VideoNoItems}"
+      <TextBlock Text="{x:Bind _vm.AllCheckedLocalizedTextForSelectedGroup, Mode=OneWay}"
                      Style="{StaticResource SubtitleTextBlockStyle}"
                      Opacity="0.8"
                      />
@@ -211,6 +213,20 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="EmptyItemsLayout.Visibility" Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{Binding NowLoading}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="ScrollToTopButton.IsEnabled" Value="False" />
+            <!--
+            <Setter Target="RefreshButton.IsEnabled" Value="False" />
+            -->
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>

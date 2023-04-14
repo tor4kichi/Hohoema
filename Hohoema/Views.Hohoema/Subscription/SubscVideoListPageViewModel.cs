@@ -49,7 +49,7 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
     {
         if (_lastSelectedSubscGroup != value)
         {
-            if (value != null && !value.IsInvalidId)
+            if (value != null)
             {
                 LastCheckedAt = _subscriptionManager.GetLastCheckedAt(value.GroupId);
             }
@@ -61,9 +61,21 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
             ResetList();
         }
         _lastSelectedSubscGroup = value;
+        AllCheckedLocalizedTextForSelectedGroup = "SubscGroupVideosAllCheckedWithSubscGroupTitle".Translate(value?.Name ?? "All".Translate());
     }
 
-    private SubscriptionGroup _defaultSubscGroup;
+    [ObservableProperty]
+    private string _allCheckedLocalizedTextForSelectedGroup;
+
+    [ObservableProperty]
+    private bool _isDisplayChecked;
+
+
+    partial void OnIsDisplayCheckedChanged(bool value)
+    {
+        ResetList();
+    }
+
     private SubscriptionGroup? _lastSelectedSubscGroup;
     public SubscVideoListPageViewModel(
         ILogger logger,
@@ -89,7 +101,6 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
         ApplicationLayoutManager = applicationLayoutManager;
         SelectionModeToggleCommand = selectionModeToggleCommand;
         SubscriptionGroups = new (_subscriptionManager.GetSubscGroups());
-        _defaultSubscGroup = new SubscriptionGroup(SubscriptionGroupId.DefaultGroupId, "SubscGroup_DefaultGroupName".Translate());
         _selectedSubscGroup = null;
     }
 
@@ -102,7 +113,7 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
 
         SubscriptionGroups.Clear();
         SubscriptionGroups.Add(null);
-        SubscriptionGroups.Add(_defaultSubscGroup);
+        SubscriptionGroups.Add(_subscriptionManager.DefaultSubscriptionGroup);
         foreach (var subscGroup in _subscriptionManager.GetSubscGroups())
         {
             SubscriptionGroups.Add(subscGroup);
@@ -133,7 +144,7 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
             SelectedSubscGroup = null;
         }
 
-        if (SelectedSubscGroup != null && !SelectedSubscGroup.IsInvalidId)
+        if (SelectedSubscGroup != null)
         {
             LastCheckedAt = _subscriptionManager.GetLastCheckedAt(SelectedSubscGroup.GroupId);
         }
@@ -185,7 +196,11 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
     {
         return (
             SubscVideoListIncrementalLoadingSource.PageSize,
-            new SubscVideoListIncrementalLoadingSource(SelectedSubscGroup, CreatePlaylist(), _subscriptionManager, _nicoVideoProvider, _messenger) { LastCheckedAt = LastCheckedAt }
+            new SubscVideoListIncrementalLoadingSource(SelectedSubscGroup, CreatePlaylist(), _subscriptionManager, _nicoVideoProvider, _messenger) 
+            {
+                LastCheckedAt = LastCheckedAt ,
+                IsDisplayChceked = IsDisplayChecked
+            }
             );
     }
 
@@ -221,11 +236,25 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
 
             LastCheckedAt = targetDateTime;
         }
+        
+        if (SelectedSubscGroup == null)
+        {
+            // 購読グループ未指定の場合は全ての購読グループのチェック日時を設定する
+            _subscriptionManager.SetCheckedAt(SubscriptionGroupId.DefaultGroupId, LastCheckedAt);
+            foreach (var subscGroup in _subscriptionManager.GetSubscGroups())
+            {
+                _subscriptionManager.SetCheckedAt(subscGroup.GroupId, LastCheckedAt);
+            }
+        }
+        else
+        {
+            _subscriptionManager.SetCheckedAt(SelectedSubscGroup.GroupId, LastCheckedAt);
+        }
 
         // 指定日時以前の動画を全て視聴済みにマークする
         var videos = SelectedSubscGroup != null
-            ? _subscriptionManager.GetSubscFeedVideosForMarkAsChecked(SelectedSubscGroup, LastCheckedAt)
-            : _subscriptionManager.GetSubscFeedVideosForMarkAsChecked(LastCheckedAt)
+            ? _subscriptionManager.GetSubscFeedVideosOlderAt(SelectedSubscGroup?.GroupId, LastCheckedAt)
+            : _subscriptionManager.GetSubscFeedVideosOlderAt(LastCheckedAt)
             ;
 
         foreach (var video in videos)
@@ -263,6 +292,8 @@ public sealed class SubscVideoListIncrementalLoadingSource : IIncrementalSource<
     }
     
     public DateTime LastCheckedAt { get; set; }
+    public bool IsDisplayChceked { get; set; }
+
 
     private readonly HashSet<VideoId> _videoIds = new HashSet<VideoId>();
 
@@ -272,18 +303,15 @@ public sealed class SubscVideoListIncrementalLoadingSource : IIncrementalSource<
     public Task<IEnumerable<object>> GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken = default)
     {
         IEnumerable<SubscFeedVideo> videos;
-        if (SubscriptionGroup != null)
+        if (!IsDisplayChceked)
         {
-            videos = SubscriptionGroup.GroupId != SubscriptionGroupId.DefaultGroupId
-                ? _subscriptionManager.GetSubscFeedVideos(SubscriptionGroup, pageIndex * pageSize, pageSize)
-                : _subscriptionManager.GetSubscFeedVideos(default(SubscriptionGroup), pageIndex * pageSize, pageSize)
-                ;
+            videos = _subscriptionManager.GetSubscFeedVideosNewerAt(SubscriptionGroup?.GroupId, LastCheckedAt, pageIndex * pageSize, pageSize);
         }
         else
         {
-            videos = _subscriptionManager.GetAllSubscFeedVideos(pageIndex * pageSize, pageSize);
+            videos = _subscriptionManager.GetSubscFeedVideos(SubscriptionGroup?.GroupId, pageIndex * pageSize, pageSize);
         }
-        
+
         List<object> resultItems = new();
         foreach (var video in videos)
         {

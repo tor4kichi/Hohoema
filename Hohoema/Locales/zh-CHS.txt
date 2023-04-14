@@ -36,6 +36,7 @@ Select = 选择
 WatchVideo = 视图
 Preview = 以前
 Next = 下一个
+ViewList = 显示列表
 
 
 #### Hohoema App ####
@@ -229,8 +230,8 @@ SubscGroup_Rename = 重命名订阅组
 SubscGroup_DeleteComfirmDialogContent = 即使您删除订阅的群组，订阅的群组也会更改为“默认”，因此您可以放心删除。 \n你确定要删除它吗？
 SubscGroup_DeleteComfirmDialogTitle = 您确定要删除 {0} 组吗？
 
-VideoNoItem = 没有可显示的视频
-
+SubscGroupVideosAllCheckedWithSubscGroupTitle = 没有可显示的视频
+SubscVideosDisplayChecked = 显示勾选
 
 
 

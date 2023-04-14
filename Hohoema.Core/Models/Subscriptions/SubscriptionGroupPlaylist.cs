@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using CommunityToolkit.Diagnostics;
 using Hohoema.Contracts.Services;
 using Hohoema.Contracts.Subscriptions;
 using Hohoema.Models.Niconico.Video;
@@ -48,12 +49,12 @@ public sealed class SubscriptionGroupPlaylist : IUserManagedPlaylist
 
     public event NotifyCollectionChangedEventHandler? CollectionChanged;
 
-    public int TotalCount => _subscriptionManager.GetSubscriptionGroupVideosCount(_group);
+    public int TotalCount => _subscriptionManager.GetSubscriptionGroupVideosCount(_group?.GroupId);
 
     public async Task<IEnumerable<IVideoContent>> GetAllItemsAsync(IPlaylistSortOption sortOption, CancellationToken cancellationToken = default)
     {
         List<IVideoContent> videos = new ();
-        foreach (var subscVideo in _subscriptionManager.GetSubscFeedVideosRaw(_group).OrderBy(x => x.PostAt))
+        foreach (var subscVideo in _subscriptionManager.GetSubscFeedVideosRaw(_group?.GroupId).OrderBy(x => x.PostAt))
         {
             var nicoVideo = await _nicoVideoProvider.GetCachedVideoInfoAsync(subscVideo.VideoId, cancellationToken);
             videos.Add(nicoVideo);
@@ -101,8 +102,9 @@ public sealed class SubscriptionGroupPlaylistFactory : IPlaylistFactory
 
     public ValueTask<IPlaylist> Create(PlaylistId playlistId)
     {
-        var group = _subscriptionManager.GetSubscriptionGroup(SubscriptionGroupId.Parse(playlistId.Id));
-        return new (new SubscriptionGroupPlaylist(group, _subscriptionManager, _nicoVideoProvider, _localizeService));
+        Guard.IsTrue(playlistId.Origin is PlaylistItemsSourceOrigin.SubscriptionGroup);
+        var group = _subscriptionManager.GetSubscriptionGroup(playlistId.Id);
+        return new(new SubscriptionGroupPlaylist(group, _subscriptionManager, _nicoVideoProvider, _localizeService));
     }
 
     public IPlaylistSortOption DeserializeSortOptions(string serializedSortOptions)

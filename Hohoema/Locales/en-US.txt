@@ -36,6 +36,7 @@ Select = Choice
 WatchVideo = View
 Preview = Previous
 Next = Next
+ViewList = Show list
 
 
 #### Hohoema App ####
@@ -229,8 +230,8 @@ SubscGroup_Rename = Rename subscription group
 SubscGroup_DeleteComfirmDialogContent = Even if you delete a subscribed group, the subscribed group will be changed to "default", so you can safely delete it. \nAre you sure you want to delete it?
 SubscGroup_DeleteComfirmDialogTitle = Are you sure you want to delete the {0} group?
 
-VideoNoItem = No videos to display
-
+SubscGroupVideosAllCheckedWithSubscGroupTitle = No videos to display
+SubscVideosDisplayChecked = Show checked
 
 
 

@@ -53,8 +53,7 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
     public IReactiveProperty<bool> IsAutoUpdateEnabled { get; }
 
     public ObservableCollection<SubscriptionGroup> SubscriptionGroups { get; } = new();
-    private readonly SubscriptionGroup _defaultSubscGroup = new SubscriptionGroup(SubscriptionGroupId.DefaultGroupId, "SubscGroup_DefaultGroupName".Translate());
-
+    
     void IRecipient<SettingsRestoredMessage>.Receive(SettingsRestoredMessage message)
     {
         
@@ -124,7 +123,7 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
     public override void OnNavigatingTo(INavigationParameters parameters)
     {
         SubscriptionGroups.Clear();
-        SubscriptionGroups.Add(_defaultSubscGroup);
+        SubscriptionGroups.Add(_subscriptionManager.DefaultSubscriptionGroup);
         foreach (var subscGroup in _subscriptionManager.GetSubscGroups())
         {
             SubscriptionGroups.Add(subscGroup);

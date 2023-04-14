@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Contracts.AppLifecycle;
@@ -275,12 +276,16 @@ public sealed class SubscriptionUpdateManager
                     )
                 {
                     // Note: ObjectId.Empty は デフォルトグループを指す
-                    ObjectId groupId = new ObjectId(groupIdPlay);
+                    var groupId = SubscriptionGroupId.Parse(groupIdPlay);
                     // TODO: 購読グループの未視聴動画を再生する
+                    var lastCheckAt = _subscriptionManager.GetLastCheckedAt(groupId);
+                    var recentVideoInUnchecked = _subscriptionManager.GetSubscFeedVideosNewerAt(groupId, lastCheckAt).FirstOrDefault();
+                    Guard.IsNotNull(recentVideoInUnchecked, nameof(recentVideoInUnchecked));
+                    await _messenger.Send(VideoPlayRequestMessage.PlayPlaylist(groupId.ToString(), PlaylistItemsSourceOrigin.SubscriptionGroup, string.Empty, recentVideoInUnchecked.VideoId));
                 }
                 else
                 {
-
+                    await _messenger.Send(VideoPlayRequestMessage.PlayPlaylist(_subscriptionManager.AllSubscriptouGroupId, PlaylistItemsSourceOrigin.SubscriptionGroup, string.Empty));
                 }
                   
                 break;
@@ -317,8 +322,8 @@ public sealed class SubscriptionUpdateManager
     {
         if (!updateResults.Any()) { return; }
 
-        SubscriptionGroup _defaultSubscGroup = new SubscriptionGroup(SubscriptionGroupId.DefaultGroupId, "SubscGroup_DefaultGroupName".Translate());
-        var resultByGroupId = updateResults.Where(x => x.IsSuccessed && x.NewVideos.Count > 0).GroupBy(x => x.Entity.Group ?? _defaultSubscGroup, SubscriptionGroupComparer.Default);
+        //SubscriptionGroup _defaultSubscGroup = new SubscriptionGroup(SubscriptionGroupId.DefaultGroupId, "SubscGroup_DefaultGroupName".Translate());
+        var resultByGroupId = updateResults.Where(x => x.IsSuccessed && x.NewVideos.Count > 0).GroupBy(x => x.Entity.Group ?? _subscriptionManager.DefaultSubscriptionGroup, SubscriptionGroupComparer.Default);
 
         if (!resultByGroupId.Any()) { return; }
 

@@ -92,7 +92,7 @@ public sealed class AddSubscriptionCommand : CommandBase
 
             bool alreadyAdded = _subscriptionManager.TryGetSubscriptionGroup(result.sourceType, result.id, out Subscription? alreadySource, out SubscriptionGroup? defaultGroup);
 
-            var groups = new[] { new SubscriptionGroup(SubscriptionGroupId.DefaultGroupId, "SubscGroup_DefaultGroupName".Translate()) }
+            var groups = new[] { _subscriptionManager.DefaultSubscriptionGroup }
                 .Concat(_subscriptionManager.GetSubscGroups())                
                 .ToList();
 

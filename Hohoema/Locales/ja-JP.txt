@@ -36,6 +36,7 @@ Select = 選択
 WatchVideo = 視聴する
 Preview = 前
 Next = 次
+ViewList = リストを表示
 
 
 #### Hohoema App ####
@@ -229,8 +230,8 @@ SubscGroup_Rename = 購読グループのリネーム
 SubscGroup_DeleteComfirmDialogContent = 購読グループを削除しても、購読に設定しているグループは「デフォルト」に変更されるため安全に削除できます。\n削除してもよろしいですか？
 SubscGroup_DeleteComfirmDialogTitle = {0} のグループを削除してもいい？
 
-VideoNoItem = 表示できる動画はありません
-
+SubscGroupVideosAllCheckedWithSubscGroupTitle = {0} の動画はすべてチェック済み
+SubscVideosDisplayChecked = チェック済みも表示
 
 
 

@@ -1028,7 +1028,7 @@ public sealed class SubscriptionMenuItemViewModel
         SubscGroups = new (
             new[] 
             {
-                new SubscriptionGroup(SubscriptionGroupId.DefaultGroupId, "SubscGroup_DefaultGroupName".Translate()),
+                _subscriptionManager.DefaultSubscriptionGroup,
             }
             .Concat(_subscriptionManager.GetSubscGroups())
             .Select(ToMenuItemVM)
