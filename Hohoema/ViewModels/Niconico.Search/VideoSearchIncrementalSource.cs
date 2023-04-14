@@ -38,7 +38,7 @@ public class VideoSearchIncrementalSource : IIncrementalSource<VideoListItemCont
             keyword: Keyword,
             isTagSearch: IsTagSearch,
             sortKey: NiconicoToolkit.Search.Video.SortKey.RegisteredAt,
-            pageCount: pageIndex
+            pageCountStartWith1: pageIndex + 1
             );
         Guard.IsTrue(res.IsSuccess, nameof(res.IsSuccess));
         return res.Data.Items.Select(x => new VideoListItemControlViewModel(x)).ToArray();        
