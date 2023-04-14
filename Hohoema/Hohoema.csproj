@@ -304,7 +304,6 @@
     <Compile Include="Views.Niconico\Search\SearchResultKeywordPageViewModel.cs" />
     <Compile Include="Views.Niconico\Search\SearchResultLivePageViewModel.cs" />
     <Compile Include="Views.Niconico\Search\SearchResultTagPageViewModel.cs" />
-    <Compile Include="ViewModels\Niconico.Search\VideoSearchSortOptionListItem.cs" />
     <Compile Include="Views.Niconico\Series\SeriesPageViewModel.cs" />
     <Compile Include="Views.Niconico\Series\UserSeriesPageViewModel.cs" />
     <Compile Include="Views.Niconico\Follow\FollowManagePageViewModel.cs" />

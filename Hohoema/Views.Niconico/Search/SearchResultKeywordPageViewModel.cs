@@ -14,6 +14,7 @@ using Hohoema.ViewModels.VideoListPage;
 using I18NPortable;
 using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Collections;
+using NiconicoToolkit.Search.Video;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -52,23 +53,24 @@ public class SearchResultKeywordPageViewModel : HohoemaListingPageViewModelBase<
 
 
 
-    private CeApiSearchVideoPlaylist _SearchVideoPlaylist;
-    public CeApiSearchVideoPlaylist SearchVideoPlaylist
+    private SearchVideoPlaylist _SearchVideoPlaylist;
+    public SearchVideoPlaylist SearchVideoPlaylist
     {
         get { return _SearchVideoPlaylist; }
         private set { SetProperty(ref _SearchVideoPlaylist, value); }
     }
 
 
-    public CeApiSearchVideoPlaylistSortOption[] SortOptions => CeApiSearchVideoPlaylist.SortOptions;
+    public VideoSortOptionViewModel[] SortOptions { get; } = SearchVideoPlaylist.SortOptions.Select(x => new VideoSortOptionViewModel(x)).ToArray();
 
-
-    private CeApiSearchVideoPlaylistSortOption _selectedSortOption;
-    public CeApiSearchVideoPlaylistSortOption SelectedSortOption
+    private VideoSortOptionViewModel _selectedSortOption;
+    public VideoSortOptionViewModel SelectedSortOption
     {
         get { return _selectedSortOption; }
         set { SetProperty(ref _selectedSortOption, value); }
     }
+
+    private VideoSortOptionViewModel DefaultSortOptionVM => SortOptions.First(x => x.SortOption == SearchVideoPlaylist.DefaultSortOption);
 
 
     public ReadOnlyReactivePropertySlim<PlaylistToken> CurrentPlaylistToken { get; }
@@ -108,8 +110,8 @@ public class SearchResultKeywordPageViewModel : HohoemaListingPageViewModelBase<
 
         CurrentPlaylistToken = Observable.CombineLatest(
             this.ObserveProperty(x => x.SearchVideoPlaylist),
-            this.ObserveProperty(x => x.SelectedSortOption),
-            (x, y) => new PlaylistToken(x, y)
+            this.ObserveProperty(x => x.SelectedSortOption).Where(x => x is not null),
+            (x, y) => new PlaylistToken(x, y.SortOption)
             )
             .ToReadOnlyReactivePropertySlim()
             .AddTo(_CompositeDisposable);
@@ -182,8 +184,8 @@ public class SearchResultKeywordPageViewModel : HohoemaListingPageViewModelBase<
                 Keyword = Keyword
             };
 
-            SearchVideoPlaylist = new CeApiSearchVideoPlaylist(new PlaylistId() { Id = Keyword, Origin = PlaylistItemsSourceOrigin.SearchWithKeyword }, null);
-            SelectedSortOption = CeApiSearchVideoPlaylist.DefaultSortOption;
+            SearchVideoPlaylist = new SearchVideoPlaylist(new PlaylistId() { Id = Keyword, Origin = PlaylistItemsSourceOrigin.SearchWithKeyword }, _niconicoSession.ToolkitContext.Search);
+            SelectedSortOption = DefaultSortOptionVM;
 
             this.ObserveProperty(x => x.SelectedSortOption)
                 .Subscribe(_ => ResetList())
@@ -206,10 +208,18 @@ public class SearchResultKeywordPageViewModel : HohoemaListingPageViewModelBase<
     {
         if (_selectedSortOption is null)
         {
-            SelectedSortOption = CeApiSearchVideoPlaylist.DefaultSortOption;
+            SelectedSortOption = DefaultSortOptionVM;
         }
 
-        return (VideoSearchIncrementalSource.OneTimeLoadingCount, new VideoSearchIncrementalSource(_niconicoSession.ToolkitContext.Search, Keyword, isTagSearch: false));
+        return (
+            VideoSearchIncrementalSource.OneTimeLoadingCount, 
+            new VideoSearchIncrementalSource(
+                _niconicoSession.ToolkitContext.Search, 
+                Keyword, 
+                isTagSearch: false, 
+                SelectedSortOption.SortKey,
+                SelectedSortOption.SortOrder
+                ));
     }
 
 
@@ -228,4 +238,28 @@ public enum VideoSearchMode
 {
     Keyword,
     Tag
+}
+
+public sealed class VideoSortOptionViewModel
+{
+    public VideoSortOptionViewModel(SearchVideoPlaylistSortOption sortOption)
+    {
+        SortOption = sortOption;
+        SortKey = SortOption.SortKey;
+        SortOrder = SortOption.SortOrder;
+        if (SortKey is SortKey.Hot or SortKey.Personalized)
+        {
+            Label = $"VideoSortKey.{SortKey}".Translate();
+        }
+        else
+        {
+            Label = $"VideoSortKey.{SortKey}_{SortOrder}".Translate();
+        }
+    }
+
+    public SortKey SortKey { get; }
+    public SortOrder SortOrder { get; }
+
+    public string Label { get; }
+    public SearchVideoPlaylistSortOption SortOption { get; }
 }

@@ -35,7 +35,9 @@
       </videolistPage:VideoItemsListView.ItemContextFlyoutTemplate>
       <videolistPage:VideoItemsListView.Header>
         <Grid x:Name="HeaderLayout" BorderThickness="0 0 0 1" BorderBrush="{StaticResource HohoemaLightBorderBrush}">
-          <CommandBar x:Name="VideoListCommandBar" DefaultLabelPosition="Right" VerticalContentAlignment="Center">
+          <CommandBar x:Name="VideoListCommandBar" DefaultLabelPosition="Right" VerticalContentAlignment="Center"
+                      IsEnabled="{x:Bind _vm.NowLoading, Mode=OneWay, Converter={StaticResource BoolNegation}}"                          
+                      >
 
             <CommandBar.Content>
               <controls:AppTitleBar Title="{x:Bind _vm.Title, Mode=OneWay}" />
