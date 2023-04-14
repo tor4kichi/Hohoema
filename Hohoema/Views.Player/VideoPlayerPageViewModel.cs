@@ -322,8 +322,8 @@ public partial class VideoPlayerPageViewModel : HohoemaPageViewModelBase
 
 
 
-    private NicoVideo _videoInfo;
-    public NicoVideo VideoInfo
+    private IVideoContent _videoInfo;
+    public IVideoContent VideoInfo
     {
         get => _videoInfo;
         set => SetProperty(ref _videoInfo, value);
@@ -438,8 +438,7 @@ public partial class VideoPlayerPageViewModel : HohoemaPageViewModelBase
 
                         MediaPlayer.AutoPlay = true;
 
-                        VideoInfo = NicoVideoProvider.GetCachedVideoInfo(item.VideoId);
-                        VideoId = VideoInfo.VideoId;
+                        VideoId = item.VideoId;
 
                         var result = _hohoemaPlaylistPlayer.CurrentPlayingSession;
                         if (!result.IsSuccess)
@@ -451,7 +450,7 @@ public partial class VideoPlayerPageViewModel : HohoemaPageViewModelBase
                             return;
                         }
 
-                        VideoDetails = result.VideoDetails;
+                        VideoInfo = VideoDetails = result.VideoDetails;
 
                         _requestVideoQuality = PlayerSettings.DefaultVideoQuality;
                         AvailableQualities = _hohoemaPlaylistPlayer.AvailableQualities;
