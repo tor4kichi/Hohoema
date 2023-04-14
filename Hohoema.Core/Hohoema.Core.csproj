@@ -186,8 +186,8 @@
     <Compile Include="Models\Niconico\NicoRepo\LoginUser\LoginUserNicoRepoProvider.cs" />
     <Compile Include="Models\Niconico\NicoRepo\NicoRepoSettings.cs" />
     <Compile Include="Models\Niconico\Recommend\RecommendProvider.cs" />
-    <Compile Include="Models\Niconico\Search\CeApiSearchVideoPlaylist.cs" />
-    <Compile Include="Models\Niconico\Search\CeApiSearchVideoPlaylistSortOption.cs" />
+    <Compile Include="Models\Niconico\Search\SearchVideoPlaylist.cs" />
+    <Compile Include="Models\Niconico\Search\SearchVideoPlaylistSortOption.cs" />
     <Compile Include="Models\Niconico\Search\SearchHistory.cs" />
     <Compile Include="Models\Niconico\Search\SearchProvider.cs" />
     <Compile Include="Models\Niconico\Video\NvapiVideoContent.cs" />

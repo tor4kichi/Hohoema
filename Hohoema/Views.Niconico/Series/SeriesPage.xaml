@@ -27,7 +27,9 @@
                                       >
       <videolistPage:VideoItemsListView.Header>
         <Grid x:Name="HeaderLayout" Padding="8 0" BorderThickness="0 0 0 1" BorderBrush="{StaticResource HohoemaLightBorderBrush}">
-          <CommandBar DefaultLabelPosition="Right" VerticalContentAlignment="Center">
+          <CommandBar DefaultLabelPosition="Right" VerticalContentAlignment="Center"
+                      IsEnabled="{x:Bind _vm.NowLoading, Mode=OneWay, Converter={StaticResource BoolNegation}}"                          
+                      >
             <CommandBar.Content>
               <controls:AppTitleBar Title="{Binding Title}" />
             </CommandBar.Content>
@@ -35,9 +37,8 @@
             <CommandBar.PrimaryCommands>
               
               <AppBarElementContainer VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" IsTabStop="False">
-                <ComboBox ItemsSource="{x:Bind _vm.SortOptions, Mode=OneWay}"
+                <ComboBox ItemsSource="{x:Bind _vm.SortOptions}"
                           SelectedItem="{x:Bind _vm.SelectedSortOption, Mode=TwoWay}"
-                          IsEnabled="{x:Bind _vm.NowLoading, Mode=OneWay, Converter={StaticResource BoolNegation}}"
                           VerticalAlignment="Stretch"
                           Margin="0 6"
                           >

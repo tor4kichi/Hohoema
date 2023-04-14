@@ -43,10 +43,7 @@
                           SelectedItem="{x:Bind _vm.SelectedSortOption, Mode=TwoWay}"
                           IsEnabled="{x:Bind _vm.NowLoading, Mode=OneWay, Converter={StaticResource BoolNegation}}"
                           VerticalAlignment="Stretch"
-                          Margin="0 6"
-                            
-                            Visibility="Collapsed"
-                            
+                          Margin="0 6"                                                       
                           >
                     <ComboBox.ItemTemplate>
                       <DataTemplate>

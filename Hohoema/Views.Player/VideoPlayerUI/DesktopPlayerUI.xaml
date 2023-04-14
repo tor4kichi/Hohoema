@@ -1195,9 +1195,9 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.InteractionMode}" EqualTo="{x:Bind models:ApplicationInteractionMode.Touch}" />
-            <windowsTriggers:EqualsStateTrigger Value="{Binding SidePaneType}" EqualTo="{x:Bind playerView:PlayerSidePaneContentType.Playlist}" />
-            <windowsTriggers:EqualsStateTrigger Value="{Binding SidePaneType}" EqualTo="{x:Bind playerView:PlayerSidePaneContentType.Comment}" />
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.InteractionMode}" EqualTo="Touch" />
+            <windowsTriggers:EqualsStateTrigger Value="{Binding SidePaneType}" EqualTo="Playlist" />
+            <windowsTriggers:EqualsStateTrigger Value="{Binding SidePaneType}" EqualTo="Comment" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="TitleBarWindowActionsPanel.Margin" Value="0 0 0 0" />
@@ -1243,7 +1243,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="{x:Bind models:ApplicationLayout.TV}" />
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="TV" />
             <windowsTriggers:DeviceFamilyStateTrigger DeviceFamily="Xbox" />
           </VisualState.StateTriggers>
           <VisualState.Setters>

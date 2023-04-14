@@ -24,7 +24,6 @@ public record PlaylistId
 
 public interface IPlaylistSortOption : IEquatable<IPlaylistSortOption>
 {
-    string Label { get; }
     string Serialize();
 }
 

@@ -4,6 +4,7 @@ using Hohoema.Models.Niconico.Search;
 using Hohoema.ViewModels.VideoListPage;
 using Microsoft.Toolkit.Collections;
 using NiconicoToolkit.Search;
+using NiconicoToolkit.Search.Video;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
@@ -17,12 +18,16 @@ public class VideoSearchIncrementalSource : IIncrementalSource<VideoListItemCont
     public VideoSearchIncrementalSource(
         SearchClient searchClient,
         string keyword, 
-        bool isTagSearch
+        bool isTagSearch,
+        SortKey sortKey,
+        SortOrder sortOrder
         )
     {
         _searchClient = searchClient;
         Keyword = keyword;
         IsTagSearch = isTagSearch;
+        SortKey = sortKey;
+        SortOrder = sortOrder;
     }
 
     // Note: 50以上じゃないと２回目の取得が失敗する
@@ -31,39 +36,19 @@ public class VideoSearchIncrementalSource : IIncrementalSource<VideoListItemCont
 
     public string Keyword { get; }
     public bool IsTagSearch { get; }
+    public SortKey SortKey { get; }
+    public SortOrder SortOrder { get; }
 
     async Task<IEnumerable<VideoListItemControlViewModel>> IIncrementalSource<VideoListItemControlViewModel>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct)
     {
         var res = await _searchClient.Video.VideoSearchAsync(
             keyword: Keyword,
             isTagSearch: IsTagSearch,
-            sortKey: NiconicoToolkit.Search.Video.SortKey.RegisteredAt,
+            sortKey: SortKey,
+            sortOrder: SortOrder,
             pageCountStartWith1: pageIndex + 1
             );
-        Guard.IsTrue(res.IsSuccess, nameof(res.IsSuccess));
+        Guard.IsTrue(res.IsSuccess, nameof(res.IsSuccess));        
         return res.Data.Items.Select(x => new VideoListItemControlViewModel(x)).ToArray();        
-
-        //VideoListingResponse res = null;
-        //var head = pageIndex * pageSize;
-        //if (!IsTagSearch)
-        //{
-        //    res = await SearchProvider.GetKeywordSearch(Keyword, head, pageSize, _sortOption.SortKey, _sortOption.SortOrder);
-        //}
-        //else
-        //{
-        //    res = await SearchProvider.GetTagSearch(Keyword, head, pageSize, _sortOption.SortKey, _sortOption.SortOrder);
-        //}
-
-        //ct.ThrowIfCancellationRequested();
-
-        //if (res == null || res.Videos == null)
-        //{
-        //    return Enumerable.Empty<VideoListItemControlViewModel>();
-        //}
-
-        //return res.Videos
-        //    .Select((x, i) => new VideoListItemControlViewModel(x.Video, x.Thread) { PlaylistItemToken = new Models.Playlist.PlaylistItemToken(_searchVideoPlaylist, _sortOption, new CeApiSearchVideoContent(x.Video))})
-        //    .ToArray()// Note: IncrementalLoadingSourceが複数回呼び出すためFreezeしたい
-        //    ;
     }
 }
