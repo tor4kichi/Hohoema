@@ -15,7 +15,9 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace Hohoema.Models.Subscriptions;
-public sealed class SubscriptionGroupPlaylist : IUserManagedPlaylist
+public sealed class SubscriptionGroupPlaylist 
+    : IUserManagedPlaylist
+    , IPlaylistItemWatchedAware
 {
     private readonly SubscriptionGroup? _group;
     private readonly SubscriptionManager _subscriptionManager;
@@ -60,6 +62,14 @@ public sealed class SubscriptionGroupPlaylist : IUserManagedPlaylist
             videos.Add(nicoVideo);
         }
         return videos;
+    }
+
+    void IPlaylistItemWatchedAware.OnVideoWatched(IVideoContent video)
+    {
+        if (_group != null)
+        {
+            _subscriptionManager.SetCheckedAt(_group.GroupId, video.PostedAt);
+        }
     }
 }
 

@@ -179,12 +179,22 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
             var itemVM = new SubscVideoListItemViewModel(feed, nicoVideo, _subscriptionManager, CreatePlaylist());
             ItemsView.Insert(0, itemVM);
         });
+
+        _messenger.Register<SubscriptionGroupCheckedAtChangedMessage>(this, (r, m) => 
+        {
+            if (SelectedSubscGroup?.GroupId == m.SubscriptionGroupId)
+            {
+                UpdateLastCheckedAt();
+                ResetList();
+            }
+        });
     }
 
     public override void OnNavigatedFrom(INavigationParameters parameters)
     {
         _messenger.Unregister<SubscFeedVideoValueChangedMessage>(this);
         _messenger.Unregister<NewSubscFeedVideoMessage>(this);
+        _messenger.Unregister<SubscriptionGroupCheckedAtChangedMessage>(this);        
     }
 
     private SubscriptionGroupPlaylist CreatePlaylist()

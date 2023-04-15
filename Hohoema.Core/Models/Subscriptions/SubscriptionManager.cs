@@ -308,8 +308,10 @@ public sealed class SubscriptionManager
     {
         checkedAt ??= DateTime.Now;
         var entity = _subscriptionGroupCheckedRespository.GetOrAdd(subscriptionGroupId);
+
         entity.LastCheckedAt = checkedAt.Value;
         _subscriptionGroupCheckedRespository.UpdateItem(entity);
+        _messenger.Send(new SubscriptionGroupCheckedAtChangedMessage(subscriptionGroupId, checkedAt.Value));
     }
 
 

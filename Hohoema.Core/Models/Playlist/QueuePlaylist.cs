@@ -150,7 +150,12 @@ public record QueuePlaylistSortOption : IPlaylistSortOption
     }
 }
 
-public class QueuePlaylist : ObservableObject, IReadOnlyCollection<QueuePlaylistItem>, INotifyCollectionChanged, IUserManagedPlaylist
+public class QueuePlaylist 
+    : ObservableObject
+    , IReadOnlyCollection<QueuePlaylistItem>
+    , INotifyCollectionChanged
+    , IUserManagedPlaylist
+    , IPlaylistItemWatchedAware
 {
     public static QueuePlaylistSortOption[] SortOptions { get; } = new QueuePlaylistSortOption[]
 {
@@ -202,6 +207,11 @@ public class QueuePlaylist : ObservableObject, IReadOnlyCollection<QueuePlaylist
         _queuePlaylistRepository = queuePlaylistRepository;
         _queuePlaylistSetting = queuePlaylistSetting;
         Name = _localizeService.Translate(Id.Id);
+    }
+
+    void IPlaylistItemWatchedAware.OnVideoWatched(IVideoContent video)
+    {
+        Remove(video);
     }
 
     public event NotifyCollectionChangedEventHandler CollectionChanged
