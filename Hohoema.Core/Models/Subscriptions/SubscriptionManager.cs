@@ -412,6 +412,19 @@ public sealed class SubscriptionManager
         }        
     }
 
+    public DateTime GetLatestPostAt(SubscriptionGroupId? groupId)
+    {
+        return GetSubscriptionGroupSubscriptions(groupId)
+            .Select(subsc => GetLatestPostAt(subsc.SubscriptionId))
+            .Max();
+            
+    }
+
+    public DateTime GetLatestPostAt(SusbcriptionId subscriptionId)
+    {
+        return _subscFeedVideoRepository.GetLatestTimeOnSubscVideo(subscriptionId);
+    }
+
     public IEnumerable<SubscFeedVideo> GetSubscFeedVideos(SubscriptionGroupId? groupId, int skip = 0, int limit = int.MaxValue)
     {
         return GetSubscriptionGroupSubscriptions(groupId)

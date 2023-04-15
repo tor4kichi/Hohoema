@@ -49,15 +49,7 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
     {
         if (_lastSelectedSubscGroup != value)
         {
-            if (value != null)
-            {
-                LastCheckedAt = _subscriptionManager.GetLastCheckedAt(value.GroupId);
-            }
-            else
-            {
-                LastCheckedAt = DateTime.MinValue;
-            }
-
+            UpdateLastCheckedAt();
             ResetList();
         }
         _lastSelectedSubscGroup = value;
@@ -188,6 +180,19 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
                 ResetList();
             }
         });
+    }    
+
+
+    private void UpdateLastCheckedAt()
+    {
+        if (SelectedSubscGroup != null)
+        {
+            LastCheckedAt = _subscriptionManager.GetLastCheckedAt(SelectedSubscGroup.GroupId);
+        }
+        else
+        {
+            LastCheckedAt = DateTime.MinValue;
+        }
     }
 
     public override void OnNavigatedFrom(INavigationParameters parameters)
@@ -198,7 +203,7 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
     }
 
     private SubscriptionGroupPlaylist CreatePlaylist()
-    {
+    {        
         return new SubscriptionGroupPlaylist(SelectedSubscGroup, _subscriptionManager, _nicoVideoProvider, _localizeService);
     }
 
@@ -226,13 +231,12 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
     {
         if (days == 0)
         {
-            if (SelectedSubscGroup != null && !SelectedSubscGroup.IsInvalidId)
-            {                
-                LastCheckedAt = _subscriptionManager.GetLastCheckedAt(SelectedSubscGroup.GroupId);
+            if (SelectedSubscGroup != null)
+            {
+                LastCheckedAt = _subscriptionManager.GetLatestPostAt(SelectedSubscGroup.GroupId);
             }            
             else
             {
-                // 無指定時
                 LastCheckedAt = DateTime.Now;
             }
         }
@@ -250,28 +254,31 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
         if (SelectedSubscGroup == null)
         {
             // 購読グループ未指定の場合は全ての購読グループのチェック日時を設定する
-            _subscriptionManager.SetCheckedAt(SubscriptionGroupId.DefaultGroupId, LastCheckedAt);
-            foreach (var subscGroup in _subscriptionManager.GetSubscGroups())
+            foreach (var groupId in _subscriptionManager.GetSubscGroups().Select(x => x.GroupId).Concat(new[] { SubscriptionGroupId.DefaultGroupId }))
             {
-                _subscriptionManager.SetCheckedAt(subscGroup.GroupId, LastCheckedAt);
+                var latestPostAt = _subscriptionManager.GetLatestPostAt(groupId);
+                _subscriptionManager.SetCheckedAt(groupId, latestPostAt);
+
+                // 指定日時以前の動画を全て視聴済みにマークする
+                foreach (var video in _subscriptionManager.GetSubscFeedVideosOlderAt(SelectedSubscGroup?.GroupId, latestPostAt))
+                {
+                    VideoId videoId = video.VideoId;
+                    _videoWatchedRepository.MarkWatched(videoId);
+                    _messenger.Send(new VideoWatchedMessage(videoId));
+                }
             }
         }
         else
         {
             _subscriptionManager.SetCheckedAt(SelectedSubscGroup.GroupId, LastCheckedAt);
-        }
 
-        // 指定日時以前の動画を全て視聴済みにマークする
-        var videos = SelectedSubscGroup != null
-            ? _subscriptionManager.GetSubscFeedVideosOlderAt(SelectedSubscGroup?.GroupId, LastCheckedAt)
-            : _subscriptionManager.GetSubscFeedVideosOlderAt(LastCheckedAt)
-            ;
-
-        foreach (var video in videos)
-        {
-            VideoId videoId = video.VideoId;
-            _videoWatchedRepository.MarkWatched(videoId);
-            _messenger.Send(new VideoWatchedMessage(videoId));
+            // 指定日時以前の動画を全て視聴済みにマークする
+            foreach (var video in _subscriptionManager.GetSubscFeedVideosOlderAt(SelectedSubscGroup.GroupId, LastCheckedAt))
+            {
+                VideoId videoId = video.VideoId;
+                _videoWatchedRepository.MarkWatched(videoId);
+                _messenger.Send(new VideoWatchedMessage(videoId));
+            }
         }
 
         ResetList();
