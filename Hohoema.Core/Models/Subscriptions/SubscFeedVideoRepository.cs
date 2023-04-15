@@ -58,12 +58,26 @@ public sealed class SubscFeedVideoRepository
 
         public DateTime GetLatestPostAt(SusbcriptionId subscId)
         {
-            return _collection.Find(x => x.SourceSubscId == subscId).Max(x => x.PostAt);
+            try
+            {
+                return _collection.Find(x => x.SourceSubscId == subscId).Max(x => x.PostAt);
+            }
+            catch
+            {
+                return DateTime.MinValue;
+            }
         }
 
         public int GetVideoCount(SusbcriptionId subscId)
         {
-            return _collection.Count(x => x.SourceSubscId == subscId);
+            try
+            {
+                return _collection.Count(x => x.SourceSubscId == subscId);
+            }
+            catch 
+            {
+                return 0;
+            }
         }
 
         internal bool DeleteItem(SusbcriptionId subscriptionId)
