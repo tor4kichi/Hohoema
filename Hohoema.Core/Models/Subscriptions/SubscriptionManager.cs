@@ -108,6 +108,11 @@ public sealed class SubscriptionManager
 
     public bool DeleteSubscriptionGroup(SubscriptionGroup group)
     {
+        if (group.GroupId == SubscriptionGroupId.DefaultGroupId)
+        {
+            return false;
+        }
+
         var sources = _subscriptionRegistrationRepository.Find(x => x.Group!.GroupId == group.GroupId);
         foreach (var source in sources)
         {
