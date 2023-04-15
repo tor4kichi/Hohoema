@@ -241,7 +241,7 @@ public sealed class SubscriptionManager
         return _subscriptionRegistrationRepository.ReadAllItems();
     }
 
-    public Subscription GetSubscription(SusbcriptionId id)
+    public Subscription GetSubscription(SubscriptionId id)
     {
         return _subscriptionRegistrationRepository.FindById(id);
     }
@@ -286,7 +286,7 @@ public sealed class SubscriptionManager
             .Sum(_subscFeedVideoRepository.GetVideoCount);
     }
 
-    public DateTime GetLastUpdatedAt(SusbcriptionId subscriptionId)
+    public DateTime GetLastUpdatedAt(SubscriptionId subscriptionId)
     {
         return _subscriptionUpdateRespository.GetOrAdd(subscriptionId).LastUpdatedAt;
     }
@@ -296,7 +296,7 @@ public sealed class SubscriptionManager
         return _subscriptionGroupCheckedRespository.GetOrAdd(subscriptionGroupId).LastCheckedAt;
     }
 
-    public void SetUpdatedAt(SusbcriptionId subscriptionId, DateTime? updatedAt = null)
+    public void SetUpdatedAt(SubscriptionId subscriptionId, DateTime? updatedAt = null)
     {
         updatedAt ??= DateTime.Now;
         var update = _subscriptionUpdateRespository.GetOrAdd(subscriptionId);
@@ -420,7 +420,7 @@ public sealed class SubscriptionManager
             
     }
 
-    public DateTime GetLatestPostAt(SusbcriptionId subscriptionId)
+    public DateTime GetLatestPostAt(SubscriptionId subscriptionId)
     {
         return _subscFeedVideoRepository.GetLatestTimeOnSubscVideo(subscriptionId);
     }
@@ -662,7 +662,7 @@ public sealed class SubscriptionManager
         return items;
     }
 
-    public bool IsContainSubscriptionGroup(SusbcriptionId sourceSubscId, SubscriptionGroupId groupId)
+    public bool IsContainSubscriptionGroup(SubscriptionId sourceSubscId, SubscriptionGroupId groupId)
     {
         return _subscriptionRegistrationRepository.FindById(sourceSubscId).Group?.GroupId == groupId;
     }
@@ -671,19 +671,19 @@ public sealed class SubscriptionManager
 public sealed class SubscriptionUpdate
 {
     [BsonCtor]
-    public SubscriptionUpdate(SusbcriptionId subscriptionSourceId, DateTime lastUpdatedAt)
+    public SubscriptionUpdate(SubscriptionId subscriptionSourceId, DateTime lastUpdatedAt)
     {
         SubscriptionSourceId = subscriptionSourceId;
         LastUpdatedAt = lastUpdatedAt;        
     }
 
-    public SubscriptionUpdate(SusbcriptionId subscriptionSourceId)
+    public SubscriptionUpdate(SubscriptionId subscriptionSourceId)
     {
         SubscriptionSourceId = subscriptionSourceId;
     }
 
     [BsonId]
-    public SusbcriptionId SubscriptionSourceId { get; }
+    public SubscriptionId SubscriptionSourceId { get; }
 
     public DateTime LastUpdatedAt { get; set; } = DateTime.MinValue;
 
@@ -701,7 +701,7 @@ public sealed class SubscriptionUpdateRespository : LiteDBServiceBase<Subscripti
         throw new NotSupportedException();
     }
 
-    internal SubscriptionUpdate GetOrAdd(SusbcriptionId id)
+    internal SubscriptionUpdate GetOrAdd(SubscriptionId id)
     {
         if (_collection.FindById(id.AsPrimitive()) is not null and var update)
         {

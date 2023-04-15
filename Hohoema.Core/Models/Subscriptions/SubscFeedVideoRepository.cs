@@ -16,7 +16,7 @@ public sealed class SubscFeedVideo
     [BsonId(autoId: true)]
     public ObjectId Id { get; init; }
 
-    public SusbcriptionId SourceSubscId { get; init; }
+    public SubscriptionId SourceSubscId { get; init; }
     public string VideoId { get; init; }
     public DateTime PostAt { get; init; }
     public string Title { get; init; }
@@ -43,7 +43,7 @@ public sealed class SubscFeedVideoRepository
 {
     static SubscFeedVideoRepository()
     {        
-        BsonMapper.Global.RegisterType(x => x.AsPrimitive(), x => new SusbcriptionId(x.AsObjectId));
+        BsonMapper.Global.RegisterType(x => x.AsPrimitive(), x => new SubscriptionId(x.AsObjectId));
     }
 
     private class SubscFeedVideoRepository_Internal : LiteDBServiceBase<SubscFeedVideo>
@@ -56,7 +56,7 @@ public sealed class SubscFeedVideoRepository
             _collection.EnsureIndex(x => x.FeedUpdateAt);
         }
 
-        public DateTime GetLatestPostAt(SusbcriptionId subscId)
+        public DateTime GetLatestPostAt(SubscriptionId subscId)
         {
             try
             {
@@ -68,7 +68,7 @@ public sealed class SubscFeedVideoRepository
             }
         }
 
-        public int GetVideoCount(SusbcriptionId subscId)
+        public int GetVideoCount(SubscriptionId subscId)
         {
             try
             {
@@ -80,7 +80,7 @@ public sealed class SubscFeedVideoRepository
             }
         }
 
-        internal bool DeleteItem(SusbcriptionId subscriptionId)
+        internal bool DeleteItem(SubscriptionId subscriptionId)
         {
             return base.DeleteItem(subscriptionId.AsPrimitive());
         }
@@ -99,14 +99,14 @@ public sealed class SubscFeedVideoRepository
         return _subscFeedVideoRepository.DeleteItem(source.SubscriptionId);
     }
 
-    public IEnumerable<SubscFeedVideo> GetVideos(SusbcriptionId subscId, int skip = 0, int limit = int.MaxValue)
+    public IEnumerable<SubscFeedVideo> GetVideos(SubscriptionId subscId, int skip = 0, int limit = int.MaxValue)
     {
         return _subscFeedVideoRepository.Find(Query.All(nameof(SubscFeedVideo.PostAt), Query.Descending)).Where(x => x.SourceSubscId == subscId).Skip(skip).Take(limit);
     }
 
-    public IEnumerable<SubscFeedVideo> GetVideos(IEnumerable<SusbcriptionId> subscIds, int skip = 0, int limit = int.MaxValue)
+    public IEnumerable<SubscFeedVideo> GetVideos(IEnumerable<SubscriptionId> subscIds, int skip = 0, int limit = int.MaxValue)
     {
-        HashSet<SusbcriptionId> idHashSet = subscIds.ToHashSet();
+        HashSet<SubscriptionId> idHashSet = subscIds.ToHashSet();
         return _subscFeedVideoRepository.Find(Query.All(nameof(SubscFeedVideo.PostAt), Query.Descending)).Where(x => idHashSet.Contains(x.SourceSubscId)).Skip(skip).Take(limit);
     }
 
@@ -120,9 +120,9 @@ public sealed class SubscFeedVideoRepository
         return _subscFeedVideoRepository.Find(x => x.PostAt <= targetTime).Where(x => true).OrderByDescending(x => x.PostAt).Skip(skip).Take(limit);
     }
 
-    public IEnumerable<SubscFeedVideo> GetVideosOlderAt(IEnumerable<SusbcriptionId> subscIds, DateTime targetTime, int skip = 0, int limit = int.MaxValue)
+    public IEnumerable<SubscFeedVideo> GetVideosOlderAt(IEnumerable<SubscriptionId> subscIds, DateTime targetTime, int skip = 0, int limit = int.MaxValue)
     {
-        HashSet<SusbcriptionId> idHashSet = subscIds.ToHashSet();
+        HashSet<SubscriptionId> idHashSet = subscIds.ToHashSet();
         return _subscFeedVideoRepository.Find(x => x.PostAt <= targetTime).Where(x => idHashSet.Contains(x.SourceSubscId)).OrderByDescending(x => x.PostAt).Skip(skip).Take(limit);
     }
 
@@ -131,13 +131,13 @@ public sealed class SubscFeedVideoRepository
         return _subscFeedVideoRepository.Find(x => targetTime < x.PostAt).Where(x => true).OrderByDescending(x => x.PostAt).Skip(skip).Take(limit);
     }
 
-    public IEnumerable<SubscFeedVideo> GetVideosNewerAt(IEnumerable<SusbcriptionId> subscIds, DateTime targetTime, int skip = 0, int limit = int.MaxValue)
+    public IEnumerable<SubscFeedVideo> GetVideosNewerAt(IEnumerable<SubscriptionId> subscIds, DateTime targetTime, int skip = 0, int limit = int.MaxValue)
     {
-        HashSet<SusbcriptionId> idHashSet = subscIds.ToHashSet();
+        HashSet<SubscriptionId> idHashSet = subscIds.ToHashSet();
         return _subscFeedVideoRepository.Find(x => targetTime < x.PostAt).Where(x => idHashSet.Contains(x.SourceSubscId)).OrderByDescending(x => x.PostAt).Skip(skip).Take(limit);
     }
 
-    public DateTime GetLatestTimeOnSubscVideo(SusbcriptionId subscId)
+    public DateTime GetLatestTimeOnSubscVideo(SubscriptionId subscId)
     {
         return _subscFeedVideoRepository.GetLatestPostAt(subscId);
     }
@@ -148,7 +148,7 @@ public sealed class SubscFeedVideoRepository
         
     }
 
-    public IEnumerable<SubscFeedVideo> RegisteringVideosIfNotExist(SusbcriptionId subscId, DateTime updateAt, IEnumerable<NicoVideo> videos)
+    public IEnumerable<SubscFeedVideo> RegisteringVideosIfNotExist(SubscriptionId subscId, DateTime updateAt, IEnumerable<NicoVideo> videos)
     {
         foreach (NicoVideo video in videos)
         {

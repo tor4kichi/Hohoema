@@ -306,7 +306,7 @@ public sealed class BackupManager
 
             Subscription entity = new()
             {
-                SubscriptionId = SusbcriptionId.NewObjectId(),
+                SubscriptionId = SubscriptionId.NewObjectId(),
                 Label = s.Label,
                 SourceType = sourceType,
                 SourceParameter = s.SourceParameter,

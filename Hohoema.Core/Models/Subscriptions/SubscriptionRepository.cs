@@ -18,7 +18,7 @@ public sealed class SubscriptionRegistrationRepository : LiteDBServiceBase<Subsc
 {    
     static SubscriptionRegistrationRepository()
     {
-        BsonMapper.Global.RegisterType(x => x.AsPrimitive(), x => new SusbcriptionId(x.AsObjectId));
+        BsonMapper.Global.RegisterType(x => x.AsPrimitive(), x => new SubscriptionId(x.AsObjectId));
     }
 
     public SubscriptionRegistrationRepository(LiteDatabase database)
@@ -61,7 +61,7 @@ public sealed class SubscriptionRegistrationRepository : LiteDBServiceBase<Subsc
     {
         Guard.IsFalse(IsExist(entity), "IsExist(entity)");
 
-        entity.SubscriptionId = SusbcriptionId.NewObjectId();
+        entity.SubscriptionId = SubscriptionId.NewObjectId();
         
         // Note: エンティティが登録されていない状態で .Max() を呼ぶと
         //       InvalidOperationException が発生する (LiteDb 5.0.16)
@@ -77,12 +77,12 @@ public sealed class SubscriptionRegistrationRepository : LiteDBServiceBase<Subsc
         return result;
     }
 
-    internal bool DeleteItem(SusbcriptionId subscriptionId)
+    internal bool DeleteItem(SubscriptionId subscriptionId)
     {
         return base.DeleteItem(subscriptionId.AsPrimitive());
     }
 
-    internal Subscription FindById(SusbcriptionId id)
+    internal Subscription FindById(SubscriptionId id)
     {
         return _collection.Include(x => x.Group).FindById(id.AsPrimitive());
     }
@@ -103,7 +103,7 @@ public enum SubscriptionSourceType
 public sealed class Subscription
 {
     [BsonId]
-    public SusbcriptionId SubscriptionId { get; internal set; }
+    public SubscriptionId SubscriptionId { get; internal set; }
     public int SortIndex { get; set; }
     public string Label { get; set; } = string.Empty;
     public SubscriptionSourceType SourceType { get; set; }
