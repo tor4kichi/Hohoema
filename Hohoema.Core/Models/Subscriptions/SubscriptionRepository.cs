@@ -84,7 +84,7 @@ public sealed class SubscriptionRegistrationRepository : LiteDBServiceBase<Subsc
 
     internal Subscription FindById(SusbcriptionId id)
     {
-        return base.FindById(id.AsPrimitive());
+        return _collection.Include(x => x.Group).FindById(id.AsPrimitive());
     }
 }
 

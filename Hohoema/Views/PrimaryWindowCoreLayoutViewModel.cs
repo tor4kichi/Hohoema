@@ -1013,6 +1013,7 @@ public sealed class SubscriptionMenuItemViewModel
     , IRecipient<SubscriptionGroupCreatedMessage>
     , IRecipient<SubscriptionGroupDeletedMessage>
     , IRecipient<SubscriptionGroupReorderedMessage>
+    , IRecipient<SettingsRestoredMessage>
     , IDisposable
 {
     private readonly IMessenger _messenger;
@@ -1037,6 +1038,7 @@ public sealed class SubscriptionMenuItemViewModel
         _messenger.Register<SubscriptionGroupCreatedMessage>(this);
         _messenger.Register<SubscriptionGroupDeletedMessage>(this);
         _messenger.Register<SubscriptionGroupReorderedMessage>(this);
+        _messenger.Register<SettingsRestoredMessage>(this);
     }
 
     protected override void OnDispose()
@@ -1046,6 +1048,7 @@ public sealed class SubscriptionMenuItemViewModel
         _messenger.Unregister<SubscriptionGroupCreatedMessage>(this);
         _messenger.Unregister<SubscriptionGroupDeletedMessage>(this);
         _messenger.Unregister<SubscriptionGroupReorderedMessage>(this);
+        _messenger.Unregister<SettingsRestoredMessage>(this);
     }
 
     SubscriptionGroupNavigateAwareMenuItemViewModel ToMenuItemVM(SubscriptionGroup group)
@@ -1070,6 +1073,15 @@ public sealed class SubscriptionMenuItemViewModel
     {        
         SubscGroups.Clear();
         foreach (var group in message.Value)
+        {
+            SubscGroups.Add(ToMenuItemVM(group));
+        }
+    }
+
+    void IRecipient<SettingsRestoredMessage>.Receive(SettingsRestoredMessage message)
+    {
+        SubscGroups.Clear();
+        foreach (var group in new[] { _subscriptionManager.DefaultSubscriptionGroup }.Concat(_subscriptionManager.GetSubscGroups()))
         {
             SubscGroups.Add(ToMenuItemVM(group));
         }

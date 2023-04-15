@@ -661,6 +661,11 @@ public sealed class SubscriptionManager
 
         return items;
     }
+
+    public bool IsContainSubscriptionGroup(SusbcriptionId sourceSubscId, SubscriptionGroupId groupId)
+    {
+        return _subscriptionRegistrationRepository.FindById(sourceSubscId).Group?.GroupId == groupId;
+    }
 }
 
 public sealed class SubscriptionUpdate

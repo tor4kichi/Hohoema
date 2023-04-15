@@ -23,6 +23,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Hohoema.Models.Playlist;
+using Windows.System;
+using CommunityToolkit.Diagnostics;
 
 namespace Hohoema.ViewModels.Pages.Hohoema.Subscription;
 
@@ -35,7 +37,7 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
     private readonly NicoVideoProvider _nicoVideoProvider;
     private readonly VideoWatchedRepository _videoWatchedRepository;
     private readonly WatchHistoryManager _watchHistoryManager;
-
+    private readonly DispatcherQueue _dispatcherQueue;
     public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
     public ApplicationLayoutManager ApplicationLayoutManager { get; }
     public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
@@ -94,6 +96,7 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
         SelectionModeToggleCommand = selectionModeToggleCommand;
         SubscriptionGroups = new (_subscriptionManager.GetSubscGroups());
         _selectedSubscGroup = null;
+        _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
     }
 
     [ObservableProperty]
@@ -159,17 +162,28 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
 
         _messenger.Register<NewSubscFeedVideoMessage>(this, (r, m) => 
         {
-            var feed = m.Value;
-            VideoId videoId = feed.VideoId;
-
-            if (ItemsView.Cast<SubscVideoListItemViewModel>().FirstOrDefault(x => x.VideoId == videoId) is not null)
+            _dispatcherQueue.TryEnqueue(() =>
             {
-                return;
-            }
+                Guard.IsNotNull(ItemsView);
 
-            var nicoVideo = _nicoVideoProvider.GetCachedVideoInfo(videoId);
-            var itemVM = new SubscVideoListItemViewModel(feed, nicoVideo, _subscriptionManager, CreatePlaylist());
-            ItemsView.Insert(0, itemVM);
+                var feed = m.Value;
+                VideoId videoId = feed.VideoId;
+                if (ItemsView.Cast<SubscVideoListItemViewModel>().FirstOrDefault(x => x.VideoId == videoId) is not null)
+                {
+                    return;
+                }
+
+                if (SelectedSubscGroup == null
+                    || !_subscriptionManager.IsContainSubscriptionGroup(m.Value.SourceSubscId, SelectedSubscGroup!.GroupId)
+                    )
+                {
+                    return;
+                }
+
+                var nicoVideo = _nicoVideoProvider.GetCachedVideoInfo(videoId);
+                var itemVM = new SubscVideoListItemViewModel(feed, nicoVideo, _subscriptionManager, CreatePlaylist());
+                ItemsView.Insert(0, itemVM);
+            });
         });
 
         _messenger.Register<SubscriptionGroupCheckedAtChangedMessage>(this, (r, m) => 
