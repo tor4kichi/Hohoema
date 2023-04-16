@@ -26,7 +26,12 @@ public sealed class AddSubscriptionCommand : CommandBase
     private readonly ChannelProvider _channelProvider;
     private readonly NotificationService _notificationService;
     private readonly SeriesProvider _seriesRepository;
+    private readonly IDialogService _dialogService;
     private readonly ISelectionDialogService _selectionDialogService;
+
+    // 前回選択の購読グループを記憶する
+    // 設定項目として永続化するには馴染まないのでアプリ起動中のみ保持
+    static SubscriptionGroupId? _lastSelectedSubscriptionGroupId;
 
     public AddSubscriptionCommand(
         ILogger logger,
@@ -35,6 +40,7 @@ public sealed class AddSubscriptionCommand : CommandBase
         ChannelProvider channelProvider,
         NotificationService notificationService,
         SeriesProvider seriesRepository,
+        IDialogService dialogService,
         ISelectionDialogService selectionDialogService
         )
     {
@@ -44,6 +50,7 @@ public sealed class AddSubscriptionCommand : CommandBase
         _channelProvider = channelProvider;
         _notificationService = notificationService;
         _seriesRepository = seriesRepository;
+        _dialogService = dialogService;
         _selectionDialogService = selectionDialogService;
     }
 
@@ -61,6 +68,7 @@ public sealed class AddSubscriptionCommand : CommandBase
     {
         try
         {
+            // 購読登録用にデータを正規化
             (string id, SubscriptionSourceType sourceType, string? label) result = parameter switch
             {
                 IVideoContentProvider videoContent => videoContent.ProviderType switch
@@ -75,9 +83,9 @@ public sealed class AddSubscriptionCommand : CommandBase
                 _ => throw new NotSupportedException(),
             };
 
+            // 購読アイテム名の解決
             if (string.IsNullOrEmpty(result.label))
             {
-                // resolve name
                 result.label = result.sourceType switch
                 {
                     //SubscriptionSourceType.Mylist => await ResolveMylistName(result.id),
@@ -90,27 +98,59 @@ public sealed class AddSubscriptionCommand : CommandBase
                 };
             }
 
+            // 登録先となる購読グループの取得
             bool alreadyAdded = _subscriptionManager.TryGetSubscriptionGroup(result.sourceType, result.id, out Subscription? alreadySource, out SubscriptionGroup? defaultGroup);
 
             var groups = new[] { _subscriptionManager.DefaultSubscriptionGroup }
                 .Concat(_subscriptionManager.GetSubscGroups())                
                 .ToList();
 
+            // デフォルト指定するグループの解決
+            if (!alreadyAdded && _lastSelectedSubscriptionGroupId.HasValue)
+            {
+                defaultGroup = groups.FirstOrDefault(x => x.GroupId == _lastSelectedSubscriptionGroupId.Value);
+            }
+
+            defaultGroup ??= _subscriptionManager.DefaultSubscriptionGroup;
+
+            // 購読グループの選択
             var selectedGroup = await _selectionDialogService.ShowSingleSelectDialogAsync(
                 groups,
                 defaultGroup,
                 displayMemberPath: nameof(SubscriptionGroup.Name),
                 dialogTitle: "SubscGroup_SelectGroup".Translate(),
-                dialogPrimaryButtonText: "Select".Translate()
+                primaryButtonText: "Select".Translate(),
+                secondaryButtonText: "CreateNew".Translate(),
+                secondaryButtonAction: async () => 
+                {
+                    string? text = await _dialogService.GetTextAsync(
+                        title: "SubscGroup_CreateGroup".Translate(),
+                        placeholder: "",
+                        defaultText: "",
+                        validater: (s) => !string.IsNullOrWhiteSpace(s)
+                        );
+                    if (string.IsNullOrWhiteSpace(text))
+                    {
+                        return default;
+                    }
+
+                    return _subscriptionManager.CreateSubscriptionGroup(text);
+                }
                 );
 
+            // 選択されなかった場合は何もせず終了
             if (selectedGroup == null) { return; }
 
+            // デフォルトのグループは 内部的に Subscription.Group == null として扱っている
             if (selectedGroup.GroupId == SubscriptionGroupId.DefaultGroupId)
             {
                 selectedGroup = null;
             }
 
+            // 次回の初期選択グループの記憶
+            _lastSelectedSubscriptionGroupId = selectedGroup?.GroupId;
+
+            // 購読を登録
             if (!alreadyAdded)
             {
                 var subscription = _subscriptionManager.AddSubscription(result.sourceType, result.id, result.label!, selectedGroup);

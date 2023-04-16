@@ -6,9 +6,9 @@ using Windows.UI.Xaml.Controls;
 namespace Hohoema.Dialogs;
 
 public sealed partial class TextInputDialog : ContentDialog
+{
+	public TextInputDialog()
 	{
-		public TextInputDialog()
-		{
-			this.InitializeComponent();
-		}
+		this.InitializeComponent();
 	}
+}
