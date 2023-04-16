@@ -29,3 +29,14 @@ public sealed class SubscriptionUpdatedMessage : ValueChangedMessage<Subscriptio
     {
     }
 }
+
+
+public sealed class SubscriptionGroupMovedMessage : ValueChangedMessage<Subscription>
+{
+    public SubscriptionGroupMovedMessage(Subscription value) : base(value)
+    {
+    }
+
+    public SubscriptionGroupId LastGroupId { get; init; }
+    public SubscriptionGroupId CurrentGroupId { get; init; }
+}

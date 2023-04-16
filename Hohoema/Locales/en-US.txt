@@ -94,7 +94,7 @@ HohoemaPageType.SearchResultMylist = Mylist search
 HohoemaPageType.SearchResultTag = Tag search
 HohoemaPageType.Settings = Configuration
 HohoemaPageType.Splash = Startup screen
-HohoemaPageType.Subscription = New videos
+HohoemaPageType.Subscription = Subscription group management
 HohoemaPageType.SubscVideoList = List of new videos
 HohoemaPageType.Timeshift = Time shift
 HohoemaPageType.UserInfo = User information
@@ -107,7 +107,7 @@ HohoemaPageType.WatchHistory = Viewing history
 HohoemaPageType.LocalPlaylist = playlist
 HohoemaPageType.Mylist = Mylist
 HohoemaPageType.VideoQueue = Queue
-HohoemaPageType.SubscriptionManagement = New videos
+HohoemaPageType.SubscriptionManagement = Subscription group management
 HohoemaPageType.OwnerMylistManage = Mylist management
 HohoemaPageType.LocalPlaylistManage = Local Mylist Management
 
@@ -232,16 +232,9 @@ SubscGroup_DeleteComfirmDialogTitle = Are you sure you want to delete the {0} gr
 
 SubscGroupVideosAllCheckedWithSubscGroupTitle = No videos to display
 SubscVideosDisplayChecked = Show checked
-
-
-
-
-
-
-
-
-
-
+SubscVideos_MarkAsCheckedWithDays = Checked {0} days ago
+SubscVideos_MarkAsChecked = Mark as checked
+SubscVideos_AllMarkAsChecked = Mark all checked
 
 
 

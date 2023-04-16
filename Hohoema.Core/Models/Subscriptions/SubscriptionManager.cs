@@ -113,11 +113,10 @@ public sealed class SubscriptionManager
             return false;
         }
 
-        var sources = _subscriptionRegistrationRepository.Find(x => x.Group!.GroupId == group.GroupId);
+        var sources = _subscriptionRegistrationRepository.Find(x => x.Group!.GroupId == group.GroupId).ToArray();
         foreach (var source in sources)
         {
-            source.Group = null;
-            UpdateSubscription(source);
+            MoveSubscriptionGroup(source, DefaultSubscriptionGroup);
         }
 
         bool result = _subscriptionGroupRepository.DeleteItem(group.GroupId);
@@ -218,6 +217,23 @@ public sealed class SubscriptionManager
     public void UpdateSubscription(Subscription entity)
     {
         _ = _subscriptionRegistrationRepository.UpdateItem(entity);
+        _messenger.Send(new SubscriptionUpdatedMessage(entity));
+    }
+
+    public void MoveSubscriptionGroup(Subscription entity, SubscriptionGroup moveDestinationGroup)
+    {
+        var lastGroupId = entity.Group?.GroupId ?? SubscriptionGroupId.DefaultGroupId;
+        if (moveDestinationGroup.IsDefaultGroup)
+        {
+            entity.Group = null;
+        }
+        else
+        {
+            entity.Group = moveDestinationGroup;
+        }
+
+        _ = _subscriptionRegistrationRepository.UpdateItem(entity);
+        _messenger.Send(new SubscriptionGroupMovedMessage(entity) {LastGroupId = lastGroupId, CurrentGroupId = moveDestinationGroup.GroupId });
     }
 
     public void UpdateSubscriptionGroup(SubscriptionGroup group)
@@ -236,9 +252,21 @@ public sealed class SubscriptionManager
         Debug.WriteLine("[SubscriptionSource Remove] feed result removed: " + feedResultRemoved);
     }
 
-    public IList<Subscription> GetAllSubscriptions()
+    public IList<Subscription> GetSubscriptions()
     {
         return _subscriptionRegistrationRepository.ReadAllItems();
+    }
+
+    public IList<Subscription> GetSubscriptions(SubscriptionGroupId groupId)
+    {
+        if (groupId == SubscriptionGroupId.DefaultGroupId)
+        {
+            return _subscriptionRegistrationRepository.Find(x => x.Group == null).ToList();
+        }
+        else
+        {
+            return _subscriptionRegistrationRepository.Find(groupId).ToList();
+        }
     }
 
     public Subscription GetSubscription(SubscriptionId id)
@@ -285,7 +313,7 @@ public sealed class SubscriptionManager
         return GetSubscriptionGroupSubscriptions(groupId)
             .Sum(_subscFeedVideoRepository.GetVideoCount);
     }
-
+   
     public DateTime GetLastUpdatedAt(SubscriptionId subscriptionId)
     {
         return _subscriptionUpdateRespository.GetOrAdd(subscriptionId).LastUpdatedAt;
@@ -686,6 +714,7 @@ public sealed class SubscriptionUpdate
     public SubscriptionId SubscriptionSourceId { get; }
 
     public DateTime LastUpdatedAt { get; set; } = DateTime.MinValue;
+
 
 }
 

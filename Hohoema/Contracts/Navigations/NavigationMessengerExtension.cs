@@ -18,4 +18,14 @@ public static class NavigationMessengerExtension
     {
         return await messenger.Send(new NavigationAsyncRequestMessage(new(_pageTypeToName[pageType], parameters)));
     }
+
+    public static async Task<INavigationResult> SendNavigationRequestAsync(this IMessenger messenger, HohoemaPageType pageType, string parameters)
+    {
+        return await messenger.Send(new NavigationAsyncRequestMessage(new(_pageTypeToName[pageType], new NavigationParameters(parameters))));
+    }
+
+    public static async Task<INavigationResult> SendNavigationRequestAsync(this IMessenger messenger, HohoemaPageType pageType, params (string key, object value)[] parameters)
+    {
+        return await messenger.Send(new NavigationAsyncRequestMessage(new(_pageTypeToName[pageType], new NavigationParameters(parameters))));
+    }
 }

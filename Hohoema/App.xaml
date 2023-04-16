@@ -40,11 +40,11 @@
         <ResourceDictionary Source="Views/Controls/VideoList/VideoListItemControl/VideoListItemControl.xaml"/>
         <ResourceDictionary Source="Views/Mylist/MylistCardView.xaml"/>
 
-        <muxc:XamlControlsResources  />
-
         <ResourceDictionary Source="Styles/DefaultStyle.xaml"/>
 
         <styles:VideoListItemControlDefaultTemplate />
+        
+        <muxc:XamlControlsResources  />
       </ResourceDictionary.MergedDictionaries>
 
       <ResourceDictionary.ThemeDictionaries>

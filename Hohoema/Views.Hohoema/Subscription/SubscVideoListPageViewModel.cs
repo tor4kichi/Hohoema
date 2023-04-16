@@ -182,7 +182,7 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
                 }
 
                 var nicoVideo = _nicoVideoProvider.GetCachedVideoInfo(videoId);
-                var itemVM = new SubscVideoListItemViewModel(feed, nicoVideo, _subscriptionManager, CreatePlaylist());
+                var itemVM = new SubscVideoListItemViewModel(feed, nicoVideo, _subscriptionManager.GetSubscription(m.Value.SourceSubscId), _subscriptionManager, CreatePlaylist());
                 ItemsView.Insert(0, itemVM);
             });
         });
@@ -339,6 +339,7 @@ public sealed class SubscVideoListIncrementalLoadingSource : IIncrementalSource<
 
     public SubscriptionGroup? SubscriptionGroup { get; }
 
+    Dictionary<SubscriptionId, Models.Subscriptions.Subscription> _subscMap = new Dictionary<SubscriptionId, Models.Subscriptions.Subscription>();
     bool isCheckedSeparatorInserted = false;
     public Task<IEnumerable<object>> GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken = default)
     {
@@ -373,9 +374,10 @@ public sealed class SubscVideoListIncrementalLoadingSource : IIncrementalSource<
                 }
             }
 
+            var subscription = GetSubscription(video.SourceSubscId);
             _videoIds.Add(videoId);
             var nicoVideo = _nicoVideoProvider.GetCachedVideoInfo(videoId);
-            resultItems.Add(new SubscVideoListItemViewModel(video, nicoVideo, _subscriptionManager, _subscriptionGroupPlaylist));
+            resultItems.Add(new SubscVideoListItemViewModel(video, nicoVideo, subscription, _subscriptionManager, _subscriptionGroupPlaylist));
         }
 
         if (resultItems.Any() && isCheckedSeparatorInserted is false)
@@ -384,6 +386,17 @@ public sealed class SubscVideoListIncrementalLoadingSource : IIncrementalSource<
         }
 
         return Task.FromResult<IEnumerable<object>>(resultItems);
+    }
+
+    Models.Subscriptions.Subscription GetSubscription(SubscriptionId subscriptionId)
+    {
+        if (!_subscMap.TryGetValue(subscriptionId, out var subsription))
+        {
+            subsription = _subscriptionManager.GetSubscription(subscriptionId);
+            _subscMap.Add(subscriptionId, subsription);
+        }
+
+        return subsription;
     }
 }
 
@@ -447,11 +460,13 @@ public sealed partial class SubscVideoListItemViewModel
     public SubscVideoListItemViewModel(
         SubscFeedVideo feedVideo,
         NicoVideo video,
+        Models.Subscriptions.Subscription subscription,
         SubscriptionManager subscriptionManager,
         SubscriptionGroupPlaylist subscriptionGroupPlaylist
         ) : base(video)
     {
         FeedVideo = feedVideo;
+        _subscription = subscription;        
         _subscriptionManager = subscriptionManager;
         _subscriptionGroupPlaylist = subscriptionGroupPlaylist;
         PlaylistItemToken = new PlaylistItemToken(_subscriptionGroupPlaylist, SubscriptionGroupPlaylist.DefaultSortOption, this);
@@ -459,6 +474,12 @@ public sealed partial class SubscVideoListItemViewModel
 
     public SubscFeedVideo FeedVideo { get; }
 
+    private readonly Models.Subscriptions.Subscription _subscription;
     private readonly SubscriptionManager _subscriptionManager;
     private readonly SubscriptionGroupPlaylist _subscriptionGroupPlaylist;    
+
+    public (string id, SubscriptionSourceType sourceType, string? label) GetSubscriptionParameter()
+    {
+        return (_subscription.SourceParameter, _subscription.SourceType, _subscription.Label);
+    }
 }

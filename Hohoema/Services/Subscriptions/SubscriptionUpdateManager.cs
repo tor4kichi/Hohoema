@@ -358,7 +358,7 @@ public sealed class SubscriptionUpdateManager
     public void TestNotification()
     {
         List<SubscriptionFeedUpdateResult> results = new();
-        var sources = _subscriptionManager.GetAllSubscriptions().Take(3);
+        var sources = _subscriptionManager.GetSubscriptions().Take(3);
         foreach (var source in sources)
         {
             var videos = _subscriptionManager.GetSubscFeedVideos(source, 0, 5).Select(x => new NicoVideo() { Id = x.VideoId, Title = x.Title }).ToList();

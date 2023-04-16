@@ -59,22 +59,28 @@ public sealed class SubscriptionRegistrationRepository : LiteDBServiceBase<Subsc
 
     public override BsonValue CreateItem(Subscription entity)
     {
-        Guard.IsFalse(IsExist(entity), "IsExist(entity)");
+        if (IsExist(entity))
+        {
+            _collection.Update(entity);
+            return entity.SubscriptionId.AsPrimitive();
+        }
+        else
+        {
+            entity.SubscriptionId = SubscriptionId.NewObjectId();
 
-        entity.SubscriptionId = SubscriptionId.NewObjectId();
-        
-        // Note: エンティティが登録されていない状態で .Max() を呼ぶと
-        //       InvalidOperationException が発生する (LiteDb 5.0.16)
-        try
-        {
-            entity.SortIndex = _collection.Max(x => x.SortIndex) + 1;
+            // Note: エンティティが登録されていない状態で .Max() を呼ぶと
+            //       InvalidOperationException が発生する (LiteDb 5.0.16)
+            try
+            {
+                entity.SortIndex = _collection.Max(x => x.SortIndex) + 1;
+            }
+            catch
+            {
+                entity.SortIndex = 0;
+            }
+            BsonValue result = base.CreateItem(entity);
+            return result;
         }
-        catch
-        {
-            entity.SortIndex = 0;
-        }
-        BsonValue result = base.CreateItem(entity);
-        return result;
     }
 
     internal bool DeleteItem(SubscriptionId subscriptionId)
@@ -85,6 +91,11 @@ public sealed class SubscriptionRegistrationRepository : LiteDBServiceBase<Subsc
     internal Subscription FindById(SubscriptionId id)
     {
         return _collection.Include(x => x.Group).FindById(id.AsPrimitive());
+    }
+
+    internal IEnumerable<Subscription> Find(SubscriptionGroupId groupId)
+    {
+        return _collection.Include(x => x.Group).Find(x => x.Group!.GroupId == groupId);
     }
 }
 

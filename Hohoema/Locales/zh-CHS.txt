@@ -94,7 +94,7 @@ HohoemaPageType.SearchResultMylist = Mylist搜索
 HohoemaPageType.SearchResultTag = 标签搜索
 HohoemaPageType.Settings = 设定
 HohoemaPageType.Splash = 启动画面
-HohoemaPageType.Subscription = 新视频
+HohoemaPageType.Subscription = 订阅组管理
 HohoemaPageType.SubscVideoList = 新视频列表
 HohoemaPageType.Timeshift = 时移
 HohoemaPageType.UserInfo = 用户信息
@@ -107,7 +107,7 @@ HohoemaPageType.WatchHistory = 播放历史
 HohoemaPageType.LocalPlaylist = 播放清单
 HohoemaPageType.Mylist = Mylist
 HohoemaPageType.VideoQueue = 队列
-HohoemaPageType.SubscriptionManagement = 新视频
+HohoemaPageType.SubscriptionManagement = 订阅组管理
 HohoemaPageType.OwnerMylistManage = Mylist管理
 HohoemaPageType.LocalPlaylistManage = Local Mylist管理
 
@@ -232,16 +232,9 @@ SubscGroup_DeleteComfirmDialogTitle = 您确定要删除 {0} 组吗？
 
 SubscGroupVideosAllCheckedWithSubscGroupTitle = 没有可显示的视频
 SubscVideosDisplayChecked = 显示勾选
-
-
-
-
-
-
-
-
-
-
+SubscVideos_MarkAsCheckedWithDays = {0} 天前检查过
+SubscVideos_MarkAsChecked = 标记为选中
+SubscVideos_AllMarkAsChecked = 全部勾选
 
 
 

@@ -3,6 +3,7 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using Hohoema.Contracts.Navigations;
 using Hohoema.Contracts.Subscriptions;
 using Hohoema.Models.Application;
 using Hohoema.Models.Niconico.Video;
@@ -10,12 +11,14 @@ using Hohoema.Models.PageNavigation;
 using Hohoema.Models.Playlist;
 using Hohoema.Models.Subscriptions;
 using Hohoema.Services;
+using Hohoema.Services.Navigations;
 using Hohoema.Services.Subscriptions;
 using Hohoema.ViewModels.Niconico.Video.Commands;
 using Hohoema.ViewModels.VideoListPage;
 using I18NPortable;
 using LiteDB;
 using Microsoft.Extensions.Logging;
+using Microsoft.Toolkit.Uwp.UI;
 using NiconicoToolkit.Video;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
@@ -36,24 +39,20 @@ namespace Hohoema.ViewModels.Pages.Hohoema.Subscription;
 
 public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelBase, IRecipient<SettingsRestoredMessage>, IDisposable
 {
-    public ObservableCollection<SubscriptionViewModel> Subscriptions { get; }
-
     private readonly SubscriptionManager _subscriptionManager;
     private readonly SubscriptionUpdateManager _subscriptionUpdateManager;
     private readonly DialogService _dialogService;
-    private readonly PageManager _pageManager;
-    private readonly NicoVideoProvider _nicoVideoProvider;
-    private readonly QueuePlaylist _queuePlaylist;
-    private readonly VideoPlayWithQueueCommand _VideoPlayWithQueueCommand;
     private readonly IScheduler _scheduler;
     private readonly IMessenger _messenger;
+    private readonly ILogger<SubscriptionManagementPageViewModel> _logger;
 
     public IReadOnlyReactiveProperty<bool> IsAutoUpdateRunning { get; }
     public IReactiveProperty<TimeSpan> AutoUpdateFrequency { get; }
     public IReactiveProperty<bool> IsAutoUpdateEnabled { get; }
-
-    public ObservableCollection<SubscriptionGroup> SubscriptionGroups { get; } = new();
     
+    public ObservableCollection<SubscriptionGroupViewModel> SubscriptionGroups { get; } = new();
+    public ApplicationLayoutManager ApplicationLayoutManager { get; }
+
     void IRecipient<SettingsRestoredMessage>.Receive(SettingsRestoredMessage message)
     {
         
@@ -67,9 +66,7 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
         SubscriptionUpdateManager subscriptionUpdateManager,
         DialogService dialogService,
         PageManager pageManager,
-        NicoVideoProvider nicoVideoProvider,
-        QueuePlaylist queuePlaylist,
-        VideoPlayWithQueueCommand videoPlayWithQueueCommand
+        ApplicationLayoutManager applicationLayoutManager
         )
     {
         _logger = loggerFactory.CreateLogger<SubscriptionManagementPageViewModel>();
@@ -77,27 +74,23 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
         _messenger = messenger;
         _subscriptionManager = subscriptionManager;
         _subscriptionUpdateManager = subscriptionUpdateManager;
-        _dialogService = dialogService;
-        _pageManager = pageManager;
-        _nicoVideoProvider = nicoVideoProvider;
-        _queuePlaylist = queuePlaylist;
-        _VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
-
+        _dialogService = dialogService;        
+        ApplicationLayoutManager = applicationLayoutManager;
         _messenger.Register<SettingsRestoredMessage>(this);
 
-        Subscriptions = new ObservableCollection<SubscriptionViewModel>();
-        Subscriptions.CollectionChangedAsObservable()
-           .Throttle(TimeSpan.FromSeconds(0.25))
-           .Subscribe(_ =>
-           {
-               foreach (var (index, vm) in Subscriptions.Select((x, i) => (i, x)))
-               {
-                   var subscEntity = vm._source;
-                   subscEntity.SortIndex = index + 1; // 新規追加時に既存アイテムを後ろにずらして表示したいため+1
-                   _subscriptionManager.UpdateSubscription(subscEntity);
-               }
-           })
-           .AddTo(_CompositeDisposable);
+        //Subscriptions = new ObservableCollection<SubscriptionViewModel>();
+        //Subscriptions.CollectionChangedAsObservable()
+        //   .Throttle(TimeSpan.FromSeconds(0.25))
+        //   .Subscribe(_ =>
+        //   {
+        //       foreach (var (index, vm) in Subscriptions.Select((x, i) => (i, x)))
+        //       {
+        //           var subscEntity = vm._source;
+        //           subscEntity.SortIndex = index + 1; // 新規追加時に既存アイテムを後ろにずらして表示したいため+1
+        //           _subscriptionManager.UpdateSubscription(subscEntity);
+        //       }
+        //   })
+        //   .AddTo(_CompositeDisposable);
 
         IsAutoUpdateRunning = _subscriptionUpdateManager.ObserveProperty(x => x.IsRunning)
             .ToReadOnlyReactiveProperty(false)
@@ -112,80 +105,56 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
 
     public override void Dispose()
     {
-        foreach (var subscription in Subscriptions)
-        {
-            subscription.Dispose();
-        }
-
         base.Dispose();
+    }
+
+    SubscriptionGroupViewModel ToSubscriptionGroupVM(SubscriptionGroup subscriptionGroup)
+    {
+        return new SubscriptionGroupViewModel(subscriptionGroup, _subscriptionManager, _scheduler, _logger, _messenger, _dialogService);
+    }
+
+    void ClearSubscriptionGroupVM()
+    {
+        foreach (var groupVM in SubscriptionGroups)
+        {
+            (groupVM as IDisposable)?.Dispose();
+        }
+        SubscriptionGroups.Clear();
+    }
+
+    void ResetSubscriptionGroups()
+    {
+        ClearSubscriptionGroupVM();
+        SubscriptionGroups.Add(ToSubscriptionGroupVM(_subscriptionManager.DefaultSubscriptionGroup));
+        foreach (var subscGroup in _subscriptionManager.GetSubscGroups())
+        {
+            SubscriptionGroups.Add(ToSubscriptionGroupVM(subscGroup));
+        }
     }
 
     public override void OnNavigatingTo(INavigationParameters parameters)
     {
-        SubscriptionGroups.Clear();
-        SubscriptionGroups.Add(_subscriptionManager.DefaultSubscriptionGroup);
-        foreach (var subscGroup in _subscriptionManager.GetSubscGroups())
-        {
-            SubscriptionGroups.Add(subscGroup);
-        }
+        ResetSubscriptionGroups();
 
-        Subscriptions.Clear();
-        foreach (var subscInfo in _subscriptionManager.GetAllSubscriptions().OrderBy(x => x.SortIndex))
+        //_messenger.Register<SubscriptionUpdatedMessage>(this, (r, m) =>
+        //{
+        //    var entity = m.Value;
+        //    var vm = Subscriptions.FirstOrDefault(x => x.SourceType == entity.SourceType && x.SourceParameter == entity.SourceParameter);
+        //    if (vm != null)
+        //    {
+        //        //_scheduler.Schedule(() =>
+        //        //{
+        //        //    vm.UpdateFeedResult(e.Videos, DateTime.Now);
+        //        //});
+        //    }
+        //});
+
+        _messenger.Register<SubscriptionGroupDeletedMessage>(this, (r, m) =>
         {
-            var vm = new SubscriptionViewModel(_logger, _messenger, _queuePlaylist, subscInfo, this, _subscriptionManager, _pageManager, _dialogService, _VideoPlayWithQueueCommand);
-            var latestVideo = _subscriptionManager.GetSubscFeedVideos(subscInfo, 0, 1).FirstOrDefault();            
-            if (latestVideo != null)
+            var groupVM = SubscriptionGroups.FirstOrDefault(x => x.SubscriptionGroup.GroupId == m.Value.GroupId);
+            if (groupVM != null)
             {
-                var items = _nicoVideoProvider.GetCachedVideoInfoItems(new[] { (VideoId)latestVideo.VideoId });
-                vm.UpdateFeedResult(items, _subscriptionManager.GetLastUpdatedAt(subscInfo.SubscriptionId));
-            }
-            Subscriptions.Add(vm);
-        }
-
-        _messenger.Register<SubscriptionAddedMessage>(this, (r, m) => 
-        {
-            _scheduler.Schedule(() =>
-            {
-                var vm = new SubscriptionViewModel(_logger, _messenger, _queuePlaylist, m.Value, this, _subscriptionManager, _pageManager, _dialogService, _VideoPlayWithQueueCommand);
-                Subscriptions.Insert(0, vm);
-            });
-        });
-
-        _messenger.Register<SubscriptionDeletedMessage>(this, (r, m) =>
-        {
-            var entityId = m.Value;
-            var target = Subscriptions.FirstOrDefault(x => x._source.SubscriptionId == entityId);
-            if (target == null) { return; }
-
-            _scheduler.Schedule(() =>
-            {
-                target.Dispose();
-                Subscriptions.Remove(target);
-            });
-        });
-
-        _messenger.Register<SubscriptionUpdatedMessage>(this, (r, m) =>
-        {
-            var entity = m.Value;
-            var vm = Subscriptions.FirstOrDefault(x => x.SourceType == entity.SourceType && x.SourceParameter == entity.SourceParameter);
-            if (vm != null)
-            {
-                //_scheduler.Schedule(() =>
-                //{
-                //    vm.UpdateFeedResult(e.Videos, DateTime.Now);
-                //});
-            }
-        });
-
-        _messenger.Register<SubscriptionGroupDeletedMessage>(this, (r, m) => 
-        {
-            var group = m.Value;
-            foreach (var subsc in Subscriptions)
-            {
-                if (subsc.Group?.GroupId == group.GroupId)
-                {
-                    subsc.Group = null;
-                }
+                SubscriptionGroups.Remove(groupVM);
             }
         });
 
@@ -194,59 +163,15 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
 
     public override void OnNavigatedFrom(INavigationParameters parameters)
     {
-        _messenger.Unregister<SubscriptionAddedMessage>(this);
-        _messenger.Unregister<SubscriptionDeletedMessage>(this);
-        _messenger.Unregister<SubscriptionUpdatedMessage>(this);
         _messenger.Unregister<SubscriptionGroupDeletedMessage>(this);
 
         base.OnNavigatedFrom(parameters);
     }
 
-
-    #region PlayAllUnwatched
-
-    private RelayCommand _PlayAllUnwatchedCommand;
-    public RelayCommand PlayAllUnwatchedCommand =>
-        _PlayAllUnwatchedCommand ?? (_PlayAllUnwatchedCommand = new RelayCommand(ExecutePlayAllUnwatchedCommand, CanExecutePlayAllUnwatchedCommand));
-
-    void ExecutePlayAllUnwatchedCommand()
-    {
-
-    }
-
-    bool CanExecutePlayAllUnwatchedCommand()
-    {
-        return true;
-    }
-
-    #endregion
-
-    #region AddSubscriptionSource
-
-    private RelayCommand _AddSubscriptionSourceCommand;
-    public RelayCommand AddSubscriptionSourceCommand =>
-        _AddSubscriptionSourceCommand ?? (_AddSubscriptionSourceCommand = new RelayCommand(ExecuteAddSubscriptionSourceCommand, CanExecuteAddSubscriptionSourceCommand));
-
-    void ExecuteAddSubscriptionSourceCommand()
-    {
-
-    }
-
-    bool CanExecuteAddSubscriptionSourceCommand()
-    {
-        return true;
-    }
-
-    #endregion
-
-
     CancellationTokenSource _cancellationTokenSource;
-
-    private RelayCommand _AllUpdateCommand;
-    public RelayCommand AllUpdateCommand =>
-        _AllUpdateCommand ?? (_AllUpdateCommand = new RelayCommand(ExecuteAllUpdateCommand));
-
-    void ExecuteAllUpdateCommand()
+    
+    [RelayCommand]
+    void AllUpdate()
     {
         _scheduler.Schedule(async () =>
         {
@@ -265,25 +190,17 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
 
         //Analytics.TrackEvent("Subscription_Update");
     }
-
-
-    private RelayCommand _CancelUpdateCommand;
-    private ILogger<SubscriptionManagementPageViewModel> _logger;
-
-    public RelayCommand CancelUpdateCommand =>
-        _CancelUpdateCommand ?? (_CancelUpdateCommand = new RelayCommand(ExecuteCancelUpdateCommand));
-
-    void ExecuteCancelUpdateCommand()
+  
+    [RelayCommand]
+    void CancelUpdate()
     {
         _cancellationTokenSource?.Cancel();
     }
 
-
-
     public void OpenSourceVideoListPage(object sender, ItemClickEventArgs args)
     {
-        var source = (args.ClickedItem as SubscriptionViewModel)._source;
-        (HohoemaPageType pageType, string param) pageInfo = source.SourceType switch
+        var source = (args.ClickedItem as SubscriptionViewModel)!._source;
+        (HohoemaPageType pageType, string param) = source.SourceType switch
         {
             SubscriptionSourceType.Mylist => (HohoemaPageType.Mylist, $"id={source.SourceParameter}"),
             SubscriptionSourceType.User => (HohoemaPageType.UserVideo, $"id={source.SourceParameter}"),
@@ -294,8 +211,7 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
             _ => throw new NotImplementedException(),
         };
 
-        _pageManager.OpenPage(pageInfo.pageType, pageInfo.param);
-
+        _ = _messenger.SendNavigationRequestAsync(pageType, param);
     }
 
 
@@ -303,7 +219,7 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
     [RelayCommand]
     void OpenSubscVideoListPage()
     {
-        _pageManager.OpenPage(HohoemaPageType.SubscVideoList);
+        _ = _messenger.SendNavigationRequestAsync(HohoemaPageType.SubscVideoList);
     }
 
     [RelayCommand]
@@ -319,38 +235,142 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
         if (string.IsNullOrWhiteSpace(name)) { return; }
 
         SubscriptionGroup newGroup = _subscriptionManager.CreateSubscriptionGroup(name);
-        SubscriptionGroups.Add(newGroup);
+        SubscriptionGroups.Add(ToSubscriptionGroupVM(newGroup));
 
         subscVM.ChangeSubscGroup(newGroup);
     }
+}
 
-    [RelayCommand]
-    async Task DeleteSubscriptionGroup(SubscriptionGroup group)
+public sealed partial class SubscriptionGroupViewModel 
+    : ObservableObject
+    , IRecipient<SubscriptionAddedMessage>
+    , IRecipient<SubscriptionDeletedMessage>
+    , IRecipient<SubscriptionGroupMovedMessage>
+    , IDisposable
+{
+    private readonly SubscriptionManager _subscriptionManager;
+    private readonly IScheduler _scheduler;
+    private readonly ILogger _logger;
+    private readonly IMessenger _messenger;
+    private readonly IDialogService _dialogService;
+
+    public SubscriptionGroupViewModel(
+        SubscriptionGroup subscriptionGroup,
+        SubscriptionManager subscriptionManager,
+        IScheduler scheduler,
+        ILogger logger,
+        IMessenger messenger,
+        IDialogService dialogService
+        )
     {
-        bool confirmDelete = await _dialogService.ShowMessageDialog(
-            "SubscGroup_DeleteComfirmDialogContent".Translate(group.Name),
-            "SubscGroup_DeleteComfirmDialogTitle".Translate(),
-            "Delete".Translate(),
-            "Cancel".Translate()
+        SubscriptionGroup = subscriptionGroup;
+        _subscriptionManager = subscriptionManager;
+        _scheduler = scheduler;
+        _logger = logger;
+        _messenger = messenger;
+        _dialogService = dialogService;
+        Subscriptions = new ObservableCollection<SubscriptionViewModel>(
+            _subscriptionManager.GetSubscriptions(SubscriptionGroup.GroupId)
+            .Select(ToSubscriptionVM)
             );
 
-        if (confirmDelete)
-        {
-            _subscriptionManager.DeleteSubscriptionGroup(group);
+        _messenger.Register<SubscriptionAddedMessage>(this);
+        _messenger.Register<SubscriptionDeletedMessage>(this);
+        _messenger.Register<SubscriptionGroupMovedMessage>(this);
+    }
 
-            foreach (var subsc in Subscriptions)
+    private SubscriptionViewModel ToSubscriptionVM(Models.Subscriptions.Subscription subscription)
+    {
+        return new SubscriptionViewModel(subscription, _subscriptionManager, this, _logger, _messenger, _dialogService);
+    }
+
+    public ObservableCollection<SubscriptionViewModel> Subscriptions { get; }
+    public SubscriptionGroup SubscriptionGroup { get; }
+
+    void IRecipient<SubscriptionAddedMessage>.Receive(SubscriptionAddedMessage m)
+    {
+        _scheduler.Schedule(() =>
+        {
+            if (m.Value.Group == null)
             {
-                if (subsc.Group?.GroupId == group.GroupId)
+                if (!SubscriptionGroup.IsDefaultGroup)
                 {
-                    subsc.Group = null;
+                    return;
+                } 
+            }
+            else
+            {
+                if (SubscriptionGroup.GroupId != m.Value.Group.GroupId)
+                {
+                    return;
                 }
             }
+
+            Subscriptions.Add(ToSubscriptionVM(m.Value));
+        });
+    }
+
+    void IRecipient<SubscriptionDeletedMessage>.Receive(SubscriptionDeletedMessage m)
+    {
+        _scheduler.Schedule(() =>
+        {
+            var target = Subscriptions.FirstOrDefault(x => x._source.SubscriptionId == m.Value);
+            if (target == null) { return; }
+            Subscriptions.Remove(target);
+        });
+    }
+
+    void IRecipient<SubscriptionGroupMovedMessage>.Receive(SubscriptionGroupMovedMessage message)
+    {
+        _scheduler.Schedule(() =>
+        {
+            if (SubscriptionGroup.GroupId == message.CurrentGroupId)
+            {
+                if (Subscriptions.Any(x => x._source.SubscriptionId == message.Value.SubscriptionId))
+                {
+                    return;
+                }
+
+                Subscriptions.Add(ToSubscriptionVM(message.Value));
+            }
+            else if (SubscriptionGroup.GroupId == message.LastGroupId)
+            {
+                var removed = Subscriptions.FirstOrDefault(x => x._source.SubscriptionId == message.Value.SubscriptionId);
+                if (removed != null)
+                {
+                    Subscriptions.Remove(removed);
+                }                    
+            }
+        });
+    }
+
+    public void Dispose()
+    {
+        _messenger.Unregister<SubscriptionAddedMessage>(this);
+        _messenger.Unregister<SubscriptionDeletedMessage>(this);
+        _messenger.Unregister<SubscriptionGroupMovedMessage>(this);
+
+        foreach (var subscriptionVM in Subscriptions)
+        {
+            (subscriptionVM as IDisposable)?.Dispose();
         }
     }
 
+
+
+
     [RelayCommand]
-    async Task RenameSubscriptionGroup(SubscriptionGroup group)
+    async Task OpenSubscVideoListPage()
     {
+        await _messenger.SendNavigationRequestAsync(HohoemaPageType.SubscVideoList, 
+            new NavigationParameters( ("SubscGroupId", SubscriptionGroup.GroupId.ToString())) 
+            );
+    }
+
+    [RelayCommand]
+    async Task RenameSubscriptionGroup()
+    {
+        var group = SubscriptionGroup;
         string? resultName = await _dialogService.GetTextAsync("SubscGroup_Rename".Translate(), "", group.Name, (s) => !string.IsNullOrWhiteSpace(s) && s.Length <= 40);
         if (resultName is null) { return; }
 
@@ -366,105 +386,105 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
             }
         }
     }
+
+
+    [RelayCommand]
+    async Task DeleteSubscriptionGroup()
+    {
+        var group = SubscriptionGroup;
+        bool confirmDelete = await _dialogService.ShowMessageDialog(
+            "SubscGroup_DeleteComfirmDialogContent".Translate(),
+            "SubscGroup_DeleteComfirmDialogTitle".Translate(group.Name),
+            "Delete".Translate(),
+            "Cancel".Translate()
+            );
+
+        if (confirmDelete)
+        {
+            _subscriptionManager.DeleteSubscriptionGroup(group);
+            /*
+            foreach (var subsc in Subscriptions)
+            {
+                if (subsc.Group?.GroupId == group.GroupId)
+                {
+                    subsc.Group = null;
+                }
+            }
+            */
+        }
+    }
+
+    
 }
 
 
-
-public partial class SubscriptionViewModel : ObservableObject, IDisposable
+public partial class SubscriptionViewModel 
+    : ObservableObject
 {
     public SubscriptionViewModel(
+        Models.Subscriptions.Subscription source,
+        SubscriptionManager subscriptionManager,
+        SubscriptionGroupViewModel pageViewModel,
         ILogger logger,
         IMessenger messenger,
-        QueuePlaylist queuePlaylist,
-        Models.Subscriptions.Subscription source,
-        SubscriptionManagementPageViewModel pageViewModel,
-        SubscriptionManager subscriptionManager,
-        PageManager pageManager,
-        DialogService dialogService,
-        VideoPlayWithQueueCommand videoPlayWithQueueCommand
+        IDialogService dialogService
         )
     {
         _logger = logger;
         _messenger = messenger;
-        _queuePlaylist = queuePlaylist;
         _source = source;
         _pageViewModel = pageViewModel;
         _subscriptionManager = subscriptionManager;
-        _pageManager = pageManager;
         _dialogService = dialogService;
-        PlayVideoItemCommand = videoPlayWithQueueCommand;
-        IsEnabled = new ReactiveProperty<bool>(_source.IsEnabled)
-            .AddTo(_disposables);
-        IsEnabled.Subscribe(isEnabled => 
-        {
-            _source.IsEnabled = isEnabled;
-            _subscriptionManager.UpdateSubscription(_source);
-        })
-            .AddTo(_disposables);
+        _isEnabled = _source.IsEnabled;
         _group = _source.Group;
     }
 
-    private readonly CompositeDisposable _disposables = new CompositeDisposable();
+    internal readonly Models.Subscriptions.Subscription _source;
+    private readonly SubscriptionManager _subscriptionManager;
+    private readonly SubscriptionGroupViewModel _pageViewModel;
     private readonly ILogger _logger;
     private readonly IMessenger _messenger;
-    private readonly QueuePlaylist _queuePlaylist;
-    internal readonly Models.Subscriptions.Subscription _source;
-    private readonly SubscriptionManagementPageViewModel _pageViewModel;
-    private readonly SubscriptionManager _subscriptionManager;
-    private readonly PageManager _pageManager;
-    private readonly DialogService _dialogService;
-    public VideoPlayWithQueueCommand PlayVideoItemCommand { get; }
+    private readonly IDialogService _dialogService;
 
     public string SourceParameter => _source.SourceParameter;
     public SubscriptionSourceType SourceType => _source.SourceType;
     public string Label => _source.Label;
 
-    public ReactiveProperty<bool> IsEnabled { get; }
+    [ObservableProperty]
+    private bool _isEnabled;
 
-    //public ObservableCollection<VideoListItemControlViewModel> Videos { get; } = new ObservableCollection<VideoListItemControlViewModel>();        
+    partial void OnIsEnabledChanged(bool value)
+    {
+        _source.IsEnabled = value;
+        _subscriptionManager.UpdateSubscription(_source);
+    }
 
     [ObservableProperty]
-    private VideoListItemControlViewModel _sampleVideo;
+    private IVideoContent? _sampleVideo;
 
+    [ObservableProperty]
     private DateTime _lastUpdatedAt;
-    public DateTime LastUpdatedAt
-    {
-        get { return _lastUpdatedAt; }
-        set { SetProperty(ref _lastUpdatedAt, value); }
-    }
 
+    [ObservableProperty]
     private bool _nowUpdating;
-    public bool NowUpdating
-    {
-        get { return _nowUpdating; }
-        set { SetProperty(ref _nowUpdating, value); }
-    }
 
-    public void Dispose()
-    {
-        _disposables.Dispose();
-        _sampleVideo?.Dispose();
-    }
+    [ObservableProperty]
+    private int _unwatchedVideoCount;
 
     internal void UpdateFeedResult(IList<NicoVideo> result, DateTime updatedAt)
     {
-        _sampleVideo?.Dispose();
         _sampleVideo = null;
-        // Count == 0 の時にClearすると ArgumentOutOfRangeException がスローされてしまう
-
         if (result.FirstOrDefault() is not null and var video)
         {
-            _sampleVideo = new VideoListItemControlViewModel(video);
+            _sampleVideo = video;
         }
 
         LastUpdatedAt = updatedAt;
     }
-
-    private RelayCommand _UpdateCommand;
-    public RelayCommand UpdateCommand =>
-        _UpdateCommand ?? (_UpdateCommand = new RelayCommand(ExecuteUpdateCommand));
-
-    internal async void ExecuteUpdateCommand()
+    
+    [RelayCommand]
+    async Task Update()
     {
         try
         {
@@ -484,13 +504,10 @@ public partial class SubscriptionViewModel : ObservableObject, IDisposable
         }
     }
 
-    private RelayCommand _OpenSourceVideoListPageCommand;
-    public RelayCommand OpenSourceVideoListPageCommand =>
-        _OpenSourceVideoListPageCommand ?? (_OpenSourceVideoListPageCommand = new RelayCommand(ExecuteOpenSourceVideoListPageCommand));
-
-    void ExecuteOpenSourceVideoListPageCommand()
+    [RelayCommand]
+    async Task OpenSourceVideoListPage()
     {
-        (HohoemaPageType pageType, string param) pageInfo = _source.SourceType switch
+        (HohoemaPageType pageType, string param) = _source.SourceType switch
         {
             SubscriptionSourceType.Mylist => (HohoemaPageType.Mylist, $"id={_source.SourceParameter}"),
             SubscriptionSourceType.User => (HohoemaPageType.UserVideo, $"id={_source.SourceParameter}"),
@@ -501,16 +518,12 @@ public partial class SubscriptionViewModel : ObservableObject, IDisposable
             _ => throw new NotImplementedException(),
         };
 
-        _pageManager.OpenPage(pageInfo.pageType, pageInfo.param);
+        await _messenger.SendNavigationRequestAsync(pageType, new NavigationParameters(param));
     }
 
 
-
-    private RelayCommand _DeleteSubscriptionCommand;
-    public RelayCommand DeleteSubscriptionCommand =>
-        _DeleteSubscriptionCommand ?? (_DeleteSubscriptionCommand = new RelayCommand(ExecuteDeleteSubscriptionCommand));
-
-    async void ExecuteDeleteSubscriptionCommand()
+    [RelayCommand]
+    async Task DeleteSubscription()
     {
         var result = await _dialogService.ShowMessageDialog(
             _source.Label,
@@ -525,15 +538,30 @@ public partial class SubscriptionViewModel : ObservableObject, IDisposable
     }
 
 
-    
+    [ObservableProperty]
+    private SubscriptionGroup? _group;
+
+    [RelayCommand]
+    public void ChangeSubscGroup(SubscriptionGroup group)
+    {
+        _subscriptionManager.MoveSubscriptionGroup(_source, group);
+        Group = group;
+    }
 
 
 
-    private RelayCommand _MoveToPreviewCommand;
-    public RelayCommand MoveToPreviewCommand =>
-        _MoveToPreviewCommand ?? (_MoveToPreviewCommand = new RelayCommand(ExecuteMoveToPreviewCommand));
+    [RelayCommand]
+    async Task PlayVideoItem()
+    {
+        // TODO: 購読ソース選択時の動画再生
+    }
 
-    void ExecuteMoveToPreviewCommand()
+
+
+
+
+    [RelayCommand]
+    void MoveToPreview()
     {
         var index = _pageViewModel.Subscriptions.IndexOf(this);
         if (index - 1 >= 0)
@@ -543,14 +571,8 @@ public partial class SubscriptionViewModel : ObservableObject, IDisposable
         }
     }
 
-
-
-
-    private RelayCommand _MoveToNextCommand;
-    public RelayCommand MoveToNextCommand =>
-        _MoveToNextCommand ?? (_MoveToNextCommand = new RelayCommand(ExecuteMoveToNextCommand));
-
-    void ExecuteMoveToNextCommand()
+    [RelayCommand]
+    void MoveToNext()
     {
         var index = _pageViewModel.Subscriptions.IndexOf(this);
         if (index + 1 < _pageViewModel.Subscriptions.Count)
@@ -560,25 +582,16 @@ public partial class SubscriptionViewModel : ObservableObject, IDisposable
         }
     }
 
-
-    private RelayCommand _MoveToHeadCommand;
-    public RelayCommand MoveToHeadCommand =>
-        _MoveToHeadCommand ?? (_MoveToHeadCommand = new RelayCommand(ExecuteMoveToHeadCommand));
-
-    void ExecuteMoveToHeadCommand()
+    [RelayCommand]
+    void MoveToHead()
     {
         if (this == _pageViewModel.Subscriptions.FirstOrDefault()) { return; }
         _pageViewModel.Subscriptions.Remove(this);
         _pageViewModel.Subscriptions.Insert(0, this);
     }
 
-
-
-    private RelayCommand _MoveToTailCommand;
-    public RelayCommand MoveToTailCommand =>
-        _MoveToTailCommand ?? (_MoveToTailCommand = new RelayCommand(ExecuteMoveToTailCommand));
-
-    void ExecuteMoveToTailCommand()
+    [RelayCommand]
+    void MoveToTail()
     {
         if (this == _pageViewModel.Subscriptions.LastOrDefault()) { return; }
 
@@ -586,15 +599,4 @@ public partial class SubscriptionViewModel : ObservableObject, IDisposable
         _pageViewModel.Subscriptions.Add(this);
     }
 
-    [ObservableProperty]
-    private SubscriptionGroup? _group;
-    
-    [RelayCommand]
-    public void ChangeSubscGroup(SubscriptionGroup group)
-    {
-        _source.Group = group;
-        _subscriptionManager.UpdateSubscription(_source);
-
-        Group = group;
-    }
 }

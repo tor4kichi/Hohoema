@@ -94,7 +94,7 @@ HohoemaPageType.SearchResultMylist = マイリスト検索
 HohoemaPageType.SearchResultTag = タグ検索
 HohoemaPageType.Settings = 設定
 HohoemaPageType.Splash = 起動画面
-HohoemaPageType.Subscription = 新着動画
+HohoemaPageType.Subscription = 購読グループ管理
 HohoemaPageType.SubscVideoList = 新着動画一覧
 HohoemaPageType.Timeshift = タイムシフト
 HohoemaPageType.UserInfo = ユーザー情報
@@ -107,7 +107,7 @@ HohoemaPageType.WatchHistory = 視聴履歴
 HohoemaPageType.LocalPlaylist = プレイリスト
 HohoemaPageType.Mylist = マイリスト
 HohoemaPageType.VideoQueue = キュー
-HohoemaPageType.SubscriptionManagement = 新着動画
+HohoemaPageType.SubscriptionManagement = 購読グループ管理
 HohoemaPageType.OwnerMylistManage = マイリスト管理
 HohoemaPageType.LocalPlaylistManage = ローカルマイリスト管理
 
@@ -232,16 +232,9 @@ SubscGroup_DeleteComfirmDialogTitle = {0} のグループを削除しますか�
 
 SubscGroupVideosAllCheckedWithSubscGroupTitle = {0} の動画はすべてチェック済み
 SubscVideosDisplayChecked = チェック済みも表示
-SubscVideos_MarkAsCheckedWithDays = {0} 日前まで
+SubscVideos_MarkAsCheckedWithDays = {0} 日前までチェック済み
 SubscVideos_MarkAsChecked = チェック済みにマーク
 SubscVideos_AllMarkAsChecked = すべてチェック済みにマーク
-
-
-
-
-
-
-
 
 
 

@@ -8,6 +8,7 @@ using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Niconico.Video.Series;
 using Hohoema.Models.Subscriptions;
 using Hohoema.Services;
+using Hohoema.ViewModels.Pages.Hohoema.Subscription;
 using I18NPortable;
 using Microsoft.Extensions.Logging;
 using NiconicoToolkit.Video;
@@ -71,6 +72,7 @@ public sealed class AddSubscriptionCommand : CommandBase
             // 購読登録用にデータを正規化
             (string id, SubscriptionSourceType sourceType, string? label) result = parameter switch
             {
+                SubscVideoListItemViewModel subscItemVM => subscItemVM.GetSubscriptionParameter(),
                 IVideoContentProvider videoContent => videoContent.ProviderType switch
                 {
                     OwnerType.User => (id: videoContent.ProviderId, sourceType: SubscriptionSourceType.User, default(string?)),

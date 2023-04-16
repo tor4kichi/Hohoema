@@ -77,31 +77,20 @@ public sealed partial class SubscriptionManagementPage : Page
             CommandParameter = subscVM
         });
         subscriptionGroupMenuItem.Items.Add(new MenuFlyoutSeparator());
-        foreach (var subscGroup in _vm.SubscriptionGroups)
+        foreach (var subscGroupVM in _vm.SubscriptionGroups)
         {
             subscriptionGroupMenuItem.Items.Add(new ToggleMenuFlyoutItem()
             {
-                Text = subscGroup.Name,
+                Text = subscGroupVM.SubscriptionGroup.Name,
                 Command = subscVM.ChangeSubscGroupCommand,
-                CommandParameter = subscGroup,
+                CommandParameter = subscGroupVM.SubscriptionGroup,
                 IsChecked = subscVM.Group != null 
-                    ? subscVM.Group.GroupId == subscGroup.GroupId 
-                    : subscGroup.GroupId == SubscriptionGroupId.DefaultGroupId
+                    ? subscVM.Group.GroupId == subscGroupVM.SubscriptionGroup.GroupId 
+                    : subscGroupVM.SubscriptionGroup.GroupId == SubscriptionGroupId.DefaultGroupId
             });
         }        
     }
 
-    private void Tapped_DeleteSubscriptionGroup(object sender, TappedRoutedEventArgs e)
-    {
-        Flyout_SubscGroup.Hide();
-        _vm.DeleteSubscriptionGroupCommand.Execute((sender as FrameworkElement)!.DataContext);
-    }
-
-    private void Tapped_RenameSubscriptionGroup(object sender, TappedRoutedEventArgs e)
-    {
-        Flyout_SubscGroup.Hide();
-        _vm.RenameSubscriptionGroupCommand.Execute((sender as FrameworkElement)!.DataContext);
-    }
 }
 
 
