@@ -235,6 +235,16 @@ SubscVideosDisplayChecked = Show checked
 
 
 
+
+
+
+
+
+
+
+
+
+
 #### Settings ####
 MenuPaneDisplayMode = Menu display position
 NavigationViewPaneDisplayMode.Auto = Automatic

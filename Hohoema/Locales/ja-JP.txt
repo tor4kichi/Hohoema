@@ -227,11 +227,21 @@ SubscGroup_CreateGroup = 購読グループを作成
 SubscGroup_ContextMenuItemTitle = 購読グループを変更
 SubscGroup_SelectGroup = 購読グループを選択
 SubscGroup_Rename = 購読グループのリネーム
-SubscGroup_DeleteComfirmDialogContent = 購読グループを削除しても、購読に設定しているグループは「デフォルト」に変更されるため安全に削除できます。\n削除してもよろしいですか？
-SubscGroup_DeleteComfirmDialogTitle = {0} のグループを削除してもいい？
+SubscGroup_DeleteComfirmDialogContent = 現在、グループを指定している購読は自動的に「デフォルト」に変更されます。
+SubscGroup_DeleteComfirmDialogTitle = {0} のグループを削除しますか？？
 
 SubscGroupVideosAllCheckedWithSubscGroupTitle = {0} の動画はすべてチェック済み
 SubscVideosDisplayChecked = チェック済みも表示
+SubscVideos_MarkAsCheckedWithDays = {0} 日前まで
+SubscVideos_MarkAsChecked = チェック済みにマーク
+SubscVideos_AllMarkAsChecked = すべてチェック済みにマーク
+
+
+
+
+
+
+
 
 
 

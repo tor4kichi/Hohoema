@@ -356,6 +356,21 @@
         <flyouts:VideoItemFlyout />
       </DataTemplate>
 
+      <Style TargetType="AppBarButton">
+        <Setter Property="Margin" Value="2 0" />
+        <Setter Property="Background" Value="{ThemeResource ButtonBackgroundThemeBrush}" />
+        <Setter Property="CornerRadius" Value="4" />
+      </Style>
+      <Style TargetType="AppBarToggleButton">
+        <Setter Property="Margin" Value="2 0" />
+        <Setter Property="Background" Value="{ThemeResource ButtonBackgroundThemeBrush}" />
+        <Setter Property="CornerRadius" Value="4" />
+      </Style>
+      <Style TargetType="AppBarElementContainer">
+        <Setter Property="VerticalContentAlignment" Value="Stretch" />
+        <Setter Property="Margin" Value="2 0" />
+      </Style>
+
     </ResourceDictionary>
   </Application.Resources>
 

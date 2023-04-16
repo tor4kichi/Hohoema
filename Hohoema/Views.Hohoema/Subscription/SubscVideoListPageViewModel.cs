@@ -25,6 +25,7 @@ using System.Threading.Tasks;
 using Hohoema.Models.Playlist;
 using Windows.System;
 using CommunityToolkit.Diagnostics;
+using System.Windows.Input;
 
 namespace Hohoema.ViewModels.Pages.Hohoema.Subscription;
 
@@ -225,7 +226,7 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
     {
         return (
             SubscVideoListIncrementalLoadingSource.PageSize,
-            new SubscVideoListIncrementalLoadingSource(SelectedSubscGroup, CreatePlaylist(), _subscriptionManager, _nicoVideoProvider, _messenger) 
+            new SubscVideoListIncrementalLoadingSource(SelectedSubscGroup, CreatePlaylist(), _subscriptionManager, _nicoVideoProvider, _messenger, SeparatorFactory) 
             {
                 LastCheckedAt = LastCheckedAt ,
                 IsDisplayChceked = IsDisplayChecked
@@ -233,6 +234,11 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
             );
     }
 
+    private SubscVideoSeparatorListItemViewModel SeparatorFactory(IVideoContent lastContent)
+    {
+        var playlistItemToken = new PlaylistItemToken(CreatePlaylist(), SubscriptionGroupPlaylist.DefaultSortOption, lastContent);
+        return new SubscVideoSeparatorListItemViewModel(LastCheckedAt, _messenger, playlistItemToken, allMarkAsCheckedAction: () => MarkAsCheckedWithDays(0));
+    }    
 
     [RelayCommand]
     public void OpenSubscManagementPage()
@@ -247,7 +253,7 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
         {
             if (SelectedSubscGroup != null)
             {
-                LastCheckedAt = _subscriptionManager.GetLatestPostAt(SelectedSubscGroup.GroupId);
+                LastCheckedAt = _subscriptionManager.GetLatestPostAt(SelectedSubscGroup.GroupId) + TimeSpan.FromSeconds(1);
             }            
             else
             {
@@ -305,6 +311,7 @@ public sealed class SubscVideoListIncrementalLoadingSource : IIncrementalSource<
     private readonly SubscriptionManager _subscriptionManager;
     private readonly NicoVideoProvider _nicoVideoProvider;
     private readonly IMessenger _messenger;
+    private readonly Func<IVideoContent, SubscVideoSeparatorListItemViewModel> _separatorFactory;
     public const int PageSize = 20;
 
     public SubscVideoListIncrementalLoadingSource(
@@ -312,7 +319,8 @@ public sealed class SubscVideoListIncrementalLoadingSource : IIncrementalSource<
         SubscriptionGroupPlaylist subscriptionGroupPlaylist,
         SubscriptionManager subscriptionManager,
         NicoVideoProvider nicoVideoProvider,
-        IMessenger messenger
+        IMessenger messenger,
+        Func<IVideoContent, SubscVideoSeparatorListItemViewModel> separatorFactory
         )
     {
         SubscriptionGroup = subscriptionGroup;
@@ -320,6 +328,7 @@ public sealed class SubscVideoListIncrementalLoadingSource : IIncrementalSource<
         _subscriptionManager = subscriptionManager;
         _nicoVideoProvider = nicoVideoProvider;
         _messenger = messenger;
+        _separatorFactory = separatorFactory;
     }
     
     public DateTime LastCheckedAt { get; set; }
@@ -360,14 +369,18 @@ public sealed class SubscVideoListIncrementalLoadingSource : IIncrementalSource<
 
                 if (resultItems.Any())
                 {
-                    var playlistItemToken = new PlaylistItemToken(_subscriptionGroupPlaylist, SubscriptionGroupPlaylist.DefaultSortOption, (resultItems.Last() as IVideoContent)!);
-                    resultItems.Add(new SubscVideoSeparatorListItemViewModel(LastCheckedAt, _messenger, playlistItemToken));
+                    resultItems.Add(_separatorFactory((resultItems.Last() as IVideoContent)!));
                 }
             }
 
             _videoIds.Add(videoId);
             var nicoVideo = _nicoVideoProvider.GetCachedVideoInfo(videoId);
             resultItems.Add(new SubscVideoListItemViewModel(video, nicoVideo, _subscriptionManager, _subscriptionGroupPlaylist));
+        }
+
+        if (resultItems.Any() && isCheckedSeparatorInserted is false)
+        {
+            resultItems.Add(_separatorFactory((resultItems.Last() as IVideoContent)!));
         }
 
         return Task.FromResult<IEnumerable<object>>(resultItems);
@@ -378,16 +391,19 @@ public sealed partial class SubscVideoSeparatorListItemViewModel : IPlaylistItem
 {
     private readonly IMessenger _messenger;
     private readonly PlaylistItemToken _subscriptionGroupPlaylistItemToken;
+    private readonly Action _allMarkAsCheckedAction;
 
     public SubscVideoSeparatorListItemViewModel(
         DateTime checkedDate,
         IMessenger messenger,
-        PlaylistItemToken subscriptionGroupPlaylistItemToken
+        PlaylistItemToken subscriptionGroupPlaylistItemToken,
+        Action allMarkAsCheckedAction
         )
     {
         CheckedDate = checkedDate;
         _messenger = messenger;
         _subscriptionGroupPlaylistItemToken = subscriptionGroupPlaylistItemToken;
+        _allMarkAsCheckedAction = allMarkAsCheckedAction;
     }
 
     public DateTime CheckedDate { get; }
@@ -408,7 +424,20 @@ public sealed partial class SubscVideoSeparatorListItemViewModel : IPlaylistItem
         {
             return $"ここまで視聴済み {date:g}";
         }        
-    }    
+    }
+
+
+    [RelayCommand]
+    void PlayFromHere()
+    {
+        _messenger.Send(VideoPlayRequestMessage.PlayPlaylist(_subscriptionGroupPlaylistItemToken));
+    }
+
+    [RelayCommand]
+    void AllMarkAsChecked()
+    {
+        _allMarkAsCheckedAction();
+    }
 }
 
 public sealed partial class SubscVideoListItemViewModel

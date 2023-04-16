@@ -235,6 +235,16 @@ SubscVideosDisplayChecked = 显示勾选
 
 
 
+
+
+
+
+
+
+
+
+
+
 #### Settings ####
 MenuPaneDisplayMode = 菜单显示位置
 NavigationViewPaneDisplayMode.Auto = 自动
