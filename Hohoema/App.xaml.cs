@@ -6,6 +6,8 @@ using DryIoc;
 using Hohoema.Contracts.AppLifecycle;
 using Hohoema.Contracts.Maintenances;
 using Hohoema.Contracts.Migrations;
+using Hohoema.Contracts.Navigations;
+using Hohoema.Contracts.Navigations;
 using Hohoema.Contracts.Services.Player;
 using Hohoema.Helpers;
 using Hohoema.Infra;
@@ -59,6 +61,7 @@ using Windows.UI;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using ZLogger;
+using ValueTaskSupplement;
 
 namespace Hohoema;
 
@@ -122,6 +125,35 @@ public sealed partial class App : Application
         RequestedTheme = GetTheme();
 
         InitializeComponent();
+
+        Suspending += async (s, e) => 
+        {
+            var deferral = e.SuspendingOperation.GetDeferral();
+            try
+            {                
+                await Container.ResolveMany<ISuspendAndResumeAware>(behavior: ResolveManyBehavior.AsFixedArray).Select(x => x.OnSuspendingAsync());
+            }
+            catch (Exception ex) 
+            {
+                _loggerFactory!.CreateLogger<App>().ZLogError(ex, "error in Suspending operation.");
+            }
+            finally
+            {
+                deferral.Complete();
+            }
+        };
+
+        Resuming += async (s, e) => 
+        {
+            try
+            {
+                await Container.ResolveMany<ISuspendAndResumeAware>(behavior: ResolveManyBehavior.AsFixedArray).Select(x => x.OnSuspendingAsync());
+            }
+            catch (Exception ex)
+            {
+                _loggerFactory!.CreateLogger<App>().ZLogError(ex, "error in Resuming operation.");
+            }
+        };
     }
 
     [Obsolete]
@@ -336,9 +368,10 @@ public sealed partial class App : Application
         container.Register<CurrentActiveWindowUIContextService>(reuse: Reuse.Singleton);
         container.Register<SubscriptionUpdateManager>(reuse: Reuse.Singleton);
         container.RegisterMapping<IToastActivationAware, SubscriptionUpdateManager>(ifAlreadyRegistered: IfAlreadyRegistered.AppendNotKeyed);
+        container.RegisterMapping<ISuspendAndResumeAware, SubscriptionUpdateManager>(ifAlreadyRegistered: IfAlreadyRegistered.AppendNotKeyed);
         container.Register<NavigationTriggerFromExternal>(reuse: Reuse.Singleton);
         container.RegisterMapping<IToastActivationAware, NavigationTriggerFromExternal>(ifAlreadyRegistered: IfAlreadyRegistered.AppendNotKeyed);
-
+        
         // container.Register<ILocalizeService, LocalizeService>(); とした場合に
         // - System.PlatformNotSupportedException
         // - Dynamic code generation is not supported on this platform.
@@ -738,7 +771,7 @@ public sealed partial class App : Application
             ILogger logger = _loggerFactory.CreateLogger(migrateType);
             try
             {
-                logger.ZLogInformation("Try migrate: {0}", migrateType.Name);
+                logger.LogInformation("Try migrate: {0}", migrateType.Name);
                 object migrater = Container.Resolve(migrateType);
                 if (migrater is IMigrateSync migrateSycn)
                 {
@@ -749,12 +782,12 @@ public sealed partial class App : Application
                     await migrateAsync.MigrateAsync();
                 }
 
-                logger.ZLogInformation("Migration complete : {0}", migrateType.Name);
+                logger.LogInformation("Migration complete : {0}", migrateType.Name);
             }
             catch (Exception e)
             {
-                logger.ZLogError(e.ToString());
-                logger.ZLogError("Migration failed : {0}", migrateType.Name);
+                logger.LogError(e.ToString());
+                logger.LogError("Migration failed : {0}", migrateType.Name);
             }
         }
 
@@ -777,18 +810,18 @@ public sealed partial class App : Application
 
             try
             {
-                logger.ZLogInformation("Try maintenance: {0}", maintenanceType.Name);
+                logger.LogInformation("Try maintenance: {0}", maintenanceType.Name);
                 object migrater = Container.Resolve(maintenanceType);
                 if (migrater is IMaintenance maintenance)
                 {
                     maintenance.Maitenance();
                 }
 
-                logger.ZLogInformation("Maintenance complete : {0}", maintenanceType.Name);
+                logger.LogInformation("Maintenance complete : {0}", maintenanceType.Name);
             }
             catch (Exception e)
             {
-                logger.ZLogError(e, "Maintenance failed : {0}", maintenanceType.Name);
+                logger.LogError(e, "Maintenance failed : {0}", maintenanceType.Name);
             }
         }
 
@@ -837,7 +870,7 @@ public sealed partial class App : Application
         }
         catch
         {
-            Container.Resolve<ILogger>().ZLogError("ログイン処理に失敗");
+            Container.Resolve<ILogger>().LogError("ログイン処理に失敗");
         }
 
 #if !DEBUG
@@ -875,8 +908,7 @@ public sealed partial class App : Application
     }
 
 
-
-
+  
 
 
     #region Multi Window Size Restoring
@@ -1002,7 +1034,7 @@ public sealed partial class App : Application
         }
 
         ILogger logger = Container.Resolve<ILogger>();
-        logger.ZLogError(e.Exception.ToString());
+        logger.LogError(e.Exception.ToString());
 
         if (e.Exception is HohoemaException)
         {

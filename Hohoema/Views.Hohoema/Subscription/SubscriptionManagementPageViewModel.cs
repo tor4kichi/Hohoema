@@ -25,6 +25,7 @@ using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
@@ -126,7 +127,7 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
     {
         ClearSubscriptionGroupVM();
         SubscriptionGroups.Add(ToSubscriptionGroupVM(_subscriptionManager.DefaultSubscriptionGroup));
-        foreach (var subscGroup in _subscriptionManager.GetSubscGroups())
+        foreach (var subscGroup in _subscriptionManager.GetSubscriptionGroups())
         {
             SubscriptionGroups.Add(ToSubscriptionGroupVM(subscGroup));
         }
@@ -248,11 +249,30 @@ public sealed partial class SubscriptionGroupViewModel
     , IRecipient<SubscriptionGroupMovedMessage>
     , IDisposable
 {
+    public ObservableCollection<SubscriptionViewModel> Subscriptions { get; }
+    public SubscriptionGroup SubscriptionGroup { get; }
+
     private readonly SubscriptionManager _subscriptionManager;
     private readonly IScheduler _scheduler;
     private readonly ILogger _logger;
     private readonly IMessenger _messenger;
     private readonly IDialogService _dialogService;
+    
+    private readonly SubscriptionGroupProps _subscriptionGroupProps;
+
+
+    [ObservableProperty]
+    private bool _isAutoUpdateEnabled;
+
+    partial void OnIsAutoUpdateEnabledChanged(bool value)
+    {
+        _subscriptionGroupProps.IsAutoUpdateEnabled = value;
+        _subscriptionManager.SetSubcriptionGroupProps(_subscriptionGroupProps);
+
+        SetChildSubscriptionAutoUpdate();
+
+        Debug.WriteLine($"{SubscriptionGroup.Name} SubscGroup IsAutoUpdateEnabled : {value}");
+    }
 
     public SubscriptionGroupViewModel(
         SubscriptionGroup subscriptionGroup,
@@ -274,18 +294,28 @@ public sealed partial class SubscriptionGroupViewModel
             .Select(ToSubscriptionVM)
             );
 
+        _subscriptionGroupProps = _subscriptionManager.GetSubscriptionGroupProps(SubscriptionGroup.GroupId);
+
         _messenger.Register<SubscriptionAddedMessage>(this);
         _messenger.Register<SubscriptionDeletedMessage>(this);
         _messenger.Register<SubscriptionGroupMovedMessage>(this);
+
+        _isAutoUpdateEnabled = _subscriptionGroupProps.IsAutoUpdateEnabled;
+        SetChildSubscriptionAutoUpdate();
+    }
+
+    private void SetChildSubscriptionAutoUpdate()
+    {
+        foreach (var subscVM in Subscriptions)
+        {
+            subscVM.IsParentGroupAutoUpdateEnabled = _isAutoUpdateEnabled;
+        }
     }
 
     private SubscriptionViewModel ToSubscriptionVM(Models.Subscriptions.Subscription subscription)
     {
         return new SubscriptionViewModel(subscription, _subscriptionManager, this, _logger, _messenger, _dialogService);
     }
-
-    public ObservableCollection<SubscriptionViewModel> Subscriptions { get; }
-    public SubscriptionGroup SubscriptionGroup { get; }
 
     void IRecipient<SubscriptionAddedMessage>.Receive(SubscriptionAddedMessage m)
     {
@@ -436,7 +466,7 @@ public partial class SubscriptionViewModel
         _pageViewModel = pageViewModel;
         _subscriptionManager = subscriptionManager;
         _dialogService = dialogService;
-        _isEnabled = _source.IsEnabled;
+        _isEnabled = _source.IsAutoUpdateEnabled;
         _group = _source.Group;
     }
 
@@ -456,8 +486,10 @@ public partial class SubscriptionViewModel
 
     partial void OnIsEnabledChanged(bool value)
     {
-        _source.IsEnabled = value;
+        _source.IsAutoUpdateEnabled = value;
         _subscriptionManager.UpdateSubscription(_source);
+
+        Debug.WriteLine($"{_source.Label} subsc IsEnabled : {value}");
     }
 
     [ObservableProperty]
@@ -471,6 +503,9 @@ public partial class SubscriptionViewModel
 
     [ObservableProperty]
     private int _unwatchedVideoCount;
+
+    [ObservableProperty]
+    private bool _isParentGroupAutoUpdateEnabled;
 
     internal void UpdateFeedResult(IList<NicoVideo> result, DateTime updatedAt)
     {
@@ -491,7 +526,22 @@ public partial class SubscriptionViewModel
             NowUpdating = true;
             using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
             {
-                await _subscriptionManager.RefreshFeedUpdateResultAsync(_source, cts.Token);
+                if (_subscriptionManager.CheckCanUpdate(isManualUpdate: true, subscription: _source) is not null and SubscriptionFeedUpdateFailedReason failedReason)
+                {                    
+                    return;
+                }
+
+                var result = await _subscriptionManager.UpdateSubscriptionFeedVideosAsync(_source, cancellationToken: cts.Token);
+                if (result.IsSuccessed)
+                {
+                    UnwatchedVideoCount = result.NewVideos.Count;
+                    LastUpdatedAt = result.UpdateAt;
+                }
+                else
+                {
+                    UnwatchedVideoCount = 0;
+                }
+                
             }
         }
         catch (Exception e)

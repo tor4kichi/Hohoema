@@ -1,31 +1,19 @@
 ﻿#nullable enable
 using CommunityToolkit.Mvvm.ComponentModel;
+using Hohoema.Contracts.Navigations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Web;
 using Windows.UI.Xaml.Navigation;
 
-namespace Hohoema.Contracts.Services.Navigations;
-
-public interface INavigationResult
-{
-    bool IsSuccess { get; }
-    Exception Exception { get; }
-}
+namespace Hohoema.Contracts.Navigations;
 
 public class NavigationResult : INavigationResult
 {
     public bool IsSuccess { get; init; }
 
     public Exception Exception { get; init; }
-}
-
-public interface INavigationParameters : IDictionary<string, object>
-{
-    bool TryGetValue<T>(string key, out T outValue);
-    T GetValue<T>(string key);
 }
 
 public class NavigationParameters : Dictionary<string, object>, INavigationParameters
@@ -85,36 +73,6 @@ public class NavigationParameters : Dictionary<string, object>, INavigationParam
     }
 }
 
-public interface INavigationAware
-{
-    void OnNavigatedFrom(INavigationParameters parameters);
-    void OnNavigatingTo(INavigationParameters parameters);
-    void OnNavigatedTo(INavigationParameters parameters);
-    Task OnNavigatedToAsync(INavigationParameters parameters);
-}
-
-public abstract class NavigationAwareViewModelBase : ObservableObject, INavigationAware
-{
-    public virtual void OnNavigatedFrom(INavigationParameters parameters)
-    {
-
-    }
-
-    public virtual void OnNavigatingTo(INavigationParameters parameters)
-    {
-
-    }
-
-    public virtual void OnNavigatedTo(INavigationParameters parameters)
-    {
-
-    }
-
-    public virtual Task OnNavigatedToAsync(INavigationParameters parameters)
-    {
-        return Task.CompletedTask;
-    }
-}
 
 public static class NavigationParametersExtensions
 {

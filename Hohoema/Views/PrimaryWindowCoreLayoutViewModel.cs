@@ -1031,7 +1031,7 @@ public sealed class SubscriptionMenuItemViewModel
             {
                 _subscriptionManager.DefaultSubscriptionGroup,
             }
-            .Concat(_subscriptionManager.GetSubscGroups())
+            .Concat(_subscriptionManager.GetSubscriptionGroups())
             .Select(ToMenuItemVM)
             );
 
@@ -1081,7 +1081,7 @@ public sealed class SubscriptionMenuItemViewModel
     void IRecipient<SettingsRestoredMessage>.Receive(SettingsRestoredMessage message)
     {
         SubscGroups.Clear();
-        foreach (var group in new[] { _subscriptionManager.DefaultSubscriptionGroup }.Concat(_subscriptionManager.GetSubscGroups()))
+        foreach (var group in new[] { _subscriptionManager.DefaultSubscriptionGroup }.Concat(_subscriptionManager.GetSubscriptionGroups()))
         {
             SubscGroups.Add(ToMenuItemVM(group));
         }

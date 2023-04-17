@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Contracts.AppLifecycle;
 using Hohoema.Contracts.Navigations;
+using Hohoema.Contracts.Services;
 using Hohoema.Contracts.Subscriptions;
 using Hohoema.Helpers;
 using Hohoema.Models.Application;
@@ -12,12 +13,10 @@ using Hohoema.Models.PageNavigation;
 using Hohoema.Models.Playlist;
 using Hohoema.Models.Subscriptions;
 using Hohoema.Models.VideoCache;
-using Hohoema.Services.Navigations;
 using I18NPortable;
 using LiteDB;
 using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Uwp.Notifications;
-using Microsoft.Toolkit.Uwp.UI.Controls.TextToolbarSymbols;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -43,6 +42,7 @@ public sealed class SubscriptionUpdateManager
     : ObservableObject
     , IDisposable
     , IToastActivationAware
+    , ISuspendAndResumeAware
 {
     private readonly ILogger<SubscriptionUpdateManager> _logger;
     private readonly IMessenger _messenger;
@@ -135,7 +135,7 @@ public sealed class SubscriptionUpdateManager
 
                 using (_timerUpdateCancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
                 {
-                    var result = await _subscriptionManager.RefreshFeedUpdateResultAsync(m.Value, _timerUpdateCancellationTokenSource.Token);
+                    var result = await _subscriptionManager.UpdateSubscriptionFeedVideosAsync(m.Value, cancellationToken: _timerUpdateCancellationTokenSource.Token);
                 }
 
                 _timerUpdateCancellationTokenSource = null;
@@ -146,21 +146,17 @@ public sealed class SubscriptionUpdateManager
         _IsAutoUpdateEnabled = _subscriptionSettings.IsSubscriptionAutoUpdateEnabled;
 
         StartOrResetTimer();
-
-        App.Current.Suspending += Current_Suspending;
-        App.Current.Resuming += Current_Resuming;
     }
 
-    private async void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
-    {
-        var deferral = e.SuspendingOperation.GetDeferral();
 
+    async ValueTask ISuspendAndResumeAware.OnSuspendingAsync()
+    {
         try
         {
             _timerUpdateCancellationTokenSource?.Cancel();
             _timerUpdateCancellationTokenSource = null;
         }
-        catch (Exception ex) 
+        catch (Exception ex)
         {
             _logger.ZLogError(ex, "subscription timer cancel faield.");
         }
@@ -170,17 +166,16 @@ public sealed class SubscriptionUpdateManager
         {
             await StopTimerAsync();
         }
-        catch (Exception ex) 
+        catch (Exception ex)
         {
             _logger.ZLogError(ex, "subscription timer stop faield.");
         }
         finally
         {
-            deferral.Complete();
         }
     }
 
-    private async void Current_Resuming(object sender, object e)
+    async ValueTask ISuspendAndResumeAware.OnResumingAsync()
     {
         try
         {
@@ -189,10 +184,21 @@ public sealed class SubscriptionUpdateManager
 
             StartOrResetTimer();
         }
-        catch (Exception ex) 
+        catch (Exception ex)
         {
             _logger.ZLogError(ex, "購読の定期更新の開始に失敗");
         }
+    }
+
+    private async void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
+    {
+        var deferral = e.SuspendingOperation.GetDeferral();
+
+    }
+
+    private async void Current_Resuming(object sender, object e)
+    {
+        
     }
 
     public async Task UpdateIfOverExpirationAsync(CancellationToken ct)
@@ -202,36 +208,54 @@ public sealed class SubscriptionUpdateManager
             return; 
         }
 
-        try
+        using (_logger.BeginScope("Subscription Update"))
         {
-            _timerUpdateCancellationTokenSource?.Cancel();
-            _timerUpdateCancellationTokenSource?.Dispose();
-            _timerUpdateCancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(180));
-            var timeCt = _timerUpdateCancellationTokenSource.Token;
-            using (var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(ct, timeCt))
-            using (await _timerLock.LockAsync())
+            try
             {
-                _logger.ZLogDebug("start update");
-                var list = await _subscriptionManager.RefreshAllFeedUpdateResultAsync(linkedCts.Token).ToListAsync();
-                _logger.ZLogDebug("end update");
+                _logger.ZLogDebug("Start.");
+                DateTime checkedAt = DateTime.Now;
+                _timerUpdateCancellationTokenSource?.Cancel();
+                _timerUpdateCancellationTokenSource?.Dispose();
+                _timerUpdateCancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(180));
+                var timeCt = _timerUpdateCancellationTokenSource.Token;
+                using (var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(ct, timeCt))
+                using (await _timerLock.LockAsync())
+                {
+                    List<SubscriptionFeedUpdateResult> updateResultItems = new();
+                    foreach (var subscription in _subscriptionManager.GetSortedSubscriptions())
+                    {
+                        _logger.ZLogDebug("Start. Label: {0}", subscription.Label);
+                        var update = _subscriptionManager.GetSubscriptionProps(subscription.SubscriptionId);
+                        if (_subscriptionManager.CheckCanUpdate(isManualUpdate: false, subscription, update) is not null and SubscriptionFeedUpdateFailedReason failedReason)
+                        {
+                            _logger.ZLogDebug("Skiped. Label: {0}, Reason: {1}", subscription.Label, failedReason);
+                            continue;
+                        }
+                        var list = await _subscriptionManager.UpdateSubscriptionFeedVideosAsync(subscription, update: update, checkedAt, linkedCts.Token);
+                        updateResultItems.Add(list);
 
-                // 次の自動更新周期を延長して設定
-                _subscriptionSettings.SubscriptionsLastUpdatedAt = DateTime.Now;
+                        _logger.ZLogDebug("Done. Label: {0}", subscription.Label);
+                    }
 
-                NotifyFeedUpdateResult(list.Where(x => x.IsSuccessed));
+                    // 次の自動更新周期を延長して設定
+                    _subscriptionSettings.SubscriptionsLastUpdatedAt = DateTime.Now;
+
+                    NotifyFeedUpdateResult(updateResultItems.Where(x => x.IsSuccessed));
+                }
             }
-        }
-        catch (OperationCanceledException)
-        {
-            await StopTimerAsync();
+            catch (OperationCanceledException)
+            {
+                await StopTimerAsync();
 
-            _logger.ZLogInformation("購読の更新にあまりに時間が掛かったため処理を中断し、また定期自動更新も停止しました");
-            
-        }
-        finally
-        {
-            _timerUpdateCancellationTokenSource?.Dispose();
-            _timerUpdateCancellationTokenSource = null;
+                // TODO: ユーザーに購読更新の停止を通知する
+                _logger.ZLogInformation("購読の更新にあまりに時間が掛かったため処理を中断し、また定期自動更新も停止しました");
+            }
+            finally
+            {
+                _timerUpdateCancellationTokenSource?.Dispose();
+                _timerUpdateCancellationTokenSource = null;
+                _logger.ZLogDebug("Complete.");
+            }
         }
     }
 
@@ -416,8 +440,6 @@ public sealed class SubscriptionUpdateManager
 
         _isDisposed = true;
         _timer.Stop();
-        App.Current.Suspending -= Current_Suspending;
-        App.Current.Resuming -= Current_Resuming;
     }
 
 }

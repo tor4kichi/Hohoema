@@ -95,7 +95,7 @@ public sealed class SubscriptionRegistrationRepository : LiteDBServiceBase<Subsc
 
     internal IEnumerable<Subscription> Find(SubscriptionGroupId groupId)
     {
-        return _collection.Include(x => x.Group).Find(x => x.Group!.GroupId == groupId);
+        return _collection.Include(x => x.Group).Find(x => x.Group!.GroupId == groupId).OrderBy(x => x.SortIndex);
     }
 }
 
@@ -119,7 +119,8 @@ public sealed class Subscription
     public string Label { get; set; } = string.Empty;
     public SubscriptionSourceType SourceType { get; set; }
     public string SourceParameter { get; set; } = string.Empty;
-    public bool IsEnabled { get; set; } = true;
+    public bool IsAutoUpdateEnabled { get; set; } = true;
+    public bool IsAddToQueueWhenUpdated { get; set; } = false;
 
     [BsonRef]
     public SubscriptionGroup? Group { get; set; }

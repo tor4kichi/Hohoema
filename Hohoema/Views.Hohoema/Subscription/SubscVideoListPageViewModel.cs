@@ -2,7 +2,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using Hohoema.Contracts.Services.Navigations;
+using Hohoema.Contracts.Navigations;
 using Hohoema.Contracts.Subscriptions;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Subscriptions;
@@ -25,7 +25,6 @@ using System.Threading.Tasks;
 using Hohoema.Models.Playlist;
 using Windows.System;
 using CommunityToolkit.Diagnostics;
-using System.Windows.Input;
 
 namespace Hohoema.ViewModels.Pages.Hohoema.Subscription;
 
@@ -95,7 +94,7 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
         VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
         ApplicationLayoutManager = applicationLayoutManager;
         SelectionModeToggleCommand = selectionModeToggleCommand;
-        SubscriptionGroups = new (_subscriptionManager.GetSubscGroups());
+        SubscriptionGroups = new (_subscriptionManager.GetSubscriptionGroups());
         _selectedSubscGroup = null;
         _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
     }
@@ -110,7 +109,7 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
         SubscriptionGroups.Clear();
         SubscriptionGroups.Add(null);
         SubscriptionGroups.Add(_subscriptionManager.DefaultSubscriptionGroup);
-        foreach (var subscGroup in _subscriptionManager.GetSubscGroups())
+        foreach (var subscGroup in _subscriptionManager.GetSubscriptionGroups())
         {
             SubscriptionGroups.Add(subscGroup);
         }
@@ -274,7 +273,7 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
         if (SelectedSubscGroup == null)
         {
             // 購読グループ未指定の場合は全ての購読グループのチェック日時を設定する
-            foreach (var groupId in _subscriptionManager.GetSubscGroups().Select(x => x.GroupId).Concat(new[] { SubscriptionGroupId.DefaultGroupId }))
+            foreach (var groupId in _subscriptionManager.GetSubscriptionGroups().Select(x => x.GroupId).Concat(new[] { SubscriptionGroupId.DefaultGroupId }))
             {
                 var latestPostAt = _subscriptionManager.GetLatestPostAt(groupId);
                 _subscriptionManager.SetCheckedAt(groupId, latestPostAt);
@@ -333,7 +332,6 @@ public sealed class SubscVideoListIncrementalLoadingSource : IIncrementalSource<
     
     public DateTime LastCheckedAt { get; set; }
     public bool IsDisplayChceked { get; set; }
-
 
     private readonly HashSet<VideoId> _videoIds = new HashSet<VideoId>();
 

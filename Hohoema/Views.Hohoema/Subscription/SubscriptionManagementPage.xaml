@@ -119,6 +119,14 @@
         ScrollViewer.VerticalScrollMode="Disabled"
         x:Name="ItemsPanel"
         >
+        <GridView.ItemsPanel>
+          <ItemsPanelTemplate>
+            <ItemsWrapGrid Orientation="Vertical" ItemWidth="240"     
+                           ItemHeight="72"
+                           Margin="16 0"                           
+                           />
+          </ItemsPanelTemplate>
+        </GridView.ItemsPanel>
 
         <ListViewBase.GroupStyle>
           <GroupStyle HidesIfEmpty="False">
@@ -126,6 +134,12 @@
             <GroupStyle.HeaderTemplate>
               <DataTemplate x:DataType="subscriptionVM:SubscriptionGroupViewModel">
                 <controls:DockPanel>
+
+                  <ToggleSwitch Style="{StaticResource ToggleSwitchNoHeader}"                            
+                            controls:DockPanel.Dock="Right"
+                            IsOn="{x:Bind IsAutoUpdateEnabled, Mode=TwoWay}"
+                            Width="44"
+                            />
                   <TextBlock Text="{x:Bind SubscriptionGroup.Name}" />
                 </controls:DockPanel>
               </DataTemplate>
@@ -140,15 +154,36 @@
           </GroupStyle>
         </ListViewBase.GroupStyle>
 
-        <GridView.ItemsPanel>
-          <ItemsPanelTemplate>
-            <ItemsWrapGrid Orientation="Vertical" ItemWidth="240"       
-                           Margin="16 0"                           
+
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="subscriptionVM:SubscriptionViewModel">
+            <controls:DockPanel>
+
+              <ToggleSwitch Style="{StaticResource ToggleSwitchNoHeader}"                            
+                            controls:DockPanel.Dock="Right"
+                            IsOn="{x:Bind IsEnabled, Mode=TwoWay}"
+                            Width="44"
+                            IsEnabled="{x:Bind IsParentGroupAutoUpdateEnabled, Mode=OneWay}"
+                            />
+
+              <SymbolIcon Symbol="Sort" controls:DockPanel.Dock="Left" Opacity="0.5" Margin="0 0 8 0" Visibility="Collapsed" />
+
+              <TextBlock Text="{x:Bind SourceType, Converter={StaticResource LocalizeConverter}}"
+                             Style="{StaticResource CaptionTextBlockStyle}" 
+                             Opacity="0.7"
+                         controls:DockPanel.Dock="Bottom"
+                             />
+
+              <TextBlock Text="{x:Bind Label}"                           
+                           VerticalAlignment="Center"
+                             TextWrapping="Wrap"
+                             FontWeight="Bold"
                            />
-          </ItemsPanelTemplate>
-        </GridView.ItemsPanel>
-        
-        
+
+            </controls:DockPanel>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+
         <ListViewBase.ItemContainerStyle>
           <Style TargetType="GridViewItem">
             <Setter Property="Padding" Value="8 8" />
@@ -160,40 +195,6 @@
             <Setter Property="IsFocusEngagementEnabled" Value="True" />
           </Style>
         </ListViewBase.ItemContainerStyle>
-        
-
-        <ItemsControl.ItemTemplate>
-          <DataTemplate x:DataType="subscriptionVM:SubscriptionViewModel">
-            <Grid>
-              <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                <SymbolIcon Symbol="Sort" />
-                <StackPanel>
-                  <TextBlock Text="{x:Bind Label}"                           
-                           VerticalAlignment="Center"
-                             TextWrapping="Wrap"
-                             FontWeight="Bold"
-                           />
-
-                  <TextBlock Text="{x:Bind SourceType, Converter={StaticResource LocalizeConverter}}"
-                             Style="{StaticResource CaptionTextBlockStyle}" 
-                             Opacity="0.7"
-                             />
-                </StackPanel>
-              </StackPanel>
-              
-              <Grid Background="{ThemeResource SystemAccentColorDark1}" CornerRadius="32" 
-                    Width="32" Height="32"                    
-                    HorizontalAlignment="Right"
-                    Visibility="Collapsed"
-                    >
-                <TextBlock Text="99"
-                           HorizontalAlignment="Center" 
-                           VerticalAlignment="Center"
-                           />
-              </Grid>
-            </Grid>
-          </DataTemplate>
-        </ItemsControl.ItemTemplate>
 
         <extensions:ListViewBase.ItemContextFlyoutTemplate>
           <DataTemplate>

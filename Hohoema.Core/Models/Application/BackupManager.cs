@@ -310,7 +310,7 @@ public sealed class BackupManager
                 Label = s.Label,
                 SourceType = sourceType,
                 SourceParameter = s.SourceParameter,
-                IsEnabled = true,        
+                IsAutoUpdateEnabled = true,        
                 Group = group,
                 SortIndex = s.SortIndex ?? 0,
             };

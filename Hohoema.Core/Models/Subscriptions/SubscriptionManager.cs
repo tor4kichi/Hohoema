@@ -14,6 +14,7 @@ using Hohoema.Models.Niconico.User;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Niconico.Video.Series;
 using Hohoema.Models.Playlist;
+using ImTools;
 using LiteDB;
 using NiconicoToolkit.Mylist;
 using NiconicoToolkit.Search;
@@ -33,9 +34,21 @@ namespace Hohoema.Models.Subscriptions;
 public class SubscriptionFeedUpdateResult
 {
     public bool IsSuccessed { get; set; }
+    public SubscriptionFeedUpdateFailedReason? FailedReason { get; set; }
     public Subscription Entity { get; set; }
     public List<NicoVideo> Videos { get; set; }
     public List<NicoVideo> NewVideos { get; set; }
+    public DateTime UpdateAt { get; set; }
+}
+
+public enum SubscriptionFeedUpdateFailedReason
+{
+    Unknown,
+
+    IsAutoUpdateDisabled,
+    IsAutoUpdateDisabledWithGroup,
+    SourceCanNotAccess,
+    Interval,
 }
 
 public sealed class SubscriptionManager
@@ -88,12 +101,18 @@ public sealed class SubscriptionManager
         _subscriptionUpdateRespository = subscriptionUpdateRespository;
         _subscriptionGroupCheckedRespository = subscriptionGroupCheckedRespository;
 
-        DefaultSubscriptionGroup = new SubscriptionGroup(SubscriptionGroupId.DefaultGroupId, localizeService.Translate("SubscGroup_DefaultGroupName"));
+        DefaultSubscriptionGroup = new SubscriptionGroup(SubscriptionGroupId.DefaultGroupId, localizeService.Translate("SubscGroup_DefaultGroupName")) { Order = -1 };
     }
 
-    public List<SubscriptionGroup> GetSubscGroups()
+    public List<SubscriptionGroup> GetSubscriptionGroups(bool withDefaultGroup = false)
     {
-        return _subscriptionGroupRepository.ReadAllItems();
+        var list = _subscriptionGroupRepository.ReadAllItems();
+        if (withDefaultGroup)
+        {
+            list.Insert(0, DefaultSubscriptionGroup);
+        }
+
+        return list;
     }
 
     public SubscriptionGroup CreateSubscriptionGroup(string name)
@@ -261,7 +280,7 @@ public sealed class SubscriptionManager
     {
         if (groupId == SubscriptionGroupId.DefaultGroupId)
         {
-            return _subscriptionRegistrationRepository.Find(x => x.Group == null).ToList();
+            return _subscriptionRegistrationRepository.Find(x => x.Group == null).OrderBy(x => x.SortIndex).ToList();
         }
         else
         {
@@ -319,17 +338,28 @@ public sealed class SubscriptionManager
         return _subscriptionUpdateRespository.GetOrAdd(subscriptionId).LastUpdatedAt;
     }
 
-    public DateTime GetLastCheckedAt(SubscriptionGroupId subscriptionGroupId)
-    {
-        return _subscriptionGroupCheckedRespository.GetOrAdd(subscriptionGroupId).LastCheckedAt;
-    }
-
     public void SetUpdatedAt(SubscriptionId subscriptionId, DateTime? updatedAt = null)
     {
         updatedAt ??= DateTime.Now;
         var update = _subscriptionUpdateRespository.GetOrAdd(subscriptionId);
         update.LastUpdatedAt = updatedAt.Value;
         _subscriptionUpdateRespository.UpdateItem(update);
+    }
+
+    public SubscriptionUpdate GetSubscriptionProps(SubscriptionId subscriptionId)
+    {
+        return _subscriptionUpdateRespository.GetOrAdd(subscriptionId);
+    }
+
+    public void SetUpdatedAt(SubscriptionUpdate update)
+    {
+        _subscriptionUpdateRespository.UpdateItem(update);
+    }
+
+
+    public DateTime GetLastCheckedAt(SubscriptionGroupId subscriptionGroupId)
+    {
+        return _subscriptionGroupCheckedRespository.GetOrAdd(subscriptionGroupId).LastCheckedAt;
     }
 
     public void SetCheckedAt(SubscriptionGroupId subscriptionGroupId, DateTime? checkedAt = null)
@@ -342,73 +372,14 @@ public sealed class SubscriptionManager
         _messenger.Send(new SubscriptionGroupCheckedAtChangedMessage(subscriptionGroupId, checkedAt.Value));
     }
 
-
-    private static readonly TimeSpan _FeedResultUpdateInterval = TimeSpan.FromMinutes(60);
-
-    private static bool IsExpiredFeedResultUpdatedTime(DateTime lastUpdatedAt)
+    public SubscriptionGroupProps GetSubscriptionGroupProps(SubscriptionGroupId subscriptionGroupId)
     {
-        return lastUpdatedAt + _FeedResultUpdateInterval < DateTime.Now;
+        return _subscriptionGroupCheckedRespository.GetOrAdd(subscriptionGroupId);
     }
 
-    public async IAsyncEnumerable<SubscriptionFeedUpdateResult> RefreshAllFeedUpdateResultAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public void SetSubcriptionGroupProps(SubscriptionGroupProps subscriptionGroupProps)
     {
-        IList<Subscription> entities = _subscriptionRegistrationRepository.ReadAllItems();
-        foreach (Subscription entity in entities.Where(x => x.IsEnabled).OrderBy(x => x.SortIndex))
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            yield return await RefreshFeedUpdateResultAsync(entity, cancellationToken);
-        }
-    }
-
-
-    public async ValueTask<SubscriptionFeedUpdateResult> RefreshFeedUpdateResultAsync(Subscription entity, CancellationToken cancellationToken = default)
-    {
-        SubscriptionUpdate update = _subscriptionUpdateRespository.GetOrAdd(entity.SubscriptionId);
-        if (!IsExpiredFeedResultUpdatedTime(update.LastUpdatedAt))
-        {
-            // 前回更新から時間経っていない場合はスキップする
-            Debug.WriteLine("[FeedUpdate] update skip: " + entity.Label);
-            return new SubscriptionFeedUpdateResult() { IsSuccessed = false };
-        }
-
-        DateTime now = DateTime.Now;
-        SubscriptionFeedUpdateResult result = await Task.Run(async () =>
-        {
-            Debug.WriteLine("[FeedUpdate] start: " + entity.Label);
-
-            // オンラインソースから情報を取得して
-            SubscriptionFeedUpdateResult result = await GetFeedResultAsync(entity);
-
-            if (result.IsSuccessed is false)
-            {
-                return result;
-            }
-
-            update.LastUpdatedAt = now;
-            _subscriptionUpdateRespository.UpdateItem(update);
-
-            cancellationToken.ThrowIfCancellationRequested();
-
-            List<SubscFeedVideo> newVideos = _subscFeedVideoRepository.RegisteringVideosIfNotExist(entity.SubscriptionId, now, result.Videos).ToList();
-            var newVideoIds = newVideos.Select(x => x.VideoId).ToHashSet();
-            result.NewVideos = update.LastUpdatedAt != DateTime.MinValue 
-                ? result.Videos.Where(x => newVideoIds.Contains(x.VideoId)).ToList()
-                : new List<NicoVideo>()
-                ;
-
-            foreach (var newVideo in newVideos)
-            {
-                _ = _messenger.Send(new NewSubscFeedVideoMessage(newVideo));
-            }
-
-            return result;
-
-        }, cancellationToken);
-
-        // 更新を通知する
-        Debug.WriteLine("[FeedUpdate] complete: " + entity.Label);
-
-        return result;
+        _subscriptionGroupCheckedRespository.UpdateItem(subscriptionGroupProps);
     }
 
 
@@ -494,6 +465,97 @@ public sealed class SubscriptionManager
         return _subscFeedVideoRepository.GetVideosNewerAt(subscIds, targetPostAt, skip, limit);
     }
 
+
+
+
+
+    private static readonly TimeSpan _FeedResultUpdateInterval = TimeSpan.FromMinutes(60);
+
+    private static bool IsExpiredFeedResultUpdatedTime(DateTime lastUpdatedAt)
+    {
+        return lastUpdatedAt + _FeedResultUpdateInterval < DateTime.Now;
+    }
+
+
+    public IEnumerable<Subscription> GetSortedSubscriptions()
+    {
+        foreach (var group in GetSubscriptionGroups(withDefaultGroup: true))
+        {
+            foreach (Subscription subscription in GetSubscriptions(group.GroupId))
+            {
+                yield return subscription;
+            }
+        }
+    }
+
+
+    public SubscriptionFeedUpdateFailedReason? CheckCanUpdate(bool isManualUpdate, Subscription subscription, SubscriptionUpdate? update = null)
+    {
+        if (!isManualUpdate)
+        {
+            if (subscription.IsAutoUpdateEnabled is false)
+            {
+                Debug.WriteLine("[FeedUpdate] update disabled: " + subscription.Label);
+                return SubscriptionFeedUpdateFailedReason.IsAutoUpdateDisabled;
+            }
+            else if (subscription.Group?.GroupId is not null and SubscriptionGroupId groupId
+                && GetSubscriptionGroupProps(groupId).IsAutoUpdateEnabled is false
+                )
+            {
+                Debug.WriteLine("[FeedUpdate] update disabled (with Group): " + subscription.Label);
+                return SubscriptionFeedUpdateFailedReason.IsAutoUpdateDisabledWithGroup;
+            }
+        }
+
+        update ??= _subscriptionUpdateRespository.GetOrAdd(subscription.SubscriptionId);
+        if (!IsExpiredFeedResultUpdatedTime(update.LastUpdatedAt))
+        {
+            // 前回更新から時間経っていない場合はスキップする
+            Debug.WriteLine("[FeedUpdate] update skip: " + subscription.Label);
+            return SubscriptionFeedUpdateFailedReason.Interval;
+        }
+
+        return default;
+    }
+
+    public async ValueTask<SubscriptionFeedUpdateResult> UpdateSubscriptionFeedVideosAsync(Subscription entity, SubscriptionUpdate? update = null, DateTime? updateDateTime = null, CancellationToken cancellationToken = default)
+    {
+        update ??= _subscriptionUpdateRespository.GetOrAdd(entity.SubscriptionId);
+
+        Debug.WriteLine("[FeedUpdate] start: " + entity.Label);
+        DateTime updateAt = updateDateTime ?? DateTime.Now;
+        SubscriptionFeedUpdateResult result = await Task.Run(
+            () => GetFeedResultAsync(entity)
+            , cancellationToken
+            );
+
+        if (result.IsSuccessed is false)
+        {
+            return result;
+        }
+
+        update.LastUpdatedAt = updateAt;
+        _subscriptionUpdateRespository.UpdateItem(update);
+
+        cancellationToken.ThrowIfCancellationRequested();
+
+        List<SubscFeedVideo> newVideos = _subscFeedVideoRepository.RegisteringVideosIfNotExist(entity.SubscriptionId, updateAt, result.Videos).ToList();
+        var newVideoIds = newVideos.Select(x => x.VideoId).ToHashSet();
+        result.NewVideos = update.LastUpdatedAt != DateTime.MinValue
+            ? result.Videos.Where(x => newVideoIds.Contains(x.VideoId)).ToList()
+            : new List<NicoVideo>()
+            ;
+
+        foreach (var newVideo in newVideos)
+        {
+            _messenger.Send(new NewSubscFeedVideoMessage(newVideo));
+        }
+
+        result.UpdateAt = updateAt;
+        return result;
+    }
+
+
     public void UpdateFeedVideos(IEnumerable<SubscFeedVideo> videos)
     {
         _subscFeedVideoRepository.UpdateVideos(videos);
@@ -535,7 +597,8 @@ public sealed class SubscriptionManager
             {
                 IsSuccessed = false,
                 Videos = new List<NicoVideo>(),
-                Entity = entity
+                Entity = entity,
+                FailedReason = SubscriptionFeedUpdateFailedReason.SourceCanNotAccess,
             };
         }
     }
@@ -714,8 +777,6 @@ public sealed class SubscriptionUpdate
     public SubscriptionId SubscriptionSourceId { get; }
 
     public DateTime LastUpdatedAt { get; set; } = DateTime.MinValue;
-
-
 }
 
 
@@ -745,16 +806,18 @@ public sealed class SubscriptionUpdateRespository : LiteDBServiceBase<Subscripti
 
 
 
-public sealed class SubscriptionGroupChecked
+public sealed class SubscriptionGroupProps
 {
     [BsonCtor]
-    public SubscriptionGroupChecked(SubscriptionGroupId subscriptionGroupId, DateTime lastCheckedAt)
+    public SubscriptionGroupProps(SubscriptionGroupId subscriptionGroupId, DateTime lastCheckedAt, bool isAutoUpdateEnabled, bool isAddToQueueWhenUpdated)
     {
         SubscriptionGroupId = subscriptionGroupId;
         LastCheckedAt = lastCheckedAt;
+        IsAutoUpdateEnabled = isAutoUpdateEnabled;
+        IsAddToQueueWhenUpdated = isAddToQueueWhenUpdated;
     }
 
-    public SubscriptionGroupChecked(SubscriptionGroupId subscriptionSourceId)
+    public SubscriptionGroupProps(SubscriptionGroupId subscriptionSourceId)
     {
         SubscriptionGroupId = subscriptionSourceId;
     }
@@ -764,10 +827,13 @@ public sealed class SubscriptionGroupChecked
 
     public DateTime LastCheckedAt { get; set; } = DateTime.MinValue;
 
+    public bool IsAutoUpdateEnabled { get; set; } = true;
+
+    public bool IsAddToQueueWhenUpdated { get; set; } = false;
 }
 
 
-public sealed class SubscriptionGroupCheckedRespository : LiteDBServiceBase<SubscriptionGroupChecked>
+public sealed class SubscriptionGroupCheckedRespository : LiteDBServiceBase<SubscriptionGroupProps>
 {
     private class SubscriptionGroupCheckedDefaultSettings : FlagsRepositoryBase
     {
@@ -776,30 +842,54 @@ public sealed class SubscriptionGroupCheckedRespository : LiteDBServiceBase<Subs
             get => Read(DateTime.MinValue);
             set => Save(value);
         }
+
+        public bool IsAutoUpdateEnabled
+        {
+            get => Read(true);
+            set => Save(value);
+        }
+
+        public bool IsAddToQueueWhenUpdated
+        {
+            get => Read(true);
+            set => Save(value);
+        }        
     }
 
     private SubscriptionGroupCheckedDefaultSettings _defaultSettings;
-    public SubscriptionGroupCheckedRespository(LiteDatabase liteDatabase) : base(liteDatabase)
+    public SubscriptionGroupCheckedRespository(LiteDatabase liteDatabase) 
+        : base(liteDatabase)
     {
+        //liteDatabase.DropCollection("SubscriptionGroupChecked");
         _defaultSettings = new SubscriptionGroupCheckedDefaultSettings();
     }
 
-    new BsonValue CreateItem(SubscriptionGroupChecked item)
+    new BsonValue CreateItem(SubscriptionGroupProps item)
     {
         throw new NotSupportedException();
     }
 
-    private SubscriptionGroupChecked GetDefaultGroup()
+    private SubscriptionGroupProps GetDefaultGroup()
     {
-        return new SubscriptionGroupChecked(SubscriptionGroupId.DefaultGroupId, _defaultSettings.LastChecked);
+        return new SubscriptionGroupProps(
+            SubscriptionGroupId.DefaultGroupId, 
+            _defaultSettings.LastChecked, 
+            _defaultSettings.IsAutoUpdateEnabled, 
+            _defaultSettings.IsAddToQueueWhenUpdated
+            );
     }
     
     private void SetDefaultGroupLastCheckedAt(DateTime lastChecked)
     {
-        _defaultSettings.LastChecked = lastChecked;
+        _defaultSettings.LastChecked = lastChecked;        
     }
 
-    internal SubscriptionGroupChecked GetOrAdd(SubscriptionGroupId groupId)
+    private void SetDefaultGroupIsAutoUpdateEnabled(bool isAutoUpdateEnabled)
+    {
+        _defaultSettings.IsAutoUpdateEnabled = isAutoUpdateEnabled;
+    }
+
+    internal SubscriptionGroupProps GetOrAdd(SubscriptionGroupId groupId)
     {
         if (!(_collection.FindOne(x => x.SubscriptionGroupId == groupId) is not null and var entity))
         {            
@@ -809,7 +899,7 @@ public sealed class SubscriptionGroupCheckedRespository : LiteDBServiceBase<Subs
             }
             else
             {
-                entity = new SubscriptionGroupChecked(groupId);
+                entity = new SubscriptionGroupProps(groupId);
                 _collection.Insert(entity);
             }
         }
@@ -817,11 +907,13 @@ public sealed class SubscriptionGroupCheckedRespository : LiteDBServiceBase<Subs
         return entity;
     }
 
-    public override bool UpdateItem(SubscriptionGroupChecked item)
+    public override bool UpdateItem(SubscriptionGroupProps item)
     {
         if (item.SubscriptionGroupId == SubscriptionGroupId.DefaultGroupId)
         {
-            SetDefaultGroupLastCheckedAt(item.LastCheckedAt);
+            _defaultSettings.LastChecked = item.LastCheckedAt;
+            _defaultSettings.IsAutoUpdateEnabled = item.IsAutoUpdateEnabled;
+            _defaultSettings.IsAddToQueueWhenUpdated= item.IsAddToQueueWhenUpdated;
             return true;
         }
         else

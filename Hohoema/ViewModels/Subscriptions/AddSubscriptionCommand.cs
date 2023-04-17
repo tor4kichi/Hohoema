@@ -16,6 +16,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using ZLogger;
 
 namespace Hohoema.ViewModels.Subscriptions;
 
@@ -104,7 +105,7 @@ public sealed class AddSubscriptionCommand : CommandBase
             bool alreadyAdded = _subscriptionManager.TryGetSubscriptionGroup(result.sourceType, result.id, out Subscription? alreadySource, out SubscriptionGroup? defaultGroup);
 
             var groups = new[] { _subscriptionManager.DefaultSubscriptionGroup }
-                .Concat(_subscriptionManager.GetSubscGroups())                
+                .Concat(_subscriptionManager.GetSubscriptionGroups())                
                 .ToList();
 
             // デフォルト指定するグループの解決
@@ -178,7 +179,7 @@ public sealed class AddSubscriptionCommand : CommandBase
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "購読追加時にエラーが発生しました。");
+            _logger.ZLogError(e, "購読追加時にエラーが発生しました。");
         }
 
     }
