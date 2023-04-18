@@ -399,6 +399,15 @@
         <muxc:NavigationViewItem MenuItemsSource="{Binding SubscGroups}"
                                  IsExpanded="True"
                                  >
+
+          <muxc:NavigationViewItem.ContextFlyout>
+            <MenuFlyout>
+              <MenuFlyoutItem Text="{i18nExt:Localize Key=HohoemaPageType.SubscriptionManagement}" 
+                              Command="{Binding OpenSubscriptionGroupManagementPageCommand}"
+                              />
+            </MenuFlyout>
+          </muxc:NavigationViewItem.ContextFlyout>
+          
           <winui:ToolTipService.ToolTip>
             <TextBlock Text="{Binding Label}" />
           </winui:ToolTipService.ToolTip>

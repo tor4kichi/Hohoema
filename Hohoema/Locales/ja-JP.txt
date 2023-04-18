@@ -94,7 +94,7 @@ HohoemaPageType.SearchResultMylist = マイリスト検索
 HohoemaPageType.SearchResultTag = タグ検索
 HohoemaPageType.Settings = 設定
 HohoemaPageType.Splash = 起動画面
-HohoemaPageType.Subscription = 購読グループ管理
+HohoemaPageType.Subscription = 購読管理
 HohoemaPageType.SubscVideoList = 新着動画一覧
 HohoemaPageType.Timeshift = タイムシフト
 HohoemaPageType.UserInfo = ユーザー情報
@@ -107,7 +107,7 @@ HohoemaPageType.WatchHistory = 視聴履歴
 HohoemaPageType.LocalPlaylist = プレイリスト
 HohoemaPageType.Mylist = マイリスト
 HohoemaPageType.VideoQueue = キュー
-HohoemaPageType.SubscriptionManagement = 新着動画
+HohoemaPageType.SubscriptionManagement = 購読管理
 HohoemaPageType.OwnerMylistManage = マイリスト管理
 HohoemaPageType.LocalPlaylistManage = ローカルマイリスト管理
 
@@ -193,6 +193,9 @@ CacheVideo_ToastNotification_CacheDelete = 削除
 
 
 #### Subscription ####
+SubscriptionNewVideos = 新着動画
+
+
 SubscriptionAdd = 新着チェックに追加
 SubscriptionAddUserVideos = 投稿者動画を新着チェックに追加
 SubscriptionAddSeries = シリーズを購読に追加

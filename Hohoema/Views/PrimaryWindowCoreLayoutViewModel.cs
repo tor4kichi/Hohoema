@@ -1008,8 +1008,8 @@ public sealed class LiveContentMenuItemViewModel : HohoemaListingPageItemBase, M
 }
 
 
-public sealed class SubscriptionMenuItemViewModel 
-    : NavigateAwareMenuItemViewModel
+public sealed partial class SubscriptionMenuItemViewModel 
+    : MenuItemViewModel
     , IRecipient<SubscriptionGroupCreatedMessage>
     , IRecipient<SubscriptionGroupDeletedMessage>
     , IRecipient<SubscriptionGroupReorderedMessage>
@@ -1022,7 +1022,7 @@ public sealed class SubscriptionMenuItemViewModel
     public ObservableCollection<SubscriptionGroupNavigateAwareMenuItemViewModel> SubscGroups { get; }
 
     public SubscriptionMenuItemViewModel(IMessenger messenger, SubscriptionManager subscriptionManager) 
-        : base(HohoemaPageType.SubscriptionManagement.Translate(), HohoemaPageType.SubscriptionManagement)
+        : base("SubscriptionNewVideos".Translate())
     {
         _messenger = messenger;
         _subscriptionManager = subscriptionManager;
@@ -1085,6 +1085,12 @@ public sealed class SubscriptionMenuItemViewModel
         {
             SubscGroups.Add(ToMenuItemVM(group));
         }
+    }
+
+    [RelayCommand]
+    void OpenSubscriptionGroupManagementPage()
+    {
+        _ = _messenger.SendNavigationRequestAsync(HohoemaPageType.SubscriptionManagement);
     }
 }
 
