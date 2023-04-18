@@ -339,6 +339,7 @@ public sealed class SubscVideoListIncrementalLoadingSource : IIncrementalSource<
 
     Dictionary<SubscriptionId, Models.Subscriptions.Subscription> _subscMap = new Dictionary<SubscriptionId, Models.Subscriptions.Subscription>();
     bool isCheckedSeparatorInserted = false;
+    private IVideoContent? lastItem = null;
     public Task<IEnumerable<object>> GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken = default)
     {
         IEnumerable<SubscFeedVideo> videos;
@@ -349,6 +350,15 @@ public sealed class SubscVideoListIncrementalLoadingSource : IIncrementalSource<
         else
         {
             videos = _subscriptionManager.GetSubscFeedVideos(SubscriptionGroup?.GroupId, pageIndex * pageSize, pageSize);
+        }
+
+        if (videos.Any() is false
+            && isCheckedSeparatorInserted is false
+            && lastItem is not null
+            )
+        {
+            isCheckedSeparatorInserted = true;
+            return Task.FromResult<IEnumerable<object>>(new object[] { _separatorFactory(lastItem) });
         }
 
         List<object> resultItems = new();
@@ -376,11 +386,8 @@ public sealed class SubscVideoListIncrementalLoadingSource : IIncrementalSource<
             _videoIds.Add(videoId);
             var nicoVideo = _nicoVideoProvider.GetCachedVideoInfo(videoId);
             resultItems.Add(new SubscVideoListItemViewModel(video, nicoVideo, subscription, _subscriptionManager, _subscriptionGroupPlaylist));
-        }
 
-        if (resultItems.Any() && isCheckedSeparatorInserted is false)
-        {
-            resultItems.Add(_separatorFactory((resultItems.Last() as IVideoContent)!));
+            lastItem = nicoVideo;
         }
 
         return Task.FromResult<IEnumerable<object>>(resultItems);
