@@ -352,15 +352,6 @@ public sealed class SubscVideoListIncrementalLoadingSource : IIncrementalSource<
             videos = _subscriptionManager.GetSubscFeedVideos(SubscriptionGroup?.GroupId, pageIndex * pageSize, pageSize);
         }
 
-        if (videos.Any() is false
-            && isCheckedSeparatorInserted is false
-            && lastItem is not null
-            )
-        {
-            isCheckedSeparatorInserted = true;
-            return Task.FromResult<IEnumerable<object>>(new object[] { _separatorFactory(lastItem) });
-        }
-
         List<object> resultItems = new();
         foreach (var video in videos)
         {
@@ -388,6 +379,15 @@ public sealed class SubscVideoListIncrementalLoadingSource : IIncrementalSource<
             resultItems.Add(new SubscVideoListItemViewModel(video, nicoVideo, subscription, _subscriptionManager, _subscriptionGroupPlaylist));
 
             lastItem = nicoVideo;
+        }
+
+        if (isCheckedSeparatorInserted is false
+            && resultItems.Count != pageSize 
+            && lastItem != null            
+            )
+        {
+            isCheckedSeparatorInserted = true;
+            resultItems.Add(_separatorFactory(lastItem));
         }
 
         return Task.FromResult<IEnumerable<object>>(resultItems);
