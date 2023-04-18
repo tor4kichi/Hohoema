@@ -107,7 +107,7 @@ HohoemaPageType.WatchHistory = 視聴履歴
 HohoemaPageType.LocalPlaylist = プレイリスト
 HohoemaPageType.Mylist = マイリスト
 HohoemaPageType.VideoQueue = キュー
-HohoemaPageType.SubscriptionManagement = 購読グループ管理
+HohoemaPageType.SubscriptionManagement = 新着動画
 HohoemaPageType.OwnerMylistManage = マイリスト管理
 HohoemaPageType.LocalPlaylistManage = ローカルマイリスト管理
 
@@ -202,10 +202,12 @@ SubscriptionSourceType.Channel = チャンネル
 SubscriptionSourceType.Mylist = マイリスト
 SubscriptionSourceType.TagSearch = タグ検索
 SubscriptionSourceType.KeywordSearch = キーワード検索
+SubscriptionSourceType.Series = シリーズ
 
 SubscriptionsAutoUpdateRunning = 自動更新
 SubscriptionsNextUpdateTime = 次回更新
 SubscriptionsAutoNotUpdateRunning = 自動更新 停止中
+SubscriptionsPrevUpdateTime = 前回更新
 
 StopSubscribe? = 新着チェックをやめていいですか？
 StopSubscribe = 新着チェックをやめる
@@ -217,9 +219,9 @@ ReorderSubsciprionSource_MoveNext = 一つ下へ移動
 ReorderSubsciprionSource_MoveToHead = 先頭へ移動
 ReorderSubsciprionSource_MoveToTail = 最後尾へ移動
 
-Notification_SuccessAddSubscriptionSourceWithLabel = 「{0}」を新着チェックに追加しました。\n今後、新着動画が「あとで見る」に追加されます。
+Notification_SuccessAddSubscriptionSourceWithLabel = 「{0}」を新着チェックに追加しました
 Notification_FailedSubscriptionUpdate = 新着動画の更新に失敗しました
-Notification_SuccessAddToWatchLaterWithAddedCount = 新着動画 {0} 件を あとで見る に追加しました
+Notification_SuccessAddToWatchLaterWithAddedCount = 新着動画 {0} 件を キュー に追加しました
 
 SubscGroup_DefaultGroupName = デフォルト
 AddSubscriptionGroup_InputSubscGroupName_Title = 購読グループ名を決める
@@ -235,7 +237,7 @@ SubscVideosDisplayChecked = チェック済みも表示
 SubscVideos_MarkAsCheckedWithDays = {0} 日前までチェック済み
 SubscVideos_MarkAsChecked = チェック済みにマーク
 SubscVideos_AllMarkAsChecked = すべてチェック済みにマーク
-
+Subsc_UnwatchedVideoCount = 新着 {0}動画
 
 
 #### Settings ####

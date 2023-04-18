@@ -1,44 +1,40 @@
 ﻿#nullable enable
 using Hohoema.Contracts.Services;
-using Hohoema.Contracts.Subscriptions;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Playlist;
-using LiteDB;
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Hohoema.Models.Subscriptions;
-public sealed class SubscriptionGroupPlaylist 
+public sealed  class SubscriptionPlaylist
     : IUserManagedPlaylist
     , IPlaylistItemWatchedAware
 {
-    private readonly SubscriptionGroup? _group;
+    private readonly Subscription _subscription;
     private readonly SubscriptionManager _subscriptionManager;
     private readonly NicoVideoProvider _nicoVideoProvider;
-    private readonly ILocalizeService _localizeService;
 
-    public SubscriptionGroupPlaylist(
-        SubscriptionGroup? group,
+    public SubscriptionPlaylist(
+        Subscription subscription,
         SubscriptionManager subscriptionManager,
-        NicoVideoProvider nicoVideoProvider,
-        ILocalizeService localizeService
+        NicoVideoProvider nicoVideoProvider
         )
     {
-        _group = group;
+        _subscription = subscription;
         _subscriptionManager = subscriptionManager;
-        _nicoVideoProvider = nicoVideoProvider;
-        _localizeService = localizeService;
+        _nicoVideoProvider = nicoVideoProvider;        
     }
 
-    public string Name => _group?.Name ?? _localizeService.Translate("All");
 
-    public PlaylistId PlaylistId => new PlaylistId(PlaylistItemsSourceOrigin.SubscriptionGroup , _group.GroupId.ToString());
+    public string Name => _subscription.Label;
+
+    public PlaylistId PlaylistId => new PlaylistId(PlaylistItemsSourceOrigin.Subscription, _subscription.SubscriptionId.ToString());
 
     public static readonly SubscriptionSortOption[] SortOptions = new[] { new SubscriptionSortOption() };
 
@@ -50,12 +46,12 @@ public sealed class SubscriptionGroupPlaylist
 
     public event NotifyCollectionChangedEventHandler? CollectionChanged;
 
-    public int TotalCount => _subscriptionManager.GetSubscriptionGroupVideosCount(_group?.GroupId);
+    public int TotalCount => _subscriptionManager.GetFeedVideosCountWithNewer(_subscription.SubscriptionId);
 
     public async Task<IEnumerable<IVideoContent>> GetAllItemsAsync(IPlaylistSortOption sortOption, CancellationToken cancellationToken = default)
     {
-        List<IVideoContent> videos = new ();
-        foreach (var subscVideo in _subscriptionManager.GetSubscFeedVideosRaw(_group?.GroupId).OrderBy(x => x.PostAt))
+        List<IVideoContent> videos = new();
+        foreach (var subscVideo in _subscriptionManager.GetSubscFeedVideosNewerAt(_subscription.SubscriptionId).OrderBy(x => x.PostAt))
         {
             var nicoVideo = await _nicoVideoProvider.GetCachedVideoInfoAsync(subscVideo.VideoId, cancellationToken);
             videos.Add(nicoVideo);
@@ -65,29 +61,6 @@ public sealed class SubscriptionGroupPlaylist
 
     void IPlaylistItemWatchedAware.OnVideoWatched(IVideoContent video)
     {
-        if (_group != null)
-        {
-            _subscriptionManager.SetCheckedAt(_group.GroupId, video.PostedAt);
-        }
-    }
-}
-
-public sealed class SubscriptionSortOption : IPlaylistSortOption
-{
-    public string Label { get; } = "SubscriptionGroupSort_PostAt_Asc";
-
-    public SubscriptionSortOption()
-    {
-
-    }
-
-    public bool Equals(IPlaylistSortOption other)
-    {
-        return true;
-    }
-
-    public string Serialize()
-    {
-        return string.Empty;
+        //_subscriptionManager.SetCheckedAt(GroupId, video.PostedAt);
     }
 }

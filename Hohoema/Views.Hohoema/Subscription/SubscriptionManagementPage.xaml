@@ -121,8 +121,8 @@
         >
         <GridView.ItemsPanel>
           <ItemsPanelTemplate>
-            <ItemsWrapGrid Orientation="Vertical" ItemWidth="240"     
-                           ItemHeight="72"
+            <ItemsWrapGrid Orientation="Vertical" ItemWidth="380"     
+                           ItemHeight="92"
                            Margin="16 0"                           
                            />
           </ItemsPanelTemplate>
@@ -135,11 +135,21 @@
               <DataTemplate x:DataType="subscriptionVM:SubscriptionGroupViewModel">
                 <controls:DockPanel>
 
-                  <ToggleSwitch Style="{StaticResource ToggleSwitchNoHeader}"                            
-                            controls:DockPanel.Dock="Right"
+                  <ToggleSwitch Style="{StaticResource ToggleSwitchNoHeader}" Width="44"
                             IsOn="{x:Bind IsAutoUpdateEnabled, Mode=TwoWay}"
-                            Width="44"
+                            Margin="0 0 8 0"                                
+                            controls:DockPanel.Dock="Left"
                             />
+                  
+                  <StackPanel Orientation="Horizontal" controls:DockPanel.Dock="Right" Spacing="8">
+                    <Button Command="{x:Bind PlayNewVideoCommand}" IsEnabled="{x:Bind HasNewVideos, Mode=OneWay}">
+                      <SymbolIcon Symbol="Play" />
+                    </Button>
+                    <Button Command="{x:Bind OpenSubscVideoListPageCommand}">
+                      <SymbolIcon Symbol="List" />
+                    </Button>
+                  </StackPanel>
+
                   <TextBlock Text="{x:Bind SubscriptionGroup.Name}" />
                 </controls:DockPanel>
               </DataTemplate>
@@ -148,7 +158,8 @@
               <Style TargetType="GridViewHeaderItem">
                 <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
-                <Setter Property="MinWidth" Value="240" />
+                <Setter Property="MinWidth" Value="380" />
+                <Setter Property="Padding" Value="8 8 12 0" />
               </Style>
             </GroupStyle.HeaderContainerStyle>
           </GroupStyle>
@@ -159,14 +170,43 @@
           <DataTemplate x:DataType="subscriptionVM:SubscriptionViewModel">
             <controls:DockPanel>
 
-              <ToggleSwitch Style="{StaticResource ToggleSwitchNoHeader}"                            
-                            controls:DockPanel.Dock="Right"
-                            IsOn="{x:Bind IsEnabled, Mode=TwoWay}"
-                            Width="44"
-                            IsEnabled="{x:Bind IsParentGroupAutoUpdateEnabled, Mode=OneWay}"
-                            />
+              <controls:DockPanel controls:DockPanel.Dock="Bottom" >
+                <Grid controls:DockPanel.Dock="Right" Background="{ThemeResource BackButtonBackgroundThemeBrush}" CornerRadius="4" Height="24" Margin="0 0 8 0"
+                      Visibility="{x:Bind HasNewVideos, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}"
+                      >
+                  <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Run Text="{x:Bind UnwatchedVideoCount, Mode=OneWay, Converter={StaticResource LocalizeWithParameterConverter}, ConverterParameter=Subsc_UnwatchedVideoCount}" />
+                  </TextBlock>
+                </Grid>
+                
+                <StackPanel Orientation="Horizontal" Spacing="16">
+                  <TextBlock HorizontalAlignment="Right" Opacity="0.5">
+                    <Run Text="{i18nExt:Localize Key=SubscriptionsPrevUpdateTime}" />:<Run Text="{x:Bind LastUpdatedAt, Converter={StaticResource DateTimeToString}, ConverterParameter=t}" />
+                  </TextBlock>
+                  <TextBlock HorizontalAlignment="Right" Opacity="0.5" Visibility="{x:Bind CombinedAutoUpdateEnabledSubscAndGroup, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}">
+                    <Run Text="{i18nExt:Localize Key=SubscriptionsNextUpdateTime}" />:<Run Text="{x:Bind NextUpdateAt, Converter={StaticResource DateTimeToString}, ConverterParameter=t}" />
+                  </TextBlock>
+                </StackPanel>
+              </controls:DockPanel>
+
+
+              <StackPanel Orientation="Horizontal" controls:DockPanel.Dock="Right" Spacing="8">
+                <Button Command="{x:Bind PlayVideoItemCommand}" IsEnabled="{x:Bind HasNewVideos, Mode=OneWay}">
+                  <SymbolIcon Symbol="Play" />
+                </Button>
+                <Button Command="{x:Bind OpenSourceVideoListPageCommand}">
+                  <SymbolIcon Symbol="List" />
+                </Button>
+              </StackPanel>
+              
 
               <SymbolIcon Symbol="Sort" controls:DockPanel.Dock="Left" Opacity="0.5" Margin="0 0 8 0" Visibility="Collapsed" />
+
+              <ToggleSwitch Style="{StaticResource ToggleSwitchNoHeader}" Width="44"
+                            IsOn="{x:Bind IsAutoUpdateEnabled, Mode=TwoWay}"
+                            Margin="0 0 8 0"
+                            controls:DockPanel.Dock="Left"
+                            />
 
               <TextBlock Text="{x:Bind SourceType, Converter={StaticResource LocalizeConverter}}"
                              Style="{StaticResource CaptionTextBlockStyle}" 
@@ -199,15 +239,16 @@
         <extensions:ListViewBase.ItemContextFlyoutTemplate>
           <DataTemplate>
             <MenuFlyout Placement="Bottom" Opened="MenuFlyout_Opened">
-              <MenuFlyoutItem Text="{i18nExt:Localize Key=Refresh}" Command="{Binding UpdateCommand}" IsEnabled="{Binding NowUpdating, Mode=OneWay, Converter={StaticResource BoolNegation}}" />
+              <MenuFlyoutItem Text="{i18nExt:Localize Key=Play}" Command="{Binding PlayVideoItemCommand}" />
               <MenuFlyoutItem Text="{i18nExt:Localize Key=OpenSubscriptionSourceVideoList}" Command="{Binding OpenSourceVideoListPageCommand}" />
               <MenuFlyoutSeparator />
+              <MenuFlyoutItem Text="{i18nExt:Localize Key=Refresh}" Command="{Binding UpdateCommand}" IsEnabled="{Binding CombinedAutoUpdateEnabledSubscAndGroup, Mode=OneWay, Converter={StaticResource BoolNegation}}" />
+              <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=SubscriptionsAutoUpdateRunning}" IsChecked="{Binding IsAutoUpdateEnabled, Mode=TwoWay}" />
               <MenuFlyoutSubItem x:Name="SubscriptionGroupMenuSubsItem"
                                  Text="{i18nExt:Localize Key=SubscGroup_ContextMenuItemTitle}"
                                  >
 
               </MenuFlyoutSubItem>
-              <MenuFlyoutSeparator />
               <MenuFlyoutSubItem Text="{i18nExt:Localize Key=ReorderSubsciprionSource_Move}">
                 <MenuFlyoutItem Text="{i18nExt:Localize Key=ReorderSubsciprionSource_MovePreview}" Command="{Binding MoveToPreviewCommand}"/>
                 <MenuFlyoutItem Text="{i18nExt:Localize Key=ReorderSubsciprionSource_MoveNext}" Command="{Binding MoveToNextCommand}" />
@@ -224,6 +265,8 @@
           <DataTemplate>
             <MenuFlyout Placement="Bottom">
               <MenuFlyoutItem Text="動画一覧を開く" Command="{Binding OpenSubscVideoListPageCommand}" />
+              <MenuFlyoutSeparator />
+              <ToggleMenuFlyoutItem Text="自動更新" IsChecked="{Binding IsAutoUpdateEnabled, Mode=TwoWay}" Command="{Binding OpenSubscVideoListPageCommand}" />
               <MenuFlyoutItem Text="ラベルを変更" Command="{Binding RenameSubscriptionGroupCommand}" IsEnabled="{Binding SubscriptionGroup.IsDefaultGroup, Converter={StaticResource BoolNegation}}" />
               <MenuFlyoutItem Text="削除..." Command="{Binding DeleteSubscriptionGroupCommand}" IsEnabled="{Binding SubscriptionGroup.IsDefaultGroup, Converter={StaticResource BoolNegation}}" />
             </MenuFlyout>

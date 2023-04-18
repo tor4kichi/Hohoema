@@ -33,12 +33,29 @@ namespace Hohoema.Models.Subscriptions;
 
 public class SubscriptionFeedUpdateResult
 {
-    public bool IsSuccessed { get; set; }
-    public SubscriptionFeedUpdateFailedReason? FailedReason { get; set; }
-    public Subscription Entity { get; set; }
-    public List<NicoVideo> Videos { get; set; }
-    public List<NicoVideo> NewVideos { get; set; }
-    public DateTime UpdateAt { get; set; }
+    public SubscriptionFeedUpdateResult(Subscription subscription, List<NicoVideo> videos, List<NicoVideo> newVideos, DateTime updateAt)
+    {
+        IsSuccessed = true;
+        Subscription = subscription;
+        Videos = videos;
+        NewVideos = newVideos;
+        UpdateAt = updateAt;
+    }
+
+    public SubscriptionFeedUpdateResult(Subscription subscription, SubscriptionFeedUpdateFailedReason failedReason, DateTime updateAt)
+    {
+        IsSuccessed = false;
+        Subscription = subscription;
+        FailedReason = failedReason;
+        UpdateAt = updateAt;
+    }
+
+    public bool IsSuccessed { get; init; }
+    public SubscriptionFeedUpdateFailedReason? FailedReason { get; init; }
+    public Subscription Subscription { get; init; }
+    public List<NicoVideo>? Videos { get; init; }
+    public List<NicoVideo>? NewVideos { get; init; }
+    public DateTime UpdateAt { get; init; }
 }
 
 public enum SubscriptionFeedUpdateFailedReason
@@ -230,6 +247,7 @@ public sealed class SubscriptionManager
     {
         _subscriptionRegistrationRepository.CreateItem(newEntity);         
         _messenger.Send(new SubscriptionAddedMessage(newEntity));
+        ClearEnabledSubscriptionsCount();
         return newEntity;
     }
 
@@ -237,6 +255,7 @@ public sealed class SubscriptionManager
     {
         _ = _subscriptionRegistrationRepository.UpdateItem(entity);
         _messenger.Send(new SubscriptionUpdatedMessage(entity));
+        ClearEnabledSubscriptionsCount();
     }
 
     public void MoveSubscriptionGroup(Subscription entity, SubscriptionGroup moveDestinationGroup)
@@ -269,6 +288,8 @@ public sealed class SubscriptionManager
 
         bool feedResultRemoved = _subscFeedVideoRepository.DeleteSubsc(entity);
         Debug.WriteLine("[SubscriptionSource Remove] feed result removed: " + feedResultRemoved);
+
+        ClearEnabledSubscriptionsCount();
     }
 
     public IList<Subscription> GetSubscriptions()
@@ -448,6 +469,11 @@ public sealed class SubscriptionManager
         return _subscFeedVideoRepository.GetVideosOlderAt(targetPostAt, skip, limit);
     }
 
+    public IEnumerable<SubscFeedVideo> GetSubscFeedVideosOlderAt(SubscriptionId subscriptionId, DateTime? targetPostAt = null, int skip = 0, int limit = int.MaxValue)
+    {
+        return _subscFeedVideoRepository.GetVideosOlderAt(subscriptionId, targetPostAt ?? GetLastUpdatedAt(subscriptionId), skip, limit);
+    }
+
     public IEnumerable<SubscFeedVideo> GetSubscFeedVideosOlderAt(SubscriptionGroupId? groupId, DateTime targetPostAt, int skip = 0, int limit = int.MaxValue)
     {
         var subscIds = GetSubscriptionGroupSubscriptions(groupId).Select(x => x.SubscriptionId);
@@ -459,23 +485,73 @@ public sealed class SubscriptionManager
         return _subscFeedVideoRepository.GetVideosNewerAt(targetPostAt, skip, limit);
     }
 
+    public IEnumerable<SubscFeedVideo> GetSubscFeedVideosNewerAt(SubscriptionId subscriptionId, DateTime? targetPostAt = null, int skip = 0, int limit = int.MaxValue)
+    {
+        return _subscFeedVideoRepository.GetVideosNewerAt(subscriptionId, targetPostAt ?? GetLastUpdatedAt(subscriptionId), skip, limit);
+    }
+
     public IEnumerable<SubscFeedVideo> GetSubscFeedVideosNewerAt(SubscriptionGroupId? groupId, DateTime targetPostAt, int skip = 0, int limit = int.MaxValue)
     {
         var subscIds = GetSubscriptionGroupSubscriptions(groupId).Select(x => x.SubscriptionId);
         return _subscFeedVideoRepository.GetVideosNewerAt(subscIds, targetPostAt, skip, limit);
     }
 
-
-
-
-
-    private static readonly TimeSpan _FeedResultUpdateInterval = TimeSpan.FromMinutes(60);
-
-    private static bool IsExpiredFeedResultUpdatedTime(DateTime lastUpdatedAt)
+    public int GetFeedVideosCount(SubscriptionId subscriptionId)
     {
-        return lastUpdatedAt + _FeedResultUpdateInterval < DateTime.Now;
+        return _subscFeedVideoRepository.GetVideoCount(subscriptionId);
     }
 
+    public int GetFeedVideosCount(SubscriptionGroupId subscriptionGroupId)
+    {
+        return GetSubscriptions(subscriptionGroupId).Sum(x => GetFeedVideosCount(x.SubscriptionId));
+    }
+
+    public int GetFeedVideosCountWithNewer(SubscriptionId subscriptionId, DateTime? dateTime = null)
+    {
+        return _subscFeedVideoRepository.GetVideoCountWithDateTimeNewer(subscriptionId, dateTime ?? GetLastUpdatedAt(subscriptionId));
+    }
+
+    public int GetFeedVideosCountWithNewer(SubscriptionGroupId subscriptionGroupId)
+    {
+        return GetSubscriptions(subscriptionGroupId).Sum(x => GetFeedVideosCountWithNewer(x.SubscriptionId, GetLastUpdatedAt(x.SubscriptionId)));
+    }
+
+    public int GetFeedVideosCountWithNewer(DateTime dateTime)
+    {
+        return GetSubscriptions().Sum(x => GetFeedVideosCountWithNewer(x.SubscriptionId, dateTime));
+    }
+
+
+    private int? _EnabledSubscriptionsCountCached;
+
+    private int GetEnabledSubscriptionsCount()
+    {
+        return _EnabledSubscriptionsCountCached ??= _subscriptionRegistrationRepository.CountSafe(x => x.IsAutoUpdateEnabled);
+    }
+
+    private void ClearEnabledSubscriptionsCount()
+    {
+        _EnabledSubscriptionsCountCached = null;
+    }
+
+
+    private static readonly TimeSpan _FeedUpdateIntervalPerSubscription = TimeSpan.FromMinutes(5);
+
+    private bool IsExpiredFeedResultUpdatedTime(DateTime lastUpdatedAt)
+    {
+         return GetNextUpdateTime(lastUpdatedAt) < DateTime.Now;
+    }
+
+    public DateTime GetNextUpdateTime(DateTime lastUpdatedAt)
+    {
+        int updateEnabledSubscriptionsCount = GetEnabledSubscriptionsCount();
+        var interval = _FeedUpdateIntervalPerSubscription * Math.Max(1, updateEnabledSubscriptionsCount);
+        if (interval < TimeSpan.FromHours(1))
+        {
+            interval = TimeSpan.FromHours(1);
+        }
+        return lastUpdatedAt + interval;
+    }
 
     public IEnumerable<Subscription> GetSortedSubscriptions()
     {
@@ -487,7 +563,6 @@ public sealed class SubscriptionManager
             }
         }
     }
-
 
     public SubscriptionFeedUpdateFailedReason? CheckCanUpdate(bool isManualUpdate, Subscription subscription, SubscriptionUpdate? update = null)
     {
@@ -518,41 +593,49 @@ public sealed class SubscriptionManager
         return default;
     }
 
-    public async ValueTask<SubscriptionFeedUpdateResult> UpdateSubscriptionFeedVideosAsync(Subscription entity, SubscriptionUpdate? update = null, DateTime? updateDateTime = null, CancellationToken cancellationToken = default)
+    public async ValueTask<SubscriptionFeedUpdateResult> UpdateSubscriptionFeedVideosAsync(Subscription subscription, SubscriptionUpdate? update = null, DateTime? updateDateTime = null, CancellationToken cancellationToken = default)
     {
-        update ??= _subscriptionUpdateRespository.GetOrAdd(entity.SubscriptionId);
+        update ??= _subscriptionUpdateRespository.GetOrAdd(subscription.SubscriptionId);
 
-        Debug.WriteLine("[FeedUpdate] start: " + entity.Label);
-        DateTime updateAt = updateDateTime ?? DateTime.Now;
-        SubscriptionFeedUpdateResult result = await Task.Run(
-            () => GetFeedResultAsync(entity)
-            , cancellationToken
-            );
-
-        if (result.IsSuccessed is false)
+        Debug.WriteLine("[FeedUpdate] start: " + subscription.Label);
+        update.LastUpdatedAt = updateDateTime ?? DateTime.Now;
+        _subscriptionUpdateRespository.UpdateItem(update);
+        try
         {
+            var videos = await Task.Run(
+                () => GetFeedResultAsync(subscription)
+                , cancellationToken
+                );
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            List<SubscFeedVideo> newSubscVideos = _subscFeedVideoRepository.RegisteringVideosIfNotExist(
+                subscription.SubscriptionId,
+                update.LastUpdatedAt,
+                videos
+                ).ToList();
+            
+            foreach (var newVideo in newSubscVideos)
+            {
+                _messenger.Send(new NewSubscFeedVideoMessage(newVideo));
+            }
+
+            var newVideoIds = newSubscVideos.Select(x => x.VideoId).ToHashSet();
+            var newVideos = update.LastUpdatedAt != DateTime.MinValue
+                ? videos.Where(x => newVideoIds.Contains(x.VideoId)).ToList()
+                : new List<NicoVideo>()
+                ;
+
+            var result = new SubscriptionFeedUpdateResult(subscription, videos, newVideos, update.LastUpdatedAt);
+            _messenger.Send(new SubscriptionFeedUpdatedMessage(result));
             return result;
         }
-
-        update.LastUpdatedAt = updateAt;
-        _subscriptionUpdateRespository.UpdateItem(update);
-
-        cancellationToken.ThrowIfCancellationRequested();
-
-        List<SubscFeedVideo> newVideos = _subscFeedVideoRepository.RegisteringVideosIfNotExist(entity.SubscriptionId, updateAt, result.Videos).ToList();
-        var newVideoIds = newVideos.Select(x => x.VideoId).ToHashSet();
-        result.NewVideos = update.LastUpdatedAt != DateTime.MinValue
-            ? result.Videos.Where(x => newVideoIds.Contains(x.VideoId)).ToList()
-            : new List<NicoVideo>()
-            ;
-
-        foreach (var newVideo in newVideos)
+        catch (Exception ex)
         {
-            _messenger.Send(new NewSubscFeedVideoMessage(newVideo));
+            var result = new SubscriptionFeedUpdateResult(subscription, SubscriptionFeedUpdateFailedReason.SourceCanNotAccess, update.LastUpdatedAt);
+            _messenger.Send(new SubscriptionFeedUpdatedMessage(result));
+            return result;
         }
-
-        result.UpdateAt = updateAt;
-        return result;
     }
 
 
@@ -565,42 +648,22 @@ public sealed class SubscriptionManager
         }
     }
 
-    private async Task<SubscriptionFeedUpdateResult> GetFeedResultAsync(Subscription entity)
+    private async Task<List<NicoVideo>> GetFeedResultAsync(Subscription entity)
     {
-        try
+        var videos = entity.SourceType switch
         {
-            List<NicoVideo> videos = entity.SourceType switch
-            {
-                SubscriptionSourceType.Mylist => await GetMylistFeedResult(entity.SourceParameter, _mylistProvider),
-                SubscriptionSourceType.User => await GetUserVideosFeedResult(entity.SourceParameter, _userProvider),
-                SubscriptionSourceType.Channel => await GetChannelVideosFeedResult(entity.SourceParameter, _channelProvider, _nicoVideoProvider),
-                SubscriptionSourceType.Series => await GetSeriesVideosFeedResult(entity.SourceParameter, _seriesRepository),
-                SubscriptionSourceType.SearchWithKeyword => await GetKeywordSearchFeedResult(entity.SourceParameter, _niconicoSession.ToolkitContext.Search),
-                SubscriptionSourceType.SearchWithTag => await GetTagSearchFeedResult(entity.SourceParameter, _niconicoSession.ToolkitContext.Search),
-                _ => throw new NotSupportedException(entity.SourceType.ToString())
-            };
+            SubscriptionSourceType.Mylist => await GetMylistFeedResult(entity.SourceParameter, _mylistProvider),
+            SubscriptionSourceType.User => await GetUserVideosFeedResult(entity.SourceParameter, _userProvider),
+            SubscriptionSourceType.Channel => await GetChannelVideosFeedResult(entity.SourceParameter, _channelProvider, _nicoVideoProvider),
+            SubscriptionSourceType.Series => await GetSeriesVideosFeedResult(entity.SourceParameter, _seriesRepository),
+            SubscriptionSourceType.SearchWithKeyword => await GetKeywordSearchFeedResult(entity.SourceParameter, _niconicoSession.ToolkitContext.Search),
+            SubscriptionSourceType.SearchWithTag => await GetTagSearchFeedResult(entity.SourceParameter, _niconicoSession.ToolkitContext.Search),
+            _ => throw new NotSupportedException(entity.SourceType.ToString())
+        };
 
-            _subscFeedVideoRepository.RegisteringVideosIfNotExist(entity.SubscriptionId, DateTime.Now, videos);
-
-            return new SubscriptionFeedUpdateResult()
-            {
-                IsSuccessed = true,
-                Videos = videos,
-                Entity = entity
-            };
-        }
-        catch (Exception e)
-        {
-            Debug.WriteLine(e.ToString());
-
-            return new SubscriptionFeedUpdateResult()
-            {
-                IsSuccessed = false,
-                Videos = new List<NicoVideo>(),
-                Entity = entity,
-                FailedReason = SubscriptionFeedUpdateFailedReason.SourceCanNotAccess,
-            };
-        }
+        _subscFeedVideoRepository.RegisteringVideosIfNotExist(entity.SubscriptionId, DateTime.Now, videos);
+        
+        return videos;
     }
 
 

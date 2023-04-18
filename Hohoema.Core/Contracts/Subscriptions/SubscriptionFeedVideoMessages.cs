@@ -16,6 +16,13 @@ public sealed class NewSubscFeedVideoMessage : ValueChangedMessage<SubscFeedVide
     }
 }
 
+public sealed class SubscriptionFeedUpdatedMessage : ValueChangedMessage<SubscriptionFeedUpdateResult>
+{
+    public SubscriptionFeedUpdatedMessage(SubscriptionFeedUpdateResult value) : base(value)
+    {
+
+    }
+}
 
 
 public sealed class SubscFeedVideoValueChangedMessage : ValueChangedMessage<SubscFeedVideo>

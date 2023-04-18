@@ -107,7 +107,7 @@ HohoemaPageType.WatchHistory = 播放历史
 HohoemaPageType.LocalPlaylist = 播放清单
 HohoemaPageType.Mylist = Mylist
 HohoemaPageType.VideoQueue = 队列
-HohoemaPageType.SubscriptionManagement = 订阅组管理
+HohoemaPageType.SubscriptionManagement = 新视频
 HohoemaPageType.OwnerMylistManage = Mylist管理
 HohoemaPageType.LocalPlaylistManage = Local Mylist管理
 
@@ -202,10 +202,12 @@ SubscriptionSourceType.Channel = 频道
 SubscriptionSourceType.Mylist = Mylist
 SubscriptionSourceType.TagSearch = 标签搜寻
 SubscriptionSourceType.KeywordSearch = 关键字搜寻
+SubscriptionSourceType.Series = 系列
 
 SubscriptionsAutoUpdateRunning = 自动更新
 SubscriptionsNextUpdateTime = 下次更新
 SubscriptionsAutoNotUpdateRunning = 自动更新已停止
+SubscriptionsPrevUpdateTime = 最后更新
 
 StopSubscribe? = 我可以停止检查新来者吗？
 StopSubscribe = 停止检查新来者
@@ -217,7 +219,7 @@ ReorderSubsciprionSource_MoveNext = 下移一个
 ReorderSubsciprionSource_MoveToHead = 移到顶部
 ReorderSubsciprionSource_MoveToTail = 移到最后
 
-Notification_SuccessAddSubscriptionSourceWithLabel = 在订阅中添加了“ {0}”。 \ n将来，新视频将添加到“稍后观看”中。
+Notification_SuccessAddSubscriptionSourceWithLabel = 向新支票添加“{0}”
 Notification_FailedSubscriptionUpdate = 订阅续订失败
 Notification_SuccessAddToWatchLaterWithAddedCount = 已将新视频{0}添加到“稍后查看”
 
@@ -235,7 +237,7 @@ SubscVideosDisplayChecked = 显示勾选
 SubscVideos_MarkAsCheckedWithDays = {0} 天前检查过
 SubscVideos_MarkAsChecked = 标记为选中
 SubscVideos_AllMarkAsChecked = 全部勾选
-
+Subsc_UnwatchedVideoCount = 新的 {0} 个视频
 
 
 #### Settings ####

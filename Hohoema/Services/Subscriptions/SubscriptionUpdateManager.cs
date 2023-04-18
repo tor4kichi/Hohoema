@@ -38,12 +38,23 @@ public class SubscriptionUpdatedEventArgs
     public DateTime NextUpdateTime { get; set; }
 }
 
+public enum SubscriptionUpdateStatus
+{
+    NoProbrem,    
+    FailedWithOffline,
+    FailedWithApiError,
+    FailedWithTimeout
+}
+
 public sealed class SubscriptionUpdateManager 
     : ObservableObject
     , IDisposable
     , IToastActivationAware
     , ISuspendAndResumeAware
 {
+    static readonly TimeSpan UpdateTimeout = TimeSpan.FromMinutes(5);
+
+
     private readonly ILogger<SubscriptionUpdateManager> _logger;
     private readonly IMessenger _messenger;
     private readonly INotificationService _notificationService;
@@ -103,8 +114,7 @@ public sealed class SubscriptionUpdateManager
             }
         }
     }
-
-
+    
     public SubscriptionUpdateManager(
         ILoggerFactory loggerFactory,
         IMessenger messenger,
@@ -115,7 +125,7 @@ public sealed class SubscriptionUpdateManager
     {
         _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
         _timer = _dispatcherQueue.CreateTimer();
-        _timer.Interval = TimeSpan.FromMinutes(1);
+        _timer.Interval = TimeSpan.FromMinutes(5);
         _timer.IsRepeating = true;
         _timer.Tick += async (s, e) => 
         {
@@ -190,17 +200,6 @@ public sealed class SubscriptionUpdateManager
         }
     }
 
-    private async void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
-    {
-        var deferral = e.SuspendingOperation.GetDeferral();
-
-    }
-
-    private async void Current_Resuming(object sender, object e)
-    {
-        
-    }
-
     public async Task UpdateIfOverExpirationAsync(CancellationToken ct)
     {
         if (Helpers.InternetConnection.IsInternet() is false) 
@@ -208,54 +207,76 @@ public sealed class SubscriptionUpdateManager
             return; 
         }
 
+        DateTime checkedAt = DateTime.Now;
+        List<SubscriptionFeedUpdateResult> updateResultItems = new();
         using (_logger.BeginScope("Subscription Update"))
         {
             try
             {
                 _logger.ZLogDebug("Start.");
-                DateTime checkedAt = DateTime.Now;
                 _timerUpdateCancellationTokenSource?.Cancel();
                 _timerUpdateCancellationTokenSource?.Dispose();
-                _timerUpdateCancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(180));
+                _timerUpdateCancellationTokenSource = new CancellationTokenSource(UpdateTimeout);
                 var timeCt = _timerUpdateCancellationTokenSource.Token;
                 using (var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(ct, timeCt))
                 using (await _timerLock.LockAsync())
                 {
-                    List<SubscriptionFeedUpdateResult> updateResultItems = new();
+                    CancellationToken linkedCt = linkedCts.Token;
                     foreach (var subscription in _subscriptionManager.GetSortedSubscriptions())
                     {
-                        _logger.ZLogDebug("Start. Label: {0}", subscription.Label);
-                        var update = _subscriptionManager.GetSubscriptionProps(subscription.SubscriptionId);
-                        if (_subscriptionManager.CheckCanUpdate(isManualUpdate: false, subscription, update) is not null and SubscriptionFeedUpdateFailedReason failedReason)
+                        if (updateResultItems.Any())
                         {
-                            _logger.ZLogDebug("Skiped. Label: {0}, Reason: {1}", subscription.Label, failedReason);
-                            continue;
+                            // 常に一秒空ける
+                            await Task.Delay(1000, linkedCt);
                         }
-                        var list = await _subscriptionManager.UpdateSubscriptionFeedVideosAsync(subscription, update: update, checkedAt, linkedCts.Token);
-                        updateResultItems.Add(list);
+                        
+                        _logger.ZLogDebug("Start. Label: {0}", subscription.Label);
+                        try
+                        {
+                            var update = _subscriptionManager.GetSubscriptionProps(subscription.SubscriptionId);
+                            if (_subscriptionManager.CheckCanUpdate(isManualUpdate: false, subscription, update) is not null and SubscriptionFeedUpdateFailedReason failedReason)
+                            {
+                                _logger.ZLogDebug("Skiped. Label: {0}, Reason: {1}", subscription.Label, failedReason);
+                                continue;
+                            }
+                            var list = await _subscriptionManager.UpdateSubscriptionFeedVideosAsync(subscription, update: update, checkedAt, linkedCt);
+                            updateResultItems.Add(list);
 
-                        _logger.ZLogDebug("Done. Label: {0}", subscription.Label);
+                            _logger.ZLogDebug("Done. Label: {0}", subscription.Label);                            
+                        }
+                        catch (OperationCanceledException)
+                        {
+                            throw;
+                        }
+                        catch (Exception ex) when (InternetConnection.IsInternet() is false)
+                        {
+                            // インターネット接続はあるけど何かしらで失敗した場合は
+                            // API不通を想定して強制的に自動更新をOFFにする
+                            subscription.IsAutoUpdateEnabled = false;                            
+                            _subscriptionManager.UpdateSubscription(subscription);
+
+                            _messenger.Send(new SubscriptionUpdatedMessage(subscription));
+                            _logger.ZLogDebug("Error. Label: {0}, Exception: {1}", subscription.Label, ex.Message);
+                        }
                     }
-
-                    // 次の自動更新周期を延長して設定
-                    _subscriptionSettings.SubscriptionsLastUpdatedAt = DateTime.Now;
-
-                    NotifyFeedUpdateResult(updateResultItems.Where(x => x.IsSuccessed));
                 }
             }
             catch (OperationCanceledException)
             {
-                await StopTimerAsync();
-
                 // TODO: ユーザーに購読更新の停止を通知する
-                _logger.ZLogInformation("購読の更新にあまりに時間が掛かったため処理を中断し、また定期自動更新も停止しました");
+                _logger.ZLogInformation("購読の更新にあまりに時間が掛かったため処理を中断しました");
             }
             finally
             {
+                // 次の自動更新周期を延長して設定
+                _subscriptionSettings.SubscriptionsLastUpdatedAt = checkedAt;
+
                 _timerUpdateCancellationTokenSource?.Dispose();
                 _timerUpdateCancellationTokenSource = null;
                 _logger.ZLogDebug("Complete.");
             }
+
+            NotifyFeedUpdateResult(updateResultItems.Where(x => x.IsSuccessed));
         }
     }
 
@@ -347,7 +368,7 @@ public sealed class SubscriptionUpdateManager
         if (!updateResults.Any()) { return; }
 
         //SubscriptionGroup _defaultSubscGroup = new SubscriptionGroup(SubscriptionGroupId.DefaultGroupId, "SubscGroup_DefaultGroupName".Translate());
-        var resultByGroupId = updateResults.Where(x => x.IsSuccessed && x.NewVideos.Count > 0).GroupBy(x => x.Entity.Group ?? _subscriptionManager.DefaultSubscriptionGroup, SubscriptionGroupComparer.Default);
+        var resultByGroupId = updateResults.Where(x => x.IsSuccessed && x.NewVideos.Count > 0).GroupBy(x => x.Subscription.Group ?? _subscriptionManager.DefaultSubscriptionGroup, SubscriptionGroupComparer.Default);
 
         if (!resultByGroupId.Any()) { return; }
 
@@ -383,17 +404,11 @@ public sealed class SubscriptionUpdateManager
     {
         List<SubscriptionFeedUpdateResult> results = new();
         var sources = _subscriptionManager.GetSubscriptions().Take(3);
+        var updateAt = DateTime.Now;
         foreach (var source in sources)
         {
             var videos = _subscriptionManager.GetSubscFeedVideos(source, 0, 5).Select(x => new NicoVideo() { Id = x.VideoId, Title = x.Title }).ToList();
-
-            results.Add(new SubscriptionFeedUpdateResult() 
-            {
-                Videos = videos,
-                NewVideos = videos,
-                Entity = source,
-                IsSuccessed = true,
-            });
+            results.Add(new SubscriptionFeedUpdateResult(source, videos, videos, updateAt));
         }
 
         NotifyFeedUpdateResult(results);

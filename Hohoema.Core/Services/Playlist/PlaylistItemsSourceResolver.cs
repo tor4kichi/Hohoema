@@ -15,6 +15,7 @@ public sealed class PlaylistItemsSourceResolver : IPlaylistFactoryResolver
     private readonly Lazy<ChannelVideoPlaylistFactory> _channelVideoPlaylistFactory;
     private readonly Lazy<UserVideoPlaylistFactory> _userVideoPlaylistFactory;
     private readonly Lazy<SubscriptionGroupPlaylistFactory> _subscriptionGroupPlaylistFactory;
+    private readonly Lazy<SubscriptionPlaylistFactory> _subscriptionPlaylistFactory;
 
     public PlaylistItemsSourceResolver(
         Lazy<LocalMylistPlaylistFactory> localMylistPlaylistFactory,
@@ -22,7 +23,8 @@ public sealed class PlaylistItemsSourceResolver : IPlaylistFactoryResolver
         Lazy<SeriesVideoPlaylistFactory> seriesVideoPlaylistFactory,
         Lazy<ChannelVideoPlaylistFactory> channelVideoPlaylistFactory,
         Lazy<UserVideoPlaylistFactory> userVideoPlaylistFactory,
-        Lazy<SubscriptionGroupPlaylistFactory> subscriptionGroupPlaylistFactory
+        Lazy<SubscriptionGroupPlaylistFactory> subscriptionGroupPlaylistFactory,
+        Lazy<SubscriptionPlaylistFactory> subscriptionPlaylistFactory
         )
     {
         _localMylistPlaylistFactory = localMylistPlaylistFactory;
@@ -31,6 +33,7 @@ public sealed class PlaylistItemsSourceResolver : IPlaylistFactoryResolver
         _channelVideoPlaylistFactory = channelVideoPlaylistFactory;
         _userVideoPlaylistFactory = userVideoPlaylistFactory;        
         _subscriptionGroupPlaylistFactory = subscriptionGroupPlaylistFactory;
+        _subscriptionPlaylistFactory = subscriptionPlaylistFactory;
     }
 
     public IPlaylistFactory Resolve(PlaylistItemsSourceOrigin origin)
@@ -42,6 +45,7 @@ public sealed class PlaylistItemsSourceResolver : IPlaylistFactoryResolver
             PlaylistItemsSourceOrigin.Series => _seriesVideoPlaylistFactory.Value,
             PlaylistItemsSourceOrigin.ChannelVideos => _channelVideoPlaylistFactory.Value,
             PlaylistItemsSourceOrigin.UserVideos => _userVideoPlaylistFactory.Value,            
+            PlaylistItemsSourceOrigin.Subscription => _subscriptionPlaylistFactory.Value,
             PlaylistItemsSourceOrigin.SubscriptionGroup => _subscriptionGroupPlaylistFactory.Value,
             _ => throw new NotSupportedException($"Not supported to playlist play for {origin}"),
         };

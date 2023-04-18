@@ -65,11 +65,29 @@ public abstract class LiteDBServiceBase<T>
         return _collection.Exists(predicate);
     }
 
-    public int Count()
+    public int CountSafe()
     {
-        return _collection.Count();
+        try
+        {
+            return _collection.Count();
+        }
+        catch
+        {
+            return 0;
+        }
     }
 
+    public int CountSafe(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
+    {
+        try
+        {
+            return _collection.Count(predicate);
+        }
+        catch
+        {
+            return 0;
+        }
+    }
 
     public T FindById(BsonValue id)
     {

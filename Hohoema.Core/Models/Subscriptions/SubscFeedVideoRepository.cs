@@ -72,7 +72,7 @@ public sealed class SubscFeedVideoRepository
         {
             try
             {
-                return _collection.Count(x => x.SourceSubscId == subscId);
+                return CountSafe(x => x.SourceSubscId == subscId);
             }
             catch 
             {
@@ -120,6 +120,11 @@ public sealed class SubscFeedVideoRepository
         return _subscFeedVideoRepository.Find(x => x.PostAt <= targetTime).Where(x => true).OrderByDescending(x => x.PostAt).Skip(skip).Take(limit);
     }
 
+    public IEnumerable<SubscFeedVideo> GetVideosOlderAt(SubscriptionId subscriptionId, DateTime targetTime, int skip = 0, int limit = int.MaxValue)
+    {        
+        return _subscFeedVideoRepository.Find(x => x.PostAt <= targetTime && x.SourceSubscId == subscriptionId).OrderByDescending(x => x.PostAt).Skip(skip).Take(limit);
+    }
+
     public IEnumerable<SubscFeedVideo> GetVideosOlderAt(IEnumerable<SubscriptionId> subscIds, DateTime targetTime, int skip = 0, int limit = int.MaxValue)
     {
         HashSet<SubscriptionId> idHashSet = subscIds.ToHashSet();
@@ -129,6 +134,11 @@ public sealed class SubscFeedVideoRepository
     public IEnumerable<SubscFeedVideo> GetVideosNewerAt(DateTime targetTime, int skip = 0, int limit = int.MaxValue)
     {
         return _subscFeedVideoRepository.Find(x => targetTime < x.PostAt).Where(x => true).OrderByDescending(x => x.PostAt).Skip(skip).Take(limit);
+    }
+
+    public IEnumerable<SubscFeedVideo> GetVideosNewerAt(SubscriptionId subscriptionId, DateTime targetTime, int skip = 0, int limit = int.MaxValue)
+    {
+        return _subscFeedVideoRepository.Find(x => targetTime < x.PostAt && x.SourceSubscId == subscriptionId).OrderByDescending(x => x.PostAt).Skip(skip).Take(limit);
     }
 
     public IEnumerable<SubscFeedVideo> GetVideosNewerAt(IEnumerable<SubscriptionId> subscIds, DateTime targetTime, int skip = 0, int limit = int.MaxValue)
@@ -172,8 +182,19 @@ public sealed class SubscFeedVideoRepository
         }
     }
 
+    internal int GetVideoCount(SubscriptionId subscriptionId)
+    {
+        return _subscFeedVideoRepository.GetVideoCount(subscriptionId);
+    }
+
+
     internal int GetVideoCount(Subscription subsc)
     {
         return _subscFeedVideoRepository.GetVideoCount(subsc.SubscriptionId);
+    }
+
+    internal int GetVideoCountWithDateTimeNewer(SubscriptionId subscriptionId, DateTime targetDateTime)
+    {
+        return _subscFeedVideoRepository.CountSafe(x => x.SourceSubscId == subscriptionId && x.PostAt > targetDateTime);
     }
 }

@@ -107,7 +107,7 @@ HohoemaPageType.WatchHistory = Viewing history
 HohoemaPageType.LocalPlaylist = playlist
 HohoemaPageType.Mylist = Mylist
 HohoemaPageType.VideoQueue = Queue
-HohoemaPageType.SubscriptionManagement = Subscription group management
+HohoemaPageType.SubscriptionManagement = New videos
 HohoemaPageType.OwnerMylistManage = Mylist management
 HohoemaPageType.LocalPlaylistManage = Local Mylist Management
 
@@ -202,10 +202,12 @@ SubscriptionSourceType.Channel = Channel
 SubscriptionSourceType.Mylist = Mylist
 SubscriptionSourceType.TagSearch = Tag search
 SubscriptionSourceType.KeywordSearch = Keyword search
+SubscriptionSourceType.Series = Series
 
 SubscriptionsAutoUpdateRunning = Automatic updating
 SubscriptionsNextUpdateTime = Next update
 SubscriptionsAutoNotUpdateRunning = Automatic update is stopped
+SubscriptionsPrevUpdateTime = Last update
 
 StopSubscribe? = Can I stop checking for new arrivals?
 StopSubscribe = Stop checking new arrivals
@@ -217,7 +219,7 @@ ReorderSubsciprionSource_MoveNext = Move down one
 ReorderSubsciprionSource_MoveToHead = Move to the top
 ReorderSubsciprionSource_MoveToTail = Move to the end
 
-Notification_SuccessAddSubscriptionSourceWithLabel = Added "{0}" to the subscription. \n New videos will be added to "Watch Later" in the future.
+Notification_SuccessAddSubscriptionSourceWithLabel = Added "{0}" to subscription.
 Notification_FailedSubscriptionUpdate = Subscription renewal failed
 Notification_SuccessAddToWatchLaterWithAddedCount = New videos {0} added to See later
 
@@ -235,7 +237,7 @@ SubscVideosDisplayChecked = Show checked
 SubscVideos_MarkAsCheckedWithDays = Checked {0} days ago
 SubscVideos_MarkAsChecked = Mark as checked
 SubscVideos_AllMarkAsChecked = Mark all checked
-
+Subsc_UnwatchedVideoCount = New {0} videos
 
 
 #### Settings ####
