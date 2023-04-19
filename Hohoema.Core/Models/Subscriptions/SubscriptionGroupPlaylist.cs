@@ -67,7 +67,7 @@ public sealed class SubscriptionGroupPlaylist
     {
         if (_group != null)
         {
-            _subscriptionManager.SetCheckedAt(_group.GroupId, video.PostedAt);
+            _subscriptionManager.SetCheckedAt(_group.GroupId, video.PostedAt + TimeSpan.FromSeconds(1));
         }
     }
 }

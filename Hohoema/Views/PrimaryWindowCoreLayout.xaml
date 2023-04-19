@@ -9,7 +9,7 @@
   xmlns:core="using:Microsoft.Xaml.Interactions.Core"
   xmlns:windowsTriggers="using:WindowsStateTriggers"
   xmlns:mybehavior="using:Hohoema.Views.Behaviors"
-  xmlns:uwpToolkitControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+  xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
   xmlns:uwpUi="using:Microsoft.Toolkit.Uwp.UI"
   xmlns:iconPack="using:MahApps.Metro.IconPacks"
   xmlns:myextensions="using:Hohoema.Views.Extensions"
@@ -172,13 +172,13 @@
 
       <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=Hohoema.ViewModels.LiveContentMenuItemViewModel, Converter={StaticResource StringToType}}" >
         <muxc:NavigationViewItem >
-          <uwpToolkitControls:DockPanel Margin="0 4 16 4">
-            <uwpToolkitControls:ImageEx Source="{Binding ThumbnailUrl}" CornerRadius="60" Width="32" Height="32" uwpToolkitControls:DockPanel.Dock="Left"
+          <uwpControls:DockPanel Margin="0 4 16 4">
+            <uwpControls:ImageEx Source="{Binding ThumbnailUrl}" CornerRadius="60" Width="32" Height="32" uwpControls:DockPanel.Dock="Left"
                                         Margin="0 0 8 0"
                                         />
             <StackPanel>
-              <uwpToolkitControls:DockPanel>
-                <StackPanel Orientation="Horizontal" uwpToolkitControls:DockPanel.Dock="Left">
+              <uwpControls:DockPanel>
+                <StackPanel Orientation="Horizontal" uwpControls:DockPanel.Dock="Left">
                   <StackPanel.Resources>
                     <Style TargetType="Border">
                       <Setter Property="BorderThickness" Value="1" />
@@ -192,14 +192,14 @@
                   </Border>
                 </StackPanel>
                 <TextBlock Text="{Binding CommunityName}" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" />
-              </uwpToolkitControls:DockPanel>
+              </uwpControls:DockPanel>
               <TextBlock Text="{Binding Title}" />
               <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7">
                 <Run Text="{Binding ElapsedTime, Converter={StaticResource TiemSpanToLocalizedString}}" />
                 <Run Text="{i18nExt:Localize Key=LiveElapsedAt}" />
               </TextBlock>
              </StackPanel>
-          </uwpToolkitControls:DockPanel>
+          </uwpControls:DockPanel>
         </muxc:NavigationViewItem>
       </DataTemplate>
 
@@ -216,8 +216,8 @@
             </core:EventTriggerBehavior>
           </i:Interaction.Behaviors>
           
-          <uwpToolkitControls:DockPanel>
-            <Grid uwpToolkitControls:DockPanel.Dock="Right">
+          <uwpControls:DockPanel>
+            <Grid uwpControls:DockPanel.Dock="Right">
               <Border Visibility="{Binding IsUnread}" Background="{ThemeResource SystemAccentColor}" CornerRadius="60" Width="32" Height="32">
                 <TextBlock Text="{Binding NotifyCount}" VerticalAlignment="Center" HorizontalAlignment="Center" />
               </Border>
@@ -227,7 +227,7 @@
             </Grid>
             
             <TextBlock Text="{i18nExt:Localize Key=NicoliveSearchMode.OnAir}" VerticalAlignment="Center" />
-          </uwpToolkitControls:DockPanel>
+          </uwpControls:DockPanel>
         </muxc:NavigationViewItem>
       </DataTemplate>
       
@@ -309,9 +309,9 @@
             <SymbolIcon Symbol="Play" />
           </muxc:NavigationViewItem.Icon>
 
-          <uwpToolkitControls:DockPanel>
+          <uwpControls:DockPanel>
 
-            <Border uwpToolkitControls:DockPanel.Dock="Right" Background="{ThemeResource SystemBaseMediumLowColor}" CornerRadius="60" Width="32" Height="32">
+            <Border uwpControls:DockPanel.Dock="Right" Background="{ThemeResource SystemBaseMediumLowColor}" CornerRadius="60" Width="32" Height="32">
               <TextBlock Text="{Binding QueuePlaylistCount.Value}" VerticalAlignment="Center" HorizontalAlignment="Center" />
             </Border>
               
@@ -320,7 +320,7 @@
             </TextBlock>
             
 
-          </uwpToolkitControls:DockPanel>
+          </uwpControls:DockPanel>
         </muxc:NavigationViewItem>
       </DataTemplate>
 
@@ -416,7 +416,32 @@
             <SymbolIcon Symbol="Globe" />
           </muxc:NavigationViewItem.Icon>
 
-          <TextBlock Text="{Binding Label}" />
+          <TextBlock Text="{Binding Label}" VerticalAlignment="Center" />
+
+        </muxc:NavigationViewItem>
+      </DataTemplate>
+
+      <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=Hohoema.ViewModels.SubscriptionGroupMenuItemViewModel, Converter={StaticResource StringToType}}" >
+        <muxc:NavigationViewItem>
+
+          <muxc:NavigationViewItem.ContextFlyout>
+            <MenuFlyout>
+              <MenuFlyoutItem Text="{i18nExt:Localize Key=Play}" 
+                              Command="{Binding PlayNewVideosCommand}"
+                              />
+              <MenuFlyoutItem Text="{i18nExt:Localize Key=ViewList}" 
+                              Command="{Binding OpenSubscriptionGroupVideoListPage}"
+                              />
+            </MenuFlyout>
+          </muxc:NavigationViewItem.ContextFlyout>
+
+          <uwpControls:DockPanel>
+            <Border uwpControls:DockPanel.Dock="Right" Background="{ThemeResource SystemBaseMediumLowColor}" CornerRadius="60" Width="32" Height="32">
+              <TextBlock Text="{Binding NewVideoCount}" VerticalAlignment="Center" HorizontalAlignment="Center" />
+            </Border>
+            <TextBlock Text="{Binding Label}" VerticalAlignment="Center" />
+          </uwpControls:DockPanel>
+
         </muxc:NavigationViewItem>
       </DataTemplate>
     </templateSelector:TypeBasedTemplateSelector>
@@ -440,7 +465,7 @@
     </DataTemplate>
     
     
-    <Style x:Key="BaseStyle" TargetType="uwpToolkitControls:ImageExBase">
+    <Style x:Key="BaseStyle" TargetType="uwpControls:ImageExBase">
       <Setter Property="IsCacheEnabled" Value="True" />
       <Setter Property="Stretch" Value="UniformToFill" />
       <Setter Property="PlaceholderStretch" Value="UniformToFill" />
@@ -450,7 +475,7 @@
       <Setter Property="Foreground" Value="White" />
     </Style>
     <!--Create a Style based on BaseStyle-->
-    <Style x:Key="RoundStyle" TargetType="uwpToolkitControls:ImageEx" BasedOn="{StaticResource BaseStyle}">
+    <Style x:Key="RoundStyle" TargetType="uwpControls:ImageEx" BasedOn="{StaticResource BaseStyle}">
       <Setter Property="Width" Value="48" />
       <Setter Property="Height" Value="48" />
       <Setter Property="CornerRadius" Value="999" />
@@ -481,8 +506,8 @@
           >
 
       </Grid>
-      <uwpToolkitControls:DockPanel>
-        <Border uwpToolkitControls:DockPanel.Dock="Top"
+      <uwpControls:DockPanel>
+        <Border uwpControls:DockPanel.Dock="Top"
               x:Name="MobilePlayerTopMargin"
               Height="{Binding ElementName=PlayerFrame, Path=ActualHeight, Mode=OneWay}"
               Visibility="Collapsed" />
@@ -625,28 +650,28 @@
 
                 </MenuFlyout>
               </Button.Flyout>
-              <uwpToolkitControls:SwitchPresenter x:Name="AccountButtonSwitchPresenter" Value="{x:Bind _viewModel.NiconicoSession.IsLoggedIn, Mode=OneWay}">
-                <uwpToolkitControls:Case IsDefault="True">
-                  <uwpToolkitControls:Case.Value>
+              <uwpControls:SwitchPresenter x:Name="AccountButtonSwitchPresenter" Value="{x:Bind _viewModel.NiconicoSession.IsLoggedIn, Mode=OneWay}">
+                <uwpControls:Case IsDefault="True">
+                  <uwpControls:Case.Value>
                     <x:Boolean>False</x:Boolean>
-                  </uwpToolkitControls:Case.Value>
+                  </uwpControls:Case.Value>
                   <StackPanel Orientation="Horizontal" Spacing="8">
                     <iconPack:PackIconMaterial Kind="Account" Margin="0 4 0 0" Height="16" Width="24" Foreground="Gray" />
                     <TextBlock Text="{i18nExt:Localize Key=Account}"
                                      Margin="2 0 0 0"
                              />
                   </StackPanel>
-                </uwpToolkitControls:Case>
+                </uwpControls:Case>
 
-                <uwpToolkitControls:Case>
-                  <uwpToolkitControls:Case.Value>
+                <uwpControls:Case>
+                  <uwpControls:Case.Value>
                     <x:Boolean>True</x:Boolean>
-                  </uwpToolkitControls:Case.Value>
-                  <uwpToolkitControls:DockPanel Margin="2 0 0 0"
+                  </uwpControls:Case.Value>
+                  <uwpControls:DockPanel Margin="2 0 0 0"
                                                   x:Name="AccountInfoLayout"
                                                       >
-                    <uwpToolkitControls:ImageEx Source="{x:Bind _viewModel.NiconicoSession.UserIconUrl,Mode=OneWay}"
-                             uwpToolkitControls:DockPanel.Dock="Left"
+                    <uwpControls:ImageEx Source="{x:Bind _viewModel.NiconicoSession.UserIconUrl,Mode=OneWay}"
+                             uwpControls:DockPanel.Dock="Left"
                              Height="22"
                              Width="22"
                              Margin="0 0 0 0"
@@ -656,9 +681,9 @@
                     <StackPanel Margin="11 0 0 0">
                       <TextBlock Text="{x:Bind _viewModel.NiconicoSession.UserName, Mode=OneWay}" VerticalAlignment="Center" TextLineBounds="TrimToBaseline" />
                     </StackPanel>
-                  </uwpToolkitControls:DockPanel>
-                </uwpToolkitControls:Case>
-              </uwpToolkitControls:SwitchPresenter>
+                  </uwpControls:DockPanel>
+                </uwpControls:Case>
+              </uwpControls:SwitchPresenter>
             </Button>
           </muxc:NavigationView.PaneFooter>
 
@@ -730,7 +755,7 @@
             </Frame>
           </muxc:NavigationView.Content>
         </muxc:NavigationView>
-      </uwpToolkitControls:DockPanel>
+      </uwpControls:DockPanel>
 
       
       <Grid x:Name="PlayerLayout"
@@ -857,10 +882,10 @@
         </i:Interaction.Behaviors>
         <liteInAppNotification:LiteInAppNotification.ContentTemplate>
           <DataTemplate x:DataType="service1:LiteNotificationPayload">
-            <uwpToolkitControls:DockPanel>
-              <winui:SymbolIcon Symbol="{x:Bind Symbol}" Visibility="{x:Bind IsDisplaySymbol}" uwpToolkitControls:DockPanel.Dock="Left" />
+            <uwpControls:DockPanel>
+              <winui:SymbolIcon Symbol="{x:Bind Symbol}" Visibility="{x:Bind IsDisplaySymbol}" uwpControls:DockPanel.Dock="Left" />
               <TextBlock Text="{x:Bind Content}" Margin="8 0 0 0" TextWrapping="Wrap" MaxLines="2" MaxWidth="350" />
-            </uwpToolkitControls:DockPanel>
+            </uwpControls:DockPanel>
 
           </DataTemplate>
         </liteInAppNotification:LiteInAppNotification.ContentTemplate>

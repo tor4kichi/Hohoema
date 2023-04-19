@@ -394,7 +394,11 @@ public sealed partial class SubscriptionGroupViewModel
     [RelayCommand]
     async Task PlayNewVideo()
     {
-        await _messenger.Send(VideoPlayRequestMessage.PlayPlaylist(SubscriptionGroup.GroupId.ToString(), PlaylistItemsSourceOrigin.SubscriptionGroup, string.Empty));
+        var video = _subscriptionManager.GetSubscFeedVideosNewerAt(SubscriptionGroup.GroupId, limit: 1).FirstOrDefault();
+        if (video != null)
+        {
+            await _messenger.Send(VideoPlayRequestMessage.PlayPlaylist(SubscriptionGroup.GroupId.ToString(), PlaylistItemsSourceOrigin.SubscriptionGroup, string.Empty, video.VideoId));
+        }
     }
 
 
@@ -542,7 +546,7 @@ public partial class SubscriptionViewModel
         var lastCheckedAt = _subscriptionManager.GetLastUpdatedAt(_source.SubscriptionId);
         _lastUpdatedAt = lastCheckedAt;
         _nextUpdateAt = _subscriptionManager.GetNextUpdateTime(lastCheckedAt);
-        _unwatchedVideoCount = _subscriptionManager.GetFeedVideosCountWithNewer(_source.SubscriptionId, lastCheckedAt);
+        _unwatchedVideoCount = _subscriptionManager.GetFeedVideosCountWithNewer(_source, lastCheckedAt);
         _hasNewVideos = _unwatchedVideoCount != 0;
 
         // Note: GroupVM側で IsParentGroupAutoUpdateEnabled を初期設定されるのに任せる
@@ -574,7 +578,7 @@ public partial class SubscriptionViewModel
 
         LastUpdatedAt = updatedAt;
         NextUpdateAt = _subscriptionManager.GetNextUpdateTime(updatedAt);
-        UnwatchedVideoCount = _subscriptionManager.GetFeedVideosCountWithNewer(_source.SubscriptionId, updatedAt);
+        UnwatchedVideoCount = _subscriptionManager.GetFeedVideosCountWithNewer(_source, updatedAt);
     }
     
     [RelayCommand]
@@ -594,7 +598,7 @@ public partial class SubscriptionViewModel
                 if (result.IsSuccessed)
                 {
                     LastUpdatedAt = result.UpdateAt;
-                    UnwatchedVideoCount = _subscriptionManager.GetFeedVideosCountWithNewer(_source.SubscriptionId, LastUpdatedAt);
+                    UnwatchedVideoCount = _subscriptionManager.GetFeedVideosCountWithNewer(_source, LastUpdatedAt);
                 }
                 else
                 {

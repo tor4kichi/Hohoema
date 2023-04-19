@@ -46,12 +46,12 @@ public sealed  class SubscriptionPlaylist
 
     public event NotifyCollectionChangedEventHandler? CollectionChanged;
 
-    public int TotalCount => _subscriptionManager.GetFeedVideosCountWithNewer(_subscription.SubscriptionId);
+    public int TotalCount => _subscriptionManager.GetFeedVideosCountWithNewer(_subscription);
 
     public async Task<IEnumerable<IVideoContent>> GetAllItemsAsync(IPlaylistSortOption sortOption, CancellationToken cancellationToken = default)
     {
         List<IVideoContent> videos = new();
-        foreach (var subscVideo in _subscriptionManager.GetSubscFeedVideosNewerAt(_subscription.SubscriptionId).OrderBy(x => x.PostAt))
+        foreach (var subscVideo in _subscriptionManager.GetSubscFeedVideosNewerAt(_subscription).OrderBy(x => x.PostAt))
         {
             var nicoVideo = await _nicoVideoProvider.GetCachedVideoInfoAsync(subscVideo.VideoId, cancellationToken);
             videos.Add(nicoVideo);

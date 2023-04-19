@@ -10,6 +10,7 @@ using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Mylist.LoginUser;
 using Hohoema.Models.PageNavigation;
 using Hohoema.Models.Pins;
+using Hohoema.Models.Playlist;
 using Hohoema.Models.Subscriptions;
 using Hohoema.Services;
 using Hohoema.Services.LocalMylist;
@@ -33,6 +34,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.Storage;
 using Windows.System;
@@ -1014,12 +1016,14 @@ public sealed partial class SubscriptionMenuItemViewModel
     , IRecipient<SubscriptionGroupDeletedMessage>
     , IRecipient<SubscriptionGroupReorderedMessage>
     , IRecipient<SettingsRestoredMessage>
+    , IRecipient<SubscriptionFeedUpdatedMessage>
+    , IRecipient<SubscriptionGroupCheckedAtChangedMessage>
     , IDisposable
 {
     private readonly IMessenger _messenger;
     private readonly SubscriptionManager _subscriptionManager;
 
-    public ObservableCollection<SubscriptionGroupNavigateAwareMenuItemViewModel> SubscGroups { get; }
+    public ObservableCollection<SubscriptionGroupMenuItemViewModel> SubscGroups { get; }
 
     public SubscriptionMenuItemViewModel(IMessenger messenger, SubscriptionManager subscriptionManager) 
         : base("SubscriptionNewVideos".Translate())
@@ -1039,6 +1043,8 @@ public sealed partial class SubscriptionMenuItemViewModel
         _messenger.Register<SubscriptionGroupDeletedMessage>(this);
         _messenger.Register<SubscriptionGroupReorderedMessage>(this);
         _messenger.Register<SettingsRestoredMessage>(this);
+        _messenger.Register<SubscriptionFeedUpdatedMessage>(this);
+        _messenger.Register<SubscriptionGroupCheckedAtChangedMessage>(this);
     }
 
     protected override void OnDispose()
@@ -1049,13 +1055,19 @@ public sealed partial class SubscriptionMenuItemViewModel
         _messenger.Unregister<SubscriptionGroupDeletedMessage>(this);
         _messenger.Unregister<SubscriptionGroupReorderedMessage>(this);
         _messenger.Unregister<SettingsRestoredMessage>(this);
+        _messenger.Unregister<SubscriptionFeedUpdatedMessage>(this);
+        _messenger.Unregister<SubscriptionGroupCheckedAtChangedMessage>(this);
+
     }
 
-    SubscriptionGroupNavigateAwareMenuItemViewModel ToMenuItemVM(SubscriptionGroup group)
+    SubscriptionGroupMenuItemViewModel ToMenuItemVM(SubscriptionGroup group)
     {
-        return new SubscriptionGroupNavigateAwareMenuItemViewModel(
-            group.GroupId, group.Name, HohoemaPageType.SubscVideoList, new NavigationParameters(("SubscGroupId", group.GroupId.ToString()))
-            );
+        return new SubscriptionGroupMenuItemViewModel(
+            group.GroupId, _messenger, _subscriptionManager, group.Name, HohoemaPageType.SubscVideoList, new NavigationParameters(("SubscGroupId", group.GroupId.ToString()))
+            )
+        {
+            NewVideoCount = _subscriptionManager.GetFeedVideosCountWithNewer(group.GroupId)
+        };
     }
 
     void IRecipient<SubscriptionGroupCreatedMessage>.Receive(SubscriptionGroupCreatedMessage message)
@@ -1092,14 +1104,74 @@ public sealed partial class SubscriptionMenuItemViewModel
     {
         _ = _messenger.SendNavigationRequestAsync(HohoemaPageType.SubscriptionManagement);
     }
-}
 
-public sealed class SubscriptionGroupNavigateAwareMenuItemViewModel : NavigateAwareMenuItemViewModel
-{
-    public SubscriptionGroupNavigateAwareMenuItemViewModel(SubscriptionGroupId groupId, string label, HohoemaPageType pageType, INavigationParameters paramaeter = null) : base(label, pageType, paramaeter)
+    void IRecipient<SubscriptionFeedUpdatedMessage>.Receive(SubscriptionFeedUpdatedMessage message)
     {
-        GroupId = groupId;
+        SubscriptionGroupId updateGroupId = message.Value.Subscription.Group?.GroupId ?? _subscriptionManager.DefaultSubscriptionGroup.GroupId;
+        foreach (var groupMenuItem in SubscGroups)
+        {
+            if (groupMenuItem.GroupId == updateGroupId)
+            {
+                groupMenuItem.NewVideoCount = _subscriptionManager.GetFeedVideosCountWithNewer(updateGroupId);
+                break;
+            }
+        }        
     }
 
+    void IRecipient<SubscriptionGroupCheckedAtChangedMessage>.Receive(SubscriptionGroupCheckedAtChangedMessage message)
+    {
+        SubscriptionGroupId updateGroupId = message.SubscriptionGroupId;
+        foreach (var groupMenuItem in SubscGroups)
+        {
+            if (groupMenuItem.GroupId == updateGroupId)
+            {
+                groupMenuItem.NewVideoCount = _subscriptionManager.GetFeedVideosCountWithNewer(updateGroupId);
+                break;
+            }
+        }
+    }
+}
+
+public sealed partial class SubscriptionGroupMenuItemViewModel : NavigateAwareMenuItemViewModel
+{
+    public SubscriptionGroupMenuItemViewModel(
+        SubscriptionGroupId groupId, 
+        IMessenger messenger,
+        SubscriptionManager subscriptionManager,
+        string label, 
+        HohoemaPageType pageType, 
+        INavigationParameters paramaeter = null
+        ) : base(label, pageType, paramaeter)
+    {
+        GroupId = groupId;
+        _messenger = messenger;
+        _subscriptionManager = subscriptionManager;
+    }
+
+    private readonly IMessenger _messenger;
+    private readonly SubscriptionManager _subscriptionManager;
+
     public SubscriptionGroupId GroupId { get; }
+
+    [ObservableProperty]
+    private int _newVideoCount;
+
+    [RelayCommand]
+    async Task PlayNewVideos()
+    {
+        var video = _subscriptionManager.GetSubscFeedVideosNewerAt(GroupId, limit: 1).FirstOrDefault();
+        if (video != null)
+        {
+            await _messenger.Send(VideoPlayRequestMessage.PlayPlaylist(GroupId.ToString(), PlaylistItemsSourceOrigin.SubscriptionGroup, string.Empty, video.VideoId));
+        }
+    }
+
+    [RelayCommand]
+    async Task OpenSubscriptionGroupVideoListPage()
+    {
+        await _messenger.SendNavigationRequestAsync(HohoemaPageType.SubscVideoList,
+            new NavigationParameters(("SubscGroupId", GroupId.ToString()))
+            );
+    }
+
 }

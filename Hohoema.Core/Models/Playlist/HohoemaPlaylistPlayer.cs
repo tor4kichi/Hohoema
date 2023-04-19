@@ -216,15 +216,24 @@ public abstract class PlaylistPlayer : ObservableObject, IDisposable
     {
         //Guard.IsNotNull(BufferedPlaylistItemsSource, nameof(BufferedPlaylistItemsSource));
 
-
+        if (CurrentPlaylistItem != null)
+        {
+            OnVideoPlayed(CurrentPlaylistItem, video);
+        }
+            
         CurrentPlayingIndex = index;
         CurrentPlaylistItem = video;
     }
 
     protected void ClearCurrentContent()
     {
-        CurrentPlayingIndex = -1;
+        if (CurrentPlaylistItem != null)
+        {
+            OnVideoPlayed(CurrentPlaylistItem, null);
+        }
+
         CurrentPlaylistItem = null;
+        CurrentPlayingIndex = -1;
     }
 
     private IVideoContent? _currentPlaylistItem;
@@ -238,26 +247,30 @@ public abstract class PlaylistPlayer : ObservableObject, IDisposable
             {
                 if (watchedVideo != null)
                 {
-                    if (CurrentPlayingIndex == InvalidIndex) { return; }
-
-                    if (CurrentPlaylist is IPlaylistItemWatchedAware playlistWatchedAware)
-                    {
-                        playlistWatchedAware.OnVideoWatched(watchedVideo);
-                    }
-
-                    if (CurrentPlaylist is QueuePlaylist queuePlaylist)
-                    {
-                        if (_currentPlaylistItem != null)
-                        {
-                            CurrentPlayingIndex = queuePlaylist.IndexOf(_currentPlaylistItem);
-                        }
-                        _maxItemsCount = queuePlaylist.TotalCount;
-                    }
+                    
                 }
             }
         }
     }
 
+    private void OnVideoPlayed(IVideoContent videoWatched, IVideoContent? currentPlaylistItem)
+    {
+        if (CurrentPlaylist is IPlaylistItemWatchedAware playlistWatchedAware)
+        {
+            playlistWatchedAware.OnVideoWatched(videoWatched);
+        }
+
+        if (CurrentPlaylist is QueuePlaylist queuePlaylist)
+        {
+            if (currentPlaylistItem != null)
+            {
+                CurrentPlayingIndex = queuePlaylist.IndexOf(currentPlaylistItem);
+            }
+            _maxItemsCount = queuePlaylist.TotalCount;
+        }
+
+
+    }
 
     protected void Clear()
     {

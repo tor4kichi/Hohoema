@@ -469,15 +469,17 @@ public sealed class SubscriptionManager
         return _subscFeedVideoRepository.GetVideosOlderAt(targetPostAt, skip, limit);
     }
 
-    public IEnumerable<SubscFeedVideo> GetSubscFeedVideosOlderAt(SubscriptionId subscriptionId, DateTime? targetPostAt = null, int skip = 0, int limit = int.MaxValue)
+    public IEnumerable<SubscFeedVideo> GetSubscFeedVideosOlderAt(Subscription subscription, DateTime? targetPostAt = null, int skip = 0, int limit = int.MaxValue)
     {
-        return _subscFeedVideoRepository.GetVideosOlderAt(subscriptionId, targetPostAt ?? GetLastUpdatedAt(subscriptionId), skip, limit);
+        var lastCheckedAt = targetPostAt ?? GetLastCheckedAt(subscription.Group?.GroupId ?? DefaultSubscriptionGroup.GroupId);
+        return _subscFeedVideoRepository.GetVideosOlderAt(subscription.SubscriptionId, lastCheckedAt, skip, limit);
     }
 
-    public IEnumerable<SubscFeedVideo> GetSubscFeedVideosOlderAt(SubscriptionGroupId? groupId, DateTime targetPostAt, int skip = 0, int limit = int.MaxValue)
+    public IEnumerable<SubscFeedVideo> GetSubscFeedVideosOlderAt(SubscriptionGroupId? groupId, DateTime? targetPostAt = null, int skip = 0, int limit = int.MaxValue)
     {
+        var lastCheckedAt = targetPostAt ?? GetLastCheckedAt(groupId ?? throw new InvalidOperationException());
         var subscIds = GetSubscriptionGroupSubscriptions(groupId).Select(x => x.SubscriptionId);
-        return _subscFeedVideoRepository.GetVideosOlderAt(subscIds, targetPostAt, skip, limit);
+        return _subscFeedVideoRepository.GetVideosOlderAt(subscIds, lastCheckedAt, skip, limit);
     }
 
     public IEnumerable<SubscFeedVideo> GetSubscFeedVideosNewerAt(DateTime targetPostAt, int skip = 0, int limit = int.MaxValue)
@@ -485,15 +487,17 @@ public sealed class SubscriptionManager
         return _subscFeedVideoRepository.GetVideosNewerAt(targetPostAt, skip, limit);
     }
 
-    public IEnumerable<SubscFeedVideo> GetSubscFeedVideosNewerAt(SubscriptionId subscriptionId, DateTime? targetPostAt = null, int skip = 0, int limit = int.MaxValue)
+    public IEnumerable<SubscFeedVideo> GetSubscFeedVideosNewerAt(Subscription subscription, DateTime? targetPostAt = null, int skip = 0, int limit = int.MaxValue)
     {
-        return _subscFeedVideoRepository.GetVideosNewerAt(subscriptionId, targetPostAt ?? GetLastUpdatedAt(subscriptionId), skip, limit);
+        var lastCheckedAt = targetPostAt ?? GetLastCheckedAt(subscription.Group?.GroupId ?? DefaultSubscriptionGroup.GroupId);
+        return _subscFeedVideoRepository.GetVideosNewerAt(subscription.SubscriptionId, lastCheckedAt, skip, limit);
     }
 
-    public IEnumerable<SubscFeedVideo> GetSubscFeedVideosNewerAt(SubscriptionGroupId? groupId, DateTime targetPostAt, int skip = 0, int limit = int.MaxValue)
+    public IEnumerable<SubscFeedVideo> GetSubscFeedVideosNewerAt(SubscriptionGroupId? groupId, DateTime? targetPostAt = null, int skip = 0, int limit = int.MaxValue)
     {
+        var lastCheckedAt = targetPostAt ?? GetLastCheckedAt(groupId ?? throw new InvalidOperationException());
         var subscIds = GetSubscriptionGroupSubscriptions(groupId).Select(x => x.SubscriptionId);
-        return _subscFeedVideoRepository.GetVideosNewerAt(subscIds, targetPostAt, skip, limit);
+        return _subscFeedVideoRepository.GetVideosNewerAt(subscIds, lastCheckedAt, skip, limit);
     }
 
     public int GetFeedVideosCount(SubscriptionId subscriptionId)
@@ -506,19 +510,21 @@ public sealed class SubscriptionManager
         return GetSubscriptions(subscriptionGroupId).Sum(x => GetFeedVideosCount(x.SubscriptionId));
     }
 
-    public int GetFeedVideosCountWithNewer(SubscriptionId subscriptionId, DateTime? dateTime = null)
+    public int GetFeedVideosCountWithNewer(Subscription subscription, DateTime? dateTime = null)
     {
-        return _subscFeedVideoRepository.GetVideoCountWithDateTimeNewer(subscriptionId, dateTime ?? GetLastUpdatedAt(subscriptionId));
+        DateTime lastCheckedAt = dateTime ?? GetLastCheckedAt(subscription.Group?.GroupId ?? DefaultSubscriptionGroup.GroupId);
+        return _subscFeedVideoRepository.GetVideoCountWithDateTimeNewer(subscription.SubscriptionId, lastCheckedAt);
     }
 
-    public int GetFeedVideosCountWithNewer(SubscriptionGroupId subscriptionGroupId)
+    public int GetFeedVideosCountWithNewer(SubscriptionGroupId subscriptionGroupId, DateTime? targetDateTime = null)
     {
-        return GetSubscriptions(subscriptionGroupId).Sum(x => GetFeedVideosCountWithNewer(x.SubscriptionId, GetLastUpdatedAt(x.SubscriptionId)));
+        targetDateTime ??= GetLastCheckedAt(subscriptionGroupId);
+        return GetSubscriptions(subscriptionGroupId).Sum(x => GetFeedVideosCountWithNewer(x, targetDateTime));
     }
 
     public int GetFeedVideosCountWithNewer(DateTime dateTime)
     {
-        return GetSubscriptions().Sum(x => GetFeedVideosCountWithNewer(x.SubscriptionId, dateTime));
+        return GetSubscriptions().Sum(x => GetFeedVideosCountWithNewer(x, dateTime));
     }
 
 
