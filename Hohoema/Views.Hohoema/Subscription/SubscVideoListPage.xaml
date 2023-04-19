@@ -20,9 +20,34 @@
   
  >
   <Page.Resources>
-    <local:SubscVideoListItemTemplateSelector x:Key="SubscVideoListItemDataTemplateSelector"
-                                              SubscListItem="{StaticResource VideoListItemControlDefaultTemplate}"
+    <local:SubscVideoListItemTemplateSelector x:Key="SubscVideoListItemDataTemplateSelector"          
                                               >
+      <local:SubscVideoListItemTemplateSelector.SubscListItem>
+        <DataTemplate x:DataType="subscPageVM:SubscVideoListItemViewModel">
+          <Grid>
+            <videoList:VideoListItemControl 
+                Title="{x:Bind Label}"                 
+                ImageSource="{x:Bind ThumbnailUrl}"
+                Length="{x:Bind Length, Converter={StaticResource TimeToMovieLengthConverter}}"  
+                IsQueueItem="{x:Bind IsQueueItem, Mode=OneWay}"
+                IsWatched="{x:Bind IsWatched, Mode=OneWay}"
+                IsDeleted="{x:Bind IsDeleted}"
+                IsHidden="{x:Bind VideoHiddenInfo, Mode=OneWay, Converter={StaticResource NotNullToBoolean}}"
+                CacheStatus="{x:Bind CacheStatus, Mode=OneWay}"
+                PostedAt="{x:Bind PostedAt, Converter={StaticResource DateTimeToString}}"
+                PrivateReason="{x:Bind PrivateReason, Converter={StaticResource LocalizeConverter}}"
+                ViewCount="{x:Bind ViewCount, Converter={StaticResource ToUserFriendlyNumber}}"
+                CommentCount="{x:Bind CommentCount, Converter={StaticResource ToUserFriendlyNumber}}"
+                MylistCount="{x:Bind MylistCount, Converter={StaticResource ToUserFriendlyNumber}}"
+              />
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Right">
+              <TextBlock Opacity="0.7" Style="{StaticResource CaptionTextBlockStyle}" >
+                <Run Text="{x:Bind SourceLabel}" /> (<Run Text="{x:Bind SourceType, Converter={StaticResource LocalizeConverter}}" />)
+              </TextBlock>
+            </StackPanel>
+          </Grid>
+        </DataTemplate>
+      </local:SubscVideoListItemTemplateSelector.SubscListItem>
       <local:SubscVideoListItemTemplateSelector.Separator>
         <DataTemplate x:DataType="subscPageVM:SubscVideoSeparatorListItemViewModel">
           <StackPanel Orientation="Horizontal" HorizontalAlignment="Center"

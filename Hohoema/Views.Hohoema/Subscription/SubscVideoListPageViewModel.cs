@@ -481,7 +481,10 @@ public sealed partial class SubscVideoListItemViewModel
 
     private readonly Models.Subscriptions.Subscription _subscription;
     private readonly SubscriptionManager _subscriptionManager;
-    private readonly SubscriptionGroupPlaylist _subscriptionGroupPlaylist;    
+    private readonly SubscriptionGroupPlaylist _subscriptionGroupPlaylist;
+
+    public SubscriptionSourceType SourceType => _subscription.SourceType;
+    public string SourceLabel => _subscription.Label;
 
     public (string id, SubscriptionSourceType sourceType, string? label) GetSubscriptionParameter()
     {
