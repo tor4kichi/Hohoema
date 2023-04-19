@@ -170,7 +170,7 @@ public sealed class SubscriptionManager
         {
             group.Order = index;
         }
-        _subscriptionGroupRepository.UpdateItem(groups);
+        _subscriptionGroupRepository.UpdateItem(groups.Where(x => x.IsDefaultGroup is false));
 
         _messenger.Send(new SubscriptionGroupReorderedMessage(groups.ToList()));
     }
@@ -276,6 +276,7 @@ public sealed class SubscriptionManager
 
     public void UpdateSubscriptionGroup(SubscriptionGroup group)
     {
+        if (group.IsDefaultGroup) { return; }
         _subscriptionGroupRepository.UpdateItem(group);
     }
 

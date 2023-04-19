@@ -216,10 +216,10 @@ StopSubscribe? = 新着チェックをやめていいですか？
 StopSubscribe = 新着チェックをやめる
 
 OpenSubscriptionSourceVideoList = 動画一覧を開く
-ReorderSubsciprionSource_Move = 移動
-ReorderSubsciprionSource_MovePreview = 一つ上へ移動
-ReorderSubsciprionSource_MoveNext = 一つ下へ移動
-ReorderSubsciprionSource_MoveToHead = 先頭へ移動
+ReorderSubsciprionSource_Move = 並び順の変更...
+ReorderSubsciprionSource_MovePreview = 一つ前へ移動
+ReorderSubsciprionSource_MoveNext = 一つ後ろへ移動
+ReorderSubsciprionSource_MoveToHead = 最前へ移動
 ReorderSubsciprionSource_MoveToTail = 最後尾へ移動
 
 Notification_SuccessAddSubscriptionSourceWithLabel = 「{0}」を新着チェックに追加しました

@@ -216,11 +216,11 @@ StopSubscribe? = 我可以停止检查新来者吗？
 StopSubscribe = 停止检查新来者
 
 OpenSubscriptionSourceVideoList = 打开视频列表
-ReorderSubsciprionSource_Move = 移动
-ReorderSubsciprionSource_MovePreview = 上移一个
-ReorderSubsciprionSource_MoveNext = 下移一个
-ReorderSubsciprionSource_MoveToHead = 移到顶部
-ReorderSubsciprionSource_MoveToTail = 移到最后
+ReorderSubsciprionSource_Move = 更改排序顺序...
+ReorderSubsciprionSource_MovePreview = 前进
+ReorderSubsciprionSource_MoveNext = 退一
+ReorderSubsciprionSource_MoveToHead = 移到前面
+ReorderSubsciprionSource_MoveToTail = 移动到最后
 
 Notification_SuccessAddSubscriptionSourceWithLabel = 向新支票添加“{0}”
 Notification_FailedSubscriptionUpdate = 订阅续订失败

@@ -216,10 +216,10 @@ StopSubscribe? = Can I stop checking for new arrivals?
 StopSubscribe = Stop checking new arrivals
 
 OpenSubscriptionSourceVideoList = Open video list
-ReorderSubsciprionSource_Move = Move
-ReorderSubsciprionSource_MovePreview = Move up one
-ReorderSubsciprionSource_MoveNext = Move down one
-ReorderSubsciprionSource_MoveToHead = Move to the top
+ReorderSubsciprionSource_Move = Change the sort order...
+ReorderSubsciprionSource_MovePreview = Move forward
+ReorderSubsciprionSource_MoveNext = Move back
+ReorderSubsciprionSource_MoveToHead = Move to front
 ReorderSubsciprionSource_MoveToTail = Move to the end
 
 Notification_SuccessAddSubscriptionSourceWithLabel = Added "{0}" to subscription.

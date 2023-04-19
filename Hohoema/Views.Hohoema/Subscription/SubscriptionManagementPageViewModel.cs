@@ -116,7 +116,7 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
 
     SubscriptionGroupViewModel ToSubscriptionGroupVM(SubscriptionGroup subscriptionGroup)
     {
-        return new SubscriptionGroupViewModel(subscriptionGroup, _subscriptionManager, _scheduler, _logger, _messenger, _dialogService);
+        return new SubscriptionGroupViewModel(this, subscriptionGroup, _subscriptionManager, _scheduler, _logger, _messenger, _dialogService);
     }
 
     void ClearSubscriptionGroupVM()
@@ -244,6 +244,7 @@ public sealed partial class SubscriptionGroupViewModel
     public ObservableCollection<SubscriptionViewModel> Subscriptions { get; }
     public SubscriptionGroup SubscriptionGroup { get; }
 
+    private readonly SubscriptionManagementPageViewModel _pageVM;
     private readonly SubscriptionManager _subscriptionManager;
     private readonly IScheduler _scheduler;
     private readonly ILogger _logger;
@@ -278,6 +279,7 @@ public sealed partial class SubscriptionGroupViewModel
     }
 
     public SubscriptionGroupViewModel(
+        SubscriptionManagementPageViewModel pageVM,
         SubscriptionGroup subscriptionGroup,
         SubscriptionManager subscriptionManager,
         IScheduler scheduler,
@@ -286,6 +288,7 @@ public sealed partial class SubscriptionGroupViewModel
         IDialogService dialogService
         )
     {
+        _pageVM = pageVM;
         SubscriptionGroup = subscriptionGroup;
         _subscriptionManager = subscriptionManager;
         _scheduler = scheduler;
@@ -457,7 +460,60 @@ public sealed partial class SubscriptionGroupViewModel
         }
     }
 
-    
+
+
+    void SaveOrder()
+    {
+        _subscriptionManager.ReoderSubscriptionGroups(_pageVM.SubscriptionGroups.Select(x => x.SubscriptionGroup));
+    }
+
+    [RelayCommand]
+    void MoveToPreview()
+    {        
+        var index = _pageVM.SubscriptionGroups.IndexOf(this);
+        if (index - 1 >= 1) //  デフォルトグループは常に先頭として扱う
+        {
+            _pageVM.SubscriptionGroups.Remove(this);
+            _pageVM.SubscriptionGroups.Insert(index - 1, this);
+        }
+
+        SaveOrder();
+    }
+
+    [RelayCommand]
+    void MoveToNext()
+    {
+        var index = _pageVM.SubscriptionGroups.IndexOf(this);
+        if (index + 1 < _pageVM.SubscriptionGroups.Count)
+        {
+            _pageVM.SubscriptionGroups.Remove(this);
+            _pageVM.SubscriptionGroups.Insert(index + 1, this);
+        }
+
+        SaveOrder();
+    }
+
+    [RelayCommand]
+    void MoveToHead()
+    {
+        if (this == _pageVM.SubscriptionGroups.FirstOrDefault()) { return; }
+        _pageVM.SubscriptionGroups.Remove(this);
+        _pageVM.SubscriptionGroups.Insert(1, this); //  デフォルトグループは常に先頭として扱う
+
+        SaveOrder();
+    }
+
+    [RelayCommand]
+    void MoveToTail()
+    {
+        if (this == _pageVM.SubscriptionGroups.LastOrDefault()) { return; }
+
+        _pageVM.SubscriptionGroups.Remove(this);
+        _pageVM.SubscriptionGroups.Add(this);
+
+        SaveOrder();
+    }
+
 }
 
 
