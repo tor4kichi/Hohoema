@@ -61,7 +61,7 @@
 
               <StackPanel Orientation="Horizontal">
                 <SymbolIcon Symbol="Play"></SymbolIcon>
-                <TextBlock Text="ここから視聴する" />
+                <TextBlock Text="" />
               </StackPanel>
             </Button>
 

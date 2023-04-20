@@ -264,22 +264,22 @@
         <extensions:ListViewBase.GroupHeaderContextFlyoutTemplate>
           <DataTemplate>
             <MenuFlyout Placement="Bottom">
-              <MenuFlyoutItem Text="動画一覧を開く" Command="{Binding OpenSubscVideoListPageCommand}" />
+              <MenuFlyoutItem Text="{i18nExt:Localize Key=OpenSubscriptionSourceVideoList}" Command="{Binding OpenSubscVideoListPageCommand}" />
               <MenuFlyoutSeparator />
-              <ToggleMenuFlyoutItem Text="自動更新" IsChecked="{Binding IsAutoUpdateEnabled, Mode=TwoWay}" Command="{Binding OpenSubscVideoListPageCommand}" />
-              <MenuFlyoutItem Text="ラベルを変更" Command="{Binding RenameSubscriptionGroupCommand}" Visibility="{Binding SubscriptionGroup.IsDefaultGroup, Converter={StaticResource BooleanToVisibilityInverted}}" />
+              <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=SubscriptionsAutoUpdateRunning}" IsChecked="{Binding IsAutoUpdateEnabled, Mode=TwoWay}" Command="{Binding OpenSubscVideoListPageCommand}" />
+              <MenuFlyoutItem Text="{i18nExt:Localize Key=SubscGroup_Rename}" Command="{Binding RenameSubscriptionGroupCommand}" Visibility="{Binding SubscriptionGroup.IsDefaultGroup, Converter={StaticResource BooleanToVisibilityInverted}}" />
               <MenuFlyoutSubItem Text="{i18nExt:Localize Key=ReorderSubsciprionSource_Move}" Visibility="{Binding SubscriptionGroup.IsDefaultGroup, Converter={StaticResource BooleanToVisibilityInverted}}">
                 <MenuFlyoutItem Text="{i18nExt:Localize Key=ReorderSubsciprionSource_MovePreview}" Command="{Binding MoveToPreviewCommand}"/>
                 <MenuFlyoutItem Text="{i18nExt:Localize Key=ReorderSubsciprionSource_MoveNext}" Command="{Binding MoveToNextCommand}" />
                 <MenuFlyoutItem Text="{i18nExt:Localize Key=ReorderSubsciprionSource_MoveToHead}" Command="{Binding MoveToHeadCommand}" />
                 <MenuFlyoutItem Text="{i18nExt:Localize Key=ReorderSubsciprionSource_MoveToTail}" Command="{Binding MoveToTailCommand}" />
               </MenuFlyoutSubItem>
-              <MenuFlyoutSubItem Text="表示と通知の設定">
-                <ToggleMenuFlyoutItem Text="通知する" IsChecked="{Binding IsToastNotificationEnabled, Mode=TwoWay}" />
-                <ToggleMenuFlyoutItem Text="アプリメニューに表示する" IsChecked="{Binding IsShowInAppMenu, Mode=TwoWay}" />
+              <MenuFlyoutSubItem Text="{i18nExt:Localize Key=SubscGroupSettings}">
+                <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=SubscGroupSettings_Notification}" IsChecked="{Binding IsToastNotificationEnabled, Mode=TwoWay}" />
+                <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=SubscGroupSettings_ShowAppMenu}" IsChecked="{Binding IsShowInAppMenu, Mode=TwoWay}" />
               </MenuFlyoutSubItem>
               <MenuFlyoutSeparator />
-              <MenuFlyoutItem Text="削除..." Command="{Binding DeleteSubscriptionGroupCommand}" Visibility="{Binding SubscriptionGroup.IsDefaultGroup, Converter={StaticResource BooleanToVisibilityInverted}}" />
+              <MenuFlyoutItem Text="{i18nExt:Localize Key=Delete}" Command="{Binding DeleteSubscriptionGroupCommand}" Visibility="{Binding SubscriptionGroup.IsDefaultGroup, Converter={StaticResource BooleanToVisibilityInverted}}" />
             </MenuFlyout>
           </DataTemplate>
         </extensions:ListViewBase.GroupHeaderContextFlyoutTemplate>

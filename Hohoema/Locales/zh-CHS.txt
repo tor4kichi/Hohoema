@@ -242,6 +242,11 @@ SubscVideos_MarkAsChecked = 标记为选中
 SubscVideos_AllMarkAsChecked = 全部勾选
 Subsc_UnwatchedVideoCount = 新的 {0} 个视频
 
+SubscGroupSettings = 显示和通知设置
+SubscGroupSettings_Notification = 启用通知
+SubscGroupSettings_ShowAppMenu = 在应用程序菜单中显示
+
+SubscGroup_PlayFromHere = 看这里
 
 #### Settings ####
 MenuPaneDisplayMode = 菜单显示位置

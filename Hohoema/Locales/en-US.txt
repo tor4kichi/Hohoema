@@ -242,6 +242,11 @@ SubscVideos_MarkAsChecked = Mark as checked
 SubscVideos_AllMarkAsChecked = Mark all checked
 Subsc_UnwatchedVideoCount = New {0} videos
 
+SubscGroupSettings = Display and notification settings
+SubscGroupSettings_Notification = Enable notifications
+SubscGroupSettings_ShowAppMenu = Show in app menu
+
+SubscGroup_PlayFromHere = Watch from here
 
 #### Settings ####
 MenuPaneDisplayMode = Menu display position

@@ -242,6 +242,11 @@ SubscVideos_MarkAsChecked = チェック済みにマーク
 SubscVideos_AllMarkAsChecked = すべてチェック済みにマーク
 Subsc_UnwatchedVideoCount = 新着 {0}動画
 
+SubscGroupSettings = 表示と通知の設定
+SubscGroupSettings_Notification = 通知を有効にする
+SubscGroupSettings_ShowAppMenu = アプリメニューに表示する
+
+SubscGroup_PlayFromHere = ここから視聴する
 
 #### Settings ####
 MenuPaneDisplayMode = メニューの表示位置
