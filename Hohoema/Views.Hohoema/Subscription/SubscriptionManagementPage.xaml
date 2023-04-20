@@ -121,8 +121,8 @@
         >
         <GridView.ItemsPanel>
           <ItemsPanelTemplate>
-            <ItemsWrapGrid Orientation="Vertical" ItemWidth="380"     
-                           ItemHeight="92"
+            <ItemsWrapGrid Orientation="Vertical" ItemWidth="340"     
+                           ItemHeight="108"
                            Margin="16 0"                           
                            />
           </ItemsPanelTemplate>
@@ -140,13 +140,18 @@
                             Margin="0 0 8 0"                                
                             controls:DockPanel.Dock="Left"
                             />
-                  
-                  <StackPanel Orientation="Horizontal" controls:DockPanel.Dock="Right" Spacing="8">
-                    <Button Command="{x:Bind PlayNewVideoCommand}" IsEnabled="{x:Bind HasNewVideos, Mode=OneWay}">
+
+                  <StackPanel Orientation="Horizontal" controls:DockPanel.Dock="Right" Spacing="16">
+                    <Button Command="{x:Bind PlayNewVideoCommand}" IsEnabled="{x:Bind HasNewVideos, Mode=OneWay}"
+                            ToolTipService.ToolTip="{i18nExt:Localize Key=SubscGroup_AllPlayUnwatched}"
+                            >
+
                       <SymbolIcon Symbol="Play" />
                     </Button>
-                    <Button Command="{x:Bind OpenSubscVideoListPageCommand}">
-                      <SymbolIcon Symbol="List" />
+                    <Button Command="{x:Bind AddToQueueCommand}" IsEnabled="{x:Bind HasNewVideos, Mode=OneWay}"
+                            ToolTipService.ToolTip="{i18nExt:Localize Key=SubscGroup_AddToQueue}"                        
+                            >
+                      <SymbolIcon Symbol="Add" />
                     </Button>
                   </StackPanel>
 
@@ -158,7 +163,7 @@
               <Style TargetType="GridViewHeaderItem">
                 <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
-                <Setter Property="MinWidth" Value="380" />
+                <Setter Property="MinWidth" Value="340" />
                 <Setter Property="Padding" Value="8 8 12 0" />
               </Style>
             </GroupStyle.HeaderContainerStyle>
@@ -169,36 +174,38 @@
         <ItemsControl.ItemTemplate>
           <DataTemplate x:DataType="subscriptionVM:SubscriptionViewModel">
             <controls:DockPanel>
-
-              <controls:DockPanel controls:DockPanel.Dock="Bottom" >
-                <Grid controls:DockPanel.Dock="Right" Background="{ThemeResource BackButtonBackgroundThemeBrush}" CornerRadius="4" Height="24" Margin="0 0 8 0"
-                      Visibility="{x:Bind HasNewVideos, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}"
-                      >
-                  <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <Run Text="{x:Bind UnwatchedVideoCount, Mode=OneWay, Converter={StaticResource LocalizeWithParameterConverter}, ConverterParameter=Subsc_UnwatchedVideoCount}" />
-                  </TextBlock>
-                </Grid>
-                
-                <StackPanel Orientation="Horizontal" Spacing="16">
-                  <TextBlock HorizontalAlignment="Right" Opacity="0.5">
-                    <Run Text="{i18nExt:Localize Key=SubscriptionsPrevUpdateTime}" />:<Run Text="{x:Bind LastUpdatedAt, Converter={StaticResource DateTimeToString}, ConverterParameter=t}" />
-                  </TextBlock>
-                  <TextBlock HorizontalAlignment="Right" Opacity="0.5" Visibility="{x:Bind CombinedAutoUpdateEnabledSubscAndGroup, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}">
-                    <Run Text="{i18nExt:Localize Key=SubscriptionsNextUpdateTime}" />:<Run Text="{x:Bind NextUpdateAt, Converter={StaticResource DateTimeToString}, ConverterParameter=t}" />
-                  </TextBlock>
-                </StackPanel>
-              </controls:DockPanel>
-
-
-              <StackPanel Orientation="Horizontal" controls:DockPanel.Dock="Right" Spacing="8">
+              <controls:WrapPanel Orientation="Horizontal" controls:DockPanel.Dock="Bottom" HorizontalSpacing="8"
+                                  VerticalSpacing="8"
+                          HorizontalAlignment="Center"
+                                  Margin="0 8 0 0"
+                          >
                 <Button Command="{x:Bind PlayVideoItemCommand}" IsEnabled="{x:Bind HasNewVideos, Mode=OneWay}">
-                  <SymbolIcon Symbol="Play" />
+
+                  <StackPanel Orientation="Horizontal">
+                    <SymbolIcon Symbol="Play" />
+                    <TextBlock Text="{i18nExt:Localize Key=SubscGroup_AllPlayUnwatched}" />
+                  </StackPanel>
                 </Button>
-                <Button Command="{x:Bind OpenSourceVideoListPageCommand}">
-                  <SymbolIcon Symbol="List" />
+                <Button Command="{x:Bind AddToQueueCommand}" IsEnabled="{x:Bind HasNewVideos, Mode=OneWay}"
+                        >
+                  <StackPanel Orientation="Horizontal">
+                    <SymbolIcon Symbol="Add" />
+                    <TextBlock Text="{i18nExt:Localize Key=SubscGroup_AddToQueue}" />
+                  </StackPanel>
                 </Button>
-              </StackPanel>
-              
+
+              </controls:WrapPanel>
+
+              <Grid controls:DockPanel.Dock="Right" Background="{ThemeResource SystemAccentColor}" 
+                    CornerRadius="16" Width="32" Height="32" Margin="0 0 8 0"
+                    Opacity="0.7"                    
+                    >
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Run Text="{x:Bind UnwatchedVideoCount, Mode=OneWay}" />
+                </TextBlock>
+              </Grid>
+
+
 
               <SymbolIcon Symbol="Sort" controls:DockPanel.Dock="Left" Opacity="0.5" Margin="0 0 8 0" Visibility="Collapsed" />
 
@@ -239,7 +246,7 @@
         <extensions:ListViewBase.ItemContextFlyoutTemplate>
           <DataTemplate>
             <MenuFlyout Placement="Bottom" Opened="MenuFlyout_Opened">
-              <MenuFlyoutItem Text="{i18nExt:Localize Key=Play}" Command="{Binding PlayVideoItemCommand}" />
+              <MenuFlyoutItem Text="{i18nExt:Localize Key=Play}" Command="{Binding PlayVideoItemCommand}" Visibility="Collapsed" />
               <MenuFlyoutItem Text="{i18nExt:Localize Key=OpenSubscriptionSourceVideoList}" Command="{Binding OpenSourceVideoListPageCommand}" />
               <MenuFlyoutSeparator />
               <MenuFlyoutItem Text="{i18nExt:Localize Key=Refresh}" Command="{Binding UpdateCommand}" IsEnabled="{Binding CombinedAutoUpdateEnabledSubscAndGroup, Mode=OneWay, Converter={StaticResource BoolNegation}}" />
@@ -254,6 +261,10 @@
                 <MenuFlyoutItem Text="{i18nExt:Localize Key=ReorderSubsciprionSource_MoveNext}" Command="{Binding MoveToNextCommand}" />
                 <MenuFlyoutItem Text="{i18nExt:Localize Key=ReorderSubsciprionSource_MoveToHead}" Command="{Binding MoveToHeadCommand}" />
                 <MenuFlyoutItem Text="{i18nExt:Localize Key=ReorderSubsciprionSource_MoveToTail}" Command="{Binding MoveToTailCommand}" />
+              </MenuFlyoutSubItem>
+              <MenuFlyoutSubItem Text="{i18nExt:Localize Key=SubscGroupSettings}">
+                <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=SubscGroupSettings_AddToQueue}" IsChecked="{Binding IsAddToQueueWhenUpdated, Mode=TwoWay}" />
+                <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=SubscGroupSettings_Notification}" IsChecked="{Binding IsToastNotificationEnabled, Mode=TwoWay}" />
               </MenuFlyoutSubItem>
               <MenuFlyoutSeparator />
               <MenuFlyoutItem Text="{i18nExt:Localize Key=StopSubscribe}" Command="{Binding DeleteSubscriptionCommand}" />
@@ -275,6 +286,7 @@
                 <MenuFlyoutItem Text="{i18nExt:Localize Key=ReorderSubsciprionSource_MoveToTail}" Command="{Binding MoveToTailCommand}" />
               </MenuFlyoutSubItem>
               <MenuFlyoutSubItem Text="{i18nExt:Localize Key=SubscGroupSettings}">
+                <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=SubscGroupSettings_AddToQueue}" IsChecked="{Binding IsAddToQueueWhenUpdated, Mode=TwoWay}" />
                 <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=SubscGroupSettings_Notification}" IsChecked="{Binding IsToastNotificationEnabled, Mode=TwoWay}" />
                 <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=SubscGroupSettings_ShowAppMenu}" IsChecked="{Binding IsShowInAppMenu, Mode=TwoWay}" />
               </MenuFlyoutSubItem>

@@ -48,6 +48,7 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
     private readonly SubscriptionManager _subscriptionManager;
     private readonly SubscriptionUpdateManager _subscriptionUpdateManager;
     private readonly DialogService _dialogService;
+    private readonly QueuePlaylist _queuePlaylist;
     private readonly IScheduler _scheduler;
     private readonly IMessenger _messenger;
     private readonly ILogger<SubscriptionManagementPageViewModel> _logger;
@@ -72,7 +73,8 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
         SubscriptionUpdateManager subscriptionUpdateManager,
         DialogService dialogService,
         PageManager pageManager,
-        ApplicationLayoutManager applicationLayoutManager
+        ApplicationLayoutManager applicationLayoutManager,
+        QueuePlaylist queuePlaylist
         )
     {
         _logger = loggerFactory.CreateLogger<SubscriptionManagementPageViewModel>();
@@ -82,6 +84,7 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
         _subscriptionUpdateManager = subscriptionUpdateManager;
         _dialogService = dialogService;        
         ApplicationLayoutManager = applicationLayoutManager;
+        _queuePlaylist = queuePlaylist;
         _messenger.Register<SettingsRestoredMessage>(this);
 
         //Subscriptions = new ObservableCollection<SubscriptionViewModel>();
@@ -116,7 +119,7 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
 
     SubscriptionGroupViewModel ToSubscriptionGroupVM(SubscriptionGroup subscriptionGroup)
     {
-        return new SubscriptionGroupViewModel(this, subscriptionGroup, _subscriptionManager, _scheduler, _logger, _messenger, _dialogService);
+        return new SubscriptionGroupViewModel(this, subscriptionGroup, _subscriptionManager, _queuePlaylist, _scheduler, _logger, _messenger, _dialogService);
     }
 
     void ClearSubscriptionGroupVM()
@@ -253,6 +256,7 @@ public sealed partial class SubscriptionGroupViewModel
 
     private readonly SubscriptionManagementPageViewModel _pageVM;
     private readonly SubscriptionManager _subscriptionManager;
+    private readonly QueuePlaylist _queuePlaylist;
     private readonly IScheduler _scheduler;
     private readonly ILogger _logger;
     private readonly IMessenger _messenger;
@@ -319,10 +323,22 @@ public sealed partial class SubscriptionGroupViewModel
         Debug.WriteLine($"{SubscriptionGroup.Name} SubscGroup IsShowInAppMenu : {value}");
     }
 
+    [ObservableProperty]
+    private bool _isAddToQueueWhenUpdated;
+
+    partial void OnIsAddToQueueWhenUpdatedChanged(bool value)
+    {
+        _groupProps.IsAddToQueueWhenUpdated = value;
+
+        _subscriptionManager.SetSubcriptionGroupProps(_groupProps);
+        Debug.WriteLine($"{SubscriptionGroup.Name} SubscGroup IsAddToQueueWhenUpdated : {value}");
+    }
+
     public SubscriptionGroupViewModel(
         SubscriptionManagementPageViewModel pageVM,
         SubscriptionGroup subscriptionGroup,
         SubscriptionManager subscriptionManager,
+        QueuePlaylist queuePlaylist,
         IScheduler scheduler,
         ILogger logger,
         IMessenger messenger,
@@ -332,6 +348,7 @@ public sealed partial class SubscriptionGroupViewModel
         _pageVM = pageVM;
         SubscriptionGroup = subscriptionGroup;
         _subscriptionManager = subscriptionManager;
+        _queuePlaylist = queuePlaylist;
         _scheduler = scheduler;
         _logger = logger;
         _messenger = messenger;
@@ -351,7 +368,7 @@ public sealed partial class SubscriptionGroupViewModel
         _isToastNotificationEnabled = _groupProps.IsToastNotificationEnabled;
         _isInAppLiteNotificationEnabled = _groupProps.IsInAppLiteNotificationEnabled;
         _isShowInAppMenu = _groupProps.IsShowInAppMenu;
-
+        _isAddToQueueWhenUpdated = _groupProps.IsAddToQueueWhenUpdated;
         _isAutoUpdateEnabled = _groupProps.IsAutoUpdateEnabled;
         SetChildSubscriptionAutoUpdate();
     }
@@ -366,7 +383,7 @@ public sealed partial class SubscriptionGroupViewModel
 
     private SubscriptionViewModel ToSubscriptionVM(Models.Subscriptions.Subscription subscription)
     {
-        return new SubscriptionViewModel(subscription, _subscriptionManager, this, _logger, _messenger, _dialogService);
+        return new SubscriptionViewModel(subscription, _subscriptionManager, this, _queuePlaylist, _logger, _messenger, _dialogService);
     }
 
     void IRecipient<SubscriptionAddedMessage>.Receive(SubscriptionAddedMessage m)
@@ -448,6 +465,15 @@ public sealed partial class SubscriptionGroupViewModel
         }
     }
 
+    [RelayCommand]
+    void AddToQueue()
+    {
+        var videos = _subscriptionManager.GetSubscFeedVideosNewerAt(SubscriptionGroup.GroupId);
+        foreach (var video in videos)
+        {
+            _queuePlaylist.Add(video);
+        }
+    }
 
     [RelayCommand]
     async Task OpenSubscVideoListPage()
@@ -570,6 +596,7 @@ public partial class SubscriptionViewModel
     internal readonly Models.Subscriptions.Subscription _source;
     private readonly SubscriptionManager _subscriptionManager;
     private readonly SubscriptionGroupViewModel _pageViewModel;
+    private readonly QueuePlaylist _queuePlaylist;
     private readonly ILogger _logger;
     private readonly IMessenger _messenger;
     private readonly IDialogService _dialogService;
@@ -625,10 +652,34 @@ public partial class SubscriptionViewModel
     private bool _combinedAutoUpdateEnabledSubscAndGroup;
 
 
+
+    [ObservableProperty]
+    private bool _isToastNotificationEnabled;
+
+    partial void OnIsToastNotificationEnabledChanged(bool value)
+    {
+        _source.IsToastNotificationEnabled = value;
+
+        _subscriptionManager.UpdateSubscription(_source);
+        Debug.WriteLine($"{_source.Label} SubscGroup IsToastNotificationEnabled : {value}");
+    }
+
+    [ObservableProperty]
+    private bool _isAddToQueueWhenUpdated;
+
+    partial void OnIsAddToQueueWhenUpdatedChanged(bool value)
+    {
+        _source.IsAddToQueueWhenUpdated = value;
+
+        _subscriptionManager.UpdateSubscription(_source);
+        Debug.WriteLine($"{_source.Label} SubscGroup IsAddToQueueWhenUpdated : {value}");
+    }
+
     public SubscriptionViewModel(
         Models.Subscriptions.Subscription source,
         SubscriptionManager subscriptionManager,
         SubscriptionGroupViewModel pageViewModel,
+        QueuePlaylist queuePlaylist,
         ILogger logger,
         IMessenger messenger,
         IDialogService dialogService
@@ -638,6 +689,7 @@ public partial class SubscriptionViewModel
         _messenger = messenger;
         _source = source;
         _pageViewModel = pageViewModel;
+        _queuePlaylist = queuePlaylist;
         _subscriptionManager = subscriptionManager;
         _dialogService = dialogService;
         _isAutoUpdateEnabled = _source.IsAutoUpdateEnabled;
@@ -648,6 +700,8 @@ public partial class SubscriptionViewModel
         _nextUpdateAt = _subscriptionManager.GetNextUpdateTime(lastCheckedAt);
         _unwatchedVideoCount = _subscriptionManager.GetFeedVideosCountWithNewer(_source, lastCheckedAt);
         _hasNewVideos = _unwatchedVideoCount != 0;
+        _isToastNotificationEnabled = _source.IsToastNotificationEnabled;
+        _isAddToQueueWhenUpdated = _source.IsAddToQueueWhenUpdated;
 
         // Note: GroupVM側で IsParentGroupAutoUpdateEnabled を初期設定されるのに任せる
         // コメントアウトしたままにしておく
@@ -689,12 +743,13 @@ public partial class SubscriptionViewModel
             NowUpdating = true;
             using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
             {
-                if (_subscriptionManager.CheckCanUpdate(isManualUpdate: true, subscription: _source) is not null and SubscriptionFeedUpdateFailedReason failedReason)
+                var update = _subscriptionManager.GetSubscriptionProps(_source.SubscriptionId);
+                if (_subscriptionManager.CheckCanUpdate(isManualUpdate: true, subscription: _source, ref update) is not null and SubscriptionFeedUpdateFailedReason failedReason)
                 {                    
                     return;
                 }
 
-                var result = await _subscriptionManager.UpdateSubscriptionFeedVideosAsync(_source, cancellationToken: cts.Token);
+                var result = await _subscriptionManager.UpdateSubscriptionFeedVideosAsync(_source, update: update, cancellationToken: cts.Token);
                 if (result.IsSuccessed)
                 {
                     LastUpdatedAt = result.UpdateAt;
@@ -780,7 +835,15 @@ public partial class SubscriptionViewModel
     }
 
 
-
+    [RelayCommand]
+    void AddToQueue()
+    {
+        var videos = _subscriptionManager.GetSubscFeedVideosNewerAt(_source);
+        foreach (var video in videos)
+        {
+            _queuePlaylist.Add(video);
+        }
+    }
 
 
     [RelayCommand]

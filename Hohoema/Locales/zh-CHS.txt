@@ -195,7 +195,6 @@ CacheVideo_ToastNotification_CacheDelete = 删除
 #### Subscription ####
 SubscriptionNewVideos = 新影片
 
-
 SubscriptionAdd = 添加订阅
 SubscriptionAddUserVideos = 将作者添加到订阅
 SubscriptionAddSeries = 将系列添加到订阅
@@ -243,10 +242,13 @@ SubscVideos_AllMarkAsChecked = 全部勾选
 Subsc_UnwatchedVideoCount = 新的 {0} 个视频
 
 SubscGroupSettings = 显示和通知设置
-SubscGroupSettings_Notification = 启用通知
-SubscGroupSettings_ShowAppMenu = 在应用程序菜单中显示
+SubscGroupSettings_Notification = 通知我新来者
+SubscGroupSettings_AddToQueue = 添加新队列
+SubscGroupSettings_ShowAppMenu = 在菜单中显示组
 
 SubscGroup_PlayFromHere = 看这里
+SubscGroup_AllPlayUnwatched = 播放新视频
+SubscGroup_AddToQueue = 添加到队列
 
 #### Settings ####
 MenuPaneDisplayMode = 菜单显示位置

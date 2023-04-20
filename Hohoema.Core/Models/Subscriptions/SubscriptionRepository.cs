@@ -111,6 +111,7 @@ public enum SubscriptionSourceType
 
 public sealed class Subscription
 {
+    // コンストラクタ引数の並びを変えるとエラー出るかも
     [BsonCtor]
     public Subscription(
         SubscriptionId _id, 
@@ -120,7 +121,8 @@ public sealed class Subscription
         string sourceParameter, 
         bool isAutoUpdateEnabled, 
         bool isAddToQueueWhenUpdated, 
-        SubscriptionGroup? group
+        SubscriptionGroup? group,
+        bool isToastNotificationEnabled
         )
     {
         SubscriptionId = _id;
@@ -131,6 +133,7 @@ public sealed class Subscription
         IsAutoUpdateEnabled = isAutoUpdateEnabled;
         IsAddToQueueWhenUpdated = isAddToQueueWhenUpdated;
         Group = group;
+        IsToastNotificationEnabled = isToastNotificationEnabled;
     }
 
     public Subscription(SubscriptionId subscriptionId)
@@ -144,8 +147,9 @@ public sealed class Subscription
     public string Label { get; set; } = string.Empty;
     public SubscriptionSourceType SourceType { get; set; }
     public string SourceParameter { get; set; } = string.Empty;
+    public bool IsToastNotificationEnabled { get; set; } = true;
     public bool IsAutoUpdateEnabled { get; set; } = true;
-    public bool IsAddToQueueWhenUpdated { get; set; } = false;
+    public bool IsAddToQueueWhenUpdated { get; set; } = true;
 
     [BsonRef]
     public SubscriptionGroup? Group { get; set; }

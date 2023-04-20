@@ -60,6 +60,7 @@ public sealed class SubscriptionUpdateManager
     private readonly INotificationService _notificationService;
     private readonly SubscriptionManager _subscriptionManager;
     private readonly SubscriptionSettings _subscriptionSettings;
+    private readonly QueuePlaylist _queuePlaylist;
     private readonly AsyncLock _timerLock = new AsyncLock();
 
     private bool _isDisposed;
@@ -120,7 +121,8 @@ public sealed class SubscriptionUpdateManager
         IMessenger messenger,
         INotificationService notificationService,
         SubscriptionManager subscriptionManager,
-        SubscriptionSettings subscriptionSettingsRepository
+        SubscriptionSettings subscriptionSettingsRepository,
+        QueuePlaylist queuePlaylist
         )
     {
         _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
@@ -136,7 +138,7 @@ public sealed class SubscriptionUpdateManager
         _notificationService = notificationService;
         _subscriptionManager = subscriptionManager;
         _subscriptionSettings = subscriptionSettingsRepository;
-
+        _queuePlaylist = queuePlaylist;
         _messenger.Register<SubscriptionAddedMessage>(this, async (r, m) => 
         {
             using (await _timerLock.LockAsync())
@@ -264,7 +266,7 @@ public sealed class SubscriptionUpdateManager
             catch (OperationCanceledException)
             {
                 // TODO: ユーザーに購読更新の停止を通知する
-                _logger.ZLogInformation("購読の更新にあまりに時間が掛かったため処理を中断しました");
+                _logger.ZLogInformation("Timeout subscription auto update process.");
             }
             finally
             {
@@ -276,7 +278,23 @@ public sealed class SubscriptionUpdateManager
                 _logger.ZLogDebug("Complete.");
             }
 
-            TriggerToastNotificationFeedUpdateResult(updateResultItems.Where(x => x.IsSuccessed));
+            try
+            {
+                AddToQueue(updateResultItems);
+            }
+            catch (Exception ex)
+            {
+                _logger.ZLogError(ex, "failed in new videos add to QueuePlaylist.");
+            }
+
+            try
+            {
+                TriggerToastNotificationFeedUpdateResult(updateResultItems);
+            }
+            catch (Exception ex)
+            {
+                _logger.ZLogError(ex, "failed in new videos notice to user with ToastNotification.");
+            }
         }
     }
 
@@ -401,6 +419,29 @@ public sealed class SubscriptionUpdateManager
             }
             );
     }
+
+    private void AddToQueue(IEnumerable<SubscriptionFeedUpdateResult> resultItems)
+    {
+        if (!resultItems.Any()) { return; }
+
+        var resultByGroupId = resultItems
+            .Where(x => x.IsSuccessed && x.NewVideos?.Count > 0 && x.Subscription.IsAddToQueueWhenUpdated)
+            .GroupBy(x => x.Subscription.Group ?? _subscriptionManager.DefaultSubscriptionGroup, SubscriptionGroupComparer.Default)
+            .Where(x => _subscriptionManager.GetSubscriptionGroupProps(x.Key.GroupId).IsAddToQueueWhenUpdated)
+            .ToArray();
+
+        if (!resultByGroupId.Any()) { return; }
+
+        int count = 0;
+        foreach (var item in resultByGroupId.SelectMany(x => x.SelectMany(x => x.NewVideos)))
+        {
+            _queuePlaylist.Add(item);
+            count++;
+        }
+
+        _notificationService.ShowLiteInAppNotification("Notification_SuccessAddToWatchLaterWithAddedCount".Translate(count));
+    }
+
 
 #if DEBUG
     public void TestNotification()

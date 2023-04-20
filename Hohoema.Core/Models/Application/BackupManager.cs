@@ -304,7 +304,7 @@ public sealed class BackupManager
                 groupMaps.TryGetValue(SubscriptionGroupId.Parse(s.GroupId), out group);
             }
 
-            Subscription entity = new(SubscriptionId.NewObjectId(), s.SortIndex ?? 0, s.Label, sourceType, s.SourceParameter, true, false, group);
+            Subscription entity = new(SubscriptionId.NewObjectId(), s.SortIndex ?? 0, s.Label, sourceType, s.SourceParameter, true, false, group, true);
 
             _ = _subscriptionRegistrationRepository.UpdateItem(entity);
         }

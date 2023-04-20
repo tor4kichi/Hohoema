@@ -195,7 +195,6 @@ CacheVideo_ToastNotification_CacheDelete = Delete
 #### Subscription ####
 SubscriptionNewVideos = New videos
 
-
 SubscriptionAdd = Add subscription
 SubscriptionAddUserVideos = Add Contributor to Subscription
 SubscriptionAddSeries = Add series to subscription
@@ -243,10 +242,13 @@ SubscVideos_AllMarkAsChecked = Mark all checked
 Subsc_UnwatchedVideoCount = New {0} videos
 
 SubscGroupSettings = Display and notification settings
-SubscGroupSettings_Notification = Enable notifications
-SubscGroupSettings_ShowAppMenu = Show in app menu
+SubscGroupSettings_Notification = Notify me of new arrivals
+SubscGroupSettings_AddToQueue = Add New to Queue
+SubscGroupSettings_ShowAppMenu = Show group in menu
 
 SubscGroup_PlayFromHere = Watch from here
+SubscGroup_AllPlayUnwatched = Play new video
+SubscGroup_AddToQueue = Add to queue
 
 #### Settings ####
 MenuPaneDisplayMode = Menu display position

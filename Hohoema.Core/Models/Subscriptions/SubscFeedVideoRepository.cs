@@ -12,7 +12,7 @@ using System.Linq;
 
 namespace Hohoema.Models.Subscriptions;
 
-public sealed class SubscFeedVideo
+public sealed class SubscFeedVideo : IVideoContent
 {
     [BsonId(autoId: true)]
     public ObjectId Id { get; init; }
@@ -23,6 +23,23 @@ public sealed class SubscFeedVideo
     public string Title { get; init; }
 
     public DateTime FeedUpdateAt { get; set; }
+
+    [BsonIgnore]
+    VideoId IVideoContent.VideoId => VideoId;
+
+    [BsonIgnore]
+    TimeSpan IVideoContent.Length => TimeSpan.Zero;
+
+    [BsonIgnore]
+    string IVideoContent.ThumbnailUrl => null;
+
+    [BsonIgnore]
+    DateTime IVideoContent.PostedAt => PostAt;
+
+    bool IEquatable<IVideoContent>.Equals(IVideoContent other)
+    {
+        return this.VideoId == other.VideoId;
+    }
 }
 
 public sealed class SubscFeedVideoEqualityComparer : IEqualityComparer<SubscFeedVideo>
@@ -158,9 +175,10 @@ public sealed class SubscFeedVideoRepository
         _ = _subscFeedVideoRepository.UpdateItem(videos);            
     }
 
-    public IEnumerable<SubscFeedVideo> RegisteringVideosIfNotExist(SubscriptionId subscId, DateTime updateAt, IEnumerable<NicoVideo> videos)
+    public (List<SubscFeedVideo> newSubscVideos, List<NicoVideo> newVideos) RegisteringVideosIfNotExist(SubscriptionId subscId, DateTime updateAt, IEnumerable<NicoVideo> videos)
     {
-        var newSubscItems = videos.Where(x => !_subscFeedVideoRepository.Exists(x => x.SourceSubscId == subscId && x.VideoId == x.VideoId))
+        var newVideos = videos.Where(x => !_subscFeedVideoRepository.Exists(x => x.SourceSubscId == subscId && x.VideoId == x.VideoId)).ToList();
+        var newSubscItems = newVideos
             .Select(x => new SubscFeedVideo()
             {
                 SourceSubscId = subscId,
@@ -170,9 +188,9 @@ public sealed class SubscFeedVideoRepository
                 Title = x.Title,
                 FeedUpdateAt = updateAt,
             }
-            ).ToArray();
+            ).ToList();
         _subscFeedVideoRepository.InsertBulk(newSubscItems);
-        return newSubscItems;
+        return (newSubscItems, newVideos);
     }
 
     internal int GetVideoCount(SubscriptionId subscriptionId)

@@ -195,7 +195,6 @@ CacheVideo_ToastNotification_CacheDelete = 削除
 #### Subscription ####
 SubscriptionNewVideos = 新着動画
 
-
 SubscriptionAdd = 新着チェックに追加
 SubscriptionAddUserVideos = 投稿者動画を新着チェックに追加
 SubscriptionAddSeries = シリーズを購読に追加
@@ -243,10 +242,13 @@ SubscVideos_AllMarkAsChecked = すべてチェック済みにマーク
 Subsc_UnwatchedVideoCount = 新着 {0}動画
 
 SubscGroupSettings = 表示と通知の設定
-SubscGroupSettings_Notification = 通知を有効にする
-SubscGroupSettings_ShowAppMenu = アプリメニューに表示する
+SubscGroupSettings_Notification = 新着を通知する
+SubscGroupSettings_AddToQueue = 新着をキューに追加
+SubscGroupSettings_ShowAppMenu = グループをメニューに表示
 
 SubscGroup_PlayFromHere = ここから視聴する
+SubscGroup_AllPlayUnwatched = 新着動画を再生
+SubscGroup_AddToQueue = キューに追加
 
 #### Settings ####
 MenuPaneDisplayMode = メニューの表示位置
