@@ -5,6 +5,7 @@ using Hohoema.Contracts.Subscriptions;
 using Hohoema.Infra;
 using Hohoema.Models.Niconico.Video;
 using LiteDB;
+using NiconicoToolkit.Video;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -154,32 +155,24 @@ public sealed class SubscFeedVideoRepository
 
     public void UpdateVideos(IEnumerable<SubscFeedVideo> videos)
     {
-        _ = _subscFeedVideoRepository.UpdateItem(videos);
-        
+        _ = _subscFeedVideoRepository.UpdateItem(videos);            
     }
 
     public IEnumerable<SubscFeedVideo> RegisteringVideosIfNotExist(SubscriptionId subscId, DateTime updateAt, IEnumerable<NicoVideo> videos)
     {
-        foreach (NicoVideo video in videos)
-        {
-            string videoId = video.VideoId;
-            if (_subscFeedVideoRepository.Exists(x => x.SourceSubscId == subscId && x.VideoId == videoId) is false)
+        var newSubscItems = videos.Where(x => !_subscFeedVideoRepository.Exists(x => x.SourceSubscId == subscId && x.VideoId == x.VideoId))
+            .Select(x => new SubscFeedVideo()
             {
-                SubscFeedVideo feed = new()
-                {
-                    SourceSubscId = subscId,
-                    Id = ObjectId.NewObjectId(),
-                    VideoId = video.VideoId,
-                    PostAt = video.PostedAt,
-                    Title = video.Title,
-                    FeedUpdateAt = updateAt,
-                };
-
-                _ = _subscFeedVideoRepository.CreateItem(feed);
-
-                yield return feed;
+                SourceSubscId = subscId,
+                Id = ObjectId.NewObjectId(),
+                VideoId = x.VideoId,
+                PostAt = x.PostedAt,
+                Title = x.Title,
+                FeedUpdateAt = updateAt,
             }
-        }
+            ).ToArray();
+        _subscFeedVideoRepository.InsertBulk(newSubscItems);
+        return newSubscItems;
     }
 
     internal int GetVideoCount(SubscriptionId subscriptionId)

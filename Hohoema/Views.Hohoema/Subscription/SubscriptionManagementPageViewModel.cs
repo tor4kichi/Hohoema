@@ -144,10 +144,17 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
 
         _messenger.Register<SubscriptionGroupDeletedMessage>(this, (r, m) =>
         {
+            var defaultGroup = SubscriptionGroups[0];
             var groupVM = SubscriptionGroups.FirstOrDefault(x => x.SubscriptionGroup.GroupId == m.Value.GroupId);
             if (groupVM != null)
             {
-                SubscriptionGroups.Remove(groupVM);
+                // 削除後はデフォルトグループに移動させる
+                foreach (var subscVM in groupVM.Subscriptions)
+                {
+                    defaultGroup.Subscriptions.Add(subscVM);
+                }
+
+                SubscriptionGroups.Remove(groupVM);                
             }
         });
 
@@ -713,7 +720,7 @@ public partial class SubscriptionViewModel
     [RelayCommand]
     public void ChangeSubscGroup(SubscriptionGroup group)
     {
-        _subscriptionManager.MoveSubscriptionGroup(_source, group);
+        _subscriptionManager.MoveSubscriptionGroupAndInsertToLast(_source, group);
         Group = group;
     }
 

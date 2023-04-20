@@ -40,6 +40,16 @@ public abstract class LiteDBServiceBase<T>
         return _collection.Upsert(items);
     }
 
+    public virtual int UpdateMany(Expression<Func<T, T>> extend, Expression<Func<T, bool>> predicate)
+    {
+        return _collection.UpdateMany(extend, predicate);
+    }
+
+    public virtual int InsertBulk(IEnumerable<T> entities, int batchSize = 5000)
+    {
+        return _collection.InsertBulk(entities, batchSize);
+    }
+
     public virtual bool DeleteItem(T item)
     {
         return _collection.DeleteMany(i => i.Equals(item)) > 0;

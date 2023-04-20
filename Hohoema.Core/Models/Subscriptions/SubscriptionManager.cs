@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using AngleSharp.Dom;
+using AngleSharp.Html;
 using AngleSharp.Media;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.Messaging;
@@ -152,8 +153,10 @@ public sealed class SubscriptionManager
         var sources = _subscriptionRegistrationRepository.Find(x => x.Group!.GroupId == group.GroupId).ToArray();
         foreach (var source in sources)
         {
-            MoveSubscriptionGroup(source, DefaultSubscriptionGroup);
+            MoveSubscriptionGroupAndInsertToLast(source, DefaultSubscriptionGroup);
         }
+
+
 
         bool result = _subscriptionGroupRepository.DeleteItem(group.GroupId);
         if (result) 
@@ -190,7 +193,7 @@ public sealed class SubscriptionManager
             _ => throw new NotSupportedException(video.ProviderType.ToString())
         };
 
-        return AddSubscription_Internal(new Subscription()
+        return AddSubscription_Internal(new Subscription(SubscriptionId.NewObjectId())
         {
             Label = owner.ScreenName,
             SourceParameter = video.ProviderId,
@@ -201,7 +204,7 @@ public sealed class SubscriptionManager
 
     public Subscription AddSubscription(IMylist mylist, SubscriptionGroup? group = null)
     {
-        return AddSubscription_Internal(new Subscription()
+        return AddSubscription_Internal(new Subscription(SubscriptionId.NewObjectId())
         {
             Label = mylist.Name,
             SourceParameter = mylist.PlaylistId.Id,
@@ -212,7 +215,7 @@ public sealed class SubscriptionManager
 
     public Subscription AddKeywordSearchSubscription(string keyword, SubscriptionGroup? group = null)
     {
-        return AddSubscription_Internal(new Subscription()
+        return AddSubscription_Internal(new Subscription(SubscriptionId.NewObjectId())
         {
             Label = keyword,
             SourceParameter = keyword,
@@ -222,7 +225,7 @@ public sealed class SubscriptionManager
     }
     public Subscription AddTagSearchSubscription(string tag, SubscriptionGroup? group = null)
     {
-        return AddSubscription_Internal(new Subscription()
+        return AddSubscription_Internal(new Subscription(SubscriptionId.NewObjectId())
         {
             Label = tag,
             SourceParameter = tag,
@@ -234,7 +237,7 @@ public sealed class SubscriptionManager
 
     public Subscription AddSubscription(SubscriptionSourceType sourceType, string sourceParameter, string label, SubscriptionGroup? group = null)
     {
-        return AddSubscription_Internal(new Subscription()
+        return AddSubscription_Internal(new Subscription(SubscriptionId.NewObjectId())
         {
             Label = label,
             SourceParameter = sourceParameter,
@@ -258,20 +261,54 @@ public sealed class SubscriptionManager
         ClearEnabledSubscriptionsCount();
     }
 
-    public void MoveSubscriptionGroup(Subscription entity, SubscriptionGroup moveDestinationGroup)
+    public void MoveSubscriptionGroupAndInsertToLast(Subscription entity, SubscriptionGroup moveDestinationGroup)
     {
         var lastGroupId = entity.Group?.GroupId ?? SubscriptionGroupId.DefaultGroupId;
+        int count;
         if (moveDestinationGroup.IsDefaultGroup)
         {
             entity.Group = null;
+            count = _subscriptionRegistrationRepository.CountSafe(x => x.Group!.GroupId == null);
         }
         else
         {
             entity.Group = moveDestinationGroup;
+            count = _subscriptionRegistrationRepository.CountSafe(x => x.Group!.GroupId == lastGroupId);
         }
 
+        entity.SortIndex = count;
         _ = _subscriptionRegistrationRepository.UpdateItem(entity);
         _messenger.Send(new SubscriptionGroupMovedMessage(entity) {LastGroupId = lastGroupId, CurrentGroupId = moveDestinationGroup.GroupId });
+    }
+
+    public void MoveSubscriptionGroupAndInsert(Subscription entity, int sortIndex, SubscriptionGroup moveDestinationGroup)
+    {
+        // 移動先のグループに属する購読のsortIndex以降のアイテムを後ろにずらすように更新する
+        if (moveDestinationGroup.IsDefaultGroup)
+        {
+            entity.Group = null;
+            _subscriptionRegistrationRepository.UpdateMany(
+                x => new Subscription(x.SubscriptionId, x.SortIndex + 1, x.Label, x.SourceType, x.SourceParameter, x.IsAutoUpdateEnabled, x.IsAddToQueueWhenUpdated, x.Group),
+                x => x.Group == null && sortIndex <= x.SortIndex
+                ); 
+        }
+        else
+        {
+            entity.Group = moveDestinationGroup;
+            SubscriptionGroupId destinationGroupId = moveDestinationGroup.GroupId;
+            _subscriptionRegistrationRepository.UpdateMany(
+                x => new Subscription(x.SubscriptionId, x.SortIndex + 1, x.Label, x.SourceType, x.SourceParameter, x.IsAutoUpdateEnabled, x.IsAddToQueueWhenUpdated, x.Group),
+                x => x.Group!.GroupId == destinationGroupId && sortIndex <= x.SortIndex
+                );
+        }
+
+        entity.SortIndex = sortIndex;
+        _ = _subscriptionRegistrationRepository.UpdateItem(entity);
+        _messenger.Send(new SubscriptionGroupMovedMessage(entity) 
+        {
+            LastGroupId = entity.Group?.GroupId ?? SubscriptionGroupId.DefaultGroupId,
+            CurrentGroupId = moveDestinationGroup.GroupId 
+        });
     }
 
     public void UpdateSubscriptionGroup(SubscriptionGroup group)
@@ -293,20 +330,20 @@ public sealed class SubscriptionManager
         ClearEnabledSubscriptionsCount();
     }
 
-    public IList<Subscription> GetSubscriptions()
+    public IEnumerable<Subscription> GetSubscriptions()
     {
-        return _subscriptionRegistrationRepository.ReadAllItems();
+        return _subscriptionRegistrationRepository.Find(Query.All());
     }
 
-    public IList<Subscription> GetSubscriptions(SubscriptionGroupId groupId)
+    public IEnumerable<Subscription> GetSubscriptions(SubscriptionGroupId groupId)
     {
         if (groupId == SubscriptionGroupId.DefaultGroupId)
         {
-            return _subscriptionRegistrationRepository.Find(x => x.Group == null).OrderBy(x => x.SortIndex).ToList();
+            return _subscriptionRegistrationRepository.Find(x => x.Group == null).OrderBy(x => x.SortIndex);
         }
         else
         {
-            return _subscriptionRegistrationRepository.Find(groupId).ToList();
+            return _subscriptionRegistrationRepository.Find(groupId);
         }
     }
 

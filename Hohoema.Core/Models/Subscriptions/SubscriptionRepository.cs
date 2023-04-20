@@ -66,8 +66,6 @@ public sealed class SubscriptionRegistrationRepository : LiteDBServiceBase<Subsc
         }
         else
         {
-            entity.SubscriptionId = SubscriptionId.NewObjectId();
-
             // Note: エンティティが登録されていない状態で .Max() を呼ぶと
             //       InvalidOperationException が発生する (LiteDb 5.0.16)
             try
@@ -113,6 +111,33 @@ public enum SubscriptionSourceType
 
 public sealed class Subscription
 {
+    [BsonCtor]
+    public Subscription(
+        SubscriptionId _id, 
+        int sortIndex, 
+        string label, 
+        SubscriptionSourceType sourceType, 
+        string sourceParameter, 
+        bool isAutoUpdateEnabled, 
+        bool isAddToQueueWhenUpdated, 
+        SubscriptionGroup? group
+        )
+    {
+        SubscriptionId = _id;
+        SortIndex = sortIndex;
+        Label = label;
+        SourceType = sourceType;
+        SourceParameter = sourceParameter;
+        IsAutoUpdateEnabled = isAutoUpdateEnabled;
+        IsAddToQueueWhenUpdated = isAddToQueueWhenUpdated;
+        Group = group;
+    }
+
+    public Subscription(SubscriptionId subscriptionId)
+    {
+        SubscriptionId = subscriptionId;
+    }
+
     [BsonId]
     public SubscriptionId SubscriptionId { get; internal set; }
     public int SortIndex { get; set; }
