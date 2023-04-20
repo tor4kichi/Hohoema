@@ -266,7 +266,7 @@
             <MenuFlyout Placement="Bottom">
               <MenuFlyoutItem Text="{i18nExt:Localize Key=OpenSubscriptionSourceVideoList}" Command="{Binding OpenSubscVideoListPageCommand}" />
               <MenuFlyoutSeparator />
-              <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=SubscriptionsAutoUpdateRunning}" IsChecked="{Binding IsAutoUpdateEnabled, Mode=TwoWay}" Command="{Binding OpenSubscVideoListPageCommand}" />
+              <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=SubscriptionsAutoUpdateRunning}" IsChecked="{Binding IsAutoUpdateEnabled, Mode=TwoWay}" />
               <MenuFlyoutItem Text="{i18nExt:Localize Key=SubscGroup_Rename}" Command="{Binding RenameSubscriptionGroupCommand}" Visibility="{Binding SubscriptionGroup.IsDefaultGroup, Converter={StaticResource BooleanToVisibilityInverted}}" />
               <MenuFlyoutSubItem Text="{i18nExt:Localize Key=ReorderSubsciprionSource_Move}" Visibility="{Binding SubscriptionGroup.IsDefaultGroup, Converter={StaticResource BooleanToVisibilityInverted}}">
                 <MenuFlyoutItem Text="{i18nExt:Localize Key=ReorderSubsciprionSource_MovePreview}" Command="{Binding MoveToPreviewCommand}"/>
