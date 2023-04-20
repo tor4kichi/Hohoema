@@ -276,7 +276,7 @@ public sealed class SubscriptionUpdateManager
                 _logger.ZLogDebug("Complete.");
             }
 
-            NotifyFeedUpdateResult(updateResultItems.Where(x => x.IsSuccessed));
+            TriggerToastNotificationFeedUpdateResult(updateResultItems.Where(x => x.IsSuccessed));
         }
     }
 
@@ -363,12 +363,15 @@ public sealed class SubscriptionUpdateManager
         return isHandled;
     }
 
-    private void NotifyFeedUpdateResult(IEnumerable<SubscriptionFeedUpdateResult> updateResults)
+    private void TriggerToastNotificationFeedUpdateResult(IEnumerable<SubscriptionFeedUpdateResult> updateResults)
     {
         if (!updateResults.Any()) { return; }
 
-        //SubscriptionGroup _defaultSubscGroup = new SubscriptionGroup(SubscriptionGroupId.DefaultGroupId, "SubscGroup_DefaultGroupName".Translate());
-        var resultByGroupId = updateResults.Where(x => x.IsSuccessed && x.NewVideos.Count > 0).GroupBy(x => x.Subscription.Group ?? _subscriptionManager.DefaultSubscriptionGroup, SubscriptionGroupComparer.Default);
+        var resultByGroupId = updateResults
+            .Where(x => x.IsSuccessed && x.NewVideos?.Count > 0)
+            .GroupBy(x => x.Subscription.Group ?? _subscriptionManager.DefaultSubscriptionGroup, SubscriptionGroupComparer.Default)
+            .Where(x => _subscriptionManager.GetSubscriptionGroupProps(x.Key.GroupId).IsToastNotificationEnabled)
+            .ToArray();
 
         if (!resultByGroupId.Any()) { return; }
 
@@ -379,7 +382,7 @@ public sealed class SubscriptionUpdateManager
 
         box.Items.Add(new ToastSelectionBoxItem(ToastArgumentValue_UserInputValue_NoSelectSubscGroupId, "All".Translate()));
         foreach (var group in resultByGroupId)
-        {                        
+        {        
             box.Items.Add(new ToastSelectionBoxItem(group.Key.GroupId.ToString(), $"{group.Key.Name} - {group.Sum(x => x.NewVideos.Count)}件"));
         }
 
@@ -411,7 +414,7 @@ public sealed class SubscriptionUpdateManager
             results.Add(new SubscriptionFeedUpdateResult(source, videos, videos, updateAt));
         }
 
-        NotifyFeedUpdateResult(results);
+        TriggerToastNotificationFeedUpdateResult(results);
     }
 #endif
 

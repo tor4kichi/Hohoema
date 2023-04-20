@@ -275,6 +275,7 @@
                 <MenuFlyoutItem Text="{i18nExt:Localize Key=ReorderSubsciprionSource_MoveToTail}" Command="{Binding MoveToTailCommand}" />
               </MenuFlyoutSubItem>
               <MenuFlyoutSubItem Text="表示と通知の設定">
+                <ToggleMenuFlyoutItem Text="通知する" IsChecked="{Binding IsToastNotificationEnabled, Mode=TwoWay}" />
                 <ToggleMenuFlyoutItem Text="アプリメニューに表示する" IsChecked="{Binding IsShowInAppMenu, Mode=TwoWay}" />
               </MenuFlyoutSubItem>
               <MenuFlyoutSeparator />
