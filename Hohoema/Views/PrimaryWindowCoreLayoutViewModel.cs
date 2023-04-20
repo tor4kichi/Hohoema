@@ -1018,6 +1018,7 @@ public sealed partial class SubscriptionMenuItemViewModel
     , IRecipient<SettingsRestoredMessage>
     , IRecipient<SubscriptionFeedUpdatedMessage>
     , IRecipient<SubscriptionGroupCheckedAtChangedMessage>
+    , IRecipient<SubscriptionGroupPropsChangedMessage>
     , IDisposable
 {
     private readonly IMessenger _messenger;
@@ -1036,6 +1037,7 @@ public sealed partial class SubscriptionMenuItemViewModel
                 _subscriptionManager.DefaultSubscriptionGroup,
             }
             .Concat(_subscriptionManager.GetSubscriptionGroups())
+            .Where(group => _subscriptionManager.GetSubscriptionGroupProps(group.GroupId).IsShowInAppMenu)
             .Select(ToMenuItemVM)
             );
 
@@ -1045,6 +1047,7 @@ public sealed partial class SubscriptionMenuItemViewModel
         _messenger.Register<SettingsRestoredMessage>(this);
         _messenger.Register<SubscriptionFeedUpdatedMessage>(this);
         _messenger.Register<SubscriptionGroupCheckedAtChangedMessage>(this);
+        _messenger.Register<SubscriptionGroupPropsChangedMessage>(this);        
     }
 
     protected override void OnDispose()
@@ -1057,7 +1060,7 @@ public sealed partial class SubscriptionMenuItemViewModel
         _messenger.Unregister<SettingsRestoredMessage>(this);
         _messenger.Unregister<SubscriptionFeedUpdatedMessage>(this);
         _messenger.Unregister<SubscriptionGroupCheckedAtChangedMessage>(this);
-
+        _messenger.Unregister<SubscriptionGroupPropsChangedMessage>(this);
     }
 
     SubscriptionGroupMenuItemViewModel ToMenuItemVM(SubscriptionGroup group)
@@ -1070,9 +1073,31 @@ public sealed partial class SubscriptionMenuItemViewModel
         };
     }
 
+
+    void ResetSubscGroupMenuItems()
+    {
+        SubscGroups.Clear();
+        foreach (var group in new[] { _subscriptionManager.DefaultSubscriptionGroup }.Concat(_subscriptionManager.GetSubscriptionGroups()))
+        {
+            if (_subscriptionManager.GetSubscriptionGroupProps(group.GroupId).IsShowInAppMenu is false)
+            {
+                continue;
+            }
+
+            SubscGroups.Add(ToMenuItemVM(group));
+        }
+    }
+
+
     void IRecipient<SubscriptionGroupCreatedMessage>.Receive(SubscriptionGroupCreatedMessage message)
     {
-        SubscGroups.Add(ToMenuItemVM(message.Value));
+        var group = message.Value;
+        if (_subscriptionManager.GetSubscriptionGroupProps(group.GroupId).IsShowInAppMenu is false)
+        {
+            return;
+        }
+
+        SubscGroups.Add(ToMenuItemVM(group));
     }
 
     void IRecipient<SubscriptionGroupDeletedMessage>.Receive(SubscriptionGroupDeletedMessage message)
@@ -1082,21 +1107,13 @@ public sealed partial class SubscriptionMenuItemViewModel
     }
 
     void IRecipient<SubscriptionGroupReorderedMessage>.Receive(SubscriptionGroupReorderedMessage message)
-    {        
-        SubscGroups.Clear();
-        foreach (var group in message.Value)
-        {
-            SubscGroups.Add(ToMenuItemVM(group));
-        }
+    {
+        ResetSubscGroupMenuItems();
     }
 
     void IRecipient<SettingsRestoredMessage>.Receive(SettingsRestoredMessage message)
     {
-        SubscGroups.Clear();
-        foreach (var group in new[] { _subscriptionManager.DefaultSubscriptionGroup }.Concat(_subscriptionManager.GetSubscriptionGroups()))
-        {
-            SubscGroups.Add(ToMenuItemVM(group));
-        }
+        ResetSubscGroupMenuItems();
     }
 
     [RelayCommand]
@@ -1129,6 +1146,11 @@ public sealed partial class SubscriptionMenuItemViewModel
                 break;
             }
         }
+    }
+
+    void IRecipient<SubscriptionGroupPropsChangedMessage>.Receive(SubscriptionGroupPropsChangedMessage message)
+    {
+        ResetSubscGroupMenuItems();
     }
 }
 

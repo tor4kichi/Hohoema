@@ -258,11 +258,8 @@ public sealed partial class SubscriptionGroupViewModel
     private readonly IMessenger _messenger;
     private readonly IDialogService _dialogService;
     
-    private readonly SubscriptionGroupProps _subscriptionGroupProps;
+    private readonly SubscriptionGroupProps _groupProps;
 
-
-    [ObservableProperty]
-    private bool _isAutoUpdateEnabled;
 
     [ObservableProperty]
     private bool _hasNewVideos;
@@ -275,14 +272,51 @@ public sealed partial class SubscriptionGroupViewModel
         HasNewVideos = value != 0;
     }
 
+    [ObservableProperty]
+    private bool _isAutoUpdateEnabled;
+
     partial void OnIsAutoUpdateEnabledChanged(bool value)
     {
-        _subscriptionGroupProps.IsAutoUpdateEnabled = value;
-        _subscriptionManager.SetSubcriptionGroupProps(_subscriptionGroupProps);
+        _groupProps.IsAutoUpdateEnabled = value;
+        _subscriptionManager.SetSubcriptionGroupProps(_groupProps);
 
         SetChildSubscriptionAutoUpdate();
 
         Debug.WriteLine($"{SubscriptionGroup.Name} SubscGroup IsAutoUpdateEnabled : {value}");
+    }
+
+
+    [ObservableProperty]
+    private bool _isToastNotificationEnabled;
+
+    partial void OnIsToastNotificationEnabledChanged(bool value)
+    {
+        _groupProps.IsToastNotificationEnabled = value;
+
+        _subscriptionManager.SetSubcriptionGroupProps(_groupProps);
+        Debug.WriteLine($"{SubscriptionGroup.Name} SubscGroup IsToastNotificationEnabled : {value}");
+    }
+
+    [ObservableProperty]
+    private bool _isInAppLiteNotificationEnabled;
+
+    partial void OnIsInAppLiteNotificationEnabledChanged(bool value)
+    {
+        _groupProps.IsInAppLiteNotificationEnabled = value;
+
+        _subscriptionManager.SetSubcriptionGroupProps(_groupProps);
+        Debug.WriteLine($"{SubscriptionGroup.Name} SubscGroup IsInAppLiteNotificationEnabled : {value}");
+    }
+
+    [ObservableProperty]
+    private bool _isShowInAppMenu;
+
+    partial void OnIsShowInAppMenuChanged(bool value)
+    {
+        _groupProps.IsShowInAppMenu = value;
+
+        _subscriptionManager.SetSubcriptionGroupProps(_groupProps);
+        Debug.WriteLine($"{SubscriptionGroup.Name} SubscGroup IsShowInAppMenu : {value}");
     }
 
     public SubscriptionGroupViewModel(
@@ -311,11 +345,14 @@ public sealed partial class SubscriptionGroupViewModel
         _messenger.Register<SubscriptionDeletedMessage>(this);
         _messenger.Register<SubscriptionGroupMovedMessage>(this);
 
-        _subscriptionGroupProps = _subscriptionManager.GetSubscriptionGroupProps(SubscriptionGroup.GroupId);
+        _groupProps = _subscriptionManager.GetSubscriptionGroupProps(SubscriptionGroup.GroupId);
         _unwatchedVideoCount = _subscriptionManager.GetFeedVideosCountWithNewer(SubscriptionGroup.GroupId);
         _hasNewVideos = _unwatchedVideoCount != 0;
+        _isToastNotificationEnabled = _groupProps.IsToastNotificationEnabled;
+        _isInAppLiteNotificationEnabled = _groupProps.IsInAppLiteNotificationEnabled;
+        _isShowInAppMenu = _groupProps.IsShowInAppMenu;
 
-        _isAutoUpdateEnabled = _subscriptionGroupProps.IsAutoUpdateEnabled;
+        _isAutoUpdateEnabled = _groupProps.IsAutoUpdateEnabled;
         SetChildSubscriptionAutoUpdate();
     }
 

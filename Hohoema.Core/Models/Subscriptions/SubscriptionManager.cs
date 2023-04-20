@@ -84,7 +84,7 @@ public sealed class SubscriptionManager
     private readonly NicoVideoOwnerCacheRepository _nicoVideoOwnerRepository;
     private readonly SubscriptionGroupRepository _subscriptionGroupRepository;
     private readonly SubscriptionUpdateRespository _subscriptionUpdateRespository;
-    private readonly SubscriptionGroupCheckedRespository _subscriptionGroupCheckedRespository;
+    private readonly SubscriptionGroupPropsRespository _subscriptionGroupCheckedRespository;
 
     public SubscriptionManager(
         IMessenger messenger,
@@ -101,7 +101,7 @@ public sealed class SubscriptionManager
         NicoVideoOwnerCacheRepository nicoVideoOwnerRepository,
         SubscriptionGroupRepository subscriptionGroupRepository,
         SubscriptionUpdateRespository subscriptionUpdateRespository,
-        SubscriptionGroupCheckedRespository subscriptionGroupCheckedRespository
+        SubscriptionGroupPropsRespository subscriptionGroupCheckedRespository
         )
     {
         _messenger = messenger;
@@ -439,6 +439,7 @@ public sealed class SubscriptionManager
     public void SetSubcriptionGroupProps(SubscriptionGroupProps subscriptionGroupProps)
     {
         _subscriptionGroupCheckedRespository.UpdateItem(subscriptionGroupProps);
+        _messenger.Send(new SubscriptionGroupPropsChangedMessage(subscriptionGroupProps));
     }
 
 
@@ -916,12 +917,23 @@ public sealed class SubscriptionUpdateRespository : LiteDBServiceBase<Subscripti
 public sealed class SubscriptionGroupProps
 {
     [BsonCtor]
-    public SubscriptionGroupProps(SubscriptionGroupId subscriptionGroupId, DateTime lastCheckedAt, bool isAutoUpdateEnabled, bool isAddToQueueWhenUpdated)
+    public SubscriptionGroupProps(
+        SubscriptionGroupId subscriptionGroupId, 
+        DateTime lastCheckedAt, 
+        bool isAutoUpdateEnabled, 
+        bool isAddToQueueWhenUpdated, 
+        bool isToastNotificationEnabled, 
+        bool isInAppLiteNotificationEnabled,
+        bool isShowInAppMenu
+        )
     {
         SubscriptionGroupId = subscriptionGroupId;
         LastCheckedAt = lastCheckedAt;
         IsAutoUpdateEnabled = isAutoUpdateEnabled;
         IsAddToQueueWhenUpdated = isAddToQueueWhenUpdated;
+        IsToastNotificationEnabled = isToastNotificationEnabled;
+        IsInAppLiteNotificationEnabled = isInAppLiteNotificationEnabled;
+        IsShowInAppMenu = isShowInAppMenu;
     }
 
     public SubscriptionGroupProps(SubscriptionGroupId subscriptionSourceId)
@@ -937,12 +949,18 @@ public sealed class SubscriptionGroupProps
     public bool IsAutoUpdateEnabled { get; set; } = true;
 
     public bool IsAddToQueueWhenUpdated { get; set; } = false;
+
+    public bool IsToastNotificationEnabled { get; set; } = true;
+
+    public bool IsInAppLiteNotificationEnabled { get; set; } = true;
+
+    public bool IsShowInAppMenu { get; set; } = true;
 }
 
 
-public sealed class SubscriptionGroupCheckedRespository : LiteDBServiceBase<SubscriptionGroupProps>
+public sealed class SubscriptionGroupPropsRespository : LiteDBServiceBase<SubscriptionGroupProps>
 {
-    private class SubscriptionGroupCheckedDefaultSettings : FlagsRepositoryBase
+    private class SubscriptionGroupPropsForDefault : FlagsRepositoryBase
     {
         public DateTime LastChecked
         {
@@ -960,15 +978,33 @@ public sealed class SubscriptionGroupCheckedRespository : LiteDBServiceBase<Subs
         {
             get => Read(true);
             set => Save(value);
-        }        
+        }
+
+        public bool IsToastNotificationEnabled
+        {
+            get => Read(true);
+            set => Save(value);
+        }
+
+        public bool IsInAppLiteNotificationEnabled
+        {
+            get => Read(true);
+            set => Save(value);
+        }
+
+        public bool IsShowInAppMenu
+        {
+            get => Read(true);
+            set => Save(value);
+        }
     }
 
-    private SubscriptionGroupCheckedDefaultSettings _defaultSettings;
-    public SubscriptionGroupCheckedRespository(LiteDatabase liteDatabase) 
+    private SubscriptionGroupPropsForDefault _defaultSettings;
+    public SubscriptionGroupPropsRespository(LiteDatabase liteDatabase) 
         : base(liteDatabase)
     {
         //liteDatabase.DropCollection("SubscriptionGroupChecked");
-        _defaultSettings = new SubscriptionGroupCheckedDefaultSettings();
+        _defaultSettings = new SubscriptionGroupPropsForDefault();
     }
 
     new BsonValue CreateItem(SubscriptionGroupProps item)
@@ -979,39 +1015,39 @@ public sealed class SubscriptionGroupCheckedRespository : LiteDBServiceBase<Subs
     private SubscriptionGroupProps GetDefaultGroup()
     {
         return new SubscriptionGroupProps(
-            SubscriptionGroupId.DefaultGroupId, 
-            _defaultSettings.LastChecked, 
-            _defaultSettings.IsAutoUpdateEnabled, 
-            _defaultSettings.IsAddToQueueWhenUpdated
+            subscriptionGroupId: SubscriptionGroupId.DefaultGroupId,
+            lastCheckedAt: _defaultSettings.LastChecked,
+            isAutoUpdateEnabled: _defaultSettings.IsAutoUpdateEnabled,
+            isAddToQueueWhenUpdated: _defaultSettings.IsAddToQueueWhenUpdated,
+            isToastNotificationEnabled: _defaultSettings.IsToastNotificationEnabled,
+            isInAppLiteNotificationEnabled: _defaultSettings.IsInAppLiteNotificationEnabled,
+            isShowInAppMenu: _defaultSettings.IsShowInAppMenu
             );
     }
     
-    private void SetDefaultGroupLastCheckedAt(DateTime lastChecked)
-    {
-        _defaultSettings.LastChecked = lastChecked;        
-    }
-
-    private void SetDefaultGroupIsAutoUpdateEnabled(bool isAutoUpdateEnabled)
-    {
-        _defaultSettings.IsAutoUpdateEnabled = isAutoUpdateEnabled;
-    }
-
     internal SubscriptionGroupProps GetOrAdd(SubscriptionGroupId groupId)
     {
-        if (!(_collection.FindOne(x => x.SubscriptionGroupId == groupId) is not null and var entity))
-        {            
-            if (groupId == SubscriptionGroupId.DefaultGroupId)
-            {
-                entity = GetDefaultGroup();
-            }
-            else
+        if (groupId == SubscriptionGroupId.DefaultGroupId)
+        {
+            return GetDefaultGroup();
+        }
+
+        try
+        {
+            if (!(_collection.FindOne(x => x.SubscriptionGroupId == groupId) is not null and var entity))
             {
                 entity = new SubscriptionGroupProps(groupId);
                 _collection.Insert(entity);
             }
-        }
 
-        return entity;
+            return entity;
+        }
+        catch
+        {
+            var entity = new SubscriptionGroupProps(groupId);
+            _collection.Upsert(entity);
+            return entity;
+        }
     }
 
     public override bool UpdateItem(SubscriptionGroupProps item)
@@ -1021,6 +1057,9 @@ public sealed class SubscriptionGroupCheckedRespository : LiteDBServiceBase<Subs
             _defaultSettings.LastChecked = item.LastCheckedAt;
             _defaultSettings.IsAutoUpdateEnabled = item.IsAutoUpdateEnabled;
             _defaultSettings.IsAddToQueueWhenUpdated= item.IsAddToQueueWhenUpdated;
+            _defaultSettings.IsToastNotificationEnabled = item.IsToastNotificationEnabled;
+            _defaultSettings.IsInAppLiteNotificationEnabled = item.IsInAppLiteNotificationEnabled;
+            _defaultSettings.IsShowInAppMenu = item.IsShowInAppMenu;
             return true;
         }
         else

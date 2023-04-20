@@ -39,3 +39,10 @@ public sealed class SubscriptionGroupCheckedAtChangedMessage : ValueChangedMessa
 
     public SubscriptionGroupId SubscriptionGroupId { get; }
 }
+
+public sealed class SubscriptionGroupPropsChangedMessage : ValueChangedMessage<SubscriptionGroupProps>
+{
+    public SubscriptionGroupPropsChangedMessage(SubscriptionGroupProps value) : base(value)
+    {
+    }
+}
