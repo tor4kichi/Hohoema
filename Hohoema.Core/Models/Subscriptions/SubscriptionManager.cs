@@ -643,8 +643,9 @@ public sealed class SubscriptionManager
         update ??= _subscriptionUpdateRespository.GetOrAdd(subscription.SubscriptionId);
 
         Debug.WriteLine("[FeedUpdate] start: " + subscription.Label);
-        update.LastUpdatedAt = updateDateTime ?? DateTime.Now;
-        _subscriptionUpdateRespository.UpdateItem(update);
+        DateTime currentUpdatedAt = updateDateTime ?? DateTime.Now;
+        DateTime lastUpdatedAt = update.LastUpdatedAt;
+
         try
         {
             var videos = await Task.Run(
@@ -656,7 +657,7 @@ public sealed class SubscriptionManager
 
             List<SubscFeedVideo> newSubscVideos = _subscFeedVideoRepository.RegisteringVideosIfNotExist(
                 subscription.SubscriptionId,
-                update.LastUpdatedAt,
+                lastUpdatedAt,
                 videos
                 ).ToList();
             
@@ -666,20 +667,25 @@ public sealed class SubscriptionManager
             }
 
             var newVideoIds = newSubscVideos.Select(x => x.VideoId).ToHashSet();
-            var newVideos = update.LastUpdatedAt != DateTime.MinValue
+            var newVideos = lastUpdatedAt != DateTime.MinValue
                 ? videos.Where(x => newVideoIds.Contains(x.VideoId)).ToList()
                 : new List<NicoVideo>()
                 ;
 
-            var result = new SubscriptionFeedUpdateResult(subscription, videos, newVideos, update.LastUpdatedAt);
+            var result = new SubscriptionFeedUpdateResult(subscription, videos, newVideos, currentUpdatedAt);
             _messenger.Send(new SubscriptionFeedUpdatedMessage(result));
             return result;
         }
         catch (Exception ex)
         {
-            var result = new SubscriptionFeedUpdateResult(subscription, SubscriptionFeedUpdateFailedReason.SourceCanNotAccess, update.LastUpdatedAt);
+            var result = new SubscriptionFeedUpdateResult(subscription, SubscriptionFeedUpdateFailedReason.SourceCanNotAccess, lastUpdatedAt);
             _messenger.Send(new SubscriptionFeedUpdatedMessage(result));
             return result;
+        }
+        finally
+        {
+            update.LastUpdatedAt = currentUpdatedAt;
+            _subscriptionUpdateRespository.UpdateItem(update);
         }
     }
 
