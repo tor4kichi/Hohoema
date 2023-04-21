@@ -155,7 +155,7 @@
                     </Button>
                   </StackPanel>
 
-                  <TextBlock Text="{x:Bind SubscriptionGroup.Name}" />
+                  <TextBlock Text="{x:Bind GroupName, Mode=OneWay}" />
                 </controls:DockPanel>
               </DataTemplate>
             </GroupStyle.HeaderTemplate>
@@ -245,7 +245,7 @@
 
         <extensions:ListViewBase.ItemContextFlyoutTemplate>
           <DataTemplate>
-            <MenuFlyout Placement="Bottom" Opened="MenuFlyout_Opened">
+            <MenuFlyout Placement="Bottom" Opened="MenuFlyout_Opened" Opening="MenuFlyout_Opening">
               <MenuFlyoutItem Text="{i18nExt:Localize Key=Play}" Command="{Binding PlayVideoItemCommand}" Visibility="Collapsed" />
               <MenuFlyoutItem Text="{i18nExt:Localize Key=OpenSubscriptionSourceVideoList}" Command="{Binding OpenSourceVideoListPageCommand}" />
               <MenuFlyoutSeparator />

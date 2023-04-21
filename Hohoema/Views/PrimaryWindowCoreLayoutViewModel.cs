@@ -1013,6 +1013,7 @@ public sealed class LiveContentMenuItemViewModel : HohoemaListingPageItemBase, M
 public sealed partial class SubscriptionMenuItemViewModel 
     : MenuItemViewModel
     , IRecipient<SubscriptionGroupCreatedMessage>
+    , IRecipient<SubscriptionGroupUpdatedMessage>
     , IRecipient<SubscriptionGroupDeletedMessage>
     , IRecipient<SubscriptionGroupReorderedMessage>
     , IRecipient<SettingsRestoredMessage>
@@ -1042,12 +1043,13 @@ public sealed partial class SubscriptionMenuItemViewModel
             );
 
         _messenger.Register<SubscriptionGroupCreatedMessage>(this);
+        _messenger.Register<SubscriptionGroupUpdatedMessage>(this); 
         _messenger.Register<SubscriptionGroupDeletedMessage>(this);
         _messenger.Register<SubscriptionGroupReorderedMessage>(this);
         _messenger.Register<SettingsRestoredMessage>(this);
         _messenger.Register<SubscriptionFeedUpdatedMessage>(this);
         _messenger.Register<SubscriptionCheckedAtChangedMessage>(this);
-        _messenger.Register<SubscriptionGroupPropsChangedMessage>(this);        
+        _messenger.Register<SubscriptionGroupPropsChangedMessage>(this);
     }
 
     protected override void OnDispose()
@@ -1055,6 +1057,7 @@ public sealed partial class SubscriptionMenuItemViewModel
         base.OnDispose();
 
         _messenger.Unregister<SubscriptionGroupCreatedMessage>(this);
+        _messenger.Unregister<SubscriptionGroupUpdatedMessage>(this);
         _messenger.Unregister<SubscriptionGroupDeletedMessage>(this);
         _messenger.Unregister<SubscriptionGroupReorderedMessage>(this);
         _messenger.Unregister<SettingsRestoredMessage>(this);
@@ -1098,6 +1101,19 @@ public sealed partial class SubscriptionMenuItemViewModel
         }
 
         SubscGroups.Add(ToMenuItemVM(group));
+    }
+
+
+    void IRecipient<SubscriptionGroupUpdatedMessage>.Receive(SubscriptionGroupUpdatedMessage message)
+    {
+        foreach (var subscGroupVM in SubscGroups)
+        {
+            if (subscGroupVM.GroupId == message.Value.GroupId)
+            {
+                subscGroupVM.Label = message.Value.Name;
+                break;
+            }
+        }
     }
 
     void IRecipient<SubscriptionGroupDeletedMessage>.Receive(SubscriptionGroupDeletedMessage message)

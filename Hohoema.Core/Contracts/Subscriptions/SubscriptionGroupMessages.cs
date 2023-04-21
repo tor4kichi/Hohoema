@@ -15,6 +15,13 @@ public sealed class SubscriptionGroupCreatedMessage : ValueChangedMessage<Subscr
     }
 }
 
+public sealed class SubscriptionGroupUpdatedMessage : ValueChangedMessage<SubscriptionGroup>
+{
+    public SubscriptionGroupUpdatedMessage(SubscriptionGroup value) : base(value)
+    {
+    }
+}
+
 public sealed class SubscriptionGroupDeletedMessage : ValueChangedMessage<SubscriptionGroup>
 {
     public SubscriptionGroupDeletedMessage(SubscriptionGroup value) : base(value)

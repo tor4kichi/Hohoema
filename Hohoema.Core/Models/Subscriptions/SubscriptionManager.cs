@@ -122,7 +122,7 @@ public sealed class SubscriptionManager
 
     public List<SubscriptionGroup> GetSubscriptionGroups(bool withDefaultGroup = false)
     {
-        var list = _subscriptionGroupRepository.ReadAllItems();
+        var list = _subscriptionGroupRepository.Find(Query.All(nameof(SubscriptionGroup.Order), Query.Ascending)).ToList();
         if (withDefaultGroup)
         {
             list.Insert(0, DefaultSubscriptionGroup);
@@ -312,6 +312,8 @@ public sealed class SubscriptionManager
     {
         if (group.IsDefaultGroup) { return; }
         _subscriptionGroupRepository.UpdateItem(group);
+
+        _messenger.Send<SubscriptionGroupUpdatedMessage>(new(group));
     }
 
     public void RemoveSubscription(Subscription entity)

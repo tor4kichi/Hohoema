@@ -17,6 +17,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using ZLogger;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Hohoema.ViewModels.Subscriptions;
 
@@ -30,11 +31,20 @@ public sealed class AddSubscriptionCommand : CommandBase
     private readonly SeriesProvider _seriesRepository;
     private readonly IDialogService _dialogService;
     private readonly ISelectionDialogService _selectionDialogService;
+    private readonly ISubscriptionDialogService _subscriptionDialogService;
 
     // 前回選択の購読グループを記憶する
     // 設定項目として永続化するには馴染まないのでアプリ起動中のみ保持
     static SubscriptionGroupId? _lastSelectedSubscriptionGroupId;
 
+    static SubscriptionGroupCreateResult _subscriptionGroupDefault = new ()
+    {
+        Title = "",
+        IsShowMenuItem = true,
+        IsAddToQueue = true,
+        IsAutoUpdate = true,
+        IsToastNotification = true
+    };
     public AddSubscriptionCommand(
         ILogger logger,
         SubscriptionManager subscriptionManager,
@@ -43,7 +53,8 @@ public sealed class AddSubscriptionCommand : CommandBase
         NotificationService notificationService,
         SeriesProvider seriesRepository,
         IDialogService dialogService,
-        ISelectionDialogService selectionDialogService
+        ISelectionDialogService selectionDialogService,
+        ISubscriptionDialogService subscriptionDialogService
         )
     {
         _logger = logger;
@@ -54,6 +65,7 @@ public sealed class AddSubscriptionCommand : CommandBase
         _seriesRepository = seriesRepository;
         _dialogService = dialogService;
         _selectionDialogService = selectionDialogService;
+        _subscriptionDialogService = subscriptionDialogService;
     }
 
     protected override bool CanExecute(object parameter)
@@ -126,18 +138,28 @@ public sealed class AddSubscriptionCommand : CommandBase
                 secondaryButtonText: "CreateNew".Translate(),
                 secondaryButtonAction: async () => 
                 {
-                    string? text = await _dialogService.GetTextAsync(
-                        title: "SubscGroup_CreateGroup".Translate(),
-                        placeholder: "",
-                        defaultText: "",
-                        validater: (s) => !string.IsNullOrWhiteSpace(s)
-                        );
-                    if (string.IsNullOrWhiteSpace(text))
+                    if (await _subscriptionDialogService.ShowSubscriptionGroupCreateDialogAsync(
+                        "",
+                        isAutoUpdateDefault: _subscriptionGroupDefault.IsAutoUpdate,
+                        isAddToQueueeDefault: _subscriptionGroupDefault.IsAddToQueue,
+                        isToastNotificationDefault: _subscriptionGroupDefault.IsToastNotification,
+                        isShowMenuItemDefault: _subscriptionGroupDefault.IsShowMenuItem
+                        )
+                        is { } result && result.IsSuccess is false)
                     {
-                        return default;
+                        return default!;
                     }
 
-                    return _subscriptionManager.CreateSubscriptionGroup(text);
+                    _subscriptionGroupDefault = result with { Title = "" };
+
+                    var subscGroup = _subscriptionManager.CreateSubscriptionGroup(result.Title);
+                    var props = _subscriptionManager.GetSubscriptionGroupProps(subscGroup.GroupId);
+                    props.IsAutoUpdateEnabled = result.IsAutoUpdate;
+                    props.IsAddToQueueWhenUpdated = result.IsAddToQueue;
+                    props.IsToastNotificationEnabled = result.IsToastNotification;
+                    props.IsShowInAppMenu = result.IsShowMenuItem;
+                    _subscriptionManager.SetSubcriptionGroupProps(props);
+                    return subscGroup;
                 }
                 );
 

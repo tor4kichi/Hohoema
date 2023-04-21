@@ -62,6 +62,7 @@ using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using ZLogger;
 using ValueTaskSupplement;
+using Hohoema.Contracts.Subscriptions;
 
 namespace Hohoema;
 
@@ -316,8 +317,7 @@ public sealed partial class App : Application
 
         NavigationService.ViewTypeResolver = viewLocator.ResolveViewType;
     }
-
-    [Obsolete]
+    
     public void RegisterTypes(IContainer container)
     {
         //            unityContainer.Register<PrimaryViewPlayerManager>(made: Made.Of().Parameters.Name("navigationServiceLazy", x => new Lazy<INavigationService>(() => unityContainer.Resolve<INavigationService>(serviceKey: "PrimaryPlayerNavigationService"))));
@@ -371,7 +371,8 @@ public sealed partial class App : Application
         container.RegisterMapping<ISuspendAndResumeAware, SubscriptionUpdateManager>(ifAlreadyRegistered: IfAlreadyRegistered.AppendNotKeyed);
         container.Register<NavigationTriggerFromExternal>(reuse: Reuse.Singleton);
         container.RegisterMapping<IToastActivationAware, NavigationTriggerFromExternal>(ifAlreadyRegistered: IfAlreadyRegistered.AppendNotKeyed);
-        
+        container.Register<ISubscriptionDialogService, SubscriptionDialogService>();
+
         // container.Register<ILocalizeService, LocalizeService>(); とした場合に
         // - System.PlatformNotSupportedException
         // - Dynamic code generation is not supported on this platform.

@@ -91,6 +91,10 @@ public sealed partial class SubscriptionManagementPage : Page
         }        
     }
 
+    private void MenuFlyout_Opening(object sender, object e)
+    {
+        var menuFlyout = sender as MenuFlyout;
+    }
 }
 
 

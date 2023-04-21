@@ -52,6 +52,7 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
     private readonly IScheduler _scheduler;
     private readonly IMessenger _messenger;
     private readonly INotificationService _notificationService;
+    private readonly ISubscriptionDialogService _subscriptionDialogService;
     private readonly ILogger<SubscriptionManagementPageViewModel> _logger;
 
     public IReadOnlyReactiveProperty<bool> IsAutoUpdateRunning { get; }
@@ -71,6 +72,7 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
         IScheduler scheduler, 
         IMessenger messenger,
         INotificationService notificationService,
+        ISubscriptionDialogService subscriptionDialogService,
         SubscriptionManager subscriptionManager,
         SubscriptionUpdateManager subscriptionUpdateManager,
         DialogService dialogService,
@@ -83,6 +85,7 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
         _scheduler = scheduler;
         _messenger = messenger;
         _notificationService = notificationService;
+        _subscriptionDialogService = subscriptionDialogService;
         _subscriptionManager = subscriptionManager;
         _subscriptionUpdateManager = subscriptionUpdateManager;
         _dialogService = dialogService;        
@@ -231,19 +234,29 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
     [RelayCommand]
     async Task AddSubscriptionGroup(SubscriptionViewModel subscVM)
     {
-        var name =await _dialogService.GetTextAsync(
-            "AddSubscriptionGroup_InputSubscGroupName_Title".Translate(),
+        if (await _subscriptionDialogService.ShowSubscriptionGroupCreateDialogAsync(
             "",
-            "",
-            (s) => !string.IsNullOrWhiteSpace(s)
-            );
+            isAutoUpdateDefault: true,
+            isAddToQueueeDefault: true,
+            isToastNotificationDefault: true,
+            isShowMenuItemDefault: true
+            )
+            is { } result && result.IsSuccess is false)
+        {
+            return ;
+        }
 
-        if (string.IsNullOrWhiteSpace(name)) { return; }
+        var subscGroup = _subscriptionManager.CreateSubscriptionGroup(result.Title);
+        var props = _subscriptionManager.GetSubscriptionGroupProps(subscGroup.GroupId);
+        props.IsAutoUpdateEnabled = result.IsAutoUpdate;
+        props.IsAddToQueueWhenUpdated = result.IsAddToQueue;
+        props.IsToastNotificationEnabled = result.IsToastNotification;
+        props.IsShowInAppMenu = result.IsShowMenuItem;
+        _subscriptionManager.SetSubcriptionGroupProps(props);
+        
+        SubscriptionGroups.Add(ToSubscriptionGroupVM(subscGroup));
 
-        SubscriptionGroup newGroup = _subscriptionManager.CreateSubscriptionGroup(name);
-        SubscriptionGroups.Add(ToSubscriptionGroupVM(newGroup));
-
-        subscVM.ChangeSubscGroup(newGroup);
+        subscVM.ChangeSubscGroup(subscGroup);
     }
 }
 
@@ -267,6 +280,16 @@ public sealed partial class SubscriptionGroupViewModel
     private readonly INotificationService _notificationService;
     private readonly SubscriptionGroupProps _groupProps;
 
+    [ObservableProperty]
+    private string _groupName;
+
+    partial void OnGroupNameChanged(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) { return; }
+
+        SubscriptionGroup.Name = value;
+        _subscriptionManager.UpdateSubscriptionGroup(SubscriptionGroup);
+    }
 
     [ObservableProperty]
     private bool _hasNewVideos;
@@ -367,6 +390,7 @@ public sealed partial class SubscriptionGroupViewModel
         _messenger.Register<SubscriptionDeletedMessage>(this);
         _messenger.Register<SubscriptionGroupMovedMessage>(this);
 
+        _groupName = subscriptionGroup.Name;
         _groupProps = _subscriptionManager.GetSubscriptionGroupProps(SubscriptionGroup.GroupId);
         _unwatchedVideoCount = _subscriptionManager.GetFeedVideosCountWithNewer(SubscriptionGroup.GroupId);
         _hasNewVideos = _unwatchedVideoCount != 0;
@@ -500,11 +524,10 @@ public sealed partial class SubscriptionGroupViewModel
     {
         var group = SubscriptionGroup;
         string? resultName = await _dialogService.GetTextAsync("SubscGroup_Rename".Translate(), "", group.Name, (s) => !string.IsNullOrWhiteSpace(s) && s.Length <= 40);
-        if (resultName is null) { return; }
+        if (string.IsNullOrWhiteSpace(resultName)) { return; }
 
-        group.Name = resultName;
-        _subscriptionManager.UpdateSubscriptionGroup(group);
-
+        GroupName = resultName;
+        
         foreach (var subsc in Subscriptions)
         {
             if (subsc.Group?.GroupId == group.GroupId)
