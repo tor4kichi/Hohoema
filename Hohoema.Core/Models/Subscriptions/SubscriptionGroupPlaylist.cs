@@ -38,7 +38,7 @@ public sealed class SubscriptionGroupPlaylist
 
     public string Name => _group?.Name ?? _localizeService.Translate("All");
 
-    public PlaylistId PlaylistId => new PlaylistId(PlaylistItemsSourceOrigin.SubscriptionGroup , _group.GroupId.ToString());
+    public PlaylistId PlaylistId => new PlaylistId(PlaylistItemsSourceOrigin.SubscriptionGroup , (_group?.GroupId ?? SubscriptionGroupId.DefaultGroupId).ToString());
 
     public static readonly SubscriptionSortOption[] SortOptions = new[] { new SubscriptionSortOption() };
 
@@ -67,7 +67,7 @@ public sealed class SubscriptionGroupPlaylist
     {
         if (_group != null)
         {
-            _subscriptionManager.SetCheckedAt(_group.GroupId, video.PostedAt + TimeSpan.FromSeconds(1));
+            _subscriptionManager.SetSubscriptionCheckedAt(_group.GroupId, video);
         }
     }
 }

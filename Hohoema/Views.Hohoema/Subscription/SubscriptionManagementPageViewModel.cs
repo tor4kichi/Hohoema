@@ -51,6 +51,7 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
     private readonly QueuePlaylist _queuePlaylist;
     private readonly IScheduler _scheduler;
     private readonly IMessenger _messenger;
+    private readonly INotificationService _notificationService;
     private readonly ILogger<SubscriptionManagementPageViewModel> _logger;
 
     public IReadOnlyReactiveProperty<bool> IsAutoUpdateRunning { get; }
@@ -69,6 +70,7 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
         ILoggerFactory loggerFactory,
         IScheduler scheduler, 
         IMessenger messenger,
+        INotificationService notificationService,
         SubscriptionManager subscriptionManager,
         SubscriptionUpdateManager subscriptionUpdateManager,
         DialogService dialogService,
@@ -80,6 +82,7 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
         _logger = loggerFactory.CreateLogger<SubscriptionManagementPageViewModel>();
         _scheduler = scheduler;
         _messenger = messenger;
+        _notificationService = notificationService;
         _subscriptionManager = subscriptionManager;
         _subscriptionUpdateManager = subscriptionUpdateManager;
         _dialogService = dialogService;        
@@ -119,7 +122,7 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
 
     SubscriptionGroupViewModel ToSubscriptionGroupVM(SubscriptionGroup subscriptionGroup)
     {
-        return new SubscriptionGroupViewModel(this, subscriptionGroup, _subscriptionManager, _queuePlaylist, _scheduler, _logger, _messenger, _dialogService);
+        return new SubscriptionGroupViewModel(this, subscriptionGroup, _subscriptionManager, _queuePlaylist, _scheduler, _logger, _messenger, _dialogService, _notificationService);
     }
 
     void ClearSubscriptionGroupVM()
@@ -261,7 +264,7 @@ public sealed partial class SubscriptionGroupViewModel
     private readonly ILogger _logger;
     private readonly IMessenger _messenger;
     private readonly IDialogService _dialogService;
-    
+    private readonly INotificationService _notificationService;
     private readonly SubscriptionGroupProps _groupProps;
 
 
@@ -342,7 +345,8 @@ public sealed partial class SubscriptionGroupViewModel
         IScheduler scheduler,
         ILogger logger,
         IMessenger messenger,
-        IDialogService dialogService
+        IDialogService dialogService,
+        INotificationService notificationService
         )
     {
         _pageVM = pageVM;
@@ -353,6 +357,7 @@ public sealed partial class SubscriptionGroupViewModel
         _logger = logger;
         _messenger = messenger;
         _dialogService = dialogService;
+        _notificationService = notificationService;
         Subscriptions = new ObservableCollection<SubscriptionViewModel>(
             _subscriptionManager.GetSubscriptions(SubscriptionGroup.GroupId)
             .Select(ToSubscriptionVM)
@@ -383,7 +388,7 @@ public sealed partial class SubscriptionGroupViewModel
 
     private SubscriptionViewModel ToSubscriptionVM(Models.Subscriptions.Subscription subscription)
     {
-        return new SubscriptionViewModel(subscription, _subscriptionManager, this, _queuePlaylist, _logger, _messenger, _dialogService);
+        return new SubscriptionViewModel(subscription, _subscriptionManager, this, _queuePlaylist, _logger, _messenger, _dialogService, _notificationService);
     }
 
     void IRecipient<SubscriptionAddedMessage>.Receive(SubscriptionAddedMessage m)
@@ -469,9 +474,16 @@ public sealed partial class SubscriptionGroupViewModel
     void AddToQueue()
     {
         var videos = _subscriptionManager.GetSubscFeedVideosNewerAt(SubscriptionGroup.GroupId);
+        int prevVount = _queuePlaylist.Count;
         foreach (var video in videos)
         {
             _queuePlaylist.Add(video);
+        }
+
+        var subCount = _queuePlaylist.Count - prevVount;
+        if (0 < subCount)
+        {
+            _notificationService.ShowLiteInAppNotification("Notification_SuccessAddToWatchLaterWithAddedCount".Translate(subCount));
         }
     }
 
@@ -600,6 +612,7 @@ public partial class SubscriptionViewModel
     private readonly ILogger _logger;
     private readonly IMessenger _messenger;
     private readonly IDialogService _dialogService;
+    private readonly INotificationService _notificationService;
 
     public string SourceParameter => _source.SourceParameter;
     public SubscriptionSourceType SourceType => _source.SourceType;
@@ -682,7 +695,8 @@ public partial class SubscriptionViewModel
         QueuePlaylist queuePlaylist,
         ILogger logger,
         IMessenger messenger,
-        IDialogService dialogService
+        IDialogService dialogService,
+        INotificationService notificationService
         )
     {
         _logger = logger;
@@ -692,13 +706,14 @@ public partial class SubscriptionViewModel
         _queuePlaylist = queuePlaylist;
         _subscriptionManager = subscriptionManager;
         _dialogService = dialogService;
+        _notificationService = notificationService;
         _isAutoUpdateEnabled = _source.IsAutoUpdateEnabled;
         _group = _source.Group;
 
-        var lastCheckedAt = _subscriptionManager.GetLastUpdatedAt(_source.SubscriptionId);
-        _lastUpdatedAt = lastCheckedAt;
-        _nextUpdateAt = _subscriptionManager.GetNextUpdateTime(lastCheckedAt);
-        _unwatchedVideoCount = _subscriptionManager.GetFeedVideosCountWithNewer(_source, lastCheckedAt);
+        var lastUpdatedAt = _subscriptionManager.GetLastUpdatedAt(_source.SubscriptionId);
+        _lastUpdatedAt = lastUpdatedAt;
+        _nextUpdateAt = _subscriptionManager.GetNextUpdateTime(lastUpdatedAt);
+        _unwatchedVideoCount = _subscriptionManager.GetFeedVideosCountWithNewer(_source);
         _hasNewVideos = _unwatchedVideoCount != 0;
         _isToastNotificationEnabled = _source.IsToastNotificationEnabled;
         _isAddToQueueWhenUpdated = _source.IsAddToQueueWhenUpdated;
@@ -732,7 +747,7 @@ public partial class SubscriptionViewModel
 
         LastUpdatedAt = updatedAt;
         NextUpdateAt = _subscriptionManager.GetNextUpdateTime(updatedAt);
-        UnwatchedVideoCount = _subscriptionManager.GetFeedVideosCountWithNewer(_source, updatedAt);
+        UnwatchedVideoCount = _subscriptionManager.GetFeedVideosCountWithNewer(_source);
     }
     
     [RelayCommand]
@@ -753,7 +768,7 @@ public partial class SubscriptionViewModel
                 if (result.IsSuccessed)
                 {
                     LastUpdatedAt = result.UpdateAt;
-                    UnwatchedVideoCount = _subscriptionManager.GetFeedVideosCountWithNewer(_source, LastUpdatedAt);
+                    UnwatchedVideoCount = _subscriptionManager.GetFeedVideosCountWithNewer(_source);
                 }
                 else
                 {
@@ -839,9 +854,16 @@ public partial class SubscriptionViewModel
     void AddToQueue()
     {
         var videos = _subscriptionManager.GetSubscFeedVideosNewerAt(_source);
+        int prevVount = _queuePlaylist.Count;
         foreach (var video in videos)
         {
             _queuePlaylist.Add(video);
+        }
+
+        var subCount = _queuePlaylist.Count - prevVount;
+        if (0 < subCount)
+        {
+            _notificationService.ShowLiteInAppNotification("Notification_SuccessAddToWatchLaterWithAddedCount".Translate(subCount));
         }
     }
 

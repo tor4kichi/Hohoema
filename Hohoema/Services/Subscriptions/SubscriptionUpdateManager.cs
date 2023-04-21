@@ -236,7 +236,7 @@ public sealed class SubscriptionUpdateManager
                         try
                         {
                             var update = _subscriptionManager.GetSubscriptionProps(subscription.SubscriptionId);
-                            if (_subscriptionManager.CheckCanUpdate(isManualUpdate: false, subscription, update) is not null and SubscriptionFeedUpdateFailedReason failedReason)
+                            if (_subscriptionManager.CheckCanUpdate(isManualUpdate: false, subscription, ref update) is not null and SubscriptionFeedUpdateFailedReason failedReason)
                             {
                                 _logger.ZLogDebug("Skiped. Label: {0}, Reason: {1}", subscription.Label, failedReason);
                                 continue;
@@ -341,8 +341,7 @@ public sealed class SubscriptionUpdateManager
                     // Note: ObjectId.Empty は デフォルトグループを指す
                     var groupId = SubscriptionGroupId.Parse(groupIdPlay);
                     // TODO: 購読グループの未視聴動画を再生する
-                    var lastCheckAt = _subscriptionManager.GetLastCheckedAt(groupId);
-                    var recentVideoInUnchecked = _subscriptionManager.GetSubscFeedVideosNewerAt(groupId, lastCheckAt).FirstOrDefault();
+                    var recentVideoInUnchecked = _subscriptionManager.GetSubscFeedVideosNewerAt(groupId).FirstOrDefault();
                     Guard.IsNotNull(recentVideoInUnchecked, nameof(recentVideoInUnchecked));
                     await _messenger.Send(VideoPlayRequestMessage.PlayPlaylist(groupId.ToString(), PlaylistItemsSourceOrigin.SubscriptionGroup, string.Empty, recentVideoInUnchecked.VideoId));
                 }
@@ -452,7 +451,7 @@ public sealed class SubscriptionUpdateManager
         foreach (var source in sources)
         {
             var videos = _subscriptionManager.GetSubscFeedVideos(source, 0, 5).Select(x => new NicoVideo() { Id = x.VideoId, Title = x.Title }).ToList();
-            results.Add(new SubscriptionFeedUpdateResult(source, videos, videos, updateAt));
+            results.Add(new SubscriptionFeedUpdateResult(source, videos, updateAt));
         }
 
         TriggerToastNotificationFeedUpdateResult(results);

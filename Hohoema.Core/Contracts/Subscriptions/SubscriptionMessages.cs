@@ -40,3 +40,13 @@ public sealed class SubscriptionGroupMovedMessage : ValueChangedMessage<Subscrip
     public SubscriptionGroupId LastGroupId { get; init; }
     public SubscriptionGroupId CurrentGroupId { get; init; }
 }
+
+public sealed class SubscriptionCheckedAtChangedMessage : ValueChangedMessage<SubscriptionUpdate>
+{
+    public SubscriptionCheckedAtChangedMessage(SubscriptionUpdate value, SubscriptionGroupId subscriptionGroupId) : base(value)
+    {
+        SubscriptionGroupId = subscriptionGroupId;
+    }
+
+    public SubscriptionGroupId SubscriptionGroupId { get; }
+}

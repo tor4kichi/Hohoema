@@ -66,21 +66,19 @@ public sealed class ItemIndexUpdatedMessage : ValueChangedMessage<PlaylistItemIn
     }
 }
 
-public class QueuePlaylistItem : IVideoContent, IVideoContentProvider
+public class QueuePlaylistItem : IVideoContent
 {
     private QueuePlaylistItem(QueuePlaylistItem item) { }
 
     public QueuePlaylistItem() { }
 
-    public QueuePlaylistItem(IVideoContent video, IVideoContentProvider videoContentProvider, PlaylistId sourcePlaylistId)
+    public QueuePlaylistItem(IVideoContent video, PlaylistId sourcePlaylistId)
     {
         Id = video.VideoId;
         Length = video.Length;
         Title = video.Title;
         PostedAt = video.PostedAt;
         ThumbnailUrl = video.ThumbnailUrl;
-        ProviderId = videoContentProvider.ProviderId;
-        ProviderType = videoContentProvider.ProviderType;
         SourcePlaylistId = sourcePlaylistId;
     }
 
@@ -99,10 +97,6 @@ public class QueuePlaylistItem : IVideoContent, IVideoContentProvider
     public string Title { get; init; }
 
     public int Index { get; internal set; }
-
-    public string ProviderId { get; init; }
-
-    public OwnerType ProviderType { get; init; }
 
     public PlaylistId SourcePlaylistId { get; init; }
 
@@ -293,10 +287,14 @@ public class QueuePlaylist
 
     public QueuePlaylistItem Add(IVideoContent video, PlaylistId playlistId = null)
     {
-        Guard.IsAssignableToType<IVideoContentProvider>(video, nameof(video));
-        Guard.IsFalse(Contains(video.VideoId), "already contain videoId");
+        var alreadyItem = Items.FirstOrDefault(x => x.VideoId == video.VideoId);
+        if (alreadyItem != null)
+        {
+            Items.Remove(alreadyItem);
+            RemoveEntity(alreadyItem.VideoId);
+        }
 
-        QueuePlaylistItem addedItem = new(video, video as IVideoContentProvider, playlistId);
+        QueuePlaylistItem addedItem = new(video, playlistId);
         Items.Add(addedItem);
         SendAddedMessage(addedItem);
         AddEntity(addedItem);
@@ -307,10 +305,13 @@ public class QueuePlaylist
 
     public QueuePlaylistItem Insert(int index, IVideoContent video, PlaylistId playlistId = null)
     {
-        Guard.IsAssignableToType<IVideoContentProvider>(video, nameof(video));
-        Guard.IsFalse(Contains(video.VideoId), "already contain videoId");
+        var alreadyItem = Items.FirstOrDefault(x => x.VideoId == video.VideoId);
+        if (alreadyItem != null)
+        {
+            Items.Remove(alreadyItem);
+        }
 
-        QueuePlaylistItem addedItem = new(video, video as IVideoContentProvider, playlistId);
+        QueuePlaylistItem addedItem = new(video, playlistId);
         Items.Insert(index, addedItem);
         SendAddedMessage(addedItem);
         AddEntity(addedItem);
@@ -335,8 +336,6 @@ public class QueuePlaylist
     }
     public void Remove(IVideoContent removeItem)
     {
-        Guard.IsTrue(Contains(removeItem.VideoId), "no contain videoId");
-
         QueuePlaylistItem item = Items.FirstOrDefault(x => x.Equals(removeItem));
         if (item == null) { return; }
 

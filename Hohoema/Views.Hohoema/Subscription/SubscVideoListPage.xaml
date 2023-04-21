@@ -53,15 +53,11 @@
           <StackPanel Orientation="Horizontal" HorizontalAlignment="Center"
                       Spacing="16"
                       >
-            <TextBlock Text="{x:Bind Localize(CheckedDate), Mode=OneWay}" IsHitTestVisible="False" Opacity="0.7" 
-                       VerticalAlignment="Center"
-                       />
-
             <Button Command="{x:Bind PlayFromHereCommand}">
 
               <StackPanel Orientation="Horizontal">
                 <SymbolIcon Symbol="Play"></SymbolIcon>
-                <TextBlock Text="" />
+                <TextBlock Text="{i18nExt:Localize Key=SubscGroup_PlayFromHere}" />
               </StackPanel>
             </Button>
 

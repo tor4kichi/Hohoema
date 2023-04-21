@@ -177,7 +177,7 @@ public sealed class SubscFeedVideoRepository
 
     public (List<SubscFeedVideo> newSubscVideos, List<NicoVideo> newVideos) RegisteringVideosIfNotExist(SubscriptionId subscId, DateTime updateAt, IEnumerable<NicoVideo> videos)
     {
-        var newVideos = videos.Where(x => !_subscFeedVideoRepository.Exists(x => x.SourceSubscId == subscId && x.VideoId == x.VideoId)).ToList();
+        var newVideos = videos.Where(x => x.PostedAt > updateAt).ToList();
         var newSubscItems = newVideos
             .Select(x => new SubscFeedVideo()
             {
@@ -207,5 +207,10 @@ public sealed class SubscFeedVideoRepository
     internal int GetVideoCountWithDateTimeNewer(SubscriptionId subscriptionId, DateTime targetDateTime)
     {
         return _subscFeedVideoRepository.CountSafe(x => x.SourceSubscId == subscriptionId && x.PostAt > targetDateTime);
+    }
+
+    internal bool IsVideoExists(SubscriptionId subscriptionId, string videoId)
+    {
+        return _subscFeedVideoRepository.Exists(x => x.SourceSubscId == subscriptionId && x.VideoId == videoId);
     }
 }

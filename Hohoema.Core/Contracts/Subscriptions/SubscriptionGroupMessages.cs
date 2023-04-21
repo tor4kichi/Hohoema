@@ -29,17 +29,6 @@ public sealed class SubscriptionGroupReorderedMessage : ValueChangedMessage<IRea
     }
 }
 
-
-public sealed class SubscriptionGroupCheckedAtChangedMessage : ValueChangedMessage<DateTime>
-{
-    public SubscriptionGroupCheckedAtChangedMessage(SubscriptionGroupId subscriptionGroupId, DateTime checkedAt) : base(checkedAt)
-    {
-        SubscriptionGroupId = subscriptionGroupId;        
-    }
-
-    public SubscriptionGroupId SubscriptionGroupId { get; }
-}
-
 public sealed class SubscriptionGroupPropsChangedMessage : ValueChangedMessage<SubscriptionGroupProps>
 {
     public SubscriptionGroupPropsChangedMessage(SubscriptionGroupProps value) : base(value)

@@ -51,7 +51,6 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
     {
         if (_lastSelectedSubscGroup != value)
         {
-            UpdateLastCheckedAt();
             ResetList();
         }
         _lastSelectedSubscGroup = value;
@@ -99,8 +98,6 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
         _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
     }
 
-    [ObservableProperty]
-    private DateTime _lastCheckedAt;
 
     public override void OnNavigatedTo(INavigationParameters parameters)
     {
@@ -139,14 +136,6 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
             SelectedSubscGroup = null;
         }
 
-        if (SelectedSubscGroup != null)
-        {
-            LastCheckedAt = _subscriptionManager.GetLastCheckedAt(SelectedSubscGroup.GroupId);
-        }
-        else
-        {
-            LastCheckedAt = DateTime.MinValue;
-        }
 
         _messenger.Register<SubscFeedVideoValueChangedMessage>(this, (r, m) => 
         {
@@ -186,34 +175,20 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
             });
         });
 
-        _messenger.Register<SubscriptionGroupCheckedAtChangedMessage>(this, (r, m) => 
+        _messenger.Register<SubscriptionCheckedAtChangedMessage>(this, (r, m) => 
         {
             if (SelectedSubscGroup?.GroupId == m.SubscriptionGroupId)
             {
-                UpdateLastCheckedAt();
                 ResetList();
             }
         });
     }    
 
-
-    private void UpdateLastCheckedAt()
-    {
-        if (SelectedSubscGroup != null)
-        {
-            LastCheckedAt = _subscriptionManager.GetLastCheckedAt(SelectedSubscGroup.GroupId);
-        }
-        else
-        {
-            LastCheckedAt = DateTime.MinValue;
-        }
-    }
-
     public override void OnNavigatedFrom(INavigationParameters parameters)
     {
         _messenger.Unregister<SubscFeedVideoValueChangedMessage>(this);
         _messenger.Unregister<NewSubscFeedVideoMessage>(this);
-        _messenger.Unregister<SubscriptionGroupCheckedAtChangedMessage>(this);        
+        _messenger.Unregister<SubscriptionCheckedAtChangedMessage>(this);        
     }
 
     private SubscriptionGroupPlaylist CreatePlaylist()
@@ -226,8 +201,7 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
         return (
             SubscVideoListIncrementalLoadingSource.PageSize,
             new SubscVideoListIncrementalLoadingSource(SelectedSubscGroup, CreatePlaylist(), _subscriptionManager, _nicoVideoProvider, _messenger, SeparatorFactory) 
-            {
-                LastCheckedAt = LastCheckedAt ,
+            {                
                 IsDisplayChceked = IsDisplayChecked
             }
             );
@@ -236,7 +210,7 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
     private SubscVideoSeparatorListItemViewModel SeparatorFactory(IVideoContent lastContent)
     {
         var playlistItemToken = new PlaylistItemToken(CreatePlaylist(), SubscriptionGroupPlaylist.DefaultSortOption, lastContent);
-        return new SubscVideoSeparatorListItemViewModel(LastCheckedAt, _messenger, playlistItemToken, allMarkAsCheckedAction: () => MarkAsCheckedWithDays(0));
+        return new SubscVideoSeparatorListItemViewModel(_messenger, playlistItemToken, allMarkAsCheckedAction: () => MarkAsCheckedWithDays(0));
     }    
 
     [RelayCommand]
@@ -247,57 +221,57 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
 
     [RelayCommand]
     public void MarkAsCheckedWithDays(int days)
-    {
-        if (days == 0)
-        {
-            if (SelectedSubscGroup != null)
-            {
-                LastCheckedAt = _subscriptionManager.GetLatestPostAt(SelectedSubscGroup.GroupId) + TimeSpan.FromSeconds(1);
-            }            
-            else
-            {
-                LastCheckedAt = DateTime.Now;
-            }
-        }
-        else
-        {
-            var targetDateTime = DateTime.Now - TimeSpan.FromDays(days);
-            if (targetDateTime < LastCheckedAt)
-            {
-                return;
-            }
-
-            LastCheckedAt = targetDateTime;
-        }
-        
+    {                
         if (SelectedSubscGroup == null)
         {
+            DateTime checkedAt;
+            if (days == 0)
+            {
+                checkedAt = DateTime.Now;
+            }
+            else
+            {
+                var targetDateTime = DateTime.Now - TimeSpan.FromDays(days);
+                checkedAt = targetDateTime;
+            }
+
             // 購読グループ未指定の場合は全ての購読グループのチェック日時を設定する
             foreach (var groupId in _subscriptionManager.GetSubscriptionGroups().Select(x => x.GroupId).Concat(new[] { SubscriptionGroupId.DefaultGroupId }))
             {
-                var latestPostAt = _subscriptionManager.GetLatestPostAt(groupId);
-                _subscriptionManager.SetCheckedAt(groupId, latestPostAt);
-
                 // 指定日時以前の動画を全て視聴済みにマークする
-                foreach (var video in _subscriptionManager.GetSubscFeedVideosOlderAt(SelectedSubscGroup?.GroupId, latestPostAt))
+                foreach (var video in _subscriptionManager.GetSubscFeedVideosOlderAt(groupId, checkedAt))
                 {
                     VideoId videoId = video.VideoId;
                     _videoWatchedRepository.MarkWatched(videoId);
                     _messenger.Send(new VideoWatchedMessage(videoId));
                 }
+
+                _subscriptionManager.UpdateSubscriptionCheckedAt(groupId, checkedAt);
             }
         }
         else
         {
-            _subscriptionManager.SetCheckedAt(SelectedSubscGroup.GroupId, LastCheckedAt);
-
+            DateTime checkedAt;
+            if (days == 0)
+            {
+                checkedAt = _subscriptionManager.GetLatestPostAt(SelectedSubscGroup.GroupId) + TimeSpan.FromSeconds(1);
+            }
+            else
+            {
+                var targetDateTime = DateTime.Now - TimeSpan.FromDays(days);
+                checkedAt = targetDateTime;
+            }
+            
             // 指定日時以前の動画を全て視聴済みにマークする
-            foreach (var video in _subscriptionManager.GetSubscFeedVideosOlderAt(SelectedSubscGroup.GroupId, LastCheckedAt))
+            foreach (var video in _subscriptionManager.GetSubscFeedVideosOlderAt(SelectedSubscGroup.GroupId, checkedAt))
             {
                 VideoId videoId = video.VideoId;
                 _videoWatchedRepository.MarkWatched(videoId);
                 _messenger.Send(new VideoWatchedMessage(videoId));
             }
+
+            _subscriptionManager.UpdateSubscriptionCheckedAt(SelectedSubscGroup.GroupId, checkedAt);
+
         }
 
         ResetList();
@@ -329,8 +303,7 @@ public sealed class SubscVideoListIncrementalLoadingSource : IIncrementalSource<
         _messenger = messenger;
         _separatorFactory = separatorFactory;
     }
-    
-    public DateTime LastCheckedAt { get; set; }
+        
     public bool IsDisplayChceked { get; set; }
 
     private readonly HashSet<VideoId> _videoIds = new HashSet<VideoId>();
@@ -345,7 +318,7 @@ public sealed class SubscVideoListIncrementalLoadingSource : IIncrementalSource<
         IEnumerable<SubscFeedVideo> videos;
         if (!IsDisplayChceked)
         {
-            videos = _subscriptionManager.GetSubscFeedVideosNewerAt(SubscriptionGroup?.GroupId, LastCheckedAt, pageIndex * pageSize, pageSize);
+            videos = _subscriptionManager.GetSubscFeedVideosNewerAt(SubscriptionGroup?.GroupId, null,  pageIndex * pageSize, pageSize);
         }
         else
         {
@@ -359,19 +332,7 @@ public sealed class SubscVideoListIncrementalLoadingSource : IIncrementalSource<
             if (_videoIds.Contains(videoId))
             {
                 continue;
-            }            
-
-            if (isCheckedSeparatorInserted is false
-                && video.PostAt < LastCheckedAt
-                )
-            {
-                isCheckedSeparatorInserted = true;
-
-                if (resultItems.Any())
-                {
-                    resultItems.Add(_separatorFactory((resultItems.Last() as IVideoContent)!));
-                }
-            }
+            }      
 
             var subscription = GetSubscription(video.SourceSubscId);
             _videoIds.Add(videoId);
@@ -383,7 +344,8 @@ public sealed class SubscVideoListIncrementalLoadingSource : IIncrementalSource<
 
         if (isCheckedSeparatorInserted is false
             && resultItems.Count != pageSize 
-            && lastItem != null            
+            && lastItem != null    
+            && !IsDisplayChceked
             )
         {
             isCheckedSeparatorInserted = true;
@@ -412,19 +374,15 @@ public sealed partial class SubscVideoSeparatorListItemViewModel : IPlaylistItem
     private readonly Action _allMarkAsCheckedAction;
 
     public SubscVideoSeparatorListItemViewModel(
-        DateTime checkedDate,
         IMessenger messenger,
         PlaylistItemToken subscriptionGroupPlaylistItemToken,
         Action allMarkAsCheckedAction
         )
     {
-        CheckedDate = checkedDate;
         _messenger = messenger;
         _subscriptionGroupPlaylistItemToken = subscriptionGroupPlaylistItemToken;
         _allMarkAsCheckedAction = allMarkAsCheckedAction;
     }
-
-    public DateTime CheckedDate { get; }
 
     public PlaylistItemToken? PlaylistItemToken => _subscriptionGroupPlaylistItemToken;
 

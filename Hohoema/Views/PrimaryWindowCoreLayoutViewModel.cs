@@ -1017,7 +1017,7 @@ public sealed partial class SubscriptionMenuItemViewModel
     , IRecipient<SubscriptionGroupReorderedMessage>
     , IRecipient<SettingsRestoredMessage>
     , IRecipient<SubscriptionFeedUpdatedMessage>
-    , IRecipient<SubscriptionGroupCheckedAtChangedMessage>
+    , IRecipient<SubscriptionCheckedAtChangedMessage>
     , IRecipient<SubscriptionGroupPropsChangedMessage>
     , IDisposable
 {
@@ -1046,7 +1046,7 @@ public sealed partial class SubscriptionMenuItemViewModel
         _messenger.Register<SubscriptionGroupReorderedMessage>(this);
         _messenger.Register<SettingsRestoredMessage>(this);
         _messenger.Register<SubscriptionFeedUpdatedMessage>(this);
-        _messenger.Register<SubscriptionGroupCheckedAtChangedMessage>(this);
+        _messenger.Register<SubscriptionCheckedAtChangedMessage>(this);
         _messenger.Register<SubscriptionGroupPropsChangedMessage>(this);        
     }
 
@@ -1059,7 +1059,7 @@ public sealed partial class SubscriptionMenuItemViewModel
         _messenger.Unregister<SubscriptionGroupReorderedMessage>(this);
         _messenger.Unregister<SettingsRestoredMessage>(this);
         _messenger.Unregister<SubscriptionFeedUpdatedMessage>(this);
-        _messenger.Unregister<SubscriptionGroupCheckedAtChangedMessage>(this);
+        _messenger.Unregister<SubscriptionCheckedAtChangedMessage>(this);
         _messenger.Unregister<SubscriptionGroupPropsChangedMessage>(this);
     }
 
@@ -1135,7 +1135,7 @@ public sealed partial class SubscriptionMenuItemViewModel
         }        
     }
 
-    void IRecipient<SubscriptionGroupCheckedAtChangedMessage>.Receive(SubscriptionGroupCheckedAtChangedMessage message)
+    void IRecipient<SubscriptionCheckedAtChangedMessage>.Receive(SubscriptionCheckedAtChangedMessage message)
     {
         SubscriptionGroupId updateGroupId = message.SubscriptionGroupId;
         foreach (var groupMenuItem in SubscGroups)
