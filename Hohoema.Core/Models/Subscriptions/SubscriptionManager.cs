@@ -391,30 +391,12 @@ public sealed class SubscriptionManager
             .Sum(_subscFeedVideoRepository.GetVideoCount);
     }
    
-    public DateTime GetLastUpdatedAt(SubscriptionId subscriptionId)
-    {
-        return _subscriptionUpdateRespository.GetOrAdd(subscriptionId).LastUpdatedAt;
-    }
-
-    public void SetUpdatedAt(SubscriptionId subscriptionId, DateTime? updatedAt = null)
-    {
-        updatedAt ??= DateTime.Now;
-        var update = _subscriptionUpdateRespository.GetOrAdd(subscriptionId);
-        update.LastUpdatedAt = updatedAt.Value;
-        _subscriptionUpdateRespository.UpdateItem(update);
-    }
-
     public SubscriptionUpdate GetSubscriptionProps(SubscriptionId subscriptionId)
     {
         return _subscriptionUpdateRespository.GetOrAdd(subscriptionId);
     }        
 
-    public void UpdateSubscriptionProps(SubscriptionUpdate update)
-    {
-        _subscriptionUpdateRespository.UpdateItem(update);
-    }
-
-    public void SetUpdatedAt(SubscriptionUpdate update)
+    public void SetSubscriptionProps(SubscriptionUpdate update)
     {
         _subscriptionUpdateRespository.UpdateItem(update);
     }
@@ -437,7 +419,7 @@ public sealed class SubscriptionManager
     {
         var props = GetSubscriptionProps(subscriptionId);
         props.LastCheckedAt = checkedAt ?? GetLatestPostAt(subscriptionId) + TimeSpan.FromSeconds(1);
-        UpdateSubscriptionProps(props);
+        SetSubscriptionProps(props);
         _messenger.Send(new SubscriptionCheckedAtChangedMessage(props, subscriptionGroupId));
     }
 
@@ -636,14 +618,6 @@ public sealed class SubscriptionManager
             }
         }
 
-        update ??= GetSubscriptionProps(subscription.SubscriptionId);
-        if (!IsReachedNextUpdateTime(update.LastUpdatedAt))
-        {
-            // 前回更新から時間経っていない場合はスキップする
-            Debug.WriteLine($"[FeedUpdate] update skip: {subscription.Label}, nextUpdateAt: {GetNextUpdateTime(update.LastUpdatedAt)}");
-            return SubscriptionFeedUpdateFailedReason.Interval;
-        }
-
         return default;
     }
 
@@ -653,11 +627,10 @@ public sealed class SubscriptionManager
 
         Debug.WriteLine("[FeedUpdate] start: " + subscription.Label);
         DateTime currentUpdatedAt = updateDateTime ?? DateTime.Now;
-        DateTime lastUpdatedAt = update.LastUpdatedAt;
-
+        
         try
         {
-            (List<SubscFeedVideo> newSubscVideos, List<NicoVideo> newVideos) = await Task.Run(
+            List<NicoVideo> latestVideos = await Task.Run(
                 () => GetFeedResultAsync(subscription)
                 , cancellationToken
                 );
@@ -665,16 +638,26 @@ public sealed class SubscriptionManager
             cancellationToken.ThrowIfCancellationRequested();
 
             var latestPostAt = GetLatestPostAt(subscription.SubscriptionId);
-            
+
+            var (newSubscVideos, newVideos) = _subscFeedVideoRepository.RegisteringVideosIfNotExist(
+                        subscId: subscription.SubscriptionId,
+                        updateAt: DateTime.Now,
+                        lastCheckedAt: latestPostAt,
+                        videos: latestVideos
+                        );
+
             foreach (var newVideo in newSubscVideos)
             {
                 _messenger.Send(new NewSubscFeedVideoMessage(newVideo));
             }
 
-            if (lastUpdatedAt == DateTime.MinValue)
+            if (update.UpdateCount == 0)
             {
                 newVideos.Clear();
             }
+
+            update.UpdateCount++;
+            SetSubscriptionProps(update);
 
             var result = new SubscriptionFeedUpdateResult(subscription, newVideos, currentUpdatedAt);
             _messenger.Send(new SubscriptionFeedUpdatedMessage(result));
@@ -682,14 +665,9 @@ public sealed class SubscriptionManager
         }
         catch (Exception ex)
         {
-            var result = new SubscriptionFeedUpdateResult(subscription, SubscriptionFeedUpdateFailedReason.SourceCanNotAccess, lastUpdatedAt);
+            var result = new SubscriptionFeedUpdateResult(subscription, SubscriptionFeedUpdateFailedReason.SourceCanNotAccess, currentUpdatedAt);
             _messenger.Send(new SubscriptionFeedUpdatedMessage(result));
             return result;
-        }
-        finally
-        {
-            update.LastUpdatedAt = currentUpdatedAt;
-            _subscriptionUpdateRespository.UpdateItem(update);
         }
     }
 
@@ -703,9 +681,9 @@ public sealed class SubscriptionManager
         }
     }
 
-    private async Task<(List<SubscFeedVideo>, List<NicoVideo>)> GetFeedResultAsync(Subscription entity)
+    private async Task<List<NicoVideo>> GetFeedResultAsync(Subscription entity)
     {
-        var videos = entity.SourceType switch
+        return entity.SourceType switch
         {
             SubscriptionSourceType.Mylist => await GetMylistFeedResult(entity.SourceParameter, _mylistProvider),
             SubscriptionSourceType.User => await GetUserVideosFeedResult(entity.SourceParameter, _userProvider),
@@ -714,9 +692,7 @@ public sealed class SubscriptionManager
             SubscriptionSourceType.SearchWithKeyword => await GetKeywordSearchFeedResult(entity.SourceParameter, _niconicoSession.ToolkitContext.Search),
             SubscriptionSourceType.SearchWithTag => await GetTagSearchFeedResult(entity.SourceParameter, _niconicoSession.ToolkitContext.Search),
             _ => throw new NotSupportedException(entity.SourceType.ToString())
-        };
-
-        return _subscFeedVideoRepository.RegisteringVideosIfNotExist(entity.SubscriptionId, DateTime.Now, videos);
+        };        
     }
 
 
@@ -898,11 +874,11 @@ public sealed class SubscriptionManager
 public sealed class SubscriptionUpdate
 {
     [BsonCtor]
-    public SubscriptionUpdate(SubscriptionId subscriptionSourceId, DateTime lastUpdatedAt, DateTime lastCheckedAt)
+    public SubscriptionUpdate(SubscriptionId subscriptionSourceId, DateTime lastCheckedAt, int updateCount)
     {
         SubscriptionSourceId = subscriptionSourceId;
-        LastUpdatedAt = lastUpdatedAt;
         LastCheckedAt = lastCheckedAt;
+        UpdateCount = updateCount;
     }
 
     public SubscriptionUpdate(SubscriptionId subscriptionSourceId)
@@ -913,9 +889,9 @@ public sealed class SubscriptionUpdate
     [BsonId]
     public SubscriptionId SubscriptionSourceId { get; }
 
-    public DateTime LastUpdatedAt { get; set; } = DateTime.MinValue;
-
     public DateTime LastCheckedAt { get; set; } = DateTime.MinValue;
+
+    public int UpdateCount { get; set; } = 0;
 }
 
 

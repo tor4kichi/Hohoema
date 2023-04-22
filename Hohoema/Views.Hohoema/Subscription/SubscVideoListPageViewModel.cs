@@ -331,7 +331,7 @@ public sealed partial class SubscVideoListPageViewModel : HohoemaPageViewModelBa
     }
 }
 
-public sealed partial class SubscriptionNewVideosViewModel : ObservableObject, IPlaylistItemPlayable
+public sealed partial class SubscriptionNewVideosViewModel : ObservableObject, IPlaylistPlayable
 {
     private readonly SubscriptionManager _subscriptionManager;
     private readonly NicoVideoProvider _nicoVideoProvider;
@@ -357,16 +357,16 @@ public sealed partial class SubscriptionNewVideosViewModel : ObservableObject, I
         _messenger = messenger;
         _notificationService = notificationService;
         _subscriptionGroupPlaylist = subscriptionGroupPlaylist;
-
+        _subscriptionGroupPlaylistItemToken = new PlaylistToken(_subscriptionGroupPlaylist, SubscriptionPlaylist.DefaultSortOption);
         RefreshItems();
     }
 
     private readonly IMessenger _messenger;
     private readonly INotificationService _notificationService;
     private readonly SubscriptionGroupPlaylist _subscriptionGroupPlaylist;
-    private readonly PlaylistItemToken _subscriptionGroupPlaylistItemToken;    
+    private readonly PlaylistToken _subscriptionGroupPlaylistItemToken;    
 
-    public PlaylistItemToken? PlaylistItemToken => _subscriptionGroupPlaylistItemToken;
+    public PlaylistToken PlaylistToken => _subscriptionGroupPlaylistItemToken;
 
 
     [ObservableProperty]
@@ -396,7 +396,7 @@ public sealed partial class SubscriptionNewVideosViewModel : ObservableObject, I
     {
         if (Items.Any() is false) { return; }
 
-        _messenger.Send(VideoPlayRequestMessage.PlayPlaylist(_subscriptionGroupPlaylistItemToken));
+        _messenger.Send(VideoPlayRequestMessage.PlayPlaylist(_subscriptionGroupPlaylist));
     }
 
     [RelayCommand(CanExecute = nameof(HasNewVideos))]

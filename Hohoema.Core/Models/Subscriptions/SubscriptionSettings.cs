@@ -17,10 +17,4 @@ public sealed class SubscriptionSettings : FlagsRepositoryBase
         get => Read(DateTime.Now);
         set => Save(value);
     }
-
-    public TimeSpan SubscriptionsUpdateFrequency
-    {
-        get => Read(TimeSpan.FromMinutes(60));
-        set => Save(value);
-    }
 }

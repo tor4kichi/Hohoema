@@ -46,7 +46,7 @@ public enum SubscriptionUpdateStatus
     FailedWithTimeout
 }
 
-public sealed class SubscriptionUpdateManager 
+public sealed partial class SubscriptionUpdateManager 
     : ObservableObject
     , IDisposable
     , IToastActivationAware
@@ -97,25 +97,17 @@ public sealed class SubscriptionUpdateManager
         private set { SetProperty(ref _isRunning, value); }
     }
 
-    private TimeSpan _updateFrequency;
-    public TimeSpan UpdateFrequency
-    {
-        get { return _updateFrequency; }
-        set 
-        {
-            if (value <= TimeSpan.Zero)
-            {
-                throw new ArgumentOutOfRangeException();
-            }
+    [ObservableProperty]
+    private DateTime _nextUpdateAt;
 
-            if (SetProperty(ref _updateFrequency, value))
-            {
-                _subscriptionSettings.SubscriptionsUpdateFrequency = value;
-                StartOrResetTimer();
-            }
-        }
+    [ObservableProperty]
+    private DateTime _lastCheckedAt;
+
+    partial void OnLastCheckedAtChanged(DateTime value)
+    {
+        _subscriptionSettings.SubscriptionsLastUpdatedAt = value;
     }
-    
+
     public SubscriptionUpdateManager(
         ILoggerFactory loggerFactory,
         IMessenger messenger,
@@ -127,7 +119,7 @@ public sealed class SubscriptionUpdateManager
     {
         _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
         _timer = _dispatcherQueue.CreateTimer();
-        _timer.Interval = TimeSpan.FromMinutes(5);
+        _timer.Interval = TimeSpan.FromMinutes(1);
         _timer.IsRepeating = true;
         _timer.Tick += async (s, e) => 
         {
@@ -154,9 +146,9 @@ public sealed class SubscriptionUpdateManager
             }
         });
 
-        _updateFrequency = _subscriptionSettings.SubscriptionsUpdateFrequency;
         _IsAutoUpdateEnabled = _subscriptionSettings.IsSubscriptionAutoUpdateEnabled;
-
+        _lastCheckedAt = _subscriptionSettings.SubscriptionsLastUpdatedAt;
+        _nextUpdateAt = _subscriptionManager.GetNextUpdateTime(_lastCheckedAt);
         StartOrResetTimer();
     }
 
@@ -210,6 +202,11 @@ public sealed class SubscriptionUpdateManager
         }
 
         DateTime checkedAt = DateTime.Now;
+        if (checkedAt < _nextUpdateAt)
+        {            
+            return;
+        }
+
         List<SubscriptionFeedUpdateResult> updateResultItems = new();
         using (_logger.BeginScope("Subscription Update"))
         {
@@ -271,8 +268,8 @@ public sealed class SubscriptionUpdateManager
             finally
             {
                 // 次の自動更新周期を延長して設定
-                _subscriptionSettings.SubscriptionsLastUpdatedAt = checkedAt;
-
+                LastCheckedAt = checkedAt;
+                NextUpdateAt = _subscriptionManager.GetNextUpdateTime(checkedAt);
                 _timerUpdateCancellationTokenSource?.Dispose();
                 _timerUpdateCancellationTokenSource = null;
                 _logger.ZLogDebug("Complete.");
@@ -476,7 +473,7 @@ public sealed class SubscriptionUpdateManager
 
             if (!_IsAutoUpdateEnabled) { return; }
 
-            IsRunning = true;
+            IsRunning = true;            
             _timer.Start();
             _ = UpdateIfOverExpirationAsync(CancellationToken.None);
         }

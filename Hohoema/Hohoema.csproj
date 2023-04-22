@@ -232,6 +232,7 @@
     <Compile Include="Views.Hohoema\Subscription\EditSubscriptionGroupDialog.xaml.cs">
       <DependentUpon>EditSubscriptionGroupDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Converters\SizeToRectConverter.cs" />
     <Compile Include="Views\UINavigation\UINavigationManager.cs" />
     <Compile Include="ViewModels\Community\CommunityLiveInfoViewModel.cs" />
     <Compile Include="ViewModels\Community\CommunityNewsViewModel.cs" />

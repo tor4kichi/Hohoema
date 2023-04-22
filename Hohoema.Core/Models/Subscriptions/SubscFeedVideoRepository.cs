@@ -16,22 +16,23 @@ public sealed class SubscFeedVideo : IVideoContent
 {
     [BsonId(autoId: true)]
     public ObjectId Id { get; init; }
+    public DateTime FeedUpdateAt { get; set; }
 
     public SubscriptionId SourceSubscId { get; init; }
     public string VideoId { get; init; }
     public DateTime PostAt { get; init; }
     public string Title { get; init; }
-
-    public DateTime FeedUpdateAt { get; set; }
+    public string? ThumbnailUrl { get; init; }
+    public TimeSpan Legnth { get; init; }
 
     [BsonIgnore]
     VideoId IVideoContent.VideoId => VideoId;
 
     [BsonIgnore]
-    TimeSpan IVideoContent.Length => TimeSpan.Zero;
+    TimeSpan IVideoContent.Length => Legnth;
 
     [BsonIgnore]
-    string IVideoContent.ThumbnailUrl => null;
+    string IVideoContent.ThumbnailUrl => ThumbnailUrl;
 
     [BsonIgnore]
     DateTime IVideoContent.PostedAt => PostAt;
@@ -119,7 +120,7 @@ public sealed class SubscFeedVideoRepository
 
     public IEnumerable<SubscFeedVideo> GetVideos(SubscriptionId subscId, int skip = 0, int limit = int.MaxValue)
     {
-        return _subscFeedVideoRepository.Find(Query.All(nameof(SubscFeedVideo.PostAt), Query.Descending)).Where(x => x.SourceSubscId == subscId).Skip(skip).Take(limit);
+        return _subscFeedVideoRepository.Find(Query.All()).OrderByDescending(x => x.PostAt).Where(x => x.SourceSubscId == subscId).Skip(skip).Take(limit);
     }
 
     public IEnumerable<SubscFeedVideo> GetVideos(IEnumerable<SubscriptionId> subscIds, int skip = 0, int limit = int.MaxValue)
@@ -175,9 +176,9 @@ public sealed class SubscFeedVideoRepository
         _ = _subscFeedVideoRepository.UpdateItem(videos);            
     }
 
-    public (List<SubscFeedVideo> newSubscVideos, List<NicoVideo> newVideos) RegisteringVideosIfNotExist(SubscriptionId subscId, DateTime updateAt, IEnumerable<NicoVideo> videos)
+    public (List<SubscFeedVideo> newSubscVideos, List<NicoVideo> newVideos) RegisteringVideosIfNotExist(SubscriptionId subscId, DateTime updateAt, DateTime lastCheckedAt, IEnumerable<NicoVideo> videos)
     {
-        var newVideos = videos.Where(x => x.PostedAt > updateAt).ToList();
+        var newVideos = videos.Where(x => x.PostedAt > lastCheckedAt).ToList();
         var newSubscItems = newVideos
             .Select(x => new SubscFeedVideo()
             {
@@ -187,6 +188,8 @@ public sealed class SubscFeedVideoRepository
                 PostAt = x.PostedAt,
                 Title = x.Title,
                 FeedUpdateAt = updateAt,
+                ThumbnailUrl = x.ThumbnailUrl,
+                Legnth = x.Length
             }
             ).ToList();
         _subscFeedVideoRepository.InsertBulk(newSubscItems);

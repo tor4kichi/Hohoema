@@ -19,6 +19,7 @@
   xmlns:muxc="using:Microsoft.UI.Xaml.Controls" 
   xmlns:wst="using:WindowsStateTriggers" 
   xmlns:models="using:Hohoema.Models.Application"
+  xmlns:tkConverters="using:Microsoft.Toolkit.Uwp.UI.Converters" xmlns:converters="using:Hohoema.Views.Converters"
   mc:Ignorable="d"
   NavigationCacheMode="Enabled"
   x:Name="PageRoot"
@@ -69,6 +70,8 @@
       <Setter Property="HorizontalContentAlignment" Value="Stretch" />
 
     </Style>
+
+    <converters:SizeToRectConverter x:Key="SizeToRectConverter" />
   </Page.Resources>
   <Grid>
 
@@ -87,18 +90,28 @@
           </CommandBar.Content>
 
           <CommandBar.PrimaryCommands>
+            <AppBarElementContainer>
+              <StackPanel>
+                <TextBlock Opacity="0.5">
+                  <Run Text="{i18nExt:Localize Key=SubscriptionsPrevUpdateTime}" />:<Run Text="{x:Bind _vm.LastUpdateTime.Value, Mode=OneWay, Converter={StaticResource DateTimeToString}}" />
+                </TextBlock>
+                <TextBlock Opacity="0.7">
+                  <Run Text="{i18nExt:Localize Key=SubscriptionsNextUpdateTime}" />:<Run Text="{x:Bind _vm.NextUpdateTime.Value, Mode=OneWay, Converter={StaticResource DateTimeToString}}" />
+                </TextBlock>
+              </StackPanel>
+            </AppBarElementContainer>
+            
             <AppBarElementContainer IsEnabled="False" Visibility="{x:Bind _vm.IsAutoUpdateEnabled.Value, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}" VerticalContentAlignment="Center" IsTabStop="False"                                    
                                     Padding="0 8"
                                     >
               <Grid Margin="8 0" HorizontalAlignment="Right">
-                <StackPanel Orientation="Horizontal" x:Name="AutoUpdateRunningStatusLayout" Spacing="8" Opacity="0.0">
+                <StackPanel Orientation="Horizontal" x:Name="AutoUpdateRunningStatusLayout" Spacing="0" Visibility="Collapsed">
                 </StackPanel>
-                <StackPanel Orientation="Horizontal" x:Name="AutoUpdateNotRunningStatusLayout" Spacing="8" Opacity="0.0">
+                <StackPanel Orientation="Horizontal" x:Name="AutoUpdateNotRunningStatusLayout" Spacing="0" Visibility="Collapsed">
                   <TextBlock Text="{i18nExt:Localize Key=SubscriptionsAutoNotUpdateRunning}" VerticalAlignment="Center" />
                 </StackPanel>
               </Grid>
             </AppBarElementContainer>
-            <AppBarButton Icon="List" Command="{x:Bind _vm.OpenSubscVideoListPageCommand}" Label="{i18nExt:Localize Key=HohoemaPageType.SubscVideoList}" />
             
             <AppBarElementContainer VerticalContentAlignment="Center" IsTabStop="False">
               <ToggleSwitch IsOn="{x:Bind _vm.IsAutoUpdateEnabled.Value, Mode=TwoWay}" Style="{StaticResource ToggleSwitchNoHeader}" Header="自動更新" VerticalAlignment="Center" />
@@ -139,23 +152,18 @@
                             IsOn="{x:Bind IsAutoUpdateEnabled, Mode=TwoWay}"
                             Margin="0 0 8 0"                                
                             controls:DockPanel.Dock="Left"
+                                VerticalAlignment="Center"
                             />
 
-                  <StackPanel Orientation="Horizontal" controls:DockPanel.Dock="Right" Spacing="16">
-                    <Button Command="{x:Bind PlayNewVideoCommand}" IsEnabled="{x:Bind HasNewVideos, Mode=OneWay}"
-                            ToolTipService.ToolTip="{i18nExt:Localize Key=SubscGroup_AllPlayUnwatched}"
-                            >
-
-                      <SymbolIcon Symbol="Play" />
-                    </Button>
-                    <Button Command="{x:Bind AddToQueueCommand}" IsEnabled="{x:Bind HasNewVideos, Mode=OneWay}"
+                  <StackPanel Orientation="Horizontal" controls:DockPanel.Dock="Right" Spacing="16" VerticalAlignment="Center">
+                    <Button Command="{x:Bind OpenSubscVideoListPageCommand}" 
                             ToolTipService.ToolTip="{i18nExt:Localize Key=SubscGroup_AddToQueue}"                        
                             >
-                      <SymbolIcon Symbol="Add" />
+                      <SymbolIcon Symbol="List" />
                     </Button>
                   </StackPanel>
 
-                  <TextBlock Text="{x:Bind GroupName, Mode=OneWay}" />
+                  <TextBlock Text="{x:Bind GroupName, Mode=OneWay}" VerticalAlignment="Stretch" Margin="0 1 0 0" />
                 </controls:DockPanel>
               </DataTemplate>
             </GroupStyle.HeaderTemplate>
@@ -173,72 +181,64 @@
 
         <ItemsControl.ItemTemplate>
           <DataTemplate x:DataType="subscriptionVM:SubscriptionViewModel">
-            <controls:DockPanel>
-              <controls:WrapPanel Orientation="Horizontal" controls:DockPanel.Dock="Bottom" HorizontalSpacing="8"
-                                  VerticalSpacing="8"
-                          HorizontalAlignment="Center"
-                                  Margin="0 8 0 0"
-                          >
-                <Button Command="{x:Bind PlayVideoItemCommand}" IsEnabled="{x:Bind HasNewVideos, Mode=OneWay}">
+            <Grid x:Name="SubscRootGrid"                  
+                  >
 
-                  <StackPanel Orientation="Horizontal">
-                    <SymbolIcon Symbol="Play" />
-                    <TextBlock Text="{i18nExt:Localize Key=SubscGroup_AllPlayUnwatched}" />
-                  </StackPanel>
-                </Button>
-                <Button Command="{x:Bind AddToQueueCommand}" IsEnabled="{x:Bind HasNewVideos, Mode=OneWay}"
-                        >
-                  <StackPanel Orientation="Horizontal">
-                    <SymbolIcon Symbol="Add" />
-                    <TextBlock Text="{i18nExt:Localize Key=SubscGroup_AddToQueue}" />
-                  </StackPanel>
-                </Button>
+              <Grid.Background>
+                <ImageBrush ImageSource="{Binding ThumbnailUrl, Mode=OneWay}"
+                            Stretch="Uniform"
+                            AlignmentX="Right"
+                            Opacity="0.35"
+                            />
+              </Grid.Background>
 
-              </controls:WrapPanel>
+              <Border Background="{ThemeResource SystemControlBackgroundBaseLowRevealBackgroundBrush}" />
 
-              <Grid controls:DockPanel.Dock="Right" Background="{ThemeResource SystemAccentColor}" 
+              <controls:DockPanel Margin="8 8">
+                <controls:DockPanel controls:DockPanel.Dock="Bottom" Opacity="0.7">
+                  <TextBlock TextWrapping="Wrap">
+                    <Run Text="{x:Bind SampleVideo.PostedAt, Mode=OneWay, Converter={StaticResource ToRelationalTime}}" /> - <Run Text="{x:Bind SampleVideo.Title}" />
+                  </TextBlock>
+                </controls:DockPanel>
+
+                <Grid controls:DockPanel.Dock="Right" Background="{ThemeResource SystemChromeHighColor}" 
                     CornerRadius="16" Width="32" Height="32" Margin="0 0 8 0"
-                    Opacity="0.7"                    
+                    Opacity="1.0"                    
                     >
-                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center">
+                  <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Run Text="{x:Bind UnwatchedVideoCount, Mode=OneWay}" />
-                </TextBlock>
-              </Grid>
-
-
-
-              <SymbolIcon Symbol="Sort" controls:DockPanel.Dock="Left" Opacity="0.5" Margin="0 0 8 0" Visibility="Collapsed" />
-
-              <ToggleSwitch Style="{StaticResource ToggleSwitchNoHeader}" Width="44"
+                  </TextBlock>
+                </Grid>
+                <SymbolIcon Symbol="Sort" controls:DockPanel.Dock="Left" Opacity="0.5" Margin="0 0 8 0" Visibility="Collapsed" />
+                <ToggleSwitch Style="{StaticResource ToggleSwitchNoHeader}" Width="44"
                             IsOn="{x:Bind IsAutoUpdateEnabled, Mode=TwoWay}"
                             Margin="0 0 8 0"
                             controls:DockPanel.Dock="Left"
+                            ToolTipService.ToolTip="{i18nExt:Localize Key=SubscriptionsAutoUpdateRunning}"
                             />
-
-              <TextBlock Text="{x:Bind SourceType, Converter={StaticResource LocalizeConverter}}"
+                <TextBlock Text="{x:Bind SourceType, Converter={StaticResource LocalizeConverter}}"
                              Style="{StaticResource CaptionTextBlockStyle}" 
                              Opacity="0.7"
-                         controls:DockPanel.Dock="Bottom"
+                         controls:DockPanel.Dock="Top"
                              />
-
-              <TextBlock Text="{x:Bind Label}"                           
+                <TextBlock Text="{x:Bind Label}"                           
                            VerticalAlignment="Center"
                              TextWrapping="Wrap"
                              FontWeight="Bold"
                            />
-
-            </controls:DockPanel>
+              </controls:DockPanel>
+            </Grid>
           </DataTemplate>
         </ItemsControl.ItemTemplate>
 
         <ListViewBase.ItemContainerStyle>
           <Style TargetType="GridViewItem">
-            <Setter Property="Padding" Value="8 8" />
+            <Setter Property="Padding" Value="0" />
             <Setter Property="CornerRadius" Value="32" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="BorderBrush" Value="{ThemeResource HohoemaLightBorderColor}" />
-            <Setter Property="Background" Value="{ThemeResource SystemControlBackgroundBaseLowRevealBackgroundBrush}" />
             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="VerticalContentAlignment" Value="Stretch" />
             <Setter Property="IsFocusEngagementEnabled" Value="True" />
           </Style>
         </ListViewBase.ItemContainerStyle>
@@ -250,7 +250,6 @@
               <MenuFlyoutItem Text="{i18nExt:Localize Key=OpenSubscriptionSourceVideoList}" Command="{Binding OpenSourceVideoListPageCommand}" />
               <MenuFlyoutSeparator />
               <MenuFlyoutItem Text="{i18nExt:Localize Key=Refresh}" Command="{Binding UpdateCommand}" IsEnabled="{Binding CombinedAutoUpdateEnabledSubscAndGroup, Mode=OneWay, Converter={StaticResource BoolNegation}}" />
-              <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=SubscriptionsAutoUpdateRunning}" IsChecked="{Binding IsAutoUpdateEnabled, Mode=TwoWay}" />
               <MenuFlyoutSubItem x:Name="SubscriptionGroupMenuSubsItem"
                                  Text="{i18nExt:Localize Key=SubscGroup_ContextMenuItemTitle}"
                                  >
@@ -306,7 +305,7 @@
             <StateTrigger IsActive="{Binding IsAutoUpdateRunning.Value}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="AutoUpdateRunningStatusLayout.Opacity" Value="1.0" />
+            <Setter Target="AutoUpdateRunningStatusLayout.Visibility" Value="Visible" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>
@@ -314,7 +313,7 @@
             <StateTrigger IsActive="True" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="AutoUpdateNotRunningStatusLayout.Opacity" Value="1.0" />
+            <Setter Target="AutoUpdateNotRunningStatusLayout.Visibility" Value="Visible" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>

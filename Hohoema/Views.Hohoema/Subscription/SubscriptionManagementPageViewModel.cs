@@ -43,7 +43,7 @@ using ZLogger;
 namespace Hohoema.ViewModels.Pages.Hohoema.Subscription;
 
 
-public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelBase, IRecipient<SettingsRestoredMessage>, IDisposable
+public sealed partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelBase, IRecipient<SettingsRestoredMessage>, IDisposable
 {
     private readonly SubscriptionManager _subscriptionManager;
     private readonly SubscriptionUpdateManager _subscriptionUpdateManager;
@@ -56,11 +56,16 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
     private readonly ILogger<SubscriptionManagementPageViewModel> _logger;
 
     public IReadOnlyReactiveProperty<bool> IsAutoUpdateRunning { get; }
-    public IReactiveProperty<TimeSpan> AutoUpdateFrequency { get; }
     public IReactiveProperty<bool> IsAutoUpdateEnabled { get; }
-    
+    public IReadOnlyReactiveProperty<DateTime> LastUpdateTime { get; }
+    public IReadOnlyReactiveProperty<DateTime> NextUpdateTime { get; }
+
+
     public ObservableCollection<SubscriptionGroupViewModel> SubscriptionGroups { get; } = new();
     public ApplicationLayoutManager ApplicationLayoutManager { get; }
+
+
+
 
     void IRecipient<SettingsRestoredMessage>.Receive(SettingsRestoredMessage message)
     {
@@ -110,10 +115,13 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
         IsAutoUpdateRunning = _subscriptionUpdateManager.ObserveProperty(x => x.IsRunning)
             .ToReadOnlyReactiveProperty(false)
             .AddTo(_CompositeDisposable);
-        AutoUpdateFrequency = _subscriptionUpdateManager.ToReactivePropertyAsSynchronized(x => x.UpdateFrequency)
-            .AddTo(_CompositeDisposable);
         IsAutoUpdateEnabled = _subscriptionUpdateManager.ToReactivePropertyAsSynchronized(x => x.IsAutoUpdateEnabled)
             .AddTo(_CompositeDisposable);
+
+        LastUpdateTime = _subscriptionUpdateManager.ObserveProperty(x => x.LastCheckedAt)
+            .ToReadOnlyReactiveProperty();
+        NextUpdateTime = _subscriptionUpdateManager.ObserveProperty(x => x.NextUpdateAt)
+            .ToReadOnlyReactiveProperty();
     }
 
     
@@ -656,11 +664,13 @@ public partial class SubscriptionViewModel
     [ObservableProperty]
     private IVideoContent? _sampleVideo;
 
-    [ObservableProperty]
-    private DateTime _lastUpdatedAt;
+    partial void OnSampleVideoChanged(IVideoContent? value)
+    {
+        ThumbnailUrl = value?.ThumbnailUrl;
+    }
 
     [ObservableProperty]
-    private DateTime _nextUpdateAt;
+    private string? _thumbnailUrl;
 
     [ObservableProperty]
     private bool _nowUpdating;
@@ -733,14 +743,13 @@ public partial class SubscriptionViewModel
         _isAutoUpdateEnabled = _source.IsAutoUpdateEnabled;
         _group = _source.Group;
 
-        var lastUpdatedAt = _subscriptionManager.GetLastUpdatedAt(_source.SubscriptionId);
-        _lastUpdatedAt = lastUpdatedAt;
-        _nextUpdateAt = _subscriptionManager.GetNextUpdateTime(lastUpdatedAt);
         _unwatchedVideoCount = _subscriptionManager.GetFeedVideosCountWithNewer(_source);
         _hasNewVideos = _unwatchedVideoCount != 0;
         _isToastNotificationEnabled = _source.IsToastNotificationEnabled;
         _isAddToQueueWhenUpdated = _source.IsAddToQueueWhenUpdated;
 
+        _sampleVideo = _subscriptionManager.GetSubscFeedVideos(_source, limit:1).FirstOrDefault();
+        _thumbnailUrl = _sampleVideo?.ThumbnailUrl;
         // Note: GroupVM側で IsParentGroupAutoUpdateEnabled を初期設定されるのに任せる
         // コメントアウトしたままにしておく
         //_combinedAutoUpdateEnabledSubscAndGroup = _isAutoUpdateEnabled && _isParentGroupAutoUpdateEnabled;
@@ -768,8 +777,6 @@ public partial class SubscriptionViewModel
             _sampleVideo = video;
         }
 
-        LastUpdatedAt = updatedAt;
-        NextUpdateAt = _subscriptionManager.GetNextUpdateTime(updatedAt);
         UnwatchedVideoCount = _subscriptionManager.GetFeedVideosCountWithNewer(_source);
     }
     
@@ -790,7 +797,6 @@ public partial class SubscriptionViewModel
                 var result = await _subscriptionManager.UpdateSubscriptionFeedVideosAsync(_source, update: update, cancellationToken: cts.Token);
                 if (result.IsSuccessed)
                 {
-                    LastUpdatedAt = result.UpdateAt;
                     UnwatchedVideoCount = _subscriptionManager.GetFeedVideosCountWithNewer(_source);
                 }
                 else
@@ -853,25 +859,6 @@ public partial class SubscriptionViewModel
         _subscriptionManager.MoveSubscriptionGroupAndInsertToLast(_source, group);
         Group = group;
     }
-
-
-
-    [RelayCommand]
-    async Task PlayVideoItem()
-    {
-        // 最新動画項目の末尾を取得して、再生する
-        if (!(_subscriptionManager.GetSubscFeedVideosNewerAt(LastUpdatedAt, 0, 1).FirstOrDefault() is not null and var video))
-        {
-            return;
-        }
-
-#if DEBUG
-        Debug.WriteLine($"チェック日時: {LastUpdatedAt:t} 動画投稿日時: {video.PostAt:t}");
-#endif
-       
-        await _messenger.Send(VideoPlayRequestMessage.PlayPlaylist(_source.SubscriptionId.ToString(), PlaylistItemsSourceOrigin.Subscription, string.Empty, video.VideoId));
-    }
-
 
     [RelayCommand]
     void AddToQueue()
