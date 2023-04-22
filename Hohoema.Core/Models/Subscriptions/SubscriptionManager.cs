@@ -436,7 +436,7 @@ public sealed class SubscriptionManager
     private void UpdateSubscriptionCheckedAt(SubscriptionId subscriptionId, SubscriptionGroupId subscriptionGroupId, DateTime? checkedAt)
     {
         var props = GetSubscriptionProps(subscriptionId);
-        props.LastUpdatedAt = checkedAt ?? GetLatestPostAt(subscriptionId);
+        props.LastCheckedAt = checkedAt ?? GetLatestPostAt(subscriptionId) + TimeSpan.FromSeconds(1);
         UpdateSubscriptionProps(props);
         _messenger.Send(new SubscriptionCheckedAtChangedMessage(props, subscriptionGroupId));
     }

@@ -22,29 +22,3 @@ public sealed partial class SubscVideoListPage : Page
 
     private readonly SubscVideoListPageViewModel _vm;
 }
-
-
-public sealed class SubscVideoListItemTemplateSelector : DataTemplateSelector
-{
-    public DataTemplate? SubscListItem { get; set; }
-    public DataTemplate? Separator { get; set; }
-
-    protected override DataTemplate SelectTemplateCore(object item)
-    {
-        if (item is ViewModels.Pages.Hohoema.Subscription.SubscVideoListItemViewModel)
-        {
-            return SubscListItem ?? throw new InvalidOperationException();
-        }
-        else if (item is SubscVideoSeparatorListItemViewModel)
-        {
-            return Separator ?? throw new InvalidOperationException();
-        }
-
-        return base.SelectTemplateCore(item);
-    }
-
-    protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
-    {
-        return this.SelectTemplateCore(item);
-    }
-}
