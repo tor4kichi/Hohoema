@@ -426,11 +426,17 @@
 
           <muxc:NavigationViewItem.ContextFlyout>
             <MenuFlyout>
-              <MenuFlyoutItem Text="{i18nExt:Localize Key=Play}" 
+              <MenuFlyoutItem Text="{i18nExt:Localize Key=SubscGroup_AllPlayUnwatched}" 
+                              Icon="Play"
                               Command="{Binding PlayNewVideosCommand}"
                               />
-              <MenuFlyoutItem Text="{i18nExt:Localize Key=ViewList}" 
-                              Command="{Binding OpenSubscriptionGroupVideoListPage}"
+              <MenuFlyoutItem Text="{i18nExt:Localize Key=SubscGroupSettings_AddToQueue}" 
+                              Icon="Add"
+                              Command="{Binding AddToQueueNewVideosCommand}"
+                              />
+              <MenuFlyoutItem Text="{i18nExt:Localize Key=OpenSubscriptionSourceVideoList}" 
+                              Icon="List"
+                              Command="{Binding OpenSubscriptionGroupVideoListPageCommand}"
                               />
             </MenuFlyout>
           </muxc:NavigationViewItem.ContextFlyout>
