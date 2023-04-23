@@ -395,17 +395,20 @@ public sealed partial class SubscriptionUpdateManager
             Title = "SubscriptionGroup".Translate()
         };
 
-        box.Items.Add(new ToastSelectionBoxItem(ToastArgumentValue_UserInputValue_NoSelectSubscGroupId, "All".Translate()));
+        int totalNewVideoCount = resultByGroupId.Where(x => x.Any()).Sum(x => x.Sum(x => x.NewVideos!.Count));
+        box.Items.Add(new ToastSelectionBoxItem(ToastArgumentValue_UserInputValue_NoSelectSubscGroupId, $"{"All".Translate()} - {"VideosWithCount".Translate(totalNewVideoCount)}"));
         foreach (var group in resultByGroupId)
         {        
-            box.Items.Add(new ToastSelectionBoxItem(group.Key.GroupId.ToString(), $"{group.Key.Name} - {group.Sum(x => x.NewVideos.Count)}件"));
+            box.Items.Add(new ToastSelectionBoxItem(group.Key.GroupId.ToString(), $"{group.Key.Name} - {"VideosWithCount".Translate(group.Sum(x => x.NewVideos!.Count))}"));
         }
 
-        var newVideoOwnersText = $"新着動画 {resultByGroupId.Sum(x => x.Sum(x => x.NewVideos.Count))}件";
+        var newVideoOwnersText = "SubscNotification_SampleVideosHeader".Translate();
+        string contentText = string.Join("\n", resultByGroupId.SelectMany(x => x.Select(x => $"- " + x.NewVideos.First().Title)).Take(3));
         _notificationService.ShowToast(
             newVideoOwnersText,
-            string.Join("\n", resultByGroupId.Where(x => x.Any()).Select(x => $"{x.Key.Name} - {x.Sum(x => x.NewVideos.Count)}件")),
-            Microsoft.Toolkit.Uwp.Notifications.ToastDuration.Long,
+            //string.Join("\n", resultByGroupId.Where(x => x.Any()).Select(x => $"{x.Key.Name} - {x.Sum(x => x.NewVideos!.Count)}件")),
+            contentText,
+            Microsoft.Toolkit.Uwp.Notifications.ToastDuration.Short,
             //luanchContent: PlayWithWatchAfterPlaylistParam,
             toastButtons: new IToastButton[] {
                 new ToastButton("SubscGroup_AllPlayUnwatched".Translate(), MakeSubscPlayToastArguments().ToString()),

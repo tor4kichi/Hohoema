@@ -194,6 +194,7 @@ CacheVideo_ToastNotification_CacheDelete = Delete
 
 #### Subscription ####
 SubscriptionNewVideos = New videos
+SubscriptionGroup = Subscription group
 
 SubscriptionAdd = Add subscription
 SubscriptionAddUserVideos = Add Contributor to Subscription
@@ -224,6 +225,10 @@ ReorderSubsciprionSource_MoveToTail = Move to the end
 Notification_SuccessAddSubscriptionSourceWithLabel = Added "{0}" to subscription.
 Notification_FailedSubscriptionUpdate = Subscription renewal failed
 Notification_SuccessAddToWatchLaterWithAddedCount = New videos {0} added to See later
+SubscNotification_SampleVideosHeader = new video found
+VideosWithCount = {0} videos
+
+
 
 SubscGroup_DefaultGroupName = Default
 AddSubscriptionGroup_InputSubscGroupName_Title = Decide on a subscription group name
@@ -252,6 +257,8 @@ SubscGroup_AllPlayUnwatched = Play new video
 SubscGroup_AddToQueue = Add to queue
 
 SubscVideos_ShowAllSubsc = Show all
+
+
 
 #### Settings ####
 MenuPaneDisplayMode = Menu display position

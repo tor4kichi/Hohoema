@@ -194,6 +194,7 @@ CacheVideo_ToastNotification_CacheDelete = 削除
 
 #### Subscription ####
 SubscriptionNewVideos = 新着動画
+SubscriptionGroup = 購読グループ
 
 SubscriptionAdd = 新着チェックに追加
 SubscriptionAddUserVideos = 投稿者動画を新着チェックに追加
@@ -224,6 +225,10 @@ ReorderSubsciprionSource_MoveToTail = 最後尾へ移動
 Notification_SuccessAddSubscriptionSourceWithLabel = 「{0}」を新着チェックに追加しました
 Notification_FailedSubscriptionUpdate = 新着動画の更新に失敗しました
 Notification_SuccessAddToWatchLaterWithAddedCount = 新着動画 {0} 件を キュー に追加しました
+SubscNotification_SampleVideosHeader = 新着動画が見つかりました
+VideosWithCount = {0} 動画
+
+
 
 SubscGroup_DefaultGroupName = デフォルト
 AddSubscriptionGroup_InputSubscGroupName_Title = 購読グループ名を決める
@@ -252,6 +257,8 @@ SubscGroup_AllPlayUnwatched = 新着動画を再生
 SubscGroup_AddToQueue = キューに追加
 
 SubscVideos_ShowAllSubsc = すべて表示
+
+
 
 #### Settings ####
 MenuPaneDisplayMode = メニューの表示位置

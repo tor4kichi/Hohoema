@@ -194,6 +194,7 @@ CacheVideo_ToastNotification_CacheDelete = 删除
 
 #### Subscription ####
 SubscriptionNewVideos = 新影片
+SubscriptionGroup = 订阅组
 
 SubscriptionAdd = 添加订阅
 SubscriptionAddUserVideos = 将作者添加到订阅
@@ -224,6 +225,10 @@ ReorderSubsciprionSource_MoveToTail = 移动到最后
 Notification_SuccessAddSubscriptionSourceWithLabel = 向新支票添加“{0}”
 Notification_FailedSubscriptionUpdate = 订阅续订失败
 Notification_SuccessAddToWatchLaterWithAddedCount = 已将新视频{0}添加到“稍后查看”
+SubscNotification_SampleVideosHeader = 找到新视频
+VideosWithCount = {0} 个视频
+
+
 
 SubscGroup_DefaultGroupName = 默认
 AddSubscriptionGroup_InputSubscGroupName_Title = 确定订阅组名称
@@ -252,6 +257,8 @@ SubscGroup_AllPlayUnwatched = 播放新视频
 SubscGroup_AddToQueue = 添加到队列
 
 SubscVideos_ShowAllSubsc = 显示所有
+
+
 
 #### Settings ####
 MenuPaneDisplayMode = 菜单显示位置
