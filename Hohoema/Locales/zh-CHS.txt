@@ -241,6 +241,7 @@ SubscVideos_MarkAsChecked = 标记为选中
 SubscVideos_AllMarkAsChecked = 全部勾选
 Subsc_UnwatchedVideoCount = 新的 {0} 个视频
 
+SubscGroupSettings_Title = 订阅组名称
 SubscGroupSettings = 显示和通知设置
 SubscGroupSettings_Notification = 通知我新来者
 SubscGroupSettings_AddToQueue = 添加新队列
@@ -249,6 +250,8 @@ SubscGroupSettings_ShowAppMenu = 在菜单中显示组
 SubscGroup_PlayFromHere = 看这里
 SubscGroup_AllPlayUnwatched = 播放新视频
 SubscGroup_AddToQueue = 添加到队列
+
+SubscVideos_ShowAllSubsc = 显示所有
 
 #### Settings ####
 MenuPaneDisplayMode = 菜单显示位置

@@ -241,6 +241,7 @@ SubscVideos_MarkAsChecked = チェック済みにマーク
 SubscVideos_AllMarkAsChecked = すべてチェック済みにマーク
 Subsc_UnwatchedVideoCount = 新着 {0}動画
 
+SubscGroupSettings_Title = 購読グループ名
 SubscGroupSettings = 表示と通知の設定
 SubscGroupSettings_Notification = 新着を通知する
 SubscGroupSettings_AddToQueue = 新着をキューに追加
@@ -249,6 +250,8 @@ SubscGroupSettings_ShowAppMenu = グループをメニューに表示
 SubscGroup_PlayFromHere = ここから視聴する
 SubscGroup_AllPlayUnwatched = 新着動画を再生
 SubscGroup_AddToQueue = キューに追加
+
+SubscVideos_ShowAllSubsc = すべて表示
 
 #### Settings ####
 MenuPaneDisplayMode = メニューの表示位置

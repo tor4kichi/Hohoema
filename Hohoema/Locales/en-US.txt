@@ -241,6 +241,7 @@ SubscVideos_MarkAsChecked = Mark as checked
 SubscVideos_AllMarkAsChecked = Mark all checked
 Subsc_UnwatchedVideoCount = New {0} videos
 
+SubscGroupSettings_Title = Subscription group name
 SubscGroupSettings = Display and notification settings
 SubscGroupSettings_Notification = Notify me of new arrivals
 SubscGroupSettings_AddToQueue = Add New to Queue
@@ -249,6 +250,8 @@ SubscGroupSettings_ShowAppMenu = Show group in menu
 SubscGroup_PlayFromHere = Watch from here
 SubscGroup_AllPlayUnwatched = Play new video
 SubscGroup_AddToQueue = Add to queue
+
+SubscVideos_ShowAllSubsc = Show all
 
 #### Settings ####
 MenuPaneDisplayMode = Menu display position

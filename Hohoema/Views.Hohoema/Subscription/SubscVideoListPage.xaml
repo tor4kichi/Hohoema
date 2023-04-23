@@ -66,7 +66,7 @@
      ui:FrameworkElementExtensions.EnableActualSizeBinding="True"          
       >
       <videoList:VideoItemsListView.GroupStyle>
-        <GroupStyle HidesIfEmpty="False">
+        <GroupStyle HidesIfEmpty="{x:Bind ShowAllSubsc_ToggleButton.IsChecked, Mode=OneWay, Converter={StaticResource BoolNegation}}">
           <GroupStyle.HeaderTemplate>
             <DataTemplate x:DataType="subscPageVM:SubscriptionNewVideosViewModel">
               <uwpControls:DockPanel HorizontalAlignment="Stretch" 
@@ -131,6 +131,8 @@
 
             <CommandBar.PrimaryCommands>
 
+              <AppBarToggleButton Label="{i18nExt:Localize Key=SubscVideos_ShowAllSubsc}" x:Name="ShowAllSubsc_ToggleButton" />
+
               <AppBarElementContainer VerticalContentAlignment="Stretch">
                 <StackPanel Orientation="Horizontal" Margin="4 0">
                   <Button Content="{i18nExt:Localize Key=SubscVideos_AllMarkAsChecked}" 
@@ -144,30 +146,6 @@
                 </StackPanel>
               </AppBarElementContainer>
              
-              <!--<AppBarElementContainer VerticalAlignment="Stretch" VerticalContentAlignment="Stretch"
-                                      Margin="4 0"
-                                      >
-                <ComboBox ItemsSource="{x:Bind _vm.SubscriptionGroups}"
-                          SelectedItem="{x:Bind _vm.SelectedSubscGroup, Mode=TwoWay}"
-                          IsEnabled="{x:Bind _vm.NowLoading, Converter={StaticResource BoolNegation}}"
-                          VerticalAlignment="Stretch"
-                          Margin="0 6"
-                          >
-                  <ComboBox.ItemTemplate>
-                    <DataTemplate x:DataType="subscModels:SubscriptionGroup">
-                      <TextBlock Text="{Binding Name, FallbackValue={i18nExt:Localize Key=All}}" />
-                    </DataTemplate>
-                  </ComboBox.ItemTemplate>
-                </ComboBox>
-              </AppBarElementContainer>-->
-
-              <!--<AppBarButton x:Name="PlayAllButton"
-                                Icon="Play"
-                                Label="{i18nExt:Localize Key=PlayAll}"
-                                Command="{x:Bind _vm.PlaylistPlayAllCommand}"
-                                CommandParameter="{Binding CurrentPlaylistToken.Value}"></AppBarButton>
-              -->
-
               <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}"
                             Margin="4 0"
                             >
@@ -198,12 +176,15 @@
       </videoList:VideoItemsListView.Header>
     </videoList:VideoItemsListView>
 
-    <Grid x:Name="EmptyItemsLayout" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center">
+    <StackPanel x:Name="EmptyItemsLayout" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center"
+                Spacing="16"
+                >
       <TextBlock Text="{x:Bind _vm.AllCheckedLocalizedTextForSelectedGroup, Mode=OneWay}"
                      Style="{StaticResource SubtitleTextBlockStyle}"
                      Opacity="0.8"
                      />
-    </Grid>
+
+    </StackPanel>
 
     <VisualStateManager.VisualStateGroups>
       <!-- レイアウトモード -->
@@ -259,7 +240,19 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{Binding SubscVideosItems.Count}" EqualTo="0" />
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ElementName=ShowAllSubsc_ToggleButton, Path=IsChecked}">
+              <windowsTriggers:EqualsStateTrigger.EqualTo>
+                <x:Boolean>True</x:Boolean>
+              </windowsTriggers:EqualsStateTrigger.EqualTo>
+            </windowsTriggers:EqualsStateTrigger>
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="ShowAllSubsc_ToggleButton.Visibility" Value="Collapsed" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{x:Bind _vm.HasNewVideos, Mode=OneWay, Converter={StaticResource BoolNegation}}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="EmptyItemsLayout.Visibility" Value="Visible" />
