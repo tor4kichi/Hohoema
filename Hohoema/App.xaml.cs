@@ -131,7 +131,8 @@ public sealed partial class App : Application
         {
             var deferral = e.SuspendingOperation.GetDeferral();
             try
-            {                
+            {
+                Views.UINavigation.UINavigationManager.OnSuspeding();
                 await Container.ResolveMany<ISuspendAndResumeAware>(behavior: ResolveManyBehavior.AsFixedArray).Select(x => x.OnSuspendingAsync());
             }
             catch (Exception ex) 
@@ -148,6 +149,7 @@ public sealed partial class App : Application
         {
             try
             {
+                Views.UINavigation.UINavigationManager.OnResuming();
                 await Container.ResolveMany<ISuspendAndResumeAware>(behavior: ResolveManyBehavior.AsFixedArray).Select(x => x.OnSuspendingAsync());
             }
             catch (Exception ex)
