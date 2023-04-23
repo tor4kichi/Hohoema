@@ -338,7 +338,6 @@ public sealed partial class SubscriptionUpdateManager
                 {
                     // Note: ObjectId.Empty は デフォルトグループを指す
                     var groupId = SubscriptionGroupId.Parse(groupIdPlay);
-                    // TODO: 購読グループの未視聴動画を再生する
                     var recentVideoInUnchecked = _subscriptionManager.GetSubscFeedVideosNewerAt(groupId).FirstOrDefault();
                     Guard.IsNotNull(recentVideoInUnchecked, nameof(recentVideoInUnchecked));
                     await _messenger.Send(VideoPlayRequestMessage.PlayPlaylist(groupId.ToString(), PlaylistItemsSourceOrigin.SubscriptionGroup, string.Empty, recentVideoInUnchecked.VideoId));
@@ -444,7 +443,7 @@ public sealed partial class SubscriptionUpdateManager
     public void TestNotification()
     {
         List<SubscriptionFeedUpdateResult> results = new();
-        var sources = _subscriptionManager.GetSubscriptions().Take(3);
+        var sources = _subscriptionManager.GetSubscriptionsWithoutSort().Take(3);
         var updateAt = DateTime.Now;
         foreach (var source in sources)
         {

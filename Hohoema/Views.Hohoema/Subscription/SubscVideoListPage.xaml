@@ -130,6 +130,8 @@
             </CommandBar.Content>
 
             <CommandBar.PrimaryCommands>
+              <AppBarButton Label="{i18nExt:Localize Key=SubscGroup_AllPlayUnwatched}" Command="{x:Bind _vm.PlaySubscriptionGroupNewVideosCommand}" />
+              <AppBarButton Label="{i18nExt:Localize Key=SubscGroup_AddToQueue}" Command="{x:Bind _vm.AddToQueueSubscriptionGroupNewVideosCommand}" />
 
               <AppBarToggleButton Label="{i18nExt:Localize Key=SubscVideos_ShowAllSubsc}" x:Name="ShowAllSubsc_ToggleButton" />
 

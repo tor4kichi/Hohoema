@@ -120,15 +120,19 @@ public sealed class SubscriptionManager
         DefaultSubscriptionGroup = new SubscriptionGroup(SubscriptionGroupId.DefaultGroupId, localizeService.Translate("SubscGroup_DefaultGroupName")) { Order = -1 };
     }
 
-    public List<SubscriptionGroup> GetSubscriptionGroups(bool withDefaultGroup = false)
-    {
-        var list = _subscriptionGroupRepository.Find(Query.All(nameof(SubscriptionGroup.Order), Query.Ascending)).ToList();
+    public IEnumerable<SubscriptionGroup> GetSubscriptionGroups(bool withDefaultGroup = false)
+    {        
         if (withDefaultGroup)
         {
-            list.Insert(0, DefaultSubscriptionGroup);
+            return Enumerable.Concat(
+                new[] { DefaultSubscriptionGroup },
+                _subscriptionGroupRepository.Find(Query.All(nameof(SubscriptionGroup.Order), Query.Ascending))
+                );
         }
-
-        return list;
+        else
+        {
+            return _subscriptionGroupRepository.Find(Query.All(nameof(SubscriptionGroup.Order), Query.Ascending));
+        }
     }
 
     public SubscriptionGroup CreateSubscriptionGroup(string name)
@@ -329,20 +333,26 @@ public sealed class SubscriptionManager
         ClearEnabledSubscriptionsCount();
     }
 
-    public IEnumerable<Subscription> GetSubscriptions()
+    public IEnumerable<Subscription> GetSubscriptionsWithoutSort()
     {
         return _subscriptionRegistrationRepository.Find(Query.All());
     }
 
-    public IEnumerable<Subscription> GetSubscriptions(SubscriptionGroupId groupId)
+    public IEnumerable<Subscription> GetSubscriptions(SubscriptionGroupId? groupId)
     {
-        if (groupId == SubscriptionGroupId.DefaultGroupId)
+        if (groupId == null)
+        {
+            return GetSubscriptionGroups(withDefaultGroup: true)
+                .SelectMany(x => GetSubscriptionGroupSubscriptions(x.GroupId).OrderBy(x => x.SortIndex))
+                ;
+        }
+        else if (groupId == SubscriptionGroupId.DefaultGroupId)
         {
             return _subscriptionRegistrationRepository.Find(x => x.Group == null).OrderBy(x => x.SortIndex);
         }
         else
         {
-            return _subscriptionRegistrationRepository.Find(groupId);
+            return _subscriptionRegistrationRepository.Find(groupId.Value);
         }
     }
 
@@ -401,6 +411,13 @@ public sealed class SubscriptionManager
         _subscriptionUpdateRespository.UpdateItem(update);
     }
 
+    public void UpdateAllSubscriptionCheckedAt(DateTime? checkedAt = null)
+    {
+        foreach (var group in GetSubscriptionGroups(withDefaultGroup: true))
+        {
+            UpdateSubscriptionCheckedAt(group.GroupId, checkedAt);
+        }
+    }
 
     public void UpdateSubscriptionCheckedAt(SubscriptionGroupId subscriptionGroupId, DateTime? checkedAt = null)
     {
@@ -415,10 +432,16 @@ public sealed class SubscriptionManager
         UpdateSubscriptionCheckedAt(subscription.SubscriptionId, subscription.Group?.GroupId ?? SubscriptionGroupId.DefaultGroupId, checkedAt);
     }
 
+    public void UpdateSubscriptionCheckedAt(SubscriptionId subscriptionId, DateTime? checkedAt = null)
+    {
+        var subscription = GetSubscription(subscriptionId);
+        UpdateSubscriptionCheckedAt(subscription.SubscriptionId, subscription.Group?.GroupId ?? SubscriptionGroupId.DefaultGroupId, checkedAt);
+    }
+
     private void UpdateSubscriptionCheckedAt(SubscriptionId subscriptionId, SubscriptionGroupId subscriptionGroupId, DateTime? checkedAt)
     {
         var props = GetSubscriptionProps(subscriptionId);
-        props.LastCheckedAt = checkedAt ?? GetLatestPostAt(subscriptionId) + TimeSpan.FromSeconds(1);
+        props.LastCheckedAt = (checkedAt ?? GetLatestPostAt(subscriptionId)) + TimeSpan.FromSeconds(1);
         SetSubscriptionProps(props);
         _messenger.Send(new SubscriptionCheckedAtChangedMessage(props, subscriptionGroupId));
     }
@@ -528,7 +551,7 @@ public sealed class SubscriptionManager
 
     public IEnumerable<SubscFeedVideo> GetSubscFeedVideosNewerAt(SubscriptionGroupId? groupId, DateTime? targetPostAt = null, int skip = 0, int limit = int.MaxValue)
     {
-        var subscIds = GetSubscriptionGroupSubscriptions(groupId).Select(x => x.SubscriptionId);
+        var subscIds = GetSubscriptionGroupSubscriptions(groupId).OrderBy(x => x.SortIndex).Select(x => x.SubscriptionId);
         return subscIds.SelectMany(x => _subscFeedVideoRepository.GetVideosNewerAt(x, targetPostAt ?? GetSubscriptionCheckedAt(x), skip, limit));
     }
 
@@ -554,7 +577,7 @@ public sealed class SubscriptionManager
 
     public int GetFeedVideosCountWithNewer()
     {
-        return GetSubscriptions().Sum(GetFeedVideosCountWithNewer);
+        return GetSubscriptionsWithoutSort().Sum(GetFeedVideosCountWithNewer);
     }
 
 

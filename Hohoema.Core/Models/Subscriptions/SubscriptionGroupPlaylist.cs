@@ -4,6 +4,7 @@ using Hohoema.Contracts.Subscriptions;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Playlist;
 using LiteDB;
+using NiconicoToolkit.Video;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -38,7 +39,7 @@ public sealed class SubscriptionGroupPlaylist
 
     public string Name => _group?.Name ?? _localizeService.Translate("All");
 
-    public PlaylistId PlaylistId => new PlaylistId(PlaylistItemsSourceOrigin.SubscriptionGroup , (_group?.GroupId ?? SubscriptionGroupId.DefaultGroupId).ToString());
+    public PlaylistId PlaylistId => new PlaylistId(PlaylistItemsSourceOrigin.SubscriptionGroup , (_group?.GroupId.ToString() ?? _subscriptionManager.AllSubscriptouGroupId));
 
     public static readonly SubscriptionSortOption[] SortOptions = new[] { new SubscriptionSortOption() };
 
@@ -50,22 +51,51 @@ public sealed class SubscriptionGroupPlaylist
 
     public event NotifyCollectionChangedEventHandler? CollectionChanged;
 
-    public int TotalCount => _subscriptionManager.GetFeedVideosCountWithNewer(_group?.GroupId ?? SubscriptionGroupId.DefaultGroupId);
+    public int TotalCount => _group is not null ? _subscriptionManager.GetFeedVideosCountWithNewer(_group.GroupId) : _subscriptionManager.GetFeedVideosCountWithNewer();
 
     public async Task<IEnumerable<IVideoContent>> GetAllItemsAsync(IPlaylistSortOption sortOption, CancellationToken cancellationToken = default)
-    {
+    {        
         List<IVideoContent> videos = new ();
+        _subscriptionIdVideoIdMap.Clear();
         foreach (var subscVideo in _subscriptionManager.GetSubscFeedVideosNewerAt(_group?.GroupId).OrderBy(x => x.PostAt))
         {
+            if (TryAddMapAndIsAlreadyContainItem(subscVideo))
+            {
+                continue;
+            }
             var nicoVideo = await _nicoVideoProvider.GetCachedVideoInfoAsync(subscVideo.VideoId, cancellationToken);
-            videos.Add(nicoVideo);
+            videos.Add(nicoVideo);            
         }
         return videos;
     }
 
+    bool TryAddMapAndIsAlreadyContainItem(SubscFeedVideo video)
+    {
+        bool isAlreadyContainItem = true;
+        if (_subscriptionIdVideoIdMap.TryGetValue(video.VideoId, out var list) is false)
+        {
+            _subscriptionIdVideoIdMap.Add(video.VideoId, list = new List<SubscriptionId>());
+            isAlreadyContainItem = false;
+        }
+        list.Add(video.SourceSubscId);
+        return isAlreadyContainItem;
+    }
+
+
+    
+    private readonly Dictionary<VideoId, List<SubscriptionId>> _subscriptionIdVideoIdMap = new ();
+    
+
     void IPlaylistItemWatchedAware.OnVideoWatched(IVideoContent video)
     {
-        if (_group != null)
+        if (_subscriptionIdVideoIdMap.TryGetValue(video.VideoId, out var list))
+        {
+            foreach (var subscriptionId in list)
+            {
+                _subscriptionManager.UpdateSubscriptionCheckedAt(subscriptionId, video.PostedAt);
+            }
+        }
+        else if (_group != null)
         {
             _subscriptionManager.SetSubscriptionCheckedAt(_group.GroupId, video);
         }
