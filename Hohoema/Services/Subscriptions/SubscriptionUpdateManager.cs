@@ -52,9 +52,6 @@ public sealed partial class SubscriptionUpdateManager
     , IToastActivationAware
     , ISuspendAndResumeAware
 {
-    static readonly TimeSpan UpdateTimeout = TimeSpan.FromMinutes(5);
-
-
     private readonly ILogger<SubscriptionUpdateManager> _logger;
     private readonly IMessenger _messenger;
     private readonly INotificationService _notificationService;
@@ -158,7 +155,6 @@ public sealed partial class SubscriptionUpdateManager
         try
         {
             _timerUpdateCancellationTokenSource?.Cancel();
-            _timerUpdateCancellationTokenSource = null;
         }
         catch (Exception ex)
         {
@@ -194,6 +190,8 @@ public sealed partial class SubscriptionUpdateManager
         }
     }
 
+    static readonly TimeSpan UpdateTimeout = TimeSpan.FromMinutes(5);
+
     public async Task UpdateIfOverExpirationAsync(CancellationToken ct)
     {
         if (Helpers.InternetConnection.IsInternet() is false) 
@@ -209,21 +207,24 @@ public sealed partial class SubscriptionUpdateManager
 
         List<SubscriptionFeedUpdateResult> updateResultItems = new();
         using (_logger.BeginScope("Subscription Update"))
+        using (await _timerLock.LockAsync())
         {
             try
             {
                 _logger.ZLogDebug("Start.");
-                _timerUpdateCancellationTokenSource?.Cancel();
-                _timerUpdateCancellationTokenSource?.Dispose();
+                if (_timerUpdateCancellationTokenSource != null)
+                {
+                    _timerUpdateCancellationTokenSource.Cancel();
+                    _timerUpdateCancellationTokenSource.Dispose();
+                }
                 _timerUpdateCancellationTokenSource = new CancellationTokenSource(UpdateTimeout);
                 var timeCt = _timerUpdateCancellationTokenSource.Token;
-                using (var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(ct, timeCt))
-                using (await _timerLock.LockAsync())
+                using (var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(ct, timeCt))                
                 {
                     CancellationToken linkedCt = linkedCts.Token;
                     foreach (var subscription in _subscriptionManager.GetSortedSubscriptions())
                     {
-                        if (updateResultItems.Any())
+                        if (updateResultItems.Count != 0)
                         {
                             // 常に一秒空ける
                             await Task.Delay(1000, linkedCt);
@@ -270,7 +271,7 @@ public sealed partial class SubscriptionUpdateManager
                 // 次の自動更新周期を延長して設定
                 LastCheckedAt = checkedAt;
                 NextUpdateAt = _subscriptionManager.GetNextUpdateTime(checkedAt);
-                _timerUpdateCancellationTokenSource?.Dispose();
+                _timerUpdateCancellationTokenSource!.Dispose();
                 _timerUpdateCancellationTokenSource = null;
                 _logger.ZLogDebug("Complete.");
             }
