@@ -9,19 +9,21 @@ using System.Threading.Tasks;
 namespace Hohoema.Services.Subscriptions;
 public sealed class SubscriptionDialogService : ISubscriptionDialogService
 {
-    async Task<SubscriptionGroupCreateResult> ISubscriptionDialogService.ShowSubscriptionGroupCreateDialogAsync(string title, bool isAutoUpdateDefault, bool isAddToQueueeDefault, bool isToastNotificationDefault, bool isShowMenuItemDefault)
+    async Task<SubscriptionGroupCreateResult> ISubscriptionDialogService.ShowSubscriptionGroupCreateDialogAsync(
+        string title, 
+        bool isAutoUpdateDefault, 
+        bool isAddToQueueeDefault, 
+        bool isToastNotificationDefault, 
+        bool isShowMenuItemDefault
+        )
     {
-        var dialog = new EditSubscriptionGroupDialog() 
-        {
-        
-        };
-
+        var dialog = new EditSubscriptionGroupDialog();
         return await dialog.ShowAsync(
             title: "",
-            isAutoUpdateDefault: true,
-            isAddToQueueeDefault: true,
-            isToastNotificationDefault: true,
-            isShowMenuItemDefault: true,
+            isAutoUpdateDefault: isAutoUpdateDefault,
+            isAddToQueueDefault: isAddToQueueeDefault,
+            isToastNotificationDefault: isToastNotificationDefault,
+            isShowMenuItemDefault: isShowMenuItemDefault,
             titleValidater: (s) => !string.IsNullOrWhiteSpace(s)
             );
     }

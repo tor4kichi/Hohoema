@@ -335,7 +335,7 @@ public sealed class SubscriptionManager
 
     public IEnumerable<Subscription> GetSubscriptionsWithoutSort()
     {
-        return _subscriptionRegistrationRepository.Find(Query.All());
+        return _subscriptionRegistrationRepository.ReadAllItems();
     }
 
     public IEnumerable<Subscription> GetSubscriptions(SubscriptionGroupId? groupId)

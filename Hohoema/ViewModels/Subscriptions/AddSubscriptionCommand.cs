@@ -24,6 +24,7 @@ namespace Hohoema.ViewModels.Subscriptions;
 public sealed class AddSubscriptionCommand : CommandBase
 {
     private readonly ILogger _logger;
+    private readonly SubscriptionSettings _subscriptionSettings;
     private readonly SubscriptionManager _subscriptionManager;
     private readonly UserProvider _userProvider;
     private readonly ChannelProvider _channelProvider;
@@ -37,16 +38,9 @@ public sealed class AddSubscriptionCommand : CommandBase
     // 設定項目として永続化するには馴染まないのでアプリ起動中のみ保持
     static SubscriptionGroupId? _lastSelectedSubscriptionGroupId;
 
-    static SubscriptionGroupCreateResult _subscriptionGroupDefault = new ()
-    {
-        Title = "",
-        IsShowMenuItem = true,
-        IsAddToQueue = true,
-        IsAutoUpdate = true,
-        IsToastNotification = true
-    };
     public AddSubscriptionCommand(
         ILogger logger,
+        SubscriptionSettings subscriptionSettings,
         SubscriptionManager subscriptionManager,
         UserProvider userProvider,
         ChannelProvider channelProvider,
@@ -58,6 +52,7 @@ public sealed class AddSubscriptionCommand : CommandBase
         )
     {
         _logger = logger;
+        _subscriptionSettings = subscriptionSettings;
         _subscriptionManager = subscriptionManager;
         _userProvider = userProvider;
         _channelProvider = channelProvider;
@@ -140,18 +135,21 @@ public sealed class AddSubscriptionCommand : CommandBase
                 {
                     if (await _subscriptionDialogService.ShowSubscriptionGroupCreateDialogAsync(
                         "",
-                        isAutoUpdateDefault: _subscriptionGroupDefault.IsAutoUpdate,
-                        isAddToQueueeDefault: _subscriptionGroupDefault.IsAddToQueue,
-                        isToastNotificationDefault: _subscriptionGroupDefault.IsToastNotification,
-                        isShowMenuItemDefault: _subscriptionGroupDefault.IsShowMenuItem
+                        isAutoUpdateDefault: _subscriptionSettings.Default_IsAutoUpdate,
+                        isAddToQueueeDefault: _subscriptionSettings.Default_IsAddToQueue,
+                        isToastNotificationDefault: _subscriptionSettings.Default_IsToastNotification,
+                        isShowMenuItemDefault: _subscriptionSettings.Default_IsShowMenuItem
                         )
                         is { } result && result.IsSuccess is false)
                     {
                         return default!;
                     }
 
-                    _subscriptionGroupDefault = result with { Title = "" };
-
+                    _subscriptionSettings.Default_IsAutoUpdate = result.IsAutoUpdate;
+                    _subscriptionSettings.Default_IsAddToQueue = result.IsAddToQueue;
+                    _subscriptionSettings.Default_IsToastNotification= result.IsToastNotification;
+                    _subscriptionSettings.Default_IsShowMenuItem = result.IsShowMenuItem;
+                    
                     var subscGroup = _subscriptionManager.CreateSubscriptionGroup(result.Title);
                     var props = _subscriptionManager.GetSubscriptionGroupProps(subscGroup.GroupId);
                     props.IsAutoUpdateEnabled = result.IsAutoUpdate;

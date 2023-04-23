@@ -1130,8 +1130,11 @@ public sealed partial class SubscriptionMenuItemViewModel
 
     void IRecipient<SubscriptionGroupDeletedMessage>.Receive(SubscriptionGroupDeletedMessage message)
     {
-        var groupMenuItem = SubscGroups.First(x => x.GroupId == message.Value.GroupId);
-        SubscGroups.Remove(groupMenuItem);
+        var groupMenuItem = SubscGroups.FirstOrDefault(x => x.GroupId == message.Value.GroupId);
+        if (groupMenuItem != null)
+        {
+            SubscGroups.Remove(groupMenuItem);
+        }
     }
 
     void IRecipient<SubscriptionGroupReorderedMessage>.Receive(SubscriptionGroupReorderedMessage message)

@@ -39,7 +39,7 @@ public sealed partial class EditSubscriptionGroupDialog : ContentDialog
     public async Task<SubscriptionGroupCreateResult> ShowAsync(
         string title,
         bool isAutoUpdateDefault,
-        bool isAddToQueueeDefault,
+        bool isAddToQueueDefault,
         bool isToastNotificationDefault,
         bool isShowMenuItemDefault,
         Func<string, bool> titleValidater
@@ -47,7 +47,7 @@ public sealed partial class EditSubscriptionGroupDialog : ContentDialog
     {
         TextBox_SubscGroupTitle.Text = title;
         CheckBox_AutoUpdate.IsChecked = isAutoUpdateDefault;
-        CheckBox_AddToQueue.IsChecked = isAddToQueueeDefault;
+        CheckBox_AddToQueue.IsChecked = isAddToQueueDefault;
         CheckBox_ToastNotification.IsChecked = isToastNotificationDefault;
         CheckBox_ShowMenuItem.IsChecked = isShowMenuItemDefault;
         IsPrimaryButtonEnabled = titleValidater(title);

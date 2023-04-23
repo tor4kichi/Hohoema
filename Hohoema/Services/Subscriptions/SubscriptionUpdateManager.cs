@@ -391,7 +391,8 @@ public sealed partial class SubscriptionUpdateManager
 
         ToastSelectionBox box = new ToastSelectionBox(ToastArgumentValue_UserInputKey_SubscGroupId)
         {
-            DefaultSelectionBoxItemId = resultByGroupId.First().Key.GroupId.ToString()
+            DefaultSelectionBoxItemId = ToastArgumentValue_UserInputValue_NoSelectSubscGroupId,
+            Title = "SubscriptionGroup".Translate()
         };
 
         box.Items.Add(new ToastSelectionBoxItem(ToastArgumentValue_UserInputValue_NoSelectSubscGroupId, "All".Translate()));
@@ -407,8 +408,8 @@ public sealed partial class SubscriptionUpdateManager
             Microsoft.Toolkit.Uwp.Notifications.ToastDuration.Long,
             //luanchContent: PlayWithWatchAfterPlaylistParam,
             toastButtons: new IToastButton[] {
-                new ToastButton("WatchVideo".Translate(), MakeSubscPlayToastArguments().ToString()),
-                new ToastButton("ViewList".Translate(), MakeSubscViewListToastArguments().ToString()),
+                new ToastButton("SubscGroup_AllPlayUnwatched".Translate(), MakeSubscPlayToastArguments().ToString()),
+                new ToastButton("OpenSubscriptionSourceVideoList".Translate(), MakeSubscViewListToastArguments().ToString()),
             },
             toastInputs: new IToastInput[] {
                 box
