@@ -261,10 +261,9 @@
                 <MenuFlyoutItem Text="{i18nExt:Localize Key=ReorderSubsciprionSource_MoveToHead}" Command="{Binding MoveToHeadCommand}" />
                 <MenuFlyoutItem Text="{i18nExt:Localize Key=ReorderSubsciprionSource_MoveToTail}" Command="{Binding MoveToTailCommand}" />
               </MenuFlyoutSubItem>
-              <MenuFlyoutSubItem Text="{i18nExt:Localize Key=SubscGroupSettings}">
-                <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=SubscGroupSettings_AddToQueue}" IsChecked="{Binding IsAddToQueueWhenUpdated, Mode=TwoWay}" />
-                <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=SubscGroupSettings_Notification}" IsChecked="{Binding IsToastNotificationEnabled, Mode=TwoWay}" />
-              </MenuFlyoutSubItem>
+              <MenuFlyoutSeparator />
+              <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=SubscGroupSettings_AddToQueue}" IsChecked="{Binding IsAddToQueueWhenUpdated, Mode=TwoWay}" />
+              <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=SubscGroupSettings_Notification}" IsChecked="{Binding IsToastNotificationEnabled, Mode=TwoWay}" />
               <MenuFlyoutSeparator />
               <MenuFlyoutItem Text="{i18nExt:Localize Key=StopSubscribe}" Command="{Binding DeleteSubscriptionCommand}" />
             </MenuFlyout>
@@ -284,11 +283,10 @@
                 <MenuFlyoutItem Text="{i18nExt:Localize Key=ReorderSubsciprionSource_MoveToHead}" Command="{Binding MoveToHeadCommand}" />
                 <MenuFlyoutItem Text="{i18nExt:Localize Key=ReorderSubsciprionSource_MoveToTail}" Command="{Binding MoveToTailCommand}" />
               </MenuFlyoutSubItem>
-              <MenuFlyoutSubItem Text="{i18nExt:Localize Key=SubscGroupSettings}">
-                <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=SubscGroupSettings_AddToQueue}" IsChecked="{Binding IsAddToQueueWhenUpdated, Mode=TwoWay}" />
-                <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=SubscGroupSettings_Notification}" IsChecked="{Binding IsToastNotificationEnabled, Mode=TwoWay}" />
-                <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=SubscGroupSettings_ShowAppMenu}" IsChecked="{Binding IsShowInAppMenu, Mode=TwoWay}" />
-              </MenuFlyoutSubItem>
+              <MenuFlyoutSeparator />
+              <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=SubscGroupSettings_AddToQueue}" IsChecked="{Binding IsAddToQueueWhenUpdated, Mode=TwoWay}" />
+              <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=SubscGroupSettings_Notification}" IsChecked="{Binding IsToastNotificationEnabled, Mode=TwoWay}" />
+              <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=SubscGroupSettings_ShowAppMenu}" IsChecked="{Binding IsShowInAppMenu, Mode=TwoWay}" />
               <MenuFlyoutSeparator />
               <MenuFlyoutItem Text="{i18nExt:Localize Key=Delete}" Command="{Binding DeleteSubscriptionGroupCommand}" Visibility="{Binding SubscriptionGroup.IsDefaultGroup, Converter={StaticResource BooleanToVisibilityInverted}}" />
             </MenuFlyout>
