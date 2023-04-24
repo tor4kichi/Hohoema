@@ -322,8 +322,10 @@ ErrorReportDialog_UserInputTextBoxDesc = Explain the situation where the error o
 UserDataSettings = Backup
 BackupUserData = Export backup
 RestoreUserData = Load backup
+BackupSaveComplete = saved a backup
+BackupSaveFailed = Failed to save backup. \n{0}
 BackupRestoreComplete = Restore from backup is complete
-BackupRestoreFailed = Restore from backup failed
+BackupRestoreFailed = Failed to restore from backup\n{0}
 
 ApplicationDiagnosticsReport = App usage report
 EnableCrashReport = Send app error information

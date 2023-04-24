@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using Hohoema.Helpers;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Store;
 using Windows.Storage;
@@ -33,17 +34,17 @@ public class HohoemaPurchase
         _Initialized = true;
     }
 
-    public static async Task<ListingInformation> GetAvailableCheersAddOn()
+    public static async Task<ListingInformation> GetAvailableCheersAddonsAsync(CancellationToken ct = default)
     {
-        using IDisposable releaser = await _InitializeLock.LockAsync();
-        ListingInformation listing = await CurrentApp.LoadListingInformationAsync();
+        using IDisposable releaser = await _InitializeLock.LockAsync(ct);
+        ListingInformation listing = await CurrentApp.LoadListingInformationAsync().AsTask(ct);
         return listing;
     }
 
-    public static async Task<PurchaseResults> RequestPurchase(ProductListing addonProduct)
+    public static async Task<PurchaseResults> RequestPurchase(ProductListing addonProduct, CancellationToken ct = default)
     {
-        using IDisposable releaser = await _InitializeLock.LockAsync();
-        PurchaseResults result = await CurrentApp.RequestProductPurchaseAsync(addonProduct.ProductId);
+        using IDisposable releaser = await _InitializeLock.LockAsync(ct);
+        PurchaseResults result = await CurrentApp.RequestProductPurchaseAsync(addonProduct.ProductId).AsTask(ct);
         return result;
     }
 

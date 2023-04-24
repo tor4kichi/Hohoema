@@ -322,8 +322,10 @@ ErrorReportDialog_UserInputTextBoxDesc = 说明发生错误的情况（最多100
 UserDataSettings = 后备
 BackupUserData = 导出备份
 RestoreUserData = 读取备份
+BackupSaveComplete = 保存备份
+BackupSaveFailed = 无法保存备份。 \n{0}
 BackupRestoreComplete = 从备份还原完成
-BackupRestoreFailed = 从备份还原失败
+BackupRestoreFailed = 从备份恢复失败\n{0}
 
 ApplicationDiagnosticsReport = 应用使用情况报告
 EnableCrashReport = 发送应用错误信息

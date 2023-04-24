@@ -322,8 +322,10 @@ ErrorReportDialog_UserInputTextBoxDesc = エラーが発生した状況を説明
 UserDataSettings = バックアップ
 BackupUserData = バックアップを書き出す
 RestoreUserData = バックアップを読み込む
+BackupSaveComplete = バックアップを保存しました
+BackupSaveFailed = バックアップの保存に失敗しました。\n{0}
 BackupRestoreComplete = バックアップから復元が完了しました
-BackupRestoreFailed = バックアップからの復元に失敗しました
+BackupRestoreFailed = バックアップからの復元に失敗しました\n{0}
 
 ApplicationDiagnosticsReport = アプリの使用状況レポート
 EnableCrashReport = アプリのエラー情報を送信する

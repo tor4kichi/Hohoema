@@ -243,19 +243,9 @@ public sealed class VideoPlayRequestBridgeToPlayer
 
         await destPlayerView.CloseAsync().ConfigureAwait(false);
 
-        if (_appearanceSettings.UseLegacyVersionVideoPage is false)
+        if (nowViewChanging || sourcePlayerView.LastNavigatedPageName != nameof(Views.Player.VideoPlayerPage))
         {
-            if (nowViewChanging || sourcePlayerView.LastNavigatedPageName != nameof(Views.Player.VideoPlayerPage))
-            {
-                await sourcePlayerView.NavigationAsync(nameof(Views.Player.VideoPlayerPage), null);
-            }
-        }
-        else
-        {
-            if (nowViewChanging || sourcePlayerView.LastNavigatedPageName != nameof(Views.Player.LegacyVideoPlayerPage))
-            {
-                await sourcePlayerView.NavigationAsync(nameof(Views.Player.LegacyVideoPlayerPage), null);
-            }
+            await sourcePlayerView.NavigationAsync(nameof(Views.Player.VideoPlayerPage), null);
         }
 
         if (playlist.IsQueuePlaylist()

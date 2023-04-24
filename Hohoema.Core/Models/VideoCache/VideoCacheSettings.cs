@@ -6,7 +6,7 @@ namespace Hohoema.Models.VideoCache;
 
 public sealed class VideoCacheSettings : FlagsRepositoryBase
 {
-    [System.Obsolete]
+    
     public VideoCacheSettings()
     {
         _MaxVideoCacheStorageSize = Read(default(long?), nameof(MaxVideoCacheStorageSize));
@@ -14,7 +14,7 @@ public sealed class VideoCacheSettings : FlagsRepositoryBase
 
     private bool? _IsAllowDownload;
 
-    [System.Obsolete]
+    
     public bool IsAllowDownload
     {
         get => _IsAllowDownload ??= Read(true);
@@ -23,7 +23,7 @@ public sealed class VideoCacheSettings : FlagsRepositoryBase
 
     private long? _MaxVideoCacheStorageSize;
 
-    [System.Obsolete]
+    
     public long? MaxVideoCacheStorageSize
     {
         get => _MaxVideoCacheStorageSize;
@@ -33,7 +33,7 @@ public sealed class VideoCacheSettings : FlagsRepositoryBase
 
     private bool? _IsAllowDownloadOnMeteredNetwork;
 
-    [System.Obsolete]
+    
     public bool IsAllowDownloadOnMeteredNetwork
     {
         get => _IsAllowDownloadOnMeteredNetwork ??= Read(false);
@@ -43,14 +43,14 @@ public sealed class VideoCacheSettings : FlagsRepositoryBase
 
     public long? _CachedStorageSize;
 
-    [System.Obsolete]
+    
     public long CachedStorageSize
     {
         get => _CachedStorageSize ??= Read(0L);
         set => SetProperty(ref _CachedStorageSize, value);
     }
 
-    [System.Obsolete]
+    
     public NicoVideoQuality DefaultCacheQuality
     {
         get => Read(NicoVideoQuality.High);

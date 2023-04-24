@@ -15,13 +15,13 @@ using Hohoema.Services.Player.Videos;
 using Hohoema.Services.VideoCache;
 using I18NPortable;
 using Microsoft.Extensions.Logging;
-using Microsoft.Services.Store.Engagement;
 using Microsoft.Toolkit.Uwp.Helpers;
 using Microsoft.UI.Xaml.Controls;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
@@ -29,6 +29,7 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.ApplicationModel.Store;
@@ -43,15 +44,33 @@ using ZLogger;
 
 namespace Hohoema.ViewModels.Pages.Hohoema;
 
-
-public class SettingsPageViewModel : HohoemaPageViewModelBase
+public sealed partial class SettingsPageViewModel : HohoemaPageViewModelBase
 {
     private static Uri AppIssuePageUri = new Uri("https://github.com/tor4kichi/Hohoema/issues");
 
+    private readonly IMessenger _messenger;
+    private readonly ILogger _logger;
+    private readonly IDialogService _HohoemaDialogService;
+    private readonly VideoCacheFolderManager _videoCacheFolderManager;
+    private readonly VideoFilteringSettings _videoFilteringRepository;
+    private readonly BackupManager _backupManager;
+    private readonly CommentFilteringFacade _commentFiltering;
+    private readonly PageManager _pageManager;
+    private readonly INotificationService _notificationService;
+    private readonly PlayerSettings PlayerSettings;
+    private readonly VideoRankingSettings RankingSettings;
+    private readonly NicoRepoSettings ActivityFeedSettings;
+    public AppearanceSettings AppearanceSettings { get; }
+    private readonly VideoCacheSettings VideoCacheSettings;
+    public ApplicationLayoutManager ApplicationLayoutManager { get; }
+
+
     public SettingsPageViewModel(
+        IMessenger messenger,
+        ILoggerFactory loggerFactory,
+        IDialogService dialogService,
         PageManager pageManager,
-        NotificationService toastService,
-        Services.DialogService dialogService,
+        INotificationService toastService,
         PlayerSettings playerSettings,
         VideoRankingSettings rankingSettings,
         NicoRepoSettings nicoRepoSettings,
@@ -60,10 +79,11 @@ public class SettingsPageViewModel : HohoemaPageViewModelBase
         VideoCacheFolderManager videoCacheFolderManager,
         ApplicationLayoutManager applicationLayoutManager,
         VideoFilteringSettings videoFilteringRepository,
-        BackupManager backupManager,
-        ILoggerFactory loggerFactory
+        BackupManager backupManager
         )
     {
+        _messenger = messenger;
+        _pageManager = pageManager;
         _notificationService = toastService;
         RankingSettings = rankingSettings;
         _HohoemaDialogService = dialogService;
@@ -77,24 +97,193 @@ public class SettingsPageViewModel : HohoemaPageViewModelBase
         _backupManager = backupManager;
         _logger = loggerFactory.CreateLogger<SettingsPageViewModel>();
 
-        // NG Video Owner User Id
-        NGVideoOwnerUserIdEnable = _videoFilteringRepository.ToReactivePropertyAsSynchronized(x => x.NGVideoOwnerUserIdEnable)
-            .AddTo(_CompositeDisposable);
-        NGVideoOwnerUserIds = _videoFilteringRepository.GetVideoOwnerIdFilteringEntries();
+        _isDebugModeEnabled = (App.Current as App).IsDebugModeEnabled;
 
-        OpenUserPageCommand = new RelayCommand<VideoOwnerIdFilteringEntry>(userIdInfo =>
+        InitializeAppearanceSettings();
+        InitializeFilters();
+        InitializeCache();
+
+#if DEBUG
+        this.ObservePropertiesDebugOutput()
+            .AddTo(_CompositeDisposable);
+#endif
+    }
+
+    public override async Task OnNavigatedToAsync(INavigationParameters parameters)
+    {
+        await base.OnNavigatedToAsync(parameters);
+
+        foreach (var item in _videoFilteringRepository.GetVideoTitleFilteringEntries().Select(x =>
+                new VideoFilteringTitleViewModel(x, OnRemoveVideoTitleFilterEntry, _videoFilteringRepository, this.ObserveProperty(x => x.TestText)))
+                )
         {
-            pageManager.OpenPageWithId(HohoemaPageType.UserInfo, userIdInfo.UserId);
-        });
+            VideoTitleFilteringItems.Add(item);
+        }
 
-        // NG Keyword on Video Title
-        VideoTitleFilteringItems = new ObservableCollection<VideoFilteringTitleViewModel>();
+        _ = LoadAddonsAsync(NavigationCancellationToken);
+        _ = LoadLisenceItemsAsync(NavigationCancellationToken);
+    }
 
-        NGVideoTitleKeywordEnable = _videoFilteringRepository.ToReactivePropertyAsSynchronized(x => x.NGVideoTitleKeywordEnable)
+    async Task LoadAddonsAsync(CancellationToken ct)
+    {
+        try
+        {
+            var listing = await Models.Purchase.HohoemaPurchase.GetAvailableCheersAddonsAsync(ct);
+            PurchaseItems = listing.ProductListings.Select(x => new ProductViewModel(x.Value)).ToList();
+            OnPropertyChanged(nameof(PurchaseItems));
+        }
+        catch { }
+    }
+
+    async Task LoadLisenceItemsAsync(CancellationToken ct)
+    {
+        var lisenceSummary = await LisenceSummary.LoadAsync(ct);
+        LisenceItems = lisenceSummary.Items
+            .OrderBy(x => x.Name)
+            .Select(x => new LisenceItemViewModel(x))
+            .ToList();
+        OnPropertyChanged(nameof(LisenceItems));
+    }
+
+    public override void OnNavigatedFrom(INavigationParameters parameters)
+    {
+        base.OnNavigatedFrom(parameters);
+
+        foreach (var item in VideoTitleFilteringItems)
+        {
+            item.Dispose();
+        }
+        VideoTitleFilteringItems.Clear();
+    }
+
+
+
+
+    // デバッグ設定
+    [ObservableProperty]
+    private bool _isDebugModeEnabled;
+    partial void OnIsDebugModeEnabledChanged(bool value)
+    {
+        (App.Current as App).IsDebugModeEnabled = value;
+    }
+
+    
+    // アプリの表示設定
+
+    private void InitializeAppearanceSettings()
+    {
+        var currentTheme = App.GetTheme();
+        _selectedTheme = AppearanceSettings.ApplicationTheme;
+        _startupPageType = AppearanceSettings.FirstAppearPageType;
+        _isDefaultFullScreen = ApplicationView.PreferredLaunchWindowingMode == ApplicationViewWindowingMode.FullScreen;
+
+        AppearanceSettings.ObserveProperty(x => x.Locale, isPushCurrentValueAtFirst: false).Subscribe(locale =>
+        {
+            I18NPortable.I18N.Current.Locale = locale;
+        })
             .AddTo(_CompositeDisposable);
 
-        TestText = _videoFilteringRepository.ToReactivePropertyAsSynchronized(x => x.NGVideoTitleTestText)
-            .AddTo(_CompositeDisposable);
+    }
+
+    public List<NavigationViewPaneDisplayMode> PaneDisplayModeItems { get; } = Enum.GetValues(typeof(NavigationViewPaneDisplayMode)).Cast<NavigationViewPaneDisplayMode>().ToList();
+
+
+
+    public List<HohoemaPageType> StartupPageTypeList { get; } = new List<HohoemaPageType>()
+    {
+        HohoemaPageType.NicoRepo,
+        HohoemaPageType.Search,
+        HohoemaPageType.RankingCategoryList,
+        HohoemaPageType.CacheManagement,
+        HohoemaPageType.SubscriptionManagement,
+        HohoemaPageType.FollowManage,
+        HohoemaPageType.UserMylist,
+        HohoemaPageType.Timeshift,
+    };
+
+    [ObservableProperty]
+    private HohoemaPageType _startupPageType;
+    partial void OnStartupPageTypeChanged(HohoemaPageType value)
+    {
+        AppearanceSettings.FirstAppearPageType = value;
+    }
+
+
+    public static bool ThemeChanged { get; private set; } = false;
+
+    [ObservableProperty]
+    private ElementTheme _selectedTheme;
+    partial void OnSelectedThemeChanged(ElementTheme theme)
+    {
+        AppearanceSettings.ApplicationTheme = theme;
+
+        ApplicationTheme appTheme;
+        if (theme == ElementTheme.Default)
+        {
+            appTheme = Views.Helpers.SystemThemeHelper.GetSystemTheme();
+        }
+        else if (theme == ElementTheme.Dark)
+        {
+            appTheme = ApplicationTheme.Dark;
+        }
+        else
+        {
+            appTheme = ApplicationTheme.Light;
+        }
+
+        App.SetTheme(appTheme);
+
+        var appView = ApplicationView.GetForCurrentView();
+        if (appTheme == ApplicationTheme.Light)
+        {
+            appView.TitleBar.ButtonForegroundColor = Colors.Black;
+            appView.TitleBar.ButtonHoverBackgroundColor = Colors.DarkGray;
+            appView.TitleBar.ButtonHoverForegroundColor = Colors.Black;
+            appView.TitleBar.ButtonInactiveForegroundColor = Colors.Gray;
+        }
+        else
+        {
+            appView.TitleBar.ButtonForegroundColor = Colors.White;
+            appView.TitleBar.ButtonHoverBackgroundColor = Colors.DimGray;
+            appView.TitleBar.ButtonHoverForegroundColor = Colors.White;
+            appView.TitleBar.ButtonInactiveForegroundColor = Colors.DarkGray;
+        }
+    }
+
+
+
+    [ObservableProperty]
+    private bool _isDefaultFullScreen;
+    partial void OnIsDefaultFullScreenChanged(bool value)
+    {
+        ApplicationView.PreferredLaunchWindowingMode = value
+            ? ApplicationViewWindowingMode.FullScreen
+            : ApplicationViewWindowingMode.Auto
+            ;
+
+        // PrimaryViewPlayerManagerの実装が問題で以下のコードを実行すると画面からUIが消える
+        //if (value)
+        //{
+        //    ApplicationView.GetForCurrentView().TryEnterFullScreenMode();
+        //}
+        //else
+        //{
+        //    ApplicationView.GetForCurrentView().ExitFullScreenMode();
+        //}
+    }
+
+    // フィルタ
+
+    private void InitializeFilters()
+    {
+        // NG Video Owner User Id
+        _ngVideoOwnerUserIdEnable = _videoFilteringRepository.NGVideoOwnerUserIdEnable;
+        _nGVideoOwnerUserIds = _videoFilteringRepository.GetVideoOwnerIdFilteringEntries();
+
+        // NG Keyword on Video Title       
+        _nGVideoTitleKeywordEnable = _videoFilteringRepository.NGVideoTitleKeywordEnable;
+
+        _testText = _videoFilteringRepository.NGVideoTitleTestText;
         /*
         NGVideoTitleKeywordError = NGVideoTitleKeywords
             .Select(x =>
@@ -125,465 +314,50 @@ public class SettingsPageViewModel : HohoemaPageViewModelBase
             .ToReadOnlyReactiveProperty()
             .AddTo(_CompositeDisposable);
         */
-        // アピアランス
 
-        StartupPageType = AppearanceSettings.ToReactivePropertyAsSynchronized(x => x.FirstAppearPageType)
-            .AddTo(_CompositeDisposable);
-
-        var currentTheme = App.GetTheme();
-        SelectedTheme = new ReactiveProperty<ElementTheme>(AppearanceSettings.ApplicationTheme, mode: ReactivePropertyMode.DistinctUntilChanged)
-            .AddTo(_CompositeDisposable);
-
-        SelectedTheme.Subscribe(theme =>
-        {
-            AppearanceSettings.ApplicationTheme = theme;
-
-            ApplicationTheme appTheme;
-            if (theme == ElementTheme.Default)
-            {
-                appTheme = Views.Helpers.SystemThemeHelper.GetSystemTheme();
-            }
-            else if (theme == ElementTheme.Dark)
-            {
-                appTheme = ApplicationTheme.Dark;
-            }
-            else
-            {
-                appTheme = ApplicationTheme.Light;
-            }
-
-            App.SetTheme(appTheme);
-
-            var appView = ApplicationView.GetForCurrentView();
-            if (appTheme == ApplicationTheme.Light)
-            {
-                appView.TitleBar.ButtonForegroundColor = Colors.Black;
-                appView.TitleBar.ButtonHoverBackgroundColor = Colors.DarkGray;
-                appView.TitleBar.ButtonHoverForegroundColor = Colors.Black;
-                appView.TitleBar.ButtonInactiveForegroundColor = Colors.Gray;
-            }
-            else
-            {
-                appView.TitleBar.ButtonForegroundColor = Colors.White;
-                appView.TitleBar.ButtonHoverBackgroundColor = Colors.DimGray;
-                appView.TitleBar.ButtonHoverForegroundColor = Colors.White;
-                appView.TitleBar.ButtonInactiveForegroundColor = Colors.DarkGray;
-            }
-        })
-            .AddTo(_CompositeDisposable);
-
-
-
-        IsDefaultFullScreen = new ReactiveProperty<bool>(ApplicationView.PreferredLaunchWindowingMode == ApplicationViewWindowingMode.FullScreen)
-            .AddTo(_CompositeDisposable);
-        IsDefaultFullScreen.Subscribe(x =>
-        {
-            if (x)
-            {
-                ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.FullScreen;
-            }
-            else
-            {
-                ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.Auto;
-            }
-        })
-            .AddTo(_CompositeDisposable);
-
-        AppearanceSettings.ObserveProperty(x => x.Locale, isPushCurrentValueAtFirst: false).Subscribe(locale =>
-        {
-            I18NPortable.I18N.Current.Locale = locale;
-        })
-            .AddTo(_CompositeDisposable);
-
-        // キャッシュ
-        DefaultCacheQuality = VideoCacheSettings.ToReactivePropertyAsSynchronized(x => x.DefaultCacheQuality)
-            .AddTo(_CompositeDisposable);
-        IsAllowDownloadOnMeteredNetwork = VideoCacheSettings.ToReactivePropertyAsSynchronized(x => x.IsAllowDownloadOnMeteredNetwork)
-            .AddTo(_CompositeDisposable);
-        MaxVideoCacheStorageSize = VideoCacheSettings.ToReactivePropertyAsSynchronized(x => x.MaxVideoCacheStorageSize)
-            .AddTo(_CompositeDisposable);
-        OpenCurrentCacheFolderCommand = new RelayCommand(async () =>
-        {
-            var folder = _videoCacheFolderManager.VideoCacheFolder;
-            if (folder != null)
-            {
-                await Windows.System.Launcher.LaunchFolderAsync(folder);
-            }
-        });
-
-        // シェア
-        IsLoginTwitter = new ReactiveProperty<bool>(/*TwitterHelper.IsLoggedIn*/ false)
-            .AddTo(_CompositeDisposable);
-        TwitterAccountScreenName = new ReactiveProperty<string>(/*TwitterHelper.TwitterUser?.ScreenName ?? ""*/)
-            .AddTo(_CompositeDisposable);
-
-
-        StringBuilder sb = new StringBuilder();
-        sb.Append(SystemInformation.Instance.ApplicationName)
-            .Append(" v").Append(SystemInformation.Instance.ApplicationVersion.ToFormattedString())
-            .AppendLine();
-        sb.Append(SystemInformation.Instance.OperatingSystem).Append(" ").Append(SystemInformation.Instance.OperatingSystemArchitecture)
-            .Append("(").Append(SystemInformation.Instance.OperatingSystemVersion).Append(")")
-            .Append(" ").Append(DeviceInfo.Idiom)
-            ;
-        VersionText = sb.ToString();
-
-        IsDebugModeEnabled = new ReactiveProperty<bool>((App.Current as App).IsDebugModeEnabled, mode: ReactivePropertyMode.DistinctUntilChanged)
-            .AddTo(_CompositeDisposable);
-        IsDebugModeEnabled.Subscribe(isEnabled =>
-        {
-            (App.Current as App).IsDebugModeEnabled = isEnabled;
-        })
-        .AddTo(_CompositeDisposable);
     }
 
-    Services.DialogService _HohoemaDialogService;
-    private readonly VideoCacheFolderManager _videoCacheFolderManager;
-    private readonly VideoFilteringSettings _videoFilteringRepository;
-    private readonly BackupManager _backupManager;
-    private readonly ILogger _logger;
-    private readonly CommentFilteringFacade _commentFiltering;
+    [ObservableProperty]
+    private bool _ngVideoOwnerUserIdEnable;
 
-    public NotificationService _notificationService { get; private set; }
-    public PlayerSettings PlayerSettings { get; }
-    public VideoRankingSettings RankingSettings { get; }
-    public NicoRepoSettings ActivityFeedSettings { get; }
-    public AppearanceSettings AppearanceSettings { get; }
-    public VideoCacheSettings VideoCacheSettings { get; }
-    public ApplicationLayoutManager ApplicationLayoutManager { get; }
+    partial void OnNgVideoOwnerUserIdEnableChanged(bool value)
+    {
+        _videoFilteringRepository.NGVideoOwnerUserIdEnable = value;
+    }
+
+    [ObservableProperty]
+    private List<VideoOwnerIdFilteringEntry> _nGVideoOwnerUserIds;
 
 
-    // フィルタ
-    public ReactiveProperty<bool> NGVideoOwnerUserIdEnable { get; private set; }
-    public List<VideoOwnerIdFilteringEntry> NGVideoOwnerUserIds { get; private set; }
-    public RelayCommand<VideoOwnerIdFilteringEntry> OpenUserPageCommand { get; }
+    [RelayCommand]
+    void OpenUserPage(VideoOwnerIdFilteringEntry entry)
+    {
+        _pageManager.OpenPageWithId(HohoemaPageType.UserInfo, entry.UserId);
+    }
 
 
-    public ReactiveProperty<bool> NGVideoTitleKeywordEnable { get; private set; }
+    [ObservableProperty]
+    private bool _nGVideoTitleKeywordEnable;
 
-    public ObservableCollection<VideoFilteringTitleViewModel> VideoTitleFilteringItems { get; private set; }
-    public ReadOnlyReactiveProperty<string> NGVideoTitleKeywordError { get; private set; }
+    partial void OnNGVideoTitleKeywordEnableChanged(bool value)
+    {
+        _videoFilteringRepository.NGVideoTitleKeywordEnable = value;
+    }
 
-    private RelayCommand _AddVideoTitleFilterEntryCommand;
-    public RelayCommand AddVideoTitleFilterEntryCommand =>
-        _AddVideoTitleFilterEntryCommand ?? (_AddVideoTitleFilterEntryCommand = new RelayCommand(ExecuteAddVideoTitleFilterEntryCommand));
+    public ObservableCollection<VideoFilteringTitleViewModel> VideoTitleFilteringItems { get; } = new();
 
-    void ExecuteAddVideoTitleFilterEntryCommand()
+    [ObservableProperty]
+    private string _nGVideoTitleKeywordError;
+
+
+
+    [RelayCommand]
+    private void AddVideoTitleFilterEntry()
     {
         var entry = _videoFilteringRepository.CreateVideoTitleFiltering();
-        VideoTitleFilteringItems.Insert(0, new VideoFilteringTitleViewModel(entry, OnRemoveVideoTitleFilterEntry, _videoFilteringRepository, TestText));
+        VideoTitleFilteringItems.Insert(0, new VideoFilteringTitleViewModel(entry, OnRemoveVideoTitleFilterEntry, _videoFilteringRepository, this.ObserveProperty(x => x.TestText)));
     }
 
-
-    public List<NavigationViewPaneDisplayMode> PaneDisplayModeItems { get; } = Enum.GetValues(typeof(NavigationViewPaneDisplayMode)).Cast<NavigationViewPaneDisplayMode>().ToList();
-
-
-    public ReactiveProperty<ElementTheme> SelectedTheme { get; private set; }
-    public static bool ThemeChanged { get; private set; } = false;
-
-
-    public ReactiveProperty<bool> IsDefaultFullScreen { get; private set; }
-
-    public ReactiveProperty<HohoemaPageType> StartupPageType { get; private set; }
-
-    public List<HohoemaPageType> StartupPageTypeList { get; } = new List<HohoemaPageType>()
-{
-    HohoemaPageType.NicoRepo,
-    HohoemaPageType.Search,
-    HohoemaPageType.RankingCategoryList,
-    HohoemaPageType.CacheManagement,
-    HohoemaPageType.SubscriptionManagement,
-    HohoemaPageType.FollowManage,
-    HohoemaPageType.UserMylist,
-    HohoemaPageType.Timeshift,
-};
-
-    private RelayCommand _ToggleFullScreenCommand;
-    public RelayCommand ToggleFullScreenCommand
-    {
-        get
-        {
-            return _ToggleFullScreenCommand
-                ?? (_ToggleFullScreenCommand = new RelayCommand(() =>
-                {
-                    var appView = ApplicationView.GetForCurrentView();
-
-                    if (!appView.IsFullScreenMode)
-                    {
-                        appView.TryEnterFullScreenMode();
-                    }
-                    else
-                    {
-                        appView.ExitFullScreenMode();
-                    }
-                }));
-        }
-    }
-
-
-    // キャッシュ
-    public ReactiveProperty<NicoVideoQuality> DefaultCacheQuality { get; private set; }
-
-    public List<NicoVideoQuality> AvairableCacheQualities { get; } = new List<NicoVideoQuality>()
-{
-    NicoVideoQuality.SuperHigh,
-    NicoVideoQuality.High,
-    NicoVideoQuality.Midium,
-    NicoVideoQuality.Low,
-    NicoVideoQuality.Mobile,
-};
-
-    public ReactiveProperty<bool> IsAllowDownloadOnMeteredNetwork { get; private set; }
-    public ReactiveProperty<long?> MaxVideoCacheStorageSize { get; private set; }
-    public RelayCommand OpenCurrentCacheFolderCommand { get; }
-
-    private RelayCommand _ChangeCacheVideoFolderCommand;
-    public RelayCommand ChangeCacheVideoFolderCommand =>
-        _ChangeCacheVideoFolderCommand ??= new RelayCommand(async () =>
-        {
-            await _videoCacheFolderManager.ChangeVideoCacheFolder();
-        });
-
-
-
-
-
-    // シェア
-    public ReactiveProperty<bool> IsLoginTwitter { get; private set; }
-    public ReactiveProperty<string> TwitterAccountScreenName { get; private set; }
-    private RelayCommand _LogInToTwitterCommand;
-    public RelayCommand LogInToTwitterCommand
-    {
-        get
-        {
-            return _LogInToTwitterCommand
-                ?? (_LogInToTwitterCommand = new RelayCommand(async () =>
-                {
-                    /*
-                    if (await TwitterHelper.LoginOrRefreshToken())
-                    {
-                        IsLoginTwitter.Value = TwitterHelper.IsLoggedIn;
-                        TwitterAccountScreenName.Value = TwitterHelper.TwitterUser?.ScreenName ?? "";
-                    }
-                    */
-
-                    await Task.CompletedTask;
-                }
-                ));
-        }
-    }
-
-    private RelayCommand _LogoutTwitterCommand;
-    public RelayCommand LogoutTwitterCommand
-    {
-        get
-        {
-            return _LogoutTwitterCommand
-                ?? (_LogoutTwitterCommand = new RelayCommand(() =>
-                {
-                    //                        TwitterHelper.Logout();
-
-                    IsLoginTwitter.Value = false;
-                    TwitterAccountScreenName.Value = "";
-                }
-                ));
-        }
-    }
-
-    // アバウト
-    public string VersionText { get; private set; }
-
-    public List<LisenceItemViewModel> LisenceItems { get; private set; }
-
-    public List<ProductViewModel> PurchaseItems { get; private set; }
-
-    private Version _CurrentVersion;
-    public Version CurrentVersion
-    {
-        get
-        {
-            var ver = Windows.ApplicationModel.Package.Current.Id.Version;
-            return _CurrentVersion
-                ?? (_CurrentVersion = new Version(ver.Major, ver.Minor, ver.Build));
-        }
-    }
-
-    private RelayCommand _ShowUpdateNoticeCommand;
-    public RelayCommand ShowUpdateNoticeCommand
-    {
-        get
-        {
-            return _ShowUpdateNoticeCommand
-                ?? (_ShowUpdateNoticeCommand = new RelayCommand(async () =>
-                {
-                    await AppUpdateNotice.ShowReleaseNotePageOnBrowserAsync();
-                }));
-        }
-    }
-
-    private RelayCommand<ProductViewModel> _ShowCheerPurchaseCommand;
-    public RelayCommand<ProductViewModel> ShowCheerPurchaseCommand
-    {
-        get
-        {
-            return _ShowCheerPurchaseCommand
-                ?? (_ShowCheerPurchaseCommand = new RelayCommand<ProductViewModel>(async (product) =>
-                {
-                    var result = await Models.Purchase.HohoemaPurchase.RequestPurchase(product.ProductListing);
-
-                    product.Update();
-
-                    Debug.WriteLine(result.ToString());
-                }));
-        }
-    }
-
-
-    private RelayCommand _LaunchAppReviewCommand;
-    public RelayCommand LaunchAppReviewCommand
-    {
-        get
-        {
-            return _LaunchAppReviewCommand
-                ?? (_LaunchAppReviewCommand = new RelayCommand(async () =>
-                {
-                    await Microsoft.Toolkit.Uwp.Helpers.SystemInformation.LaunchStoreForReviewAsync();
-                    //await Launcher.LaunchUriAsync(AppReviewUri);
-                }));
-        }
-    }
-
-    private RelayCommand _LaunchFeedbackHubCommand;
-    public RelayCommand LaunchFeedbackHubCommand
-    {
-        get
-        {
-            return _LaunchFeedbackHubCommand
-                ?? (_LaunchFeedbackHubCommand = new RelayCommand(async () =>
-                {
-                    if (IsSupportedFeedbackHub)
-                    {
-                        await StoreServicesFeedbackLauncher.GetDefault().LaunchAsync();
-                    }
-                }));
-        }
-    }
-
-    private RelayCommand _ShowIssuesWithBrowserCommand;
-    public RelayCommand ShowIssuesWithBrowserCommand
-    {
-        get
-        {
-            return _ShowIssuesWithBrowserCommand
-                ?? (_ShowIssuesWithBrowserCommand = new RelayCommand(async () =>
-                {
-                    await Windows.System.Launcher.LaunchUriAsync(AppIssuePageUri);
-                }));
-        }
-    }
-
-
-    public ReactiveProperty<bool> IsDebugModeEnabled { get; }
-
-
-    private RelayCommand _CopyVersionTextToClipboardCommand;
-    public RelayCommand CopyVersionTextToClipboardCommand
-    {
-        get
-        {
-            return _CopyVersionTextToClipboardCommand
-                ?? (_CopyVersionTextToClipboardCommand = new RelayCommand(() =>
-                {
-                    ClipboardHelper.CopyToClipboard(CurrentVersion.ToString());
-                }));
-        }
-    }
-
-    public bool IsSupportedFeedbackHub { get; } = StoreServicesFeedbackLauncher.IsSupported();
-
-
-
-
-    // セカンダリタイル関連
-
-    private RelayCommand _AddTransparencySecondaryTile;
-    public RelayCommand AddTransparencySecondaryTile
-    {
-        get
-        {
-            return _AddTransparencySecondaryTile
-                ?? (_AddTransparencySecondaryTile = new RelayCommand(async () =>
-                {
-                    Uri square150x150Logo = new Uri("ms-appx:///Assets/Square150x150Logo.scale-100.png");
-                    SecondaryTile secondaryTile = new SecondaryTile(@"Hohoema",
-                                            "Hohoema",
-                                            "temp",
-                                            square150x150Logo,
-                                            TileSize.Square150x150);
-                    secondaryTile.VisualElements.BackgroundColor = Windows.UI.Colors.Transparent;
-                    secondaryTile.VisualElements.Square150x150Logo = new Uri("ms-appx:///Assets/Square150x150Logo.scale-100.png");
-                    secondaryTile.VisualElements.Square71x71Logo = new Uri("ms-appx:///Assets/Square71x71Logo.scale-100.png");
-                    secondaryTile.VisualElements.Square310x310Logo = new Uri("ms-appx:///Assets/Square310x310Logo.scale-100.png");
-                    secondaryTile.VisualElements.Wide310x150Logo = new Uri("ms-appx:///Assets/Wide310x150Logo.scale-100.png");
-                    secondaryTile.VisualElements.Square44x44Logo = new Uri("ms-appx:///Assets/Square44x44Logo.targetsize-48.png");
-                    //                        secondaryTile.VisualElements.Square30x30Logo = new Uri("ms-appx:///Assets/Square30x30Logo.scale-100.png");
-                    secondaryTile.VisualElements.ShowNameOnSquare150x150Logo = true;
-                    secondaryTile.VisualElements.ShowNameOnSquare310x310Logo = true;
-                    secondaryTile.VisualElements.ShowNameOnWide310x150Logo = true;
-
-
-
-                    if (false == await secondaryTile.RequestCreateAsync())
-                    {
-                        _logger.ZLogError("Failed secondary tile creation.");
-                    }
-                }
-                ));
-        }
-    }
-
-    bool _NowNavigateProccess = false;
-
-
-    public override async Task OnNavigatedToAsync(INavigationParameters parameters)
-    {
-        await base.OnNavigatedToAsync(parameters);
-
-        _NowNavigateProccess = true;
-
-        try
-        {
-            VideoTitleFilteringItems.Clear();
-            foreach (var item in _videoFilteringRepository.GetVideoTitleFilteringEntries().Select(x =>
-                new VideoFilteringTitleViewModel(x, OnRemoveVideoTitleFilterEntry, _videoFilteringRepository, TestText))
-                )
-            {
-                VideoTitleFilteringItems.Add(item);
-            }
-
-
-            try
-            {
-                var listing = await Models.Purchase.HohoemaPurchase.GetAvailableCheersAddOn();
-                PurchaseItems = listing.ProductListings.Select(x => new ProductViewModel(x.Value)).ToList();
-                OnPropertyChanged(nameof(PurchaseItems));
-            }
-            catch { }
-
-
-
-            var lisenceSummary = await LisenceSummary.Load();
-            LisenceItems = lisenceSummary.Items
-                .OrderBy(x => x.Name)
-                .Select(x => new LisenceItemViewModel(x))
-                .ToList();
-            OnPropertyChanged(nameof(LisenceItems));
-        }
-        finally
-        {
-            _NowNavigateProccess = false;
-        }
-    }
 
 
     private void OnRemoveVideoTitleFilterEntry(VideoTitleFilteringEntry entry)
@@ -597,12 +371,11 @@ public class SettingsPageViewModel : HohoemaPageViewModelBase
         }
     }
 
-
-    public ReactiveProperty<string> TestText { get; }
-
-    public override void OnNavigatedFrom(INavigationParameters parameters)
+    [ObservableProperty]
+    private string _testText;
+    partial void OnTestTextChanged(string value)
     {
-        base.OnNavigatedFrom(parameters);
+        _videoFilteringRepository.NGVideoTitleTestText = value;
     }
 
     private void OnRemoveNGCommentUserIdFromList(string userId)
@@ -612,55 +385,153 @@ public class SettingsPageViewModel : HohoemaPageViewModelBase
 
 
 
+
+    // キャッシュ
+    private void InitializeCache()
+    {        
+        _defaultCacheQuality = VideoCacheSettings.DefaultCacheQuality;
+        _isAllowDownloadOnMeteredNetwork = VideoCacheSettings.IsAllowDownloadOnMeteredNetwork;
+        _maxVideoCacheStorageSize = VideoCacheSettings.MaxVideoCacheStorageSize;        
+    }
+
+    public ImmutableArray<NicoVideoQuality> AvairableCacheQualities { get; } = new NicoVideoQuality[]
+    {
+        NicoVideoQuality.SuperHigh,
+        NicoVideoQuality.High,
+        NicoVideoQuality.Midium,
+        NicoVideoQuality.Low,
+        NicoVideoQuality.Mobile,
+    }.ToImmutableArray();
+
+    [ObservableProperty]
+    private NicoVideoQuality _defaultCacheQuality;
+    partial void OnDefaultCacheQualityChanged(NicoVideoQuality value)
+    {
+        VideoCacheSettings.DefaultCacheQuality = value;
+    }
+
+    [ObservableProperty]
+    private bool _isAllowDownloadOnMeteredNetwork;
+    partial void OnIsAllowDownloadOnMeteredNetworkChanged(bool value)
+    {
+        VideoCacheSettings.IsAllowDownloadOnMeteredNetwork = value;
+    }
+
+    [ObservableProperty]
+    private long? _maxVideoCacheStorageSize;
+    partial void OnMaxVideoCacheStorageSizeChanged(long? value)
+    {
+        VideoCacheSettings.MaxVideoCacheStorageSize = value;
+    }
+
+    [RelayCommand]
+    async Task OpenCurrentCacheFolder()
+    {
+        var folder = _videoCacheFolderManager.VideoCacheFolder;
+        if (folder != null)
+        {
+            await Windows.System.Launcher.LaunchFolderAsync(folder);
+        }
+    }
+
+    [RelayCommand]
+    async Task ChangeCacheVideoFolder()
+    {
+        await _videoCacheFolderManager.ChangeVideoCacheFolder();
+    }
+
+
+
+    // アバウト
+    public string VersionText { get; } 
+        = $"{SystemInformation.Instance.ApplicationName} v{SystemInformation.Instance.ApplicationVersion.ToFormattedString()} {DeviceInfo.Idiom}\n{SystemInformation.Instance.OperatingSystem} {SystemInformation.Instance.OperatingSystemArchitecture} (build {SystemInformation.Instance.OperatingSystemVersion})";
+
+    public List<LisenceItemViewModel> LisenceItems { get; private set; }
+
+    public List<ProductViewModel> PurchaseItems { get; private set; }
+
+    [RelayCommand]
+    private Task ShowUpdateNotice() => AppUpdateNotice.ShowReleaseNotePageOnBrowserAsync();
+
+    [RelayCommand]
+    async Task ShowCheerPurchase(ProductViewModel productVM)
+    {
+        var result = await Models.Purchase.HohoemaPurchase.RequestPurchase(productVM.ProductListing);
+        productVM.Update();
+        Debug.WriteLine(result.ToString());
+    }
+
+    [RelayCommand]
+    private async Task LaunchAppReview()
+    {
+        await Microsoft.Toolkit.Uwp.Helpers.SystemInformation.LaunchStoreForReviewAsync();
+    }
+
+    [RelayCommand]
+    async Task ShowIssuesWithBrowser()
+    {
+        await Windows.System.Launcher.LaunchUriAsync(AppIssuePageUri);
+    }
+
+    [RelayCommand]
+    void CopyVersionTextToClipboard()
+    {
+        ClipboardHelper.CopyToClipboard(VersionText);
+    }
+
+
     #region Backup
 
-    private RelayCommand _ExportBackupCommand;
-    public RelayCommand ExportBackupCommand =>
-        _ExportBackupCommand ?? (_ExportBackupCommand = new RelayCommand(ExecuteExportBackupCommand));
-
-    async void ExecuteExportBackupCommand()
+    [RelayCommand]
+    async Task ExportBackupAsync()
     {
-        try
+        var picker = new FileSavePicker
         {
-            var picker = new FileSavePicker();
-            picker.DefaultFileExtension = ".json";
-            picker.SuggestedFileName = $"hohoema-backup-{DateTime.Today:yyyy-MM-dd}";
-            picker.FileTypeChoices.Add("Hohoema backup File", new List<string>() { ".json" });
-            var file = await picker.PickSaveFileAsync();
-            if (file != null)
-            {
-                await _backupManager.BackupAsync(file, default);
+            DefaultFileExtension = ".json",
+            SuggestedFileName = $"hohoema-backup-{DateTime.Today:yyyy-MM-dd}",
+            FileTypeChoices =
+                {
+                    {  "Hohoema backup File", new List<string>() { ".json" } }
+                }
+        };
+        var file = await picker.PickSaveFileAsync();
+        if (file == null)
+        {
+            return;
+        }
 
-                _notificationService.ShowLiteInAppNotification_Success("バックアップを保存しました");
-            }
+        try
+        {            
+            await _backupManager.BackupAsync(file, default);
+            _notificationService.ShowLiteInAppNotification_Success("BackupSaveComplete".Translate());
         }
         catch (Exception e)
         {
             _logger.ZLogError(e, "Backup export failed");
+            _notificationService.ShowLiteInAppNotification_Fail("BackupSaveFailed".Translate(e.Message));
         }
     }
 
 
-    private RelayCommand _ImportBackupCommand;
-    public RelayCommand ImportBackupCommand =>
-        _ImportBackupCommand ?? (_ImportBackupCommand = new RelayCommand(ExecuteImportBackupCommand));
-
-    async void ExecuteImportBackupCommand()
+    [RelayCommand]
+    async Task ImportBackupAsync()
     {
+        var picker = new FileOpenPicker()
+        {
+            ViewMode = PickerViewMode.List,
+            FileTypeFilter = { ".json" }
+        };
+        var file = await picker.PickSingleFileAsync();
+        if (file == null)
+        {
+            return;
+        }
+
         try
         {
-            var picker = new FileOpenPicker();
-            picker.ViewMode = PickerViewMode.List;
-            picker.FileTypeFilter.Add(".json");
-            var file = await picker.PickSingleFileAsync();
-            if (file != null)
+            var backup = await _backupManager.ReadBackupContainerAsync(file, default);
+            Action<BackupContainer>[] BackupActions = new Action<BackupContainer>[]
             {
-                try
-                {
-                    var backup = await _backupManager.ReadBackupContainerAsync(file, default);
-
-                    Action<BackupContainer>[] BackupActions = new Action<BackupContainer>[]
-                    {
                 _backupManager.RestoreLocalMylist,
                 _backupManager.RestoreSubscription,
                 _backupManager.RestorePin,
@@ -670,49 +541,42 @@ public class SettingsPageViewModel : HohoemaPageViewModelBase
                 _backupManager.RestoreAppearanceSettings,
                 _backupManager.RestoreNicoRepoSettings,
                 _backupManager.RestoreCommentSettings,
-                    };
+            };
 
-                    List<Exception> exceptions = new List<Exception>();
-                    foreach (var backupAction in BackupActions)
-                    {
-                        try
-                        {
-                            backupAction(backup);
-                        }
-                        catch (Exception e)
-                        {
-                            exceptions.Add(e);
-                        }
-                    }
-
-                    WeakReferenceMessenger.Default.Send<SettingsRestoredMessage>();
-
-                    _notificationService.ShowLiteInAppNotification_Success("BackupRestoreComplete".Translate());
-
-                    NGVideoOwnerUserIds = _videoFilteringRepository.GetVideoOwnerIdFilteringEntries();
-                    OnPropertyChanged(nameof(NGVideoOwnerUserIds));
-
-                    VideoTitleFilteringItems.Clear();
-                    foreach (var item in _videoFilteringRepository.GetVideoTitleFilteringEntries().Select(x =>
-                        new VideoFilteringTitleViewModel(x, OnRemoveVideoTitleFilterEntry, _videoFilteringRepository, TestText)))
-                    {
-                        VideoTitleFilteringItems.Add(item);
-                    }
-
-                    if (exceptions.Any())
-                    {
-                        throw new AggregateException(exceptions);
-                    }
-                }
-                catch
+            List<Exception> exceptions = new List<Exception>();
+            foreach (var backupAction in BackupActions)
+            {
+                try
                 {
-                    _notificationService.ShowLiteInAppNotification_Fail("BackupRestoreFailed".Translate());
-                    throw;
+                    backupAction(backup);
                 }
+                catch (Exception e)
+                {
+                    exceptions.Add(e);
+                }
+            }
+
+            _messenger.Send<SettingsRestoredMessage>();
+            _notificationService.ShowLiteInAppNotification_Success("BackupRestoreComplete".Translate());
+
+            NGVideoOwnerUserIds = _videoFilteringRepository.GetVideoOwnerIdFilteringEntries();
+            OnPropertyChanged(nameof(NGVideoOwnerUserIds));
+
+            VideoTitleFilteringItems.Clear();
+            foreach (var item in _videoFilteringRepository.GetVideoTitleFilteringEntries().Select(x =>
+                new VideoFilteringTitleViewModel(x, OnRemoveVideoTitleFilterEntry, _videoFilteringRepository, this.ObserveProperty(x => x.TestText))))
+            {
+                VideoTitleFilteringItems.Add(item);
+            }
+
+            if (exceptions.Any())
+            {
+                throw new AggregateException(exceptions);
             }
         }
         catch (Exception e)
         {
+            _notificationService.ShowLiteInAppNotification_Fail("BackupRestoreFailed".Translate(e.Message));
             _logger.ZLogError(e, "Backup import failed");
         }
     }
@@ -746,20 +610,24 @@ public class RemovableListItem<T> : IRemovableListItem
 }
 
 
-public class VideoFilteringTitleViewModel : IRemovableListItem, IDisposable
+public sealed partial class VideoFilteringTitleViewModel 
+    : ObservableObject
+    , IRemovableListItem
+    , IDisposable
 {
     public VideoFilteringTitleViewModel(
-    VideoTitleFilteringEntry ngTitleInfo,
-    Action<VideoTitleFilteringEntry> onRemoveAction,
-    VideoFilteringSettings videoFilteringRepository,
-    IObservable<string> testKeyword
-    )
+        VideoTitleFilteringEntry ngTitleInfo,
+        Action<VideoTitleFilteringEntry> onRemoveAction,
+        VideoFilteringSettings videoFilteringRepository,
+        IObservable<string> testKeyword
+        )
     {
         NGKeywordInfo = ngTitleInfo;
         _OnRemoveAction = onRemoveAction;
         _videoFilteringRepository = videoFilteringRepository;
         Label = NGKeywordInfo.Keyword;
-        Keyword = new ReactiveProperty<string>(NGKeywordInfo.Keyword);
+        Keyword = new ReactiveProperty<string>(NGKeywordInfo.Keyword)
+            .AddTo(_disposables);
 
         Keyword.Subscribe(x =>
             {
@@ -767,26 +635,26 @@ public class VideoFilteringTitleViewModel : IRemovableListItem, IDisposable
             })
             .AddTo(_disposables);
 
-        IsValidKeyword =
-                Keyword
-                .Where(x => !string.IsNullOrWhiteSpace(x))
-                    .Select(x =>
-                    {
-                        try
-                        {
-                            _ = new Regex(x);
-                            return true;
-                        }
-                        catch
-                        {
-                            return false;
-                        }
-                    })
-                    .ToReactiveProperty(mode: ReactivePropertyMode.RaiseLatestValueOnSubscribe)
+        IsValidKeyword = Keyword
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .Select(x =>
+            {
+                try
+                {
+                    _ = new Regex(x);
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            })
+            .ToReactiveProperty(mode: ReactivePropertyMode.RaiseLatestValueOnSubscribe)
             .AddTo(_disposables);
 
-        IsInvalidKeyword = IsValidKeyword.Select(x => !x)
-                .ToReactiveProperty()
+        IsInvalidKeyword = IsValidKeyword
+            .Select(x => !x)
+            .ToReactiveProperty()
             .AddTo(_disposables);
 
         IsValidKeyword.Where(x => x).Subscribe(_ =>
@@ -802,12 +670,13 @@ public class VideoFilteringTitleViewModel : IRemovableListItem, IDisposable
             {
                 return Regex.IsMatch(Keyword.Value, x);
             })
-            .ToReadOnlyReactivePropertySlim();
+            .ToReadOnlyReactivePropertySlim()
+            .AddTo(_disposables);
 
         RemoveCommand = new RelayCommand(() =>
-            {
-                _OnRemoveAction(this.NGKeywordInfo);
-            });
+        {
+            _OnRemoveAction(this.NGKeywordInfo);
+        });
     }
 
     CompositeDisposable _disposables = new CompositeDisposable();
@@ -833,23 +702,6 @@ public class VideoFilteringTitleViewModel : IRemovableListItem, IDisposable
     Action<VideoTitleFilteringEntry> _OnRemoveAction;
     private readonly VideoFilteringSettings _videoFilteringRepository;
 }
-
-/*
-    public static class RemovableSettingsListItemHelper
-    {
-        public static RemovableListItem<string> VideoIdInfoToRemovableListItemVM(VideoIdInfo info, Action<string> removeAction)
-        {
-            var roundedDesc = info.Description.Substring(0, Math.Min(info.Description.Length - 1, 10));
-            return new RemovableListItem<string>(info.VideoId, $"{info.VideoId} | {roundedDesc}", removeAction);
-        }
-
-        public static RemovableListItem<string> UserIdInfoToRemovableListItemVM(UserIdInfo info, Action<string> removeAction)
-        {
-            var roundedDesc = info.Description.Substring(0, Math.Min(info.Description.Length - 1, 10));
-            return new RemovableListItem<string>(info.UserId, $"{info.UserId} | {roundedDesc}", removeAction);
-        }
-    }
-*/
 
 public interface IRemovableListItem
 {
@@ -897,66 +749,11 @@ public class LisenceItemViewModel
         LisencePageUrl = item.LisencePageUrl;
     }
 
-    public string Name { get; private set; }
-    public Uri Site { get; private set; }
-    public List<string> Authors { get; private set; }
-    public string LisenceType { get; private set; }
-    public Uri LisencePageUrl { get; private set; }
-
-    string _LisenceText;
-    public string LisenceText
-    {
-        get
-        {
-            return _LisenceText
-                ?? (_LisenceText = LoadLisenceText());
-        }
-    }
-
-    string LoadLisenceText()
-    {
-        string path = Windows.ApplicationModel.Package.Current.InstalledLocation.Path + "\\Assets\\LibLisencies\\" + Name + ".txt";
-
-        try
-        {
-            var file = StorageFile.GetFileFromPathAsync(path).AsTask();
-
-            file.Wait(3000);
-
-            var task = FileIO.ReadTextAsync(file.Result).AsTask();
-            task.Wait(1000);
-            return task.Result;
-        }
-        catch
-        {
-            return "";
-        }
-    }
-
-
-    private string LisenceTypeToText(LisenceType type)
-    {
-        switch (type)
-        {
-            case Models.LisenceType.MIT:
-                return "MIT";
-            case Models.LisenceType.MS_PL:
-                return "Microsoft Public Lisence";
-            case Models.LisenceType.Apache_v2:
-                return "Apache Lisence version 2.0";
-            case Models.LisenceType.GPL_v3:
-                return "GNU General Public License Version 3";
-            case Models.LisenceType.Simplified_BSD:
-                return "二条項BSDライセンス";
-            case Models.LisenceType.CC_BY_40:
-                return "クリエイティブ・コモンズ 表示 4.0 国際";
-            case Models.LisenceType.SIL_OFL_v1_1:
-                return "SIL OPEN FONT LICENSE Version 1.1";
-            default:
-                throw new NotSupportedException(type.ToString());
-        }
-    }
-
+    public string Name { get; }
+    public Uri Site { get; }
+    public List<string> Authors { get; }
+    public string LisenceType { get; }
+    public Uri LisencePageUrl { get; }
 }
 
 #endregion

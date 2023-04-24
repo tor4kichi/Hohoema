@@ -136,6 +136,7 @@
     <Compile Include="Contracts\Subscriptions\SubscriptionGroupMessages.cs" />
     <Compile Include="Contracts\Subscriptions\SubscriptionMessages.cs" />
     <Compile Include="Contracts\Subscriptions\SusbcriptionId.cs" />
+    <Compile Include="Helpers\ObservableObjectDebugHelper.cs" />
     <Compile Include="IsExternalInit.cs" />
     <Compile Include="MessengerObservableExtensions.cs" />
     <Compile Include="Models\Application\AppearanceSettings.cs" />

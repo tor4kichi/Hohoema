@@ -87,7 +87,7 @@ public sealed class BackupManager
         };
     }
 
-    [Obsolete]
+    
     public async Task BackupAsync(StorageFile storageFile, CancellationToken ct = default)
     {
         BackupContainer container = new()
@@ -348,7 +348,7 @@ public sealed class BackupManager
         }
     }
 
-    [Obsolete]
+    
     public void RestoreRankingSettings(BackupContainer backup)
     {
         if (backup.VideoRankingFiltering == null) { return; }
@@ -375,7 +375,7 @@ public sealed class BackupManager
         }
     }
 
-    [Obsolete]
+    
     public void RestoreVideoFilteringSettings(BackupContainer backup)
     {
         if (backup.VideoListringFiltering == null) { return; }
@@ -407,7 +407,7 @@ public sealed class BackupManager
         }
     }
 
-    [Obsolete]
+    
     public void RestoreAppearanceSettings(BackupContainer backup)
     {
         if (backup.AppearanceSettings == null) { return; }
@@ -433,7 +433,7 @@ public sealed class BackupManager
         }
     }
 
-    [Obsolete]
+    
     public void RestoreNicoRepoSettings(BackupContainer backup)
     {
         if (backup.NicoRepoSettings == null) { return; }
@@ -444,7 +444,7 @@ public sealed class BackupManager
         }
     }
 
-    [Obsolete]
+    
     public void RestorePlayerSettings(BackupContainer backup)
     {
         if (backup.PlayerSetting == null) { return; }
@@ -501,7 +501,7 @@ public sealed class BackupManager
         _playerSettings.AutoMoveNextVideoOnPlaylistEmpty = p.AutoMoveNextVideoOnPlaylistEmpty;
     }
 
-    [Obsolete]
+    
     public void RestoreCommentSettings(BackupContainer backup)
     {
         if (backup.CommentSettingsBackupEntry == null) { return; }
