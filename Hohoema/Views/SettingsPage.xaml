@@ -18,7 +18,7 @@
       xmlns:windowsStateTriggers="using:WindowsStateTriggers" 
       xmlns:locales="using:Hohoema.Locales"
       xmlns:controls="using:Hohoema.Views.Controls" 
-      xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+      xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" xmlns:muxc="using:Microsoft.UI.Xaml.Controls" xmlns:settingsVM="using:Hohoema.ViewModels.Pages.Hohoema"
       DataContext="{x:Null}"
       mc:Ignorable="d"
       x:Name="PageRoot"
@@ -113,6 +113,8 @@
     </Style>
     
     <locales:LocaleToDisplayNameConverter x:Key="LocaleToDisplayNameConverter" />
+    <local:VideoCacheMaxSizeDoubleGigaByte2NullableLongByteConverter x:Key="MaxCacheSizeNumberConverter" />
+
   </Page.Resources>
   <Grid>
     <uwpControls:DockPanel>
@@ -123,18 +125,18 @@
           <StackPanel Orientation="Horizontal" uwpControls:DockPanel.Dock="Right">
             <TextBlock Opacity="0.7" Style="{StaticResource BodyTextBlockStyle}" VerticalAlignment="Center"
                        TextAlignment="Right"
-                           Text="{Binding VersionText}"                                                      
+                           Text="{x:Bind _vm.VersionText}"                                                      
                        IsTextSelectionEnabled="True"
                            >
               <TextBlock.ContextFlyout>
                 <MenuFlyout>
-                  <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyAppVersionToClipboard}" Command="{Binding CopyVersionTextToClipboardCommand}" />
-                  <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=EnableDebugModeToggleSwitchTitle}" IsChecked="{Binding IsDebugModeEnabled.Value,Mode=TwoWay}" />
+                  <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyAppVersionToClipboard}" Command="{x:Bind _vm.CopyVersionTextToClipboardCommand}" />
+                  <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=EnableDebugModeToggleSwitchTitle}" IsChecked="{x:Bind _vm.IsDebugModeEnabled.Value, Mode=TwoWay}" />
                 </MenuFlyout>
               </TextBlock.ContextFlyout>
             </TextBlock>
           </StackPanel>
-          <controls:AppTitleBar Title="{Binding Title}" />
+          <controls:AppTitleBar Title="{x:Bind _vm.Title}" />
         </uwpControls:DockPanel>
       </StackPanel>
 
@@ -149,15 +151,11 @@
             <StackPanel Style="{StaticResource SettingsMiddleGroupStackPanelStyle}">
               <Grid x:Name="MenuPaneDisplayModeLayout">
                 <TextBlock Text="{i18nExt:Localize Key=MenuPaneDisplayMode}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
-                <ComboBox ItemsSource="{Binding PaneDisplayModeItems}" 
-                          SelectedItem="{Binding AppearanceSettings.MenuPaneDisplayMode, Mode=TwoWay}"  
+                <ComboBox ItemsSource="{x:Bind _vm.PaneDisplayModeItems, Mode=OneWay}" 
+                          SelectedItem="{x:Bind _vm.AppearanceSettings.MenuPaneDisplayMode, Mode=TwoWay}"  
                           HorizontalAlignment="Right" 
+                          ItemTemplate="{StaticResource LocalizedTextItemTemplate}"
                           >
-                  <ComboBox.ItemTemplate>
-                    <DataTemplate>
-                      <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}" />
-                    </DataTemplate>
-                  </ComboBox.ItemTemplate>
                 </ComboBox>
               </Grid>
               <Grid x:Name="DisplayLanguageLayout" Visibility="Collapsed">
@@ -172,28 +170,22 @@
               </Grid>
               <Grid>
                 <TextBlock Text="{i18nExt:Localize Key=FirstOpenPageType}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
-                <ComboBox ItemsSource="{Binding StartupPageTypeList}" SelectedItem="{Binding StartupPageType.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right">
-                  <ComboBox.ItemTemplate>
-                    <DataTemplate>
-                      <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}" />
-                    </DataTemplate>
-                  </ComboBox.ItemTemplate>
+                <ComboBox ItemsSource="{x:Bind _vm.StartupPageTypeList}" SelectedItem="{x:Bind _vm.StartupPageType.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right"
+                          ItemTemplate="{StaticResource LocalizedTextItemTemplate}"
+                          >
                 </ComboBox>
               </Grid>
               <Grid>
                 <StackPanel>
                   <TextBlock Text="{i18nExt:Localize Key=Theme}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
                 </StackPanel>
-                <ComboBox ItemsSource="{Binding ElementName=PageRoot, Path=_elementThemeList}" SelectedItem="{Binding SelectedTheme.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right">
-                  <ComboBox.ItemTemplate>
-                    <DataTemplate>
-                      <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}" />
-                    </DataTemplate>
-                  </ComboBox.ItemTemplate>
+                <ComboBox ItemsSource="{Binding ElementName=PageRoot, Path=_elementThemeList}" SelectedItem="{x:Bind _vm.SelectedTheme.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right"
+                          ItemTemplate="{StaticResource LocalizedTextItemTemplate}"
+                          >
                 </ComboBox>
               </Grid>
               <Grid x:Name="DefaultFullScreenSwitchLayout" Visibility="Collapsed">
-                <CheckBox IsChecked="{Binding IsDefaultFullScreen.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right"
+                <CheckBox IsChecked="{x:Bind _vm.IsDefaultFullScreen.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right"
                           Content="{i18nExt:Localize Key=FullScreenWhenAppLaunched_CheckBoxText}"
                           />
               </Grid>
@@ -218,11 +210,11 @@
             <StackPanel Style="{StaticResource SettingsMiddleGroupStackPanelStyle}">
               <Grid>
                 <TextBlock Text="{i18nExt:Localize Key=FilterEnableWithVideoOwnerID}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
-                <ToggleSwitch IsOn="{Binding NGVideoOwnerUserIdEnable.Value, Mode=TwoWay}" HorizontalAlignment="Right" />
+                <ToggleSwitch IsOn="{x:Bind _vm.NGVideoOwnerUserIdEnable.Value, Mode=TwoWay}" HorizontalAlignment="Right" />
               </Grid>
               <StackPanel Margin="0 8">
                 <uwpControls:Expander Header="{i18nExt:Localize Key=ShowFilteredVideoOwnerNames}" HorizontalContentAlignment="Left" >
-                  <ListView ItemsSource="{Binding NGVideoOwnerUserIds}"
+                  <ListView ItemsSource="{x:Bind _vm.NGVideoOwnerUserIds}"
                             Margin="0 0"
                             IsTabStop="False"
                             HorizontalContentAlignment="Stretch"
@@ -230,7 +222,7 @@
                             SelectionMode="None">
                     <i:Interaction.Behaviors>
                       <core:EventTriggerBehavior EventName="ItemClick">
-                        <core:InvokeCommandAction Command="{Binding OpenUserPageCommand}"
+                        <core:InvokeCommandAction Command="{x:Bind _vm.OpenUserPageCommand}"
                                                   InputConverter="{StaticResource ItemClickEventArgsConverter}" />
                       </core:EventTriggerBehavior>
                     </i:Interaction.Behaviors>
@@ -263,16 +255,16 @@
               </StackPanel>
               <Grid>
                 <TextBlock Text="{i18nExt:Localize Key=FilterEnableWithVideoTitle}" uwpControls:DockPanel.Dock="Left" Style="{StaticResource SettingsOptionTitleTextBlock}" />
-                <ToggleSwitch IsOn="{Binding NGVideoTitleKeywordEnable.Value, Mode=TwoWay}" HorizontalAlignment="Right" />
+                <ToggleSwitch IsOn="{x:Bind _vm.NGVideoTitleKeywordEnable.Value, Mode=TwoWay}" HorizontalAlignment="Right" />
               </Grid>
-              <StackPanel Visibility="{Binding NGVideoTitleKeywordEnable.Value, Converter={StaticResource BooleanToVisibility}}" Spacing="8">
+              <StackPanel Visibility="{x:Bind _vm.NGVideoTitleKeywordEnable.Value, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}" Spacing="8">
 
                 <Button Content="{i18nExt:Localize Key=AddVideoTitleFilterEntry}" 
-                        Command="{Binding AddVideoTitleFilterEntryCommand}"
+                        Command="{x:Bind _vm.AddVideoTitleFilterEntryCommand}"
                         HorizontalAlignment="Right"
                         />
 
-                <ItemsControl ItemsSource="{Binding VideoTitleFilteringItems}">
+                <ItemsControl ItemsSource="{x:Bind _vm.VideoTitleFilteringItems}">
                   <ItemsControl.ItemTemplate>
                     <DataTemplate>
                       <uwpControls:DockPanel>
@@ -290,8 +282,8 @@
                     </DataTemplate>
                   </ItemsControl.ItemTemplate>
                 </ItemsControl>
-                
-                <TextBlock Text="{Binding NGVideoTitleKeywordError.Value}" Visibility="{Binding NGVideoTitleKeywordError.Value, Converter={StaticResource NotNullToVisibility}}" />
+
+                <TextBlock Text="{x:Bind _vm.NGVideoTitleKeywordError.Value, Mode=OneWay}" Visibility="{x:Bind _vm.NGVideoTitleKeywordError.Value, Mode=OneWay, Converter={StaticResource NotNullToVisibility}}" />
                 <TextBlock Margin="0 8" Foreground="Gray" Text="{i18nExt:Localize Key=AvairableRegureExpression}" />
 
               </StackPanel>
@@ -324,28 +316,21 @@
             <StackPanel Style="{StaticResource SettingsMiddleGroupStackPanelStyle}">
               <Grid>
                 <TextBlock Text="{i18nExt:Localize Key=DefaultCacheVideoQuality}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
-                <ComboBox ItemsSource="{Binding AvairableCacheQualities}" SelectedItem="{Binding DefaultCacheQuality.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right">
-                  <ComboBox.ItemTemplate>
-                    <DataTemplate>
-                      <TextBlock>
-                         <Run Text="{Binding Converter={StaticResource LocalizeConverter}}" /></TextBlock>
-                    </DataTemplate>
-                  </ComboBox.ItemTemplate>
+                <ComboBox ItemsSource="{x:Bind _vm.AvairableCacheQualities}" SelectedItem="{x:Bind _vm.DefaultCacheQuality.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right"
+                          ItemTemplate="{StaticResource LocalizedTextItemTemplate}"
+                          >
                 </ComboBox>
               </Grid>
 
               <Grid>
                 <TextBlock Text="{i18nExt:Localize Key=IsAllowDownloadOnMeteredNetwork}" HorizontalAlignment="Left" Style="{StaticResource SettingsOptionTitleTextBlock}" />
-                <ToggleSwitch IsOn="{Binding IsAllowDownloadOnMeteredNetwork.Value, Mode=TwoWay}" HorizontalAlignment="Right" />
+                <ToggleSwitch IsOn="{x:Bind _vm.IsAllowDownloadOnMeteredNetwork.Value, Mode=TwoWay}" HorizontalAlignment="Right" />
               </Grid>
 
               <Grid>
-                <Grid.Resources>
-                  <local:VideoCacheMaxSizeDoubleGigaByte2NullableLongByteConverter x:Key="MaxCacheSizeNumberConverter" />
-                </Grid.Resources>
                 <TextBlock Text="{i18nExt:Localize Key=MaxVideoCacheStorageSize}" HorizontalAlignment="Left" Style="{StaticResource SettingsOptionTitleTextBlock}" />
                 <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Spacing="8">
-                  <muxc:NumberBox x:Name="MaxCacheSizeNumberBox" Value="{Binding MaxVideoCacheStorageSize.Value, Converter={StaticResource MaxCacheSizeNumberConverter}, Mode=TwoWay}" SmallChange="0.1" LargeChange="1" SpinButtonPlacementMode="Hidden"
+                  <muxc:NumberBox x:Name="MaxCacheSizeNumberBox" Value="{x:Bind _vm.MaxVideoCacheStorageSize.Value, Converter={StaticResource MaxCacheSizeNumberConverter}, Mode=TwoWay}" SmallChange="0.1" LargeChange="1" SpinButtonPlacementMode="Hidden"
                                   PlaceholderText="{i18nExt:Localize Key=MaxVideoCacheSize_Unlimited}"
                                   >
                     
@@ -356,8 +341,8 @@
               
               <StackPanel Orientation="Horizontal" Spacing="16" HorizontalAlignment="Right">
 
-                <Button Content="{i18nExt:Localize Key=OpenCacheFolder}" Command="{Binding OpenCurrentCacheFolderCommand}" HorizontalAlignment="Right" />
-                <Button Content="{i18nExt:Localize Key=ChangeCacheFolder}" Command="{Binding ChangeCacheVideoFolderCommand}" HorizontalAlignment="Right" />
+                <Button Content="{i18nExt:Localize Key=OpenCacheFolder}" Command="{x:Bind _vm.OpenCurrentCacheFolderCommand}" HorizontalAlignment="Right" />
+                <Button Content="{i18nExt:Localize Key=ChangeCacheFolder}" Command="{x:Bind _vm.ChangeCacheVideoFolderCommand}" HorizontalAlignment="Right" />
               </StackPanel>
             </StackPanel>
             
@@ -369,8 +354,8 @@
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
             </uwpControls:DockPanel>
             <StackPanel Style="{StaticResource SettingsMiddleGroupStackPanelStyle}" Orientation="Horizontal" HorizontalAlignment="Right">
-              <Button Content="{i18nExt:Localize Key=BackupUserData}" Command="{Binding ExportBackupCommand}" />
-              <Button Content="{i18nExt:Localize Key=RestoreUserData}" Command="{Binding ImportBackupCommand}" />
+              <Button Content="{i18nExt:Localize Key=BackupUserData}" Command="{x:Bind _vm.ExportBackupCommand}" />
+              <Button Content="{i18nExt:Localize Key=RestoreUserData}" Command="{x:Bind _vm.ImportBackupCommand}" />
             </StackPanel>
           </StackPanel>
           
@@ -384,9 +369,9 @@
               <Grid>
                 <TextBlock Text="{i18nExt:Localize Key=ApplicationVersion}" Opacity="0.7" VerticalAlignment="Center" />
                 <TextBlock HorizontalAlignment="Right" TextAlignment="Right" IsTextSelectionEnabled="True">
-                     <Run Text="{Binding VersionText}" /></TextBlock>
+                     <Run Text="{x:Bind _vm.VersionText}" /></TextBlock>
               </Grid>
-              <HyperlinkButton Content="{i18nExt:Localize Key=ShowUpdateNote}" Command="{Binding ShowUpdateNoticeCommand}" CommandParameter="{Binding CurrentVersion}" HorizontalAlignment="Right" />
+              <HyperlinkButton Content="{i18nExt:Localize Key=ShowUpdateNote}" Command="{x:Bind _vm.ShowUpdateNoticeCommand}" CommandParameter="{x:Bind _vm.CurrentVersion}" HorizontalAlignment="Right" />
               <HyperlinkButton Content="{i18nExt:Localize Key=DevelopProjectPage_LinkTitle}" NavigateUri="https://github.com/tor4kichi/Hohoema" UseSystemFocusVisuals="True" HorizontalAlignment="Right" />
               <HyperlinkButton Content="{i18nExt:Localize Key=PrivacyPolicy}" NavigateUri="https://github.com/tor4kichi/Hohoema/wiki/Privacy-policy" UseSystemFocusVisuals="True" HorizontalAlignment="Right" />
             </StackPanel>
@@ -398,7 +383,7 @@
             </uwpControls:DockPanel>
             <HyperlinkButton Content="{i18nExt:Localize Key=SendMessageToDeveloperWith_Marshmallow-QA}" Margin="0 0 0 8" NavigateUri="https://marshmallow-qa.com/tor4kichi" UseSystemFocusVisuals="True" HorizontalAlignment="Right" />
 
-            <HyperlinkButton Content="{i18nExt:Localize Key=ReviewInMicrosoftStore}" Margin="0 0 0 8" Command="{Binding LaunchAppReviewCommand}" UseSystemFocusVisuals="True" HorizontalAlignment="Right" />
+            <HyperlinkButton Content="{i18nExt:Localize Key=ReviewInMicrosoftStore}" Margin="0 0 0 8" Command="{x:Bind _vm.LaunchAppReviewCommand}" UseSystemFocusVisuals="True" HorizontalAlignment="Right" />
           </StackPanel>
           <!--  -->
           <StackPanel>
@@ -406,9 +391,9 @@
               <TextBlock Text="{i18nExt:Localize Key=ThirdPartyLibraryDependencies}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" uwpControls:DockPanel.Dock="Left" />
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
             </uwpControls:DockPanel>
-            <ItemsControl ItemsSource="{Binding LisenceItems}" Margin="0 0 8 0" IsTabStop="False">
+            <ItemsControl ItemsSource="{x:Bind _vm.LisenceItems,Mode=OneWay}" Margin="0 0 8 0" IsTabStop="False">
               <ItemsControl.ItemTemplate>
-                <DataTemplate>
+                <DataTemplate x:DataType="settingsVM:LisenceItemViewModel">
                   <HyperlinkButton Margin="0 0" NavigateUri="{Binding Site}" Content="{Binding Name}" HorizontalAlignment="Right" />
                   <!--
                                     <StackPanel Orientation="Horizontal"
@@ -508,12 +493,12 @@
               <TextBlock Text="{i18nExt:Localize Key=Others}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" uwpControls:DockPanel.Dock="Left" />
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
             </uwpControls:DockPanel>
-            <ListView ItemsSource="{Binding PurchaseItems}"
+            <ListView ItemsSource="{x:Bind _vm.PurchaseItems, Mode=OneWay}"
                       IsItemClickEnabled="True"
                       SelectionMode="None">
               <i:Interaction.Behaviors>
                 <core:EventTriggerBehavior EventName="ItemClick">
-                  <core:InvokeCommandAction Command="{Binding ShowCheerPurchaseCommand}"
+                  <core:InvokeCommandAction Command="{x:Bind _vm.ShowCheerPurchaseCommand}"
                                             InputConverter="{StaticResource ItemClickEventArgsConverter}" />
                 </core:EventTriggerBehavior>
               </i:Interaction.Behaviors>
@@ -523,7 +508,7 @@
                 </Style>
               </ListView.ItemContainerStyle>
               <ListView.ItemTemplate>
-                <DataTemplate>
+                <DataTemplate x:DataType="settingsVM:ProductViewModel">
                   <Grid>
                     <uwpControls:DockPanel>
                       <Image Source="{Binding ProductListing.ImageUri}" Height="48" Width="48" uwpControls:DockPanel.Dock="Left" />

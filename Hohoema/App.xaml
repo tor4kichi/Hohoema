@@ -17,6 +17,7 @@
     xmlns:flyouts="using:Hohoema.Views.Flyouts" 
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
   xmlns:locales="using:Hohoema.Locales" 
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
   xmlns:appModels="using:Hohoema.Models.Application" 
   xmlns:videoList="using:Hohoema.Views.Controls.VideoList" 
    xmlns:listPageVM="using:Hohoema.ViewModels.VideoListPage" 
@@ -261,7 +262,7 @@
       <locales:LocalizeWithParameterConverter x:Key="LocalizeWithParameterConverter" />
 
       <DataTemplate x:Key="LocalizedTextItemTemplate">
-        <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}"/>
+        <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}, FallbackValue={i18nExt:Localize Key=NoSelected}}"/>
       </DataTemplate>
       
 
