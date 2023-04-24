@@ -303,7 +303,6 @@
       
     </StackPanel>
 
-
     <Grid x:Name="DefaultUIControl">
       <i:Interaction.Behaviors>
         <!-- UIのフェードイン・アウト管理 -->
@@ -825,7 +824,8 @@
     </Grid>
 
 
-    <Border x:Name="PlayerTopDraggableArea" IsHitTestVisible="True" VerticalAlignment="Top" Height="32" Background="Transparent" Margin="0" />
+    <Border x:Name="PlayerTopDraggableArea" IsHitTestVisible="True" VerticalAlignment="Top" Height="32" Background="Transparent" Margin="80 0 340 0" />
+
 
     <VisualStateManager.VisualStateGroups>
 
