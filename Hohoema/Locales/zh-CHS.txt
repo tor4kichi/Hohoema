@@ -267,6 +267,7 @@ NavigationViewPaneDisplayMode.Left = 始终显示在左侧
 NavigationViewPaneDisplayMode.Top = 始终显示在顶部
 NavigationViewPaneDisplayMode.LeftCompact = 左侧紧凑型显示屏
 NavigationViewPaneDisplayMode.LeftMinimal = 左侧最小显示
+FullScreenWhenAppLaunched_CheckBoxText = 全屏启动
 AppearanceSettings = 显示设定
 ApplicationDisplayMode = 显示方式
 ApplicationDisplayMode.TV = 电视台

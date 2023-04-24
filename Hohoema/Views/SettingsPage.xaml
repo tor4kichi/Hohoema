@@ -193,10 +193,9 @@
                 </ComboBox>
               </Grid>
               <Grid x:Name="DefaultFullScreenSwitchLayout" Visibility="Collapsed">
-                <StackPanel>
-                  <TextBlock Text="アプリ起動時にフルスクリーン表示を設定する" Style="{StaticResource SettingsOptionTitleTextBlock}" />
-                </StackPanel>
-                <ToggleSwitch IsOn="{Binding IsDefaultFullScreen.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right" />
+                <CheckBox IsChecked="{Binding IsDefaultFullScreen.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right"
+                          Content="{i18nExt:Localize Key=FullScreenWhenAppLaunched_CheckBoxText}"
+                          />
               </Grid>
               <Grid x:Name="AppDisplayModeSettingLayout">
                 <TextBlock Text="{i18nExt:Localize Key=ApplicationInteractionMode}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
@@ -217,9 +216,6 @@
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
             </uwpControls:DockPanel>
             <StackPanel Style="{StaticResource SettingsMiddleGroupStackPanelStyle}">
-
-              <TextBlock Text="ランキングページは投稿者NGに対応していません" />
-
               <Grid>
                 <TextBlock Text="{i18nExt:Localize Key=FilterEnableWithVideoOwnerID}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
                 <ToggleSwitch IsOn="{Binding NGVideoOwnerUserIdEnable.Value, Mode=TwoWay}" HorizontalAlignment="Right" />
@@ -616,6 +612,16 @@
           <VisualState.Setters>
             <Setter Target="DisplayLanguageLayout.Visibility"
                     Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsStateTriggers:UserInteractionModeTrigger InteractionMode="Touch" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="DefaultFullScreenSwitchLayout.Visibility" Value="Visible" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>

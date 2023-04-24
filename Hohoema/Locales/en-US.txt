@@ -267,6 +267,7 @@ NavigationViewPaneDisplayMode.Left = Always displayed on the left
 NavigationViewPaneDisplayMode.Top = Always displayed at the top
 NavigationViewPaneDisplayMode.LeftCompact = Compact display on the left
 NavigationViewPaneDisplayMode.LeftMinimal = Minimum display on the left
+FullScreenWhenAppLaunched_CheckBoxText = Launch with FullScreen
 AppearanceSettings = Display settings
 ApplicationDisplayMode = Display mode
 ApplicationDisplayMode.TV = TV set

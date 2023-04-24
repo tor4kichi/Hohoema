@@ -43,8 +43,9 @@ using ZLogger;
 
 namespace Hohoema.ViewModels.Pages.Hohoema;
 
+
 public class SettingsPageViewModel : HohoemaPageViewModelBase
-	{
+{
     private static Uri AppIssuePageUri = new Uri("https://github.com/tor4kichi/Hohoema/issues");
 
     public SettingsPageViewModel(
@@ -188,7 +189,7 @@ public class SettingsPageViewModel : HohoemaPageViewModelBase
         })
             .AddTo(_CompositeDisposable);
 
-        AppearanceSettings.ObserveProperty(x => x.Locale, isPushCurrentValueAtFirst: false).Subscribe(locale => 
+        AppearanceSettings.ObserveProperty(x => x.Locale, isPushCurrentValueAtFirst: false).Subscribe(locale =>
         {
             I18NPortable.I18N.Current.Locale = locale;
         })
@@ -250,7 +251,7 @@ public class SettingsPageViewModel : HohoemaPageViewModelBase
     public AppearanceSettings AppearanceSettings { get; }
     public VideoCacheSettings VideoCacheSettings { get; }
     public ApplicationLayoutManager ApplicationLayoutManager { get; }
-    
+
 
     // フィルタ
     public ReactiveProperty<bool> NGVideoOwnerUserIdEnable { get; private set; }
@@ -276,7 +277,7 @@ public class SettingsPageViewModel : HohoemaPageViewModelBase
 
     public List<NavigationViewPaneDisplayMode> PaneDisplayModeItems { get; } = Enum.GetValues(typeof(NavigationViewPaneDisplayMode)).Cast<NavigationViewPaneDisplayMode>().ToList();
 
-    
+
     public ReactiveProperty<ElementTheme> SelectedTheme { get; private set; }
     public static bool ThemeChanged { get; private set; } = false;
 
@@ -286,16 +287,16 @@ public class SettingsPageViewModel : HohoemaPageViewModelBase
     public ReactiveProperty<HohoemaPageType> StartupPageType { get; private set; }
 
     public List<HohoemaPageType> StartupPageTypeList { get; } = new List<HohoemaPageType>()
-    {
-        HohoemaPageType.NicoRepo,
-        HohoemaPageType.Search,
-        HohoemaPageType.RankingCategoryList,
-        HohoemaPageType.CacheManagement,
-        HohoemaPageType.SubscriptionManagement,
-        HohoemaPageType.FollowManage,
-        HohoemaPageType.UserMylist,
-        HohoemaPageType.Timeshift,
-    };
+{
+    HohoemaPageType.NicoRepo,
+    HohoemaPageType.Search,
+    HohoemaPageType.RankingCategoryList,
+    HohoemaPageType.CacheManagement,
+    HohoemaPageType.SubscriptionManagement,
+    HohoemaPageType.FollowManage,
+    HohoemaPageType.UserMylist,
+    HohoemaPageType.Timeshift,
+};
 
     private RelayCommand _ToggleFullScreenCommand;
     public RelayCommand ToggleFullScreenCommand
@@ -324,13 +325,13 @@ public class SettingsPageViewModel : HohoemaPageViewModelBase
     public ReactiveProperty<NicoVideoQuality> DefaultCacheQuality { get; private set; }
 
     public List<NicoVideoQuality> AvairableCacheQualities { get; } = new List<NicoVideoQuality>()
-    {
-        NicoVideoQuality.SuperHigh,
-        NicoVideoQuality.High,
-        NicoVideoQuality.Midium,
-        NicoVideoQuality.Low,
-        NicoVideoQuality.Mobile,
-    };
+{
+    NicoVideoQuality.SuperHigh,
+    NicoVideoQuality.High,
+    NicoVideoQuality.Midium,
+    NicoVideoQuality.Low,
+    NicoVideoQuality.Mobile,
+};
 
     public ReactiveProperty<bool> IsAllowDownloadOnMeteredNetwork { get; private set; }
     public ReactiveProperty<long?> MaxVideoCacheStorageSize { get; private set; }
@@ -380,7 +381,7 @@ public class SettingsPageViewModel : HohoemaPageViewModelBase
             return _LogoutTwitterCommand
                 ?? (_LogoutTwitterCommand = new RelayCommand(() =>
                 {
-//                        TwitterHelper.Logout();
+                    //                        TwitterHelper.Logout();
 
                     IsLoginTwitter.Value = false;
                     TwitterAccountScreenName.Value = "";
@@ -525,13 +526,13 @@ public class SettingsPageViewModel : HohoemaPageViewModelBase
                     secondaryTile.VisualElements.Square310x310Logo = new Uri("ms-appx:///Assets/Square310x310Logo.scale-100.png");
                     secondaryTile.VisualElements.Wide310x150Logo = new Uri("ms-appx:///Assets/Wide310x150Logo.scale-100.png");
                     secondaryTile.VisualElements.Square44x44Logo = new Uri("ms-appx:///Assets/Square44x44Logo.targetsize-48.png");
-//                        secondaryTile.VisualElements.Square30x30Logo = new Uri("ms-appx:///Assets/Square30x30Logo.scale-100.png");
+                    //                        secondaryTile.VisualElements.Square30x30Logo = new Uri("ms-appx:///Assets/Square30x30Logo.scale-100.png");
                     secondaryTile.VisualElements.ShowNameOnSquare150x150Logo = true;
                     secondaryTile.VisualElements.ShowNameOnSquare310x310Logo = true;
                     secondaryTile.VisualElements.ShowNameOnWide310x150Logo = true;
 
 
-                    
+
                     if (false == await secondaryTile.RequestCreateAsync())
                     {
                         _logger.ZLogError("Failed secondary tile creation.");
@@ -559,7 +560,7 @@ public class SettingsPageViewModel : HohoemaPageViewModelBase
             {
                 VideoTitleFilteringItems.Add(item);
             }
-            
+
 
             try
             {
@@ -570,7 +571,7 @@ public class SettingsPageViewModel : HohoemaPageViewModelBase
             catch { }
 
 
-            
+
             var lisenceSummary = await LisenceSummary.Load();
             LisenceItems = lisenceSummary.Items
                 .OrderBy(x => x.Name)
@@ -660,15 +661,15 @@ public class SettingsPageViewModel : HohoemaPageViewModelBase
 
                     Action<BackupContainer>[] BackupActions = new Action<BackupContainer>[]
                     {
-                    _backupManager.RestoreLocalMylist,
-                    _backupManager.RestoreSubscription,
-                    _backupManager.RestorePin,
-                    _backupManager.RestoreRankingSettings,
-                    _backupManager.RestoreVideoFilteringSettings,
-                    _backupManager.RestorePlayerSettings,
-                    _backupManager.RestoreAppearanceSettings,
-                    _backupManager.RestoreNicoRepoSettings,
-                    _backupManager.RestoreCommentSettings,
+                _backupManager.RestoreLocalMylist,
+                _backupManager.RestoreSubscription,
+                _backupManager.RestorePin,
+                _backupManager.RestoreRankingSettings,
+                _backupManager.RestoreVideoFilteringSettings,
+                _backupManager.RestorePlayerSettings,
+                _backupManager.RestoreAppearanceSettings,
+                _backupManager.RestoreNicoRepoSettings,
+                _backupManager.RestoreCommentSettings,
                     };
 
                     List<Exception> exceptions = new List<Exception>();
@@ -723,73 +724,72 @@ public class SettingsPageViewModel : HohoemaPageViewModelBase
 
 
 public class RemovableListItem<T> : IRemovableListItem
-
 {
-		public T Source { get; private set; }
-		public Action<T> OnRemove { get; private set; }
+    public T Source { get; private set; }
+    public Action<T> OnRemove { get; private set; }
 
-		public string Label { get; private set; }
-		public RemovableListItem(T source, string content, Action<T> onRemovedAction)
-		{
-			Source = source;
-			Label = content;
-			OnRemove = onRemovedAction;
+    public string Label { get; private set; }
+    public RemovableListItem(T source, string content, Action<T> onRemovedAction)
+    {
+        Source = source;
+        Label = content;
+        OnRemove = onRemovedAction;
 
-			RemoveCommand = new RelayCommand(() => 
-			{
-				onRemovedAction(Source);
-			});
-		}
-
-
-		public ICommand RemoveCommand { get; private set; }
-	}
+        RemoveCommand = new RelayCommand(() =>
+        {
+            onRemovedAction(Source);
+        });
+    }
 
 
-	public class VideoFilteringTitleViewModel : IRemovableListItem, IDisposable
+    public ICommand RemoveCommand { get; private set; }
+}
+
+
+public class VideoFilteringTitleViewModel : IRemovableListItem, IDisposable
 {
-		public VideoFilteringTitleViewModel(
-        VideoTitleFilteringEntry ngTitleInfo, 
-        Action<VideoTitleFilteringEntry> onRemoveAction, 
-        VideoFilteringSettings videoFilteringRepository,
-        IObservable<string> testKeyword
-        )
-		{
-			NGKeywordInfo = ngTitleInfo;
-			_OnRemoveAction = onRemoveAction;
+    public VideoFilteringTitleViewModel(
+    VideoTitleFilteringEntry ngTitleInfo,
+    Action<VideoTitleFilteringEntry> onRemoveAction,
+    VideoFilteringSettings videoFilteringRepository,
+    IObservable<string> testKeyword
+    )
+    {
+        NGKeywordInfo = ngTitleInfo;
+        _OnRemoveAction = onRemoveAction;
         _videoFilteringRepository = videoFilteringRepository;
         Label = NGKeywordInfo.Keyword;
-			Keyword = new ReactiveProperty<string>(NGKeywordInfo.Keyword);
+        Keyword = new ReactiveProperty<string>(NGKeywordInfo.Keyword);
 
         Keyword.Subscribe(x =>
-			{
-				NGKeywordInfo.Keyword = x;
-        })
+            {
+                NGKeywordInfo.Keyword = x;
+            })
             .AddTo(_disposables);
 
         IsValidKeyword =
                 Keyword
                 .Where(x => !string.IsNullOrWhiteSpace(x))
-					.Select(x =>
-					{
-                    try
+                    .Select(x =>
                     {
-                        _ = new Regex(x);
-                        return true;
-                    }
-                    catch 
-                    {
-                        return false;
-                    }
-                })
-					.ToReactiveProperty(mode: ReactivePropertyMode.RaiseLatestValueOnSubscribe)
+                        try
+                        {
+                            _ = new Regex(x);
+                            return true;
+                        }
+                        catch
+                        {
+                            return false;
+                        }
+                    })
+                    .ToReactiveProperty(mode: ReactivePropertyMode.RaiseLatestValueOnSubscribe)
             .AddTo(_disposables);
 
         IsInvalidKeyword = IsValidKeyword.Select(x => !x)
-				.ToReactiveProperty()
+                .ToReactiveProperty()
             .AddTo(_disposables);
 
-        IsValidKeyword.Where(x => x).Subscribe(_ => 
+        IsValidKeyword.Where(x => x).Subscribe(_ =>
         {
             _videoFilteringRepository.UpdateVideoTitleFiltering(NGKeywordInfo);
         })
@@ -804,54 +804,54 @@ public class RemovableListItem<T> : IRemovableListItem
             })
             .ToReadOnlyReactivePropertySlim();
 
-        RemoveCommand = new RelayCommand(() => 
-			{
-				_OnRemoveAction(this.NGKeywordInfo);
-			});
-		}
+        RemoveCommand = new RelayCommand(() =>
+            {
+                _OnRemoveAction(this.NGKeywordInfo);
+            });
+    }
 
     CompositeDisposable _disposables = new CompositeDisposable();
 
-		public void Dispose()
-		{
+    public void Dispose()
+    {
         _disposables.Dispose();
     }
 
-		public ReactiveProperty<string> Keyword { get; private set; }
+    public ReactiveProperty<string> Keyword { get; private set; }
 
-		public ReactiveProperty<bool> IsValidKeyword { get; private set; }
-		public ReactiveProperty<bool> IsInvalidKeyword { get; private set; }
+    public ReactiveProperty<bool> IsValidKeyword { get; private set; }
+    public ReactiveProperty<bool> IsInvalidKeyword { get; private set; }
 
 
     public ReadOnlyReactivePropertySlim<bool> IsTestPassed { get; private set; }
 
 
     public string Label { get; private set; }
-		public ICommand RemoveCommand { get; private set; }
-		
-		public VideoTitleFilteringEntry NGKeywordInfo { get; }
-		Action<VideoTitleFilteringEntry> _OnRemoveAction;
+    public ICommand RemoveCommand { get; private set; }
+
+    public VideoTitleFilteringEntry NGKeywordInfo { get; }
+    Action<VideoTitleFilteringEntry> _OnRemoveAction;
     private readonly VideoFilteringSettings _videoFilteringRepository;
 }
 
 /*
-	public static class RemovableSettingsListItemHelper
-	{
-		public static RemovableListItem<string> VideoIdInfoToRemovableListItemVM(VideoIdInfo info, Action<string> removeAction)
-		{
-			var roundedDesc = info.Description.Substring(0, Math.Min(info.Description.Length - 1, 10));
-			return new RemovableListItem<string>(info.VideoId, $"{info.VideoId} | {roundedDesc}", removeAction);
-		}
+    public static class RemovableSettingsListItemHelper
+    {
+        public static RemovableListItem<string> VideoIdInfoToRemovableListItemVM(VideoIdInfo info, Action<string> removeAction)
+        {
+            var roundedDesc = info.Description.Substring(0, Math.Min(info.Description.Length - 1, 10));
+            return new RemovableListItem<string>(info.VideoId, $"{info.VideoId} | {roundedDesc}", removeAction);
+        }
 
-		public static RemovableListItem<string> UserIdInfoToRemovableListItemVM(UserIdInfo info, Action<string> removeAction)
-		{
-			var roundedDesc = info.Description.Substring(0, Math.Min(info.Description.Length - 1, 10));
-			return new RemovableListItem<string>(info.UserId, $"{info.UserId} | {roundedDesc}", removeAction);
-		}
-	}
+        public static RemovableListItem<string> UserIdInfoToRemovableListItemVM(UserIdInfo info, Action<string> removeAction)
+        {
+            var roundedDesc = info.Description.Substring(0, Math.Min(info.Description.Length - 1, 10));
+            return new RemovableListItem<string>(info.UserId, $"{info.UserId} | {roundedDesc}", removeAction);
+        }
+    }
 */
 
-	public interface IRemovableListItem
+public interface IRemovableListItem
 {
     string Label { get; }
     ICommand RemoveCommand { get; }

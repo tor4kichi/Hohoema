@@ -250,11 +250,13 @@ public sealed class PrimaryViewPlayerManager : ObservableObject, IPlayerView
             _ = _view.TryEnterViewModeAsync(ApplicationViewMode.Default);
         }
 
+        /*
         if (_view.IsFullScreenMode 
             && ApplicationView.PreferredLaunchWindowingMode != ApplicationViewWindowingMode.FullScreen)
         {
             _view.ExitFullScreenMode();
-        }            
+        } 
+        */
 
         _navigationService.NavigateAsync(nameof(BlankPage));
     }

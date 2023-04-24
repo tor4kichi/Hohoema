@@ -267,6 +267,7 @@ NavigationViewPaneDisplayMode.Left = 左に常に表示
 NavigationViewPaneDisplayMode.Top = 上部に常に表示
 NavigationViewPaneDisplayMode.LeftCompact = 左にコンパクト表示
 NavigationViewPaneDisplayMode.LeftMinimal = 左に最小表示
+FullScreenWhenAppLaunched_CheckBoxText = 全画面表示で起動する
 AppearanceSettings = 表示設定
 ApplicationDisplayMode = 表示モード
 ApplicationDisplayMode.TV = テレビ
