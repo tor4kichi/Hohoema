@@ -58,7 +58,7 @@ public sealed partial class CommentRenderer : UserControl
         _windowResizeTimer.IsRepeating = false;
     }
 
-    CompositeDisposable _disposables;
+    CompositeDisposable? _disposables;
 
     private readonly DefaultObjectPool<CommentUI> _commentUIObjectPool;
     private readonly DispatcherQueue _dispatcherQueue;
@@ -222,10 +222,10 @@ public sealed partial class CommentRenderer : UserControl
     }
 
 
-    IDisposable CommentItemsChangedSubscriber;
+    IDisposable? CommentItemsChangedSubscriber;
     private static void OnCommentsChanged(object sender, DependencyPropertyChangedEventArgs e)
     {
-        CommentRenderer me = sender as CommentRenderer;
+        CommentRenderer me = (sender as CommentRenderer)!;
 
         me.CommentItemsChangedSubscriber?.Dispose();
         
@@ -246,7 +246,7 @@ public sealed partial class CommentRenderer : UserControl
                             {
                                 foreach (var comment in args.NewItems)
                                 {
-                                    me.AddOrPushPending(comment as IComment);
+                                    me.AddOrPushPending((comment as IComment)!);
                                 }
                             }
                             else if (args.Action == NotifyCollectionChangedAction.Remove)
@@ -277,11 +277,11 @@ public sealed partial class CommentRenderer : UserControl
         }
         else if (args.CollectionChange == CollectionChange.ItemInserted)
         {
-            AddOrPushPending(sender[(int)args.Index] as IComment);
+            AddOrPushPending((sender[(int)args.Index] as IComment)!);
         }
         else if (args.CollectionChange == CollectionChange.ItemRemoved)
         {
-            RemoveCommentFromCanvas(sender[(int)args.Index] as IComment);
+            RemoveCommentFromCanvas((sender[(int)args.Index] as IComment)!);
         }
 
     }
@@ -295,7 +295,7 @@ public sealed partial class CommentRenderer : UserControl
 
     #endregion
 
-    private CancellationTokenSource _scrollCommentAnimationCts;
+    private CancellationTokenSource? _scrollCommentAnimationCts;
     private CancellationToken GetScrollCommentAnimationCancellationToken()
     {
         _scrollCommentAnimationCts ??= new CancellationTokenSource();
@@ -366,16 +366,16 @@ public sealed partial class CommentRenderer : UserControl
     /// <summary>
     /// 流れるコメントの前コメを表示段ごとに管理するリスト
     /// </summary>
-    private List<CommentUI> PrevRenderCommentEachLine_Stream = new List<CommentUI>();
+    private readonly List<CommentUI?> PrevRenderCommentEachLine_Stream = new List<CommentUI?>();
     /// <summary>
     /// 上揃いコメントの前コメを表示段ごとに管理するリスト
     /// </summary>
-    private List<CommentUI> PrevRenderCommentEachLine_Top = new List<CommentUI>();
+    private readonly List<CommentUI?> PrevRenderCommentEachLine_Top = new List<CommentUI?>();
 
     /// <summary>
     /// 下揃いコメントの前コメを表示段ごとに管理するリスト
     /// </summary>
-    private List<CommentUI> PrevRenderCommentEachLine_Bottom = new List<CommentUI>();
+    private readonly List<CommentUI?> PrevRenderCommentEachLine_Bottom = new List<CommentUI?>();
 
     private void CommentRenderer_Loaded(object sender, RoutedEventArgs e)
     {
@@ -414,7 +414,7 @@ public sealed partial class CommentRenderer : UserControl
             mediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
         }
 
-        _disposables.Dispose();
+        _disposables?.Dispose();
         _disposables = null;
         _windowResizeTimer.Stop();
         StopScrollCommentAnimation();
@@ -474,7 +474,7 @@ public sealed partial class CommentRenderer : UserControl
             if (prev != PlaybackState)
             {
                 Debug.WriteLine("state changed " + PlaybackState);
-                ResetScrollCommentsAnimation(GetRenderFrameData());
+                ResetScrollCommentsAnimation(GetRenderFrameData(withUpdate: true));
             }
 
             TimeSpan currentVpos = CurrentVPos;
@@ -488,10 +488,10 @@ public sealed partial class CommentRenderer : UserControl
                 // 表示期間を過ぎたコメントを削除
                 for (int i = 0; i < CommentCanvas.Children.Count; i++)
                 {
-                    var comment = CommentCanvas.Children[i] as CommentUI;
+                    var comment = (CommentCanvas.Children[i] as CommentUI)!;
                     if (comment.EndPosition <= currentVpos)
                     {
-                        RemoveCommentFromCanvas(comment.Comment);
+                        RemoveCommentFromCanvas(comment.Comment!);
                         --i;
                     }
                     else
@@ -506,7 +506,7 @@ public sealed partial class CommentRenderer : UserControl
                 {
                     _nextTickCommentTiming = now + TimeSpan.FromMilliseconds(500);
                     int count = 0;
-                    CommentRenderFrameData frame = null;
+                    CommentRenderFrameData frame = GetRenderFrameData(withUpdate: true);
                     for (int i = 0; i < _pendingRenderComments.Count; i++)
                     {
                         if (count >= 25) { break; }
@@ -515,7 +515,6 @@ public sealed partial class CommentRenderer : UserControl
                         var comment = _pendingRenderComments[i];
                         if (comment.VideoPosition <= (currentVpos + TimeSpan.FromSeconds(1)))
                         {
-                            frame ??= GetRenderFrameData();
                             _pendingRenderComments.RemoveAt(i);
                             --i;
                             AddCommentToCanvas(comment, frame);
@@ -554,7 +553,7 @@ public sealed partial class CommentRenderer : UserControl
             if (prev != PlaybackState)
             {
                 Debug.WriteLine("state changed " + PlaybackState);
-                ResetScrollCommentsAnimation(GetRenderFrameData());
+                ResetScrollCommentsAnimation(GetRenderFrameData(withUpdate: true));
             }
         });
     }
@@ -634,8 +633,18 @@ public sealed partial class CommentRenderer : UserControl
 
 
 
-    static CommentRenderFrameData _frameData = new CommentRenderFrameData();
-    private CommentRenderFrameData GetRenderFrameData()
+    CommentRenderFrameData _frameData = new CommentRenderFrameData();
+    private CommentRenderFrameData GetRenderFrameData(bool withUpdate = false)
+    {
+        if (withUpdate)
+        {
+            UpdateRenderFrameData();
+        }
+
+        return _frameData;
+    }
+
+    private void UpdateRenderFrameData()
     {
         _frameData.CommentDisplayDuration = DefaultDisplayDuration;
         _frameData.InverseCommentDisplayDurationInMs = 1.0f / (float)DefaultDisplayDuration.TotalMilliseconds;
@@ -650,8 +659,6 @@ public sealed partial class CommentRenderer : UserControl
         _frameData.PlaybackRate = (float)MediaPlayer.PlaybackSession.PlaybackRate;
         _frameData.PlaybackRateInverse = 1f / (float)MediaPlayer.PlaybackSession.PlaybackRate;
         _frameData.ScrollCommentAnimationCancelToken = GetScrollCommentAnimationCancellationToken();
-        
-        return _frameData;
     }
 
 
@@ -661,7 +668,8 @@ public sealed partial class CommentRenderer : UserControl
 
         foreach (var commentUI in CommentCanvas.Children.Cast<CommentUI>())
         {
-            _commentUIObjectPool.Return(commentUI);
+            commentUI.SizeChanged -= RenderComment_SizeChanged;
+            _commentUIObjectPool.Return(commentUI);            
         }
 
         CommentCanvas.Children.Clear();
@@ -673,7 +681,7 @@ public sealed partial class CommentRenderer : UserControl
         PrevRenderCommentEachLine_Bottom.Clear();
     }
 
-    private void ResetComments(CommentRenderFrameData data = null)
+    private void ResetComments(CommentRenderFrameData? frame = null)
     {
         try
         {
@@ -684,10 +692,10 @@ public sealed partial class CommentRenderer : UserControl
             {
                 if (Comments != null)
                 {
-                    var frame = data ?? GetRenderFrameData();
+                    frame ??= GetRenderFrameData(withUpdate: true);
                     foreach (var comment in Comments)
                     {
-                        AddOrPushPending(comment as IComment, frame);
+                        AddOrPushPending((comment as IComment)!, frame);
                     }
                     _prevPosition = CurrentVPos;
                 }
@@ -776,15 +784,26 @@ public sealed partial class CommentRenderer : UserControl
 
         if (comment.IsInvisible) { return; }
 
-
+        if (CommentCanvas.Visibility == Visibility.Collapsed) { return; }
         
         // 表示対象に登録
         var renderComment = MakeCommentUI(comment, frame);
 
+        renderComment.SizeChanged -= RenderComment_SizeChanged;
+        renderComment.SizeChanged += RenderComment_SizeChanged;
         CommentCanvas.Children.Add(renderComment);
         _commentToRenderCommentMap.Add(comment, renderComment);
-        renderComment.UpdateLayout();
+                
+        //renderComment.UpdateLayout();
+    }
 
+    private void RenderComment_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        CommentUI renderComment = (sender as CommentUI)!;
+        IComment comment = renderComment.Comment!;
+        renderComment.SizeChanged -= RenderComment_SizeChanged;
+
+        var frame = GetRenderFrameData();
         // 初期の縦・横位置を計算
         // 縦位置を計算して表示範囲外の場合はそれぞれの表示縦位置での追加をこのフレーム内で打ち切る
         bool isOutBoundComment = false;
@@ -1010,9 +1029,11 @@ public sealed partial class CommentRenderer : UserControl
     private readonly Dictionary<IComment, CommentUI> _commentToRenderCommentMap = new Dictionary<IComment, CommentUI>();
 
 
-    private void AddOrPushPending(IComment comment, CommentRenderFrameData frame = null)
+    private void AddOrPushPending(IComment comment, CommentRenderFrameData? frame = null)
     {
-        if (_nowWindowSizeChanging || comment.VideoPosition > VideoPosition + VideoPositionOffset)
+        if (_nowWindowSizeChanging 
+            || comment.VideoPosition > VideoPosition + VideoPositionOffset
+            )
         {
             if (_pendingRenderComments.Any())
             {
@@ -1041,20 +1062,20 @@ public sealed partial class CommentRenderer : UserControl
         }
         else
         {
-            AddCommentToCanvas(comment, frame ?? GetRenderFrameData());
+            AddCommentToCanvas(comment, frame ?? GetRenderFrameData(withUpdate: true));
         }
     }
 
-    private void AddCommentToCanvas(IEnumerable<IComment> comments, CommentRenderFrameData frame = null)
+    private void AddCommentToCanvas(IEnumerable<IComment> comments, CommentRenderFrameData? frame = null)
     {
         if (Visibility ==Visibility.Collapsed) { return; }
         if (comments.Any() is false) { return; }
 
-        var frameData = frame ?? GetRenderFrameData();
+        frame ??= GetRenderFrameData(withUpdate: true);
         foreach (var comment in comments)
         {
-            AddOrPushPending(comment, frameData);
-            frameData.CurrentVpos = VideoPosition + VideoPositionOffset;
+            AddOrPushPending(comment, frame);
+            frame.CurrentVpos = VideoPosition + VideoPositionOffset;
         }
     }
 

@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using CommunityToolkit.Diagnostics;
 using Hohoema.Models.Player.Comment;
 using System;
 using Windows.UI;
@@ -10,7 +11,7 @@ using Windows.UI.Xaml.Controls;
 namespace Hohoema.Views.Player;
 
 public sealed partial class CommentUI : UserControl
-	{
+{
     private float _TextHeight;
     public float TextHeight => _TextHeight;
     private float _TextWidth;
@@ -20,7 +21,7 @@ public sealed partial class CommentUI : UserControl
     public TimeSpan VideoPosition { get; set; }
     public TimeSpan EndPosition { get; set; }
 
-    public IComment Comment { get; set; }
+    public IComment? Comment { get; set; }
 
     public string CommentText
     {
@@ -116,11 +117,11 @@ public sealed partial class CommentUI : UserControl
     public double VerticalPosition { get; set; }
 
     public CommentUI()
-		{
-			this.InitializeComponent();
+    {
+        this.InitializeComponent();
 
         SizeChanged += CommentUI_SizeChanged;
-		}
+    }
 
     private void CommentUI_SizeChanged(object sender, SizeChangedEventArgs e)
     {
@@ -131,15 +132,15 @@ public sealed partial class CommentUI : UserControl
 
 
     public bool IsInsideScreen { get; private set; }
-		public int HorizontalPosition { get; private set; }
+    public int HorizontalPosition { get; private set; }
 
 
-		public bool IsEndDisplay(TimeSpan currentVpos)
-		{
-			return EndPosition <= currentVpos;
-		}
+    public bool IsEndDisplay(TimeSpan currentVpos)
+    {
+        return EndPosition <= currentVpos;
+    }
 
-		
+
     public TimeSpan CommentDisplayDuration { get; set; }
     public float InverseCommentDisplayDurationInMs { get; set; }
 
@@ -154,10 +155,19 @@ public sealed partial class CommentUI : UserControl
 
         var speed = MoveSpeedPer1MilliSeconds(canvasWidth);
 
+#if DEBUG
+        Guard.IsNotEqualTo(TextWidth, 0, nameof(TextWidth));
+        Guard.IsFalse(float.IsNaN(speed), "comment speed is NaN.");
+#endif
         // 時間 = 距離 ÷ 速さ
         var time = (TextWidth / speed);
+        if (float.IsNaN(time))
+        {
+            return TimeSpan.Zero;
+        }
+
         var timeToSecondCommentWidthMove = TimeSpan.FromMilliseconds(time);
-        
+
         _MoveCommentWidthTimeInVPos = timeToSecondCommentWidthMove;
         return timeToSecondCommentWidthMove;
     }
@@ -183,4 +193,4 @@ public sealed partial class CommentUI : UserControl
     {
         return EndPosition - CalcMoveCommentWidthTimeInVPos(canvasWidth);
     }
-	}
+}
