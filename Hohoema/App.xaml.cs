@@ -426,8 +426,7 @@ public sealed partial class App : Application
 
         Microsoft.Toolkit.Uwp.Helpers.SystemInformation.Instance.TrackAppUse(args);
 
-        await EnsureInitializeAsync();
-        OnInitialized();
+        await EnsureInitializeAsync();        
     }
     
     protected override async void OnActivated(IActivatedEventArgs args)
@@ -718,7 +717,7 @@ public sealed partial class App : Application
         }
         */
 
-
+        OnInitialized();
     }
 
 
