@@ -130,7 +130,7 @@ public class UINavigationManager : IDisposable
         UINavigationController.UINavigationControllerAdded += UINavigationController_UINavigationControllerAdded;
         UINavigationController.UINavigationControllerRemoved += UINavigationController_UINavigationControllerRemoved;
 
-        IsEnabled = InitialEnabling;
+        IsEnabled = InitialEnabling;        
     }
 
     private bool _IsEnabled;
@@ -153,6 +153,17 @@ public class UINavigationManager : IDisposable
                 }
             }
         }
+    }
+
+
+    public static void OnSuspeding()
+    {
+        __Instance.DeactivatePolling();
+    }
+
+    public static void OnResuming()
+    {
+        __Instance.ActivatePolling();
     }
 
     private void Current_Activated(object sender, WindowActivatedEventArgs e)

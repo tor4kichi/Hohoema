@@ -9,40 +9,40 @@ using System.Threading;
 namespace Hohoema.Dialogs;
 
 public sealed class TextInputDialogContext : IDisposable
+{
+	private SynchronizationContextScheduler _CurrentWindowContextScheduler;
+	public SynchronizationContextScheduler CurrentWindowContextScheduler
 	{
-    private SynchronizationContextScheduler _CurrentWindowContextScheduler;
-    public SynchronizationContextScheduler CurrentWindowContextScheduler
-    {
-        get
-        {
-            return _CurrentWindowContextScheduler
-                ?? (_CurrentWindowContextScheduler = new SynchronizationContextScheduler(SynchronizationContext.Current));
-        }
-    }
-
-    public TextInputDialogContext(string title, string placeholder, string defaultText, Func<string, bool> validater)
+		get
 		{
-			Title = title;
-			PlaceholderText = placeholder;
-			Text = new ReactiveProperty<string>(CurrentWindowContextScheduler, defaultText);
-			IsValid = Text.Select(validater)
-				.ToReactiveProperty(CurrentWindowContextScheduler);
+			return _CurrentWindowContextScheduler
+				?? (_CurrentWindowContextScheduler = new SynchronizationContextScheduler(SynchronizationContext.Current));
 		}
+	}
 
-		public string Title { get; set; }
-		public string PlaceholderText { get; set; }
-		public ReactiveProperty<string> Text { get; private set; }
+	public TextInputDialogContext(string title, string placeholder, string defaultText, Func<string, bool> validater)
+	{
+		Title = title;
+		PlaceholderText = placeholder;
+		Text = new ReactiveProperty<string>(CurrentWindowContextScheduler, defaultText);
+		IsValid = Text.Select(validater)
+			.ToReactiveProperty(CurrentWindowContextScheduler);
+	}
 
-		public ReactiveProperty<bool> IsValid { get; private set; }
+	public string Title { get; set; }
+	public string PlaceholderText { get; set; }
+	public ReactiveProperty<string> Text { get; private set; }
 
-		public string GetValidText()
-		{
-			return Text.Value;
-		}
+	public ReactiveProperty<bool> IsValid { get; private set; }
 
-    public void Dispose()
-    {
-			Text.Dispose();
-			IsValid.Dispose();
-		}
+	public string GetValidText()
+	{
+		return Text.Value;
+	}
+
+	public void Dispose()
+	{
+		Text.Dispose();
+		IsValid.Dispose();
+	}
 }

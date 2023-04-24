@@ -40,6 +40,16 @@ public abstract class LiteDBServiceBase<T>
         return _collection.Upsert(items);
     }
 
+    public virtual int UpdateMany(Expression<Func<T, T>> extend, Expression<Func<T, bool>> predicate)
+    {
+        return _collection.UpdateMany(extend, predicate);
+    }
+
+    public virtual int InsertBulk(IEnumerable<T> entities, int batchSize = 5000)
+    {
+        return _collection.InsertBulk(entities, batchSize);
+    }
+
     public virtual bool DeleteItem(T item)
     {
         return _collection.DeleteMany(i => i.Equals(item)) > 0;
@@ -65,11 +75,29 @@ public abstract class LiteDBServiceBase<T>
         return _collection.Exists(predicate);
     }
 
-    public int Count()
+    public int CountSafe()
     {
-        return _collection.Count();
+        try
+        {
+            return _collection.Count();
+        }
+        catch
+        {
+            return 0;
+        }
     }
 
+    public int CountSafe(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
+    {
+        try
+        {
+            return _collection.Count(predicate);
+        }
+        catch
+        {
+            return 0;
+        }
+    }
 
     public T FindById(BsonValue id)
     {

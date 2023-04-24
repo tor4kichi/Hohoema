@@ -36,6 +36,7 @@ Select = Choice
 WatchVideo = View
 Preview = Previous
 Next = Next
+ViewList = Show list
 
 
 #### Hohoema App ####
@@ -93,7 +94,7 @@ HohoemaPageType.SearchResultMylist = Mylist search
 HohoemaPageType.SearchResultTag = Tag search
 HohoemaPageType.Settings = Configuration
 HohoemaPageType.Splash = Startup screen
-HohoemaPageType.Subscription = New videos
+HohoemaPageType.Subscription = Subsc management
 HohoemaPageType.SubscVideoList = List of new videos
 HohoemaPageType.Timeshift = Time shift
 HohoemaPageType.UserInfo = User information
@@ -106,7 +107,7 @@ HohoemaPageType.WatchHistory = Viewing history
 HohoemaPageType.LocalPlaylist = playlist
 HohoemaPageType.Mylist = Mylist
 HohoemaPageType.VideoQueue = Queue
-HohoemaPageType.SubscriptionManagement = New videos
+HohoemaPageType.SubscriptionManagement = Subsc management
 HohoemaPageType.OwnerMylistManage = Mylist management
 HohoemaPageType.LocalPlaylistManage = Local Mylist Management
 
@@ -192,6 +193,9 @@ CacheVideo_ToastNotification_CacheDelete = Delete
 
 
 #### Subscription ####
+SubscriptionNewVideos = New videos
+SubscriptionGroup = Subscription group
+
 SubscriptionAdd = Add subscription
 SubscriptionAddUserVideos = Add Contributor to Subscription
 SubscriptionAddSeries = Add series to subscription
@@ -201,24 +205,30 @@ SubscriptionSourceType.Channel = Channel
 SubscriptionSourceType.Mylist = Mylist
 SubscriptionSourceType.TagSearch = Tag search
 SubscriptionSourceType.KeywordSearch = Keyword search
+SubscriptionSourceType.Series = Series
 
 SubscriptionsAutoUpdateRunning = Automatic updating
 SubscriptionsNextUpdateTime = Next update
 SubscriptionsAutoNotUpdateRunning = Automatic update is stopped
+SubscriptionsPrevUpdateTime = Last update
 
 StopSubscribe? = Can I stop checking for new arrivals?
 StopSubscribe = Stop checking new arrivals
 
 OpenSubscriptionSourceVideoList = Open video list
-ReorderSubsciprionSource_Move = Move
-ReorderSubsciprionSource_MovePreview = Move up one
-ReorderSubsciprionSource_MoveNext = Move down one
-ReorderSubsciprionSource_MoveToHead = Move to the top
+ReorderSubsciprionSource_Move = Change the sort order...
+ReorderSubsciprionSource_MovePreview = Move forward
+ReorderSubsciprionSource_MoveNext = Move back
+ReorderSubsciprionSource_MoveToHead = Move to front
 ReorderSubsciprionSource_MoveToTail = Move to the end
 
-Notification_SuccessAddSubscriptionSourceWithLabel = Added "{0}" to the subscription. \n New videos will be added to "Watch Later" in the future.
+Notification_SuccessAddSubscriptionSourceWithLabel = Added "{0}" to subscription.
 Notification_FailedSubscriptionUpdate = Subscription renewal failed
 Notification_SuccessAddToWatchLaterWithAddedCount = New videos {0} added to See later
+SubscNotification_SampleVideosHeader = new video found
+VideosWithCount = {0} videos
+
+
 
 SubscGroup_DefaultGroupName = Default
 AddSubscriptionGroup_InputSubscGroupName_Title = Decide on a subscription group name
@@ -229,8 +239,24 @@ SubscGroup_Rename = Rename subscription group
 SubscGroup_DeleteComfirmDialogContent = Even if you delete a subscribed group, the subscribed group will be changed to "default", so you can safely delete it. \nAre you sure you want to delete it?
 SubscGroup_DeleteComfirmDialogTitle = Are you sure you want to delete the {0} group?
 
-VideoNoItem = No videos to display
+SubscGroupVideosAllCheckedWithSubscGroupTitle = No videos to display
+SubscVideosDisplayChecked = Show checked
+SubscVideos_MarkAsCheckedWithDays = Checked {0} days ago
+SubscVideos_MarkAsChecked = Mark as checked
+SubscVideos_AllMarkAsChecked = Mark all checked
+Subsc_UnwatchedVideoCount = New {0} videos
 
+SubscGroupSettings_Title = Subscription group name
+SubscGroupSettings = Display and notification settings
+SubscGroupSettings_Notification = Notify me of new arrivals
+SubscGroupSettings_AddToQueue = Add New to Queue
+SubscGroupSettings_ShowAppMenu = Show group in menu
+
+SubscGroup_PlayFromHere = Watch from here
+SubscGroup_AllPlayUnwatched = Play new video
+SubscGroup_AddToQueue = Add to queue
+
+SubscVideos_ShowAllSubsc = Show all
 
 
 

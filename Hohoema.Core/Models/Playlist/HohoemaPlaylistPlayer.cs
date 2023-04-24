@@ -216,24 +216,61 @@ public abstract class PlaylistPlayer : ObservableObject, IDisposable
     {
         //Guard.IsNotNull(BufferedPlaylistItemsSource, nameof(BufferedPlaylistItemsSource));
 
-
+        if (CurrentPlaylistItem != null)
+        {
+            OnVideoPlayed(CurrentPlaylistItem, video);
+        }
+            
         CurrentPlayingIndex = index;
         CurrentPlaylistItem = video;
     }
 
     protected void ClearCurrentContent()
     {
-        CurrentPlayingIndex = -1;
+        if (CurrentPlaylistItem != null)
+        {
+            OnVideoPlayed(CurrentPlaylistItem, null);
+        }
+
         CurrentPlaylistItem = null;
+        CurrentPlayingIndex = -1;
     }
 
     private IVideoContent? _currentPlaylistItem;
     public IVideoContent? CurrentPlaylistItem
     {
         get => _currentPlaylistItem;
-        private set => SetProperty(ref _currentPlaylistItem, value);
+        private set
+        {
+            var watchedVideo = _currentPlaylistItem;
+            if (SetProperty(ref _currentPlaylistItem, value))
+            {
+                if (watchedVideo != null)
+                {
+                    
+                }
+            }
+        }
     }
 
+    private void OnVideoPlayed(IVideoContent videoWatched, IVideoContent? currentPlaylistItem)
+    {
+        if (CurrentPlaylist is IPlaylistItemWatchedAware playlistWatchedAware)
+        {
+            playlistWatchedAware.OnVideoWatched(videoWatched);
+        }
+
+        if (CurrentPlaylist is QueuePlaylist queuePlaylist)
+        {
+            if (currentPlaylistItem != null)
+            {
+                CurrentPlayingIndex = queuePlaylist.IndexOf(currentPlaylistItem);
+            }
+            _maxItemsCount = queuePlaylist.TotalCount;
+        }
+
+
+    }
 
     protected void Clear()
     {
@@ -253,21 +290,6 @@ public abstract class PlaylistPlayer : ObservableObject, IDisposable
         return await GetNextItemAsync_Internal(ct);
     }
 
-    private void MarkPlayedLastContent(VideoId? lastPlayedVideoId)
-    {
-        if (lastPlayedVideoId == null) { return; }
-        if (CurrentPlayingIndex == InvalidIndex) { return; }
-
-        if (CurrentPlaylist is QueuePlaylist queuePlaylist)
-        {
-            queuePlaylist.Remove(lastPlayedVideoId.Value);
-            if (CurrentPlaylistItem != null)
-            {
-                CurrentPlayingIndex = queuePlaylist.IndexOf(CurrentPlaylistItem);
-            }
-            _maxItemsCount = queuePlaylist.TotalCount;
-        }
-    }
 
     private async ValueTask<IVideoContent?> GetNextItemAsync_Internal(CancellationToken ct)
     {
@@ -371,21 +393,14 @@ public abstract class PlaylistPlayer : ObservableObject, IDisposable
         if (CurrentPlayingIndex == InvalidIndex) { return false; }
         if (BufferedPlaylistItemsSource == null) { return false; }
 
-        // Note: 後でMarkPlayedLastContentを呼ばないとキュープレイリストラスト動画が２回再生されるバグが起きる
-        VideoId? lastPlayedId = CurrentPlaylistItem?.VideoId;
-        IVideoContent nextItem = await GetNextItemAsync_Internal(ct);
+        IVideoContent? nextItem = await GetNextItemAsync_Internal(ct);
         if (nextItem != null)
         {
             await PlayVideoOnSamePlaylistAsync_Internal(nextItem);
-            SetCurrentContent(nextItem, BufferedPlaylistItemsSource.IndexOf(nextItem));
-            MarkPlayedLastContent(lastPlayedId);
-            return true;
+            SetCurrentContent(nextItem, BufferedPlaylistItemsSource.IndexOf(nextItem));            
         }
-        else
-        {
-            MarkPlayedLastContent(lastPlayedId);
-            return false;
-        }
+
+        return nextItem != null;
     }
 
     public async Task<bool> GoPreviewAsync(CancellationToken ct = default)
@@ -395,21 +410,14 @@ public abstract class PlaylistPlayer : ObservableObject, IDisposable
         if (CurrentPlayingIndex == InvalidIndex) { return false; }
         if (BufferedPlaylistItemsSource == null) { return false; }
 
-        VideoId? lastPlayedId = CurrentPlaylistItem?.VideoId;
-
-        IVideoContent prevItem = await GetPreviewItemAsync_Internal(ct);
+        IVideoContent? prevItem = await GetPreviewItemAsync_Internal(ct);
         if (prevItem != null)
         {
             await PlayVideoOnSamePlaylistAsync_Internal(prevItem);
             SetCurrentContent(prevItem, BufferedPlaylistItemsSource.IndexOf(prevItem));
-            MarkPlayedLastContent(lastPlayedId);
-            return true;
         }
-        else
-        {
-            MarkPlayedLastContent(lastPlayedId);
-            return false;
-        }
+
+        return prevItem != null;
     }
 
     protected abstract Task PlayVideoOnSamePlaylistAsync_Internal(IVideoContent item, TimeSpan? startPosition = null);

@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
+using Hohoema.Contracts.Navigations;
 using Hohoema.Models.Application;
 using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Channel;
@@ -14,6 +15,7 @@ using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.PageNavigation;
 using Hohoema.Models.Pins;
 using Hohoema.Models.Playlist;
+using Hohoema.ViewModels;
 using I18NPortable;
 using Microsoft.Extensions.Logging;
 using NiconicoToolkit.Channels;
@@ -29,55 +31,6 @@ using System.Reactive.Concurrency;
 using ZLogger;
 
 namespace Hohoema.Services.Navigations;
-
-public readonly struct PageNavigationEventArgs
-{
-    public PageNavigationEventArgs(
-        string pageName,
-        INavigationParameters? parameters = null,
-        bool isMainViewTarget = true,
-        NavigationStackBehavior behavior = NavigationStackBehavior.Push
-        )
-    {
-        PageName = pageName;
-        Paramter = parameters;
-        IsMainViewTarget = isMainViewTarget;
-        Behavior = behavior;
-    }
-
-    public readonly string PageName;
-    public readonly INavigationParameters? Paramter;
-    public readonly bool IsMainViewTarget;
-    public readonly NavigationStackBehavior Behavior;
-}
-
-public enum NavigationStackBehavior
-{
-    Push,
-    Root,
-    NotRemember,
-}
-
-public class NavigationAsyncRequestMessage : AsyncRequestMessage<INavigationResult>
-{
-    public NavigationAsyncRequestMessage(PageNavigationEventArgs navigationRequest)
-    {
-        NavigationRequest = navigationRequest;
-    }
-
-    public NavigationAsyncRequestMessage(
-        string pageName,
-        INavigationParameters? parameters = null,
-        bool isMainViewTarget = true,
-        NavigationStackBehavior behavior = NavigationStackBehavior.Push
-        )
-    {
-        NavigationRequest = new (pageName, parameters, isMainViewTarget, behavior);
-    }
-
-    public PageNavigationEventArgs NavigationRequest { get; }
-}
-
 
 public class PageManager : ObservableObject
 {

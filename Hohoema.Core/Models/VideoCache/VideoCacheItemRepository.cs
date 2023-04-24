@@ -99,6 +99,6 @@ public sealed class VideoCacheItemRepository
 
     public int GetTotalCount()
     {
-        return _videoCacheDbService.Count();
+        return _videoCacheDbService.CountSafe();
     }
 }

@@ -1,7 +1,7 @@
 ﻿#nullable enable
 using Hohoema.Models.PageNavigation;
 
-namespace Hohoema.Contracts.Services.Navigations;
+namespace Hohoema.Contracts.Navigations;
 
 public interface IPageNavigatable
 {

@@ -8,33 +8,33 @@ using UnitGenerator;
 namespace Hohoema.Contracts.Subscriptions;
 
 [UnitOf(typeof(ObjectId), UnitGenerator.UnitGenerateOptions.Comparable)]
-public readonly partial struct SusbcriptionId
+public readonly partial struct SubscriptionId
 {
-    public static SusbcriptionId NewObjectId()
+    public static SubscriptionId NewObjectId()
     {
-        return new SusbcriptionId(ObjectId.NewObjectId());
+        return new SubscriptionId(ObjectId.NewObjectId());
     }
 
-    public static SusbcriptionId Parse(string s)
+    public static SubscriptionId Parse(string s)
     {
-        return new SusbcriptionId(new LiteDB.ObjectId(s));
+        return new SubscriptionId(new LiteDB.ObjectId(s));
     }
 
-    public static bool TryParse(string value, out SusbcriptionId result)
+    public static bool TryParse(string value, out SubscriptionId result)
     {
         if (string.IsNullOrEmpty(value))
         {
-            result = default(SusbcriptionId);
+            result = default(SubscriptionId);
             return false;
         }
         else if (value.Length != 24)
         {
-            result = default(SusbcriptionId);
+            result = default(SubscriptionId);
             return false;
         }
         else
         {
-            result = new SusbcriptionId(new ObjectId(value));
+            result = new SubscriptionId(new ObjectId(value));
             return true;
         }
     }

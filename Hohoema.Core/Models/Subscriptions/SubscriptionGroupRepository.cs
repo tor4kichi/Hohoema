@@ -76,7 +76,7 @@ public sealed class SubscriptionGroup : IComparable<SubscriptionGroup>, IEquatab
     public int Order { get; set; } = 0;
 
     [BsonIgnore]
-    public bool IsInvalidId => GroupId == SubscriptionGroupId.DefaultGroupId;
+    public bool IsDefaultGroup => GroupId == SubscriptionGroupId.DefaultGroupId;
 
     [BsonCtor]
     public SubscriptionGroup(SubscriptionGroupId _id, string name)

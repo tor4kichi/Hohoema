@@ -1,7 +1,7 @@
 ﻿#nullable enable
 using System;
 
-namespace Hohoema.Contracts.Services.Navigations;
+namespace Hohoema.Contracts.Navigations;
 
 public interface IViewLocator
 {

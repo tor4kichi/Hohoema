@@ -21,6 +21,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -40,6 +41,7 @@ public sealed class BackupManager
 {
     private readonly LocalMylistRepository _playlistRepository;
     private readonly SubscriptionRegistrationRepository _subscriptionRegistrationRepository;
+    private readonly SubscriptionGroupRepository _subscriptionGroupRepository;
     private readonly PinSettings _pinSettings;
     private readonly VideoRankingSettings _videoRankingSettings;
     private readonly VideoFilteringSettings _videoFilteringSettings;
@@ -54,6 +56,7 @@ public sealed class BackupManager
 
     public BackupManager(LocalMylistRepository playlistRepository,
         SubscriptionRegistrationRepository subscriptionRegistrationRepository,
+        SubscriptionGroupRepository subscriptionGroupRepository,
         PinSettings pinSettings,
         VideoRankingSettings videoRankingSettings,
         VideoFilteringSettings videoFilteringSettings,
@@ -65,6 +68,7 @@ public sealed class BackupManager
     {
         _playlistRepository = playlistRepository;
         _subscriptionRegistrationRepository = subscriptionRegistrationRepository;
+        _subscriptionGroupRepository = subscriptionGroupRepository;
         _pinSettings = pinSettings;
         _videoRankingSettings = videoRankingSettings;
         _videoFilteringSettings = videoFilteringSettings;
@@ -78,7 +82,7 @@ public sealed class BackupManager
             PropertyNameCaseInsensitive = true,
             Converters =
             {
-                new JsonStringEnumMemberConverter(),
+                new JsonStringEnumMemberConverter()
             }
         };
     }
@@ -111,7 +115,17 @@ public sealed class BackupManager
                         SubscriptionSourceType.SearchWithTag => BackupSusbcriptionSourceType.SearchWithTag,
                         _ => throw new NotSupportedException()
                     },
-                    SourceParameter = x.SourceParameter
+                    SourceParameter = x.SourceParameter,
+                    GroupId = x.Group?.GroupId.ToString()
+                })
+                .ToArray(),
+            SubscriptionGroupItems = _subscriptionGroupRepository.ReadAllItems()
+                .Where(x => x.GroupId != SubscriptionGroupId.DefaultGroupId)
+                .Select(x => new SubscriptionGroupBackupEntry()
+                {
+                    GroupId = x.GroupId.ToString(),
+                    Label = x.Name,
+                    Order = x.Order,
                 })
                 .ToArray(),
             PinItems = _pinSettings.ReadAllItems()
@@ -240,6 +254,30 @@ public sealed class BackupManager
 
     public void RestoreSubscription(BackupContainer backup)
     {
+        if (backup.SubscriptionGroupItems == null) { return; }
+
+        Dictionary<SubscriptionGroupId, SubscriptionGroup> groupMaps 
+            = _subscriptionGroupRepository.ReadAllItems().ToDictionary(x => x.GroupId);
+        foreach (var groupBackup in backup.SubscriptionGroupItems)
+        {
+            if (groupBackup.GroupId == null) { continue; }
+
+            var groupId = SubscriptionGroupId.Parse(groupBackup.GroupId);
+            if (groupMaps.ContainsKey(groupId))
+            {
+                continue;
+            }
+
+            if (groupId == SubscriptionGroupId.DefaultGroupId)
+            {
+                continue;
+            }
+
+            var restoreGroup = new SubscriptionGroup(groupId, groupBackup.Label) { Order = groupBackup.Order };
+            _subscriptionGroupRepository.CreateItem(restoreGroup);
+            groupMaps.Add(restoreGroup.GroupId, restoreGroup);
+        }
+
         if (backup.SubscriptionItems == null) { return; }
 
         List<Subscription> items = _subscriptionRegistrationRepository.ReadAllItems();
@@ -256,18 +294,28 @@ public sealed class BackupManager
                 _ => throw new NotSupportedException()
             };
 
+            // ObjectIdのパースが死んでるのでパラメータで同値判定してる
             if (items.Any(x => x.SourceType == sourceType && x.SourceParameter == s.SourceParameter)) { continue; }
 
-            Subscription entity = new()
+            // GroupIdに該当アイテムが無い場合はグループ無指定のまま処理する
+            SubscriptionGroup? group = null;
+            if (s.GroupId != null)
             {
-                SubscriptionId = s.Id is not null ? new SusbcriptionId(s.Id) : SusbcriptionId.NewObjectId(),
-                Label = s.Label,
-                SourceType = sourceType,
-                SourceParameter = s.SourceParameter,
-                IsEnabled = true,
-            };
+                groupMaps.TryGetValue(SubscriptionGroupId.Parse(s.GroupId), out group);
+            }
+
+            Subscription entity = new(SubscriptionId.NewObjectId(), s.SortIndex ?? 0, s.Label, sourceType, s.SourceParameter, true, false, group, true);
 
             _ = _subscriptionRegistrationRepository.UpdateItem(entity);
+        }
+
+        // v1.5.4以前のバックアップデータにはSortIndexを含めていなかったので
+        // 古いバックアップデータに備えて並び順を再指定しておく
+        int index = 0;
+        foreach (var source in _subscriptionRegistrationRepository.ReadAllItems().OrderBy(x => x.SortIndex).ThenBy(x => x.Label).ToArray())
+        {
+            source.SortIndex = index++;
+            _subscriptionRegistrationRepository.UpdateItem(source);
         }
     }
 
@@ -507,6 +555,9 @@ public sealed class BackupContainer
 
     [JsonPropertyName("subscriptions")]
     public SubscriptionBackupEntry[] SubscriptionItems { get; set; }
+    
+    [JsonPropertyName("subscriptionGroups")]
+    public SubscriptionGroupBackupEntry[] SubscriptionGroupItems { get; set; }
 
     [JsonPropertyName("pins")]
     public PinBackupEntry[] PinItems { get; set; }
@@ -544,7 +595,6 @@ public sealed class LocalMylistBackupEntry
     public string[] VideoIdList { get; set; }
 }
 
-
 public sealed class SubscriptionBackupEntry
 {
     [JsonPropertyName("id")]
@@ -558,6 +608,24 @@ public sealed class SubscriptionBackupEntry
 
     [JsonPropertyName("parameter")]
     public string SourceParameter { get; set; }
+
+    [JsonPropertyName("groupId")]
+    public string? GroupId { get; set; }
+
+    [JsonPropertyName("sortIndex")]
+    public int? SortIndex { get; set; } 
+}
+
+public sealed class SubscriptionGroupBackupEntry
+{
+    [JsonPropertyName("groupId")]
+    public string GroupId { get; set; }
+
+    [JsonPropertyName("label")]
+    public string Label { get; set; }
+
+    [JsonPropertyName("order")]
+    public int Order { get; set; }
 }
 
 public enum BackupSusbcriptionSourceType

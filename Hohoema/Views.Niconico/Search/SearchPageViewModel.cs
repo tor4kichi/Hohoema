@@ -90,7 +90,7 @@ public class SearchPageViewModel : HohoemaPageViewModelBase, ITitleUpdatablePage
 						SearchHistoryItems.Clear();
 						OnPropertyChanged(nameof(SearchHistoryItems));
 					},
-					() => _searchHistoryRepository.Count() > 0
+					() => _searchHistoryRepository.CountSafe() > 0
 					));
 			}
 		}

@@ -44,10 +44,9 @@ public interface ISelectionDialogService
         T? initialSelectItem,
         string displayMemberPath,
         string dialogTitle,
-        string dialogPrimaryButtonText,
-        string? dialogSecondaryButtonText = null,
-        Func<Task<T>>? SecondaryButtonAction = null,
+        string primaryButtonText,
+        string? secondaryButtonText = null,
+        Func<Task<T>>? secondaryButtonAction = null,
         Func<T, string, bool>? filter = null
-
         );
 }

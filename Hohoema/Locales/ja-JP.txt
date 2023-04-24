@@ -36,6 +36,7 @@ Select = 選択
 WatchVideo = 視聴する
 Preview = 前
 Next = 次
+ViewList = リストを表示
 
 
 #### Hohoema App ####
@@ -93,7 +94,7 @@ HohoemaPageType.SearchResultMylist = マイリスト検索
 HohoemaPageType.SearchResultTag = タグ検索
 HohoemaPageType.Settings = 設定
 HohoemaPageType.Splash = 起動画面
-HohoemaPageType.Subscription = 新着動画
+HohoemaPageType.Subscription = 購読管理
 HohoemaPageType.SubscVideoList = 新着動画一覧
 HohoemaPageType.Timeshift = タイムシフト
 HohoemaPageType.UserInfo = ユーザー情報
@@ -106,7 +107,7 @@ HohoemaPageType.WatchHistory = 視聴履歴
 HohoemaPageType.LocalPlaylist = プレイリスト
 HohoemaPageType.Mylist = マイリスト
 HohoemaPageType.VideoQueue = キュー
-HohoemaPageType.SubscriptionManagement = 新着動画
+HohoemaPageType.SubscriptionManagement = 購読管理
 HohoemaPageType.OwnerMylistManage = マイリスト管理
 HohoemaPageType.LocalPlaylistManage = ローカルマイリスト管理
 
@@ -192,6 +193,9 @@ CacheVideo_ToastNotification_CacheDelete = 削除
 
 
 #### Subscription ####
+SubscriptionNewVideos = 新着動画
+SubscriptionGroup = 購読グループ
+
 SubscriptionAdd = 新着チェックに追加
 SubscriptionAddUserVideos = 投稿者動画を新着チェックに追加
 SubscriptionAddSeries = シリーズを購読に追加
@@ -201,24 +205,30 @@ SubscriptionSourceType.Channel = チャンネル
 SubscriptionSourceType.Mylist = マイリスト
 SubscriptionSourceType.TagSearch = タグ検索
 SubscriptionSourceType.KeywordSearch = キーワード検索
+SubscriptionSourceType.Series = シリーズ
 
 SubscriptionsAutoUpdateRunning = 自動更新
 SubscriptionsNextUpdateTime = 次回更新
 SubscriptionsAutoNotUpdateRunning = 自動更新 停止中
+SubscriptionsPrevUpdateTime = 前回更新
 
 StopSubscribe? = 新着チェックをやめていいですか？
 StopSubscribe = 新着チェックをやめる
 
 OpenSubscriptionSourceVideoList = 動画一覧を開く
-ReorderSubsciprionSource_Move = 移動
-ReorderSubsciprionSource_MovePreview = 一つ上へ移動
-ReorderSubsciprionSource_MoveNext = 一つ下へ移動
-ReorderSubsciprionSource_MoveToHead = 先頭へ移動
+ReorderSubsciprionSource_Move = 並び順の変更...
+ReorderSubsciprionSource_MovePreview = 一つ前へ移動
+ReorderSubsciprionSource_MoveNext = 一つ後ろへ移動
+ReorderSubsciprionSource_MoveToHead = 最前へ移動
 ReorderSubsciprionSource_MoveToTail = 最後尾へ移動
 
-Notification_SuccessAddSubscriptionSourceWithLabel = 「{0}」を新着チェックに追加しました。\n今後、新着動画が「あとで見る」に追加されます。
+Notification_SuccessAddSubscriptionSourceWithLabel = 「{0}」を新着チェックに追加しました
 Notification_FailedSubscriptionUpdate = 新着動画の更新に失敗しました
-Notification_SuccessAddToWatchLaterWithAddedCount = 新着動画 {0} 件を あとで見る に追加しました
+Notification_SuccessAddToWatchLaterWithAddedCount = 新着動画 {0} 件を キュー に追加しました
+SubscNotification_SampleVideosHeader = 新着動画が見つかりました
+VideosWithCount = {0} 動画
+
+
 
 SubscGroup_DefaultGroupName = デフォルト
 AddSubscriptionGroup_InputSubscGroupName_Title = 購読グループ名を決める
@@ -226,11 +236,27 @@ SubscGroup_CreateGroup = 購読グループを作成
 SubscGroup_ContextMenuItemTitle = 購読グループを変更
 SubscGroup_SelectGroup = 購読グループを選択
 SubscGroup_Rename = 購読グループのリネーム
-SubscGroup_DeleteComfirmDialogContent = 購読グループを削除しても、購読に設定しているグループは「デフォルト」に変更されるため安全に削除できます。\n削除してもよろしいですか？
-SubscGroup_DeleteComfirmDialogTitle = {0} のグループを削除してもいい？
+SubscGroup_DeleteComfirmDialogContent = 現在、グループを指定している購読は自動的に「デフォルト」に変更されます。
+SubscGroup_DeleteComfirmDialogTitle = {0} のグループを削除しますか？？
 
-VideoNoItem = 表示できる動画はありません
+SubscGroupVideosAllCheckedWithSubscGroupTitle = {0} の動画はすべてチェック済み
+SubscVideosDisplayChecked = チェック済みも表示
+SubscVideos_MarkAsCheckedWithDays = {0} 日前までチェック済み
+SubscVideos_MarkAsChecked = チェック済みにマーク
+SubscVideos_AllMarkAsChecked = すべてチェック済みにマーク
+Subsc_UnwatchedVideoCount = 新着 {0}動画
 
+SubscGroupSettings_Title = 購読グループ名
+SubscGroupSettings = 表示と通知の設定
+SubscGroupSettings_Notification = 新着を通知する
+SubscGroupSettings_AddToQueue = 新着をキューに追加
+SubscGroupSettings_ShowAppMenu = グループをメニューに表示
+
+SubscGroup_PlayFromHere = ここから視聴する
+SubscGroup_AllPlayUnwatched = 新着動画を再生
+SubscGroup_AddToQueue = キューに追加
+
+SubscVideos_ShowAllSubsc = すべて表示
 
 
 

@@ -8,7 +8,7 @@ using UnitGenerator;
 
 namespace Hohoema.Contracts.Subscriptions;
 
-[UnitOf(typeof(ObjectId), UnitGenerateOptions.Comparable)]
+[UnitOf(typeof(ObjectId), UnitGenerateOptions.Comparable | UnitGenerateOptions.JsonConverter)]
 public readonly partial struct SubscriptionGroupId
 {
     public static readonly SubscriptionGroupId DefaultGroupId = new SubscriptionGroupId(ObjectId.Empty);

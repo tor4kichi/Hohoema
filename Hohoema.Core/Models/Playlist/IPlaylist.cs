@@ -67,3 +67,8 @@ public interface ISortablePlaylist : IPlaylist
 public interface IUserManagedPlaylist : ISortablePlaylist, INotifyCollectionChanged
 {
 }
+
+public interface IPlaylistItemWatchedAware
+{
+    void OnVideoWatched(IVideoContent video);
+}

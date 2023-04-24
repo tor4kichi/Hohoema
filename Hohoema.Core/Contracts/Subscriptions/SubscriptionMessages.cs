@@ -16,9 +16,9 @@ public sealed class SubscriptionAddedMessage : ValueChangedMessage<Subscription>
     }
 }
 
-public sealed class SubscriptionDeletedMessage : ValueChangedMessage<SusbcriptionId>
+public sealed class SubscriptionDeletedMessage : ValueChangedMessage<SubscriptionId>
 {
-    public SubscriptionDeletedMessage(SusbcriptionId value) : base(value)
+    public SubscriptionDeletedMessage(SubscriptionId value) : base(value)
     {
     }
 }
@@ -28,4 +28,25 @@ public sealed class SubscriptionUpdatedMessage : ValueChangedMessage<Subscriptio
     public SubscriptionUpdatedMessage(Subscription value) : base(value)
     {
     }
+}
+
+
+public sealed class SubscriptionGroupMovedMessage : ValueChangedMessage<Subscription>
+{
+    public SubscriptionGroupMovedMessage(Subscription value) : base(value)
+    {
+    }
+
+    public SubscriptionGroupId LastGroupId { get; init; }
+    public SubscriptionGroupId CurrentGroupId { get; init; }
+}
+
+public sealed class SubscriptionCheckedAtChangedMessage : ValueChangedMessage<SubscriptionUpdate>
+{
+    public SubscriptionCheckedAtChangedMessage(SubscriptionUpdate value, SubscriptionGroupId subscriptionGroupId) : base(value)
+    {
+        SubscriptionGroupId = subscriptionGroupId;
+    }
+
+    public SubscriptionGroupId SubscriptionGroupId { get; }
 }

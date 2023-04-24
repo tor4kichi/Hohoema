@@ -193,6 +193,8 @@ public sealed class LocalPlaylist : ObservableObject, IUserManagedPlaylist
     }
 
 
+ 
+
     public event NotifyCollectionChangedEventHandler CollectionChanged;
 
     public void AddPlaylistItem(IVideoContent video)

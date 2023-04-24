@@ -5,7 +5,6 @@ using System.Text.Json;
 
 namespace Hohoema.Infra;
 
-[Obsolete]
 public class SystemTextJsonSerializer : IObjectSerializer
 {
     private static readonly JsonSerializerOptions _jsonSerializerOptions = new()
@@ -16,7 +15,7 @@ public class SystemTextJsonSerializer : IObjectSerializer
         }
     };
 
-    public T Deserialize<T>(object value)
+    public T? Deserialize<T>(object value)
     {
         return value switch
         {

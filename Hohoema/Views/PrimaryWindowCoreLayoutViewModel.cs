@@ -10,6 +10,7 @@ using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Mylist.LoginUser;
 using Hohoema.Models.PageNavigation;
 using Hohoema.Models.Pins;
+using Hohoema.Models.Playlist;
 using Hohoema.Models.Subscriptions;
 using Hohoema.Services;
 using Hohoema.Services.LocalMylist;
@@ -33,6 +34,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.Storage;
 using Windows.System;
@@ -63,6 +65,7 @@ public partial class PrimaryWindowCoreLayoutViewModel : ObservableObject, IRecip
     public VideoItemsSelectionContext VideoItemsSelectionContext { get; }
     private readonly LoginUserOwnedMylistManager _userMylistManager;
     private readonly LocalMylistManager _localMylistManager;
+    private readonly QueuePlaylist _queuePlaylist;
     private readonly SubscriptionManager _subscriptionManager;
 
     public OpenLiveContentCommand OpenLiveContentCommand { get; }
@@ -70,7 +73,7 @@ public partial class PrimaryWindowCoreLayoutViewModel : ObservableObject, IRecip
     private readonly ILogger _logger;
     private readonly IMessenger _messenger;
     private readonly DialogService _dialogService;
-    private readonly NotificationService _notificationService;
+    private readonly INotificationService _notificationService;
 
     public ObservableCollection<SearchAutoSuggestItemViewModel> SearchAutoSuggestItems { get; }
 
@@ -84,14 +87,14 @@ public partial class PrimaryWindowCoreLayoutViewModel : ObservableObject, IRecip
 
     public PrimaryWindowCoreLayoutViewModel(
         IMessenger messenger,
-        ILoggerFactory loggerFactory,
+        ILoggerFactory loggerFactory,        
         NiconicoSession niconicoSession,
         PageManager pageManager,
         PinSettings pinSettings,
         AppearanceSettings appearanceSettings,
         SearchCommand searchCommand,
         DialogService dialogService,
-        NotificationService notificationService,
+        INotificationService notificationService,
         PrimaryViewPlayerManager primaryViewPlayerManager,
         ObservableMediaPlayer observableMediaPlayer,
         NiconicoLoginService niconicoLoginService,
@@ -102,6 +105,7 @@ public partial class PrimaryWindowCoreLayoutViewModel : ObservableObject, IRecip
         QueueMenuItemViewModel queueMenuItemViewModel,
         LoginUserOwnedMylistManager userMylistManager,
         LocalMylistManager localMylistManager,
+        QueuePlaylist queuePlaylist,
         OpenLiveContentCommand openLiveContentCommand,
         SubscriptionManager subscriptionManager
         )
@@ -147,6 +151,7 @@ public partial class PrimaryWindowCoreLayoutViewModel : ObservableObject, IRecip
         _queueMenuItemViewModel = queueMenuItemViewModel;
         _userMylistManager = userMylistManager;
         _localMylistManager = localMylistManager;
+        _queuePlaylist = queuePlaylist;
         OpenLiveContentCommand = openLiveContentCommand;
         _subscriptionManager = subscriptionManager;
         _pinsMenuSubItemViewModel = new PinsMenuSubItemViewModel("Pin".Translate(), PinSettings, _dialogService, _notificationService, loggerFactory.CreateLogger<PinsMenuSubItemViewModel>());
@@ -160,7 +165,7 @@ public partial class PrimaryWindowCoreLayoutViewModel : ObservableObject, IRecip
             _queueMenuItemViewModel,
             new NavigateAwareMenuItemViewModel(HohoemaPageType.RankingCategoryList.Translate(), HohoemaPageType.RankingCategoryList),
             new NavigateAwareMenuItemViewModel(HohoemaPageType.NicoRepo.Translate(), HohoemaPageType.NicoRepo, new NavigationParameters("type=Video")),
-            new SubscriptionMenuItemViewModel(_messenger, _subscriptionManager),
+            new SubscriptionMenuItemViewModel(_messenger, _subscriptionManager, _queuePlaylist, _notificationService),
             //new NavigateAwareMenuItemViewModel("WatchAfterMylist".Translate(), HohoemaPageType.Mylist, new NavigationParameters(("id", MylistId.WatchAfterMylistId.ToString()))),
             new MylistSubMenuMenu(_userMylistManager, PageManager.OpenPageCommand),
             _localMylistMenuSubItemViewModel,
@@ -180,7 +185,7 @@ public partial class PrimaryWindowCoreLayoutViewModel : ObservableObject, IRecip
             _queueMenuItemViewModel,
             new NavigateAwareMenuItemViewModel(HohoemaPageType.RankingCategoryList.Translate(), HohoemaPageType.RankingCategoryList),
             _localMylistMenuSubItemViewModel,
-            new SubscriptionMenuItemViewModel(_messenger, _subscriptionManager),
+            new SubscriptionMenuItemViewModel(_messenger, _subscriptionManager, _queuePlaylist, _notificationService),
             new NavigateAwareMenuItemViewModel(HohoemaPageType.CacheManagement.Translate(), HohoemaPageType.CacheManagement),
         };
 
@@ -321,10 +326,10 @@ public partial class PinsMenuSubItemViewModel : MenuSubItemViewModelBase
 {
     private readonly PinSettings _pinSettings;
     private readonly DialogService _dialogService;
-    private readonly NotificationService _notificationService;
+    private readonly INotificationService _notificationService;
     private readonly ILogger<PinsMenuSubItemViewModel> _logger;
 
-    public PinsMenuSubItemViewModel(string label,  PinSettings pinSettings, DialogService dialogService, NotificationService notificationService, ILogger<PinsMenuSubItemViewModel> logger)
+    public PinsMenuSubItemViewModel(string label,  PinSettings pinSettings, DialogService dialogService, INotificationService notificationService, ILogger<PinsMenuSubItemViewModel> logger)
     {
         Label = label;
 
@@ -1008,35 +1013,55 @@ public sealed class LiveContentMenuItemViewModel : HohoemaListingPageItemBase, M
 }
 
 
-public sealed class SubscriptionMenuItemViewModel 
-    : NavigateAwareMenuItemViewModel
+public sealed partial class SubscriptionMenuItemViewModel 
+    : MenuItemViewModel
     , IRecipient<SubscriptionGroupCreatedMessage>
+    , IRecipient<SubscriptionGroupUpdatedMessage>
     , IRecipient<SubscriptionGroupDeletedMessage>
     , IRecipient<SubscriptionGroupReorderedMessage>
+    , IRecipient<SettingsRestoredMessage>
+    , IRecipient<SubscriptionFeedUpdatedMessage>
+    , IRecipient<SubscriptionCheckedAtChangedMessage>
+    , IRecipient<SubscriptionGroupPropsChangedMessage>
     , IDisposable
 {
     private readonly IMessenger _messenger;
     private readonly SubscriptionManager _subscriptionManager;
+    private readonly QueuePlaylist _queuePlaylist;
+    private readonly INotificationService _notificationService;
 
-    public ObservableCollection<SubscriptionGroupNavigateAwareMenuItemViewModel> SubscGroups { get; }
+    public ObservableCollection<SubscriptionGroupMenuItemViewModel> SubscGroups { get; }
 
-    public SubscriptionMenuItemViewModel(IMessenger messenger, SubscriptionManager subscriptionManager) 
-        : base(HohoemaPageType.SubscriptionManagement.Translate(), HohoemaPageType.SubscriptionManagement)
+    public SubscriptionMenuItemViewModel(
+        IMessenger messenger, 
+        SubscriptionManager subscriptionManager,
+        QueuePlaylist queuePlaylist,
+        INotificationService notificationService
+        ) 
+        : base("SubscriptionNewVideos".Translate())
     {
         _messenger = messenger;
         _subscriptionManager = subscriptionManager;
+        _queuePlaylist = queuePlaylist;
+        _notificationService = notificationService;
         SubscGroups = new (
             new[] 
             {
-                new SubscriptionGroup(SubscriptionGroupId.DefaultGroupId, "SubscGroup_DefaultGroupName".Translate()),
+                _subscriptionManager.DefaultSubscriptionGroup,
             }
-            .Concat(_subscriptionManager.GetSubscGroups())
+            .Concat(_subscriptionManager.GetSubscriptionGroups())
+            .Where(group => _subscriptionManager.GetSubscriptionGroupProps(group.GroupId).IsShowInAppMenu)
             .Select(ToMenuItemVM)
             );
 
         _messenger.Register<SubscriptionGroupCreatedMessage>(this);
+        _messenger.Register<SubscriptionGroupUpdatedMessage>(this); 
         _messenger.Register<SubscriptionGroupDeletedMessage>(this);
         _messenger.Register<SubscriptionGroupReorderedMessage>(this);
+        _messenger.Register<SettingsRestoredMessage>(this);
+        _messenger.Register<SubscriptionFeedUpdatedMessage>(this);
+        _messenger.Register<SubscriptionCheckedAtChangedMessage>(this);
+        _messenger.Register<SubscriptionGroupPropsChangedMessage>(this);
     }
 
     protected override void OnDispose()
@@ -1044,44 +1069,187 @@ public sealed class SubscriptionMenuItemViewModel
         base.OnDispose();
 
         _messenger.Unregister<SubscriptionGroupCreatedMessage>(this);
+        _messenger.Unregister<SubscriptionGroupUpdatedMessage>(this);
         _messenger.Unregister<SubscriptionGroupDeletedMessage>(this);
         _messenger.Unregister<SubscriptionGroupReorderedMessage>(this);
+        _messenger.Unregister<SettingsRestoredMessage>(this);
+        _messenger.Unregister<SubscriptionFeedUpdatedMessage>(this);
+        _messenger.Unregister<SubscriptionCheckedAtChangedMessage>(this);
+        _messenger.Unregister<SubscriptionGroupPropsChangedMessage>(this);
     }
 
-    SubscriptionGroupNavigateAwareMenuItemViewModel ToMenuItemVM(SubscriptionGroup group)
+    SubscriptionGroupMenuItemViewModel ToMenuItemVM(SubscriptionGroup group)
     {
-        return new SubscriptionGroupNavigateAwareMenuItemViewModel(
-            group.GroupId, group.Name, HohoemaPageType.SubscVideoList, new NavigationParameters(("SubscGroupId", group.GroupId.ToString()))
-            );
+        return new SubscriptionGroupMenuItemViewModel(
+            group.GroupId, _messenger, _subscriptionManager, _queuePlaylist, _notificationService, group.Name, HohoemaPageType.SubscVideoList, new NavigationParameters(("SubscGroupId", group.GroupId.ToString()))
+            )
+        {
+            NewVideoCount = _subscriptionManager.GetFeedVideosCountWithNewer(group.GroupId)
+        };
     }
+
+
+    void ResetSubscGroupMenuItems()
+    {
+        SubscGroups.Clear();
+        foreach (var group in new[] { _subscriptionManager.DefaultSubscriptionGroup }.Concat(_subscriptionManager.GetSubscriptionGroups()))
+        {
+            if (_subscriptionManager.GetSubscriptionGroupProps(group.GroupId).IsShowInAppMenu is false)
+            {
+                continue;
+            }
+
+            SubscGroups.Add(ToMenuItemVM(group));
+        }
+    }
+
 
     void IRecipient<SubscriptionGroupCreatedMessage>.Receive(SubscriptionGroupCreatedMessage message)
     {
-        SubscGroups.Add(ToMenuItemVM(message.Value));
+        var group = message.Value;
+        if (_subscriptionManager.GetSubscriptionGroupProps(group.GroupId).IsShowInAppMenu is false)
+        {
+            return;
+        }
+
+        SubscGroups.Add(ToMenuItemVM(group));
+    }
+
+
+    void IRecipient<SubscriptionGroupUpdatedMessage>.Receive(SubscriptionGroupUpdatedMessage message)
+    {
+        foreach (var subscGroupVM in SubscGroups)
+        {
+            if (subscGroupVM.GroupId == message.Value.GroupId)
+            {
+                subscGroupVM.Label = message.Value.Name;
+                break;
+            }
+        }
     }
 
     void IRecipient<SubscriptionGroupDeletedMessage>.Receive(SubscriptionGroupDeletedMessage message)
     {
-        var groupMenuItem = SubscGroups.First(x => x.GroupId == message.Value.GroupId);
-        SubscGroups.Remove(groupMenuItem);
+        var groupMenuItem = SubscGroups.FirstOrDefault(x => x.GroupId == message.Value.GroupId);
+        if (groupMenuItem != null)
+        {
+            SubscGroups.Remove(groupMenuItem);
+        }
     }
 
     void IRecipient<SubscriptionGroupReorderedMessage>.Receive(SubscriptionGroupReorderedMessage message)
-    {        
-        SubscGroups.Clear();
-        foreach (var group in message.Value)
+    {
+        ResetSubscGroupMenuItems();
+    }
+
+    void IRecipient<SettingsRestoredMessage>.Receive(SettingsRestoredMessage message)
+    {
+        ResetSubscGroupMenuItems();
+    }
+
+    [RelayCommand]
+    void OpenSubscriptionGroupManagementPage()
+    {
+        _ = _messenger.SendNavigationRequestAsync(HohoemaPageType.SubscriptionManagement);
+    }
+
+    void IRecipient<SubscriptionFeedUpdatedMessage>.Receive(SubscriptionFeedUpdatedMessage message)
+    {
+        SubscriptionGroupId updateGroupId = message.Value.Subscription.Group?.GroupId ?? _subscriptionManager.DefaultSubscriptionGroup.GroupId;
+        foreach (var groupMenuItem in SubscGroups)
         {
-            SubscGroups.Add(ToMenuItemVM(group));
+            if (groupMenuItem.GroupId == updateGroupId)
+            {
+                groupMenuItem.NewVideoCount = _subscriptionManager.GetFeedVideosCountWithNewer(updateGroupId);
+                break;
+            }
+        }        
+    }
+
+    void IRecipient<SubscriptionCheckedAtChangedMessage>.Receive(SubscriptionCheckedAtChangedMessage message)
+    {
+        SubscriptionGroupId updateGroupId = message.SubscriptionGroupId;
+        foreach (var groupMenuItem in SubscGroups)
+        {
+            if (groupMenuItem.GroupId == updateGroupId)
+            {
+                groupMenuItem.NewVideoCount = _subscriptionManager.GetFeedVideosCountWithNewer(updateGroupId);
+                break;
+            }
         }
+    }
+
+    void IRecipient<SubscriptionGroupPropsChangedMessage>.Receive(SubscriptionGroupPropsChangedMessage message)
+    {
+        ResetSubscGroupMenuItems();
     }
 }
 
-public sealed class SubscriptionGroupNavigateAwareMenuItemViewModel : NavigateAwareMenuItemViewModel
+public sealed partial class SubscriptionGroupMenuItemViewModel : NavigateAwareMenuItemViewModel
 {
-    public SubscriptionGroupNavigateAwareMenuItemViewModel(SubscriptionGroupId groupId, string label, HohoemaPageType pageType, INavigationParameters paramaeter = null) : base(label, pageType, paramaeter)
+    public SubscriptionGroupMenuItemViewModel(
+        SubscriptionGroupId groupId, 
+        IMessenger messenger,
+        SubscriptionManager subscriptionManager,
+        QueuePlaylist queuePlaylist,
+        INotificationService notificationService,
+        string label, 
+        HohoemaPageType pageType, 
+        INavigationParameters paramaeter = null
+        ) : base(label, pageType, paramaeter)
     {
         GroupId = groupId;
+        _messenger = messenger;
+        _subscriptionManager = subscriptionManager;
+        _queuePlaylist = queuePlaylist;
+        _notificationService = notificationService;
     }
 
+    private readonly IMessenger _messenger;
+    private readonly SubscriptionManager _subscriptionManager;
+    private readonly QueuePlaylist _queuePlaylist;
+    private readonly INotificationService _notificationService;
+
     public SubscriptionGroupId GroupId { get; }
+
+    [ObservableProperty]
+    private int _newVideoCount;
+
+    [RelayCommand]
+    async Task PlayNewVideos()
+    {
+        var video = _subscriptionManager.GetSubscFeedVideosNewerAt(GroupId, limit: 1).FirstOrDefault();
+        if (video != null)
+        {
+            await _messenger.Send(VideoPlayRequestMessage.PlayPlaylist(GroupId.ToString(), PlaylistItemsSourceOrigin.SubscriptionGroup, string.Empty, video.VideoId));
+        }
+    }
+
+    [RelayCommand]
+    void AddToQueueNewVideos()
+    {
+        int prevCount = _queuePlaylist.Count;
+        foreach (var video in _subscriptionManager.GetSubscFeedVideosNewerAt(GroupId))
+        {
+            _queuePlaylist.Add(video);
+        }
+
+        _subscriptionManager.UpdateSubscriptionCheckedAt(GroupId);
+
+        var subCount = _queuePlaylist.Count - prevCount;
+        if (0 < subCount)
+        {
+            _notificationService.ShowLiteInAppNotification("Notification_SuccessAddToWatchLaterWithAddedCount".Translate(subCount));
+        }
+
+    }
+
+    [RelayCommand]
+    async Task OpenSubscriptionGroupVideoListPage()
+    {
+        await _messenger.SendNavigationRequestAsync(HohoemaPageType.SubscVideoList,
+            new NavigationParameters(("SubscGroupId", GroupId.ToString()))
+            );
+    }
+
 }
