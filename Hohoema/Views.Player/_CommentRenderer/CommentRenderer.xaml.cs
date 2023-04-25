@@ -198,6 +198,25 @@ public sealed partial class CommentRenderer : UserControl
             , new PropertyMetadata(TimeSpan.Zero)
             );
 
+
+
+
+
+
+
+    public Predicate<IComment> CommentDisplayPredicate
+    {
+        get { return (Predicate<IComment>)GetValue(CommentDisplayPredicateProperty); }
+        set { SetValue(CommentDisplayPredicateProperty, value); }
+    }
+
+    // Using a DependencyProperty as the backing store for CommentDisplayPredicate.  This enables animation, styling, binding, etc...
+    public static readonly DependencyProperty CommentDisplayPredicateProperty =
+        DependencyProperty.Register("CommentDisplayPredicate", typeof(Predicate<IComment>), typeof(CommentRenderer), new PropertyMetadata(new Predicate<IComment>(static (IComment comment) => true)));
+
+
+
+
     #endregion
 
 
@@ -322,24 +341,6 @@ public sealed partial class CommentRenderer : UserControl
     }
 
 
-
-    class CommentRenderFrameData
-    {
-        public TimeSpan CurrentVpos { get; set; }// (uint)Math.Floor(VideoPosition.TotalMilliseconds * 0.1);
-        public int CanvasWidth { get; set; }// (int)CommentCanvas.ActualWidth;
-        public uint CanvasHeight { get; set; } //= (uint)CommentCanvas.ActualHeight;
-        public double HalfCanvasWidth { get; set; } //= canvasWidth / 2;
-        public float FontScale { get; set; } //= (float)CommentSizeScale;
-        public Color CommentDefaultColor { get; set; } //= CommentDefaultColor;
-        public Visibility Visibility { get; set; }
-        public TimeSpan CommentDisplayDuration { get; internal set; }
-        public float InverseCommentDisplayDurationInMs { get; internal set; }
-        public MediaPlaybackState PlaybackState { get; set; }
-        public float PlaybackRate { get; set; }
-        public float PlaybackRateInverse { get; set; }
-        public CancellationToken ScrollCommentAnimationCancelToken { get; set; }
-    }
-
     const int OWNER_COMMENT_Z_INDEX = 1;
 
     const float BaseCommentSizeRatioByCanvasHeight = 1.0f / 15.0f;
@@ -359,7 +360,7 @@ public sealed partial class CommentRenderer : UserControl
     /// テキストの影をどれだけずらすかの量
     /// 実際に使われるのはフォントサイズにTextBGOffsetBiasを乗算した値
     /// </summary>
-    const double TextBGOffsetBias = 0.15;
+    const float TextBGOffsetBias = 0.15f;
 
 
 
@@ -399,6 +400,7 @@ public sealed partial class CommentRenderer : UserControl
         Window.Current.SizeChanged += WindowSizeChanged;
 
         Clip = new RectangleGeometry() { Rect = new Rect() { Width = ActualWidth, Height = ActualHeight } };
+        _commentBaseScale = null;
         this.SizeChanged += CommentRenderer_SizeChanged;                
     }
 
@@ -454,6 +456,7 @@ public sealed partial class CommentRenderer : UserControl
     private void CommentRenderer_SizeChanged(object sender, SizeChangedEventArgs e)
     {
         Clip = new RectangleGeometry() { Rect = new Rect() { Width = ActualWidth, Height = ActualHeight } };
+        _commentBaseScale = null;
 
         Debug.WriteLine("CommentCanvas SizeChanged"); 
         
@@ -633,6 +636,26 @@ public sealed partial class CommentRenderer : UserControl
 
 
 
+    class CommentRenderFrameData
+    {
+        public TimeSpan CurrentVpos { get; set; }// (uint)Math.Floor(VideoPosition.TotalMilliseconds * 0.1);
+        public int CanvasWidth { get; set; }// (int)CommentCanvas.ActualWidth;
+        public uint CanvasHeight { get; set; } //= (uint)CommentCanvas.ActualHeight;
+        public double HalfCanvasWidth { get; set; } //= canvasWidth / 2;
+        public float FontScale { get; set; } //= (float)CommentSizeScale;
+        public float TextBGOffset { get; set; }
+        public Color CommentDefaultColor { get; set; } //= CommentDefaultColor;
+        public Visibility Visibility { get; set; }
+        public TimeSpan CommentDisplayDuration { get; internal set; }
+        public float InverseCommentDisplayDurationInMs { get; internal set; }
+        public MediaPlaybackState PlaybackState { get; set; }
+        public float PlaybackRate { get; set; }
+        public float PlaybackRateInverse { get; set; }
+        public CancellationToken ScrollCommentAnimationCancelToken { get; set; }
+        public Predicate<IComment>? CommentDisplayPredicate { get; set; }
+    }
+
+
     CommentRenderFrameData _frameData = new CommentRenderFrameData();
     private CommentRenderFrameData GetRenderFrameData(bool withUpdate = false)
     {
@@ -655,10 +678,12 @@ public sealed partial class CommentRenderer : UserControl
         _frameData.CanvasHeight = (uint)CommentCanvas.ActualHeight;
         _frameData.HalfCanvasWidth = CommentCanvas.ActualWidth * 0.5;
         _frameData.FontScale = (float)CommentSizeScale;
+        _frameData.TextBGOffset = (float)Math.Floor((float)FontSize * TextBGOffsetBias);
         _frameData.Visibility = Visibility;
         _frameData.PlaybackRate = (float)MediaPlayer.PlaybackSession.PlaybackRate;
         _frameData.PlaybackRateInverse = 1f / (float)MediaPlayer.PlaybackSession.PlaybackRate;
         _frameData.ScrollCommentAnimationCancelToken = GetScrollCommentAnimationCancellationToken();
+        _frameData.CommentDisplayPredicate = CommentDisplayPredicate;
     }
 
 
@@ -728,9 +753,11 @@ public sealed partial class CommentRenderer : UserControl
                 break;
         }
 
-        var baseSize = Math.Max(frame.CanvasHeight * BaseCommentSizeRatioByCanvasHeight, 24);
-        return baseSize * frame.FontScale * commentFontScale;
+        _commentBaseScale ??= Math.Max(frame.CanvasHeight * BaseCommentSizeRatioByCanvasHeight, 24);
+        return _commentBaseScale.Value * frame.FontScale * commentFontScale;
     }
+
+    static float? _commentBaseScale;
 
     
     private void AddCommentToCanvas(IComment comment, CommentRenderFrameData frame)
@@ -740,18 +767,11 @@ public sealed partial class CommentRenderer : UserControl
             var commentFontSize = CulcCommentFontSize(comment, frame);
 
             // コメントカラー
-            Color commentColor = default(Color);
-            if (comment.Color == null)
-            {
-                commentColor = frame.CommentDefaultColor;
-            }
-            else
-            {
-                commentColor = comment.Color.Value;
-            }
-
-            var textBGOffset = Math.Floor(FontSize * TextBGOffsetBias);
-
+            Color commentColor = comment.Color == null
+                ? frame.CommentDefaultColor
+                : comment.Color.Value
+                ;
+            
             var commentUI = _commentUIObjectPool.Get();
             {
                 commentUI.Comment = comment;
@@ -760,8 +780,8 @@ public sealed partial class CommentRenderer : UserControl
                 commentUI.BackTextColor = GetShadowColor(commentColor);
                 commentUI.VideoPosition = comment.VideoPosition;
                 commentUI.EndPosition = comment.VideoPosition + frame.CommentDisplayDuration;
-                commentUI.TextBGOffsetX = textBGOffset;
-                commentUI.TextBGOffsetY = textBGOffset;
+                commentUI.TextBGOffsetX = frame.TextBGOffset;
+                commentUI.TextBGOffsetY = frame.TextBGOffset;
                 commentUI.CommentFontSize = commentFontSize;
                 commentUI.IsVisible = !comment.IsInvisible;
                 commentUI.DisplayMode = comment.DisplayMode;
@@ -776,6 +796,11 @@ public sealed partial class CommentRenderer : UserControl
 
         // 表示区間を過ぎたコメントは表示しない
         if (comment.VideoPosition + frame.CommentDisplayDuration <= frame.CurrentVpos)
+        {
+            return;
+        }
+
+        if (_frameData.CommentDisplayPredicate?.Invoke(comment) is false)
         {
             return;
         }

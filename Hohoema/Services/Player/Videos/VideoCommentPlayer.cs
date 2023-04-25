@@ -36,7 +36,7 @@ public class VideoCommentPlayer : ObservableObject, IDisposable
     private readonly ILogger _logger;
     private readonly MediaPlayer _mediaPlayer;
 
-    public ObservableRangeCollection<IVideoComment> Comments { get; private set; }
+    public IVideoComment[] Comments { get; private set; }
     public ObservableRangeCollection<IVideoComment> DisplayingComments { get; } = new ();
     public ReactiveProperty<string> WritingComment { get; private set; }
     public ReactiveProperty<string> CommandText { get; private set; }
@@ -83,7 +83,7 @@ public class VideoCommentPlayer : ObservableObject, IDisposable
         _commentFiltering = commentFiltering;
         _notificationService = notificationService;
         _playerSettings = playerSettings;
-        Comments = new ();
+        Comments = Array.Empty<IVideoComment>();
 
         CommentSubmitCommand = new AsyncReactiveCommand()
             .AddTo(_disposables);
@@ -150,7 +150,59 @@ public class VideoCommentPlayer : ObservableObject, IDisposable
         _CommentUpdateTimer.Tick += _CommentUpdateTimer_Tick;
         _CommentUpdateTimer.Interval = TimeSpan.FromMilliseconds(50);
         _CommentUpdateTimer.IsRepeating = true;
+
+        CommentDisplayPredicate = (IComment comment) =>
+        {
+            bool EvaluationNicoScriptAndIsValidComment(IVideoComment comment)
+            {
+                if (comment.UserId == null)
+                {
+                    if (comment.DeletedFlag > 0)
+                    {
+                        return false;
+                    }
+
+                    try
+                    {
+                        if (TryAddNicoScript(comment))
+                        {
+                            // 投コメのニコスクリプトをスキップ
+                            return false;
+                        }
+                        else
+                        {
+                            return true;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.ZLogWarningWithPayload(e, new Dictionary<string, string>()
+                        {
+                             { "VideoId", _commentSession.ContentId },
+                            { "CommentText", comment.CommentText },
+                            { "Command", comment.GetJoinedCommandsText() },
+                            { "VideoPosition", comment.VideoPosition.ToString() },
+                        }, "CommentScript_ParseError Failed");
+                        return false;
+                    }
+                }
+                else
+                {
+                    return true;
+                }
+            }
+
+            IVideoComment videoComment = (comment as IVideoComment)!;
+            return EvaluationNicoScriptAndIsValidComment(videoComment)
+                && !IsHiddenCommentWithCache(videoComment)
+                ;
+        };
     }
+
+    public Predicate<IComment> CommentDisplayPredicate { get; }
+        
+
+
 
     void RefreshFiltering()
     {
@@ -202,7 +254,7 @@ public class VideoCommentPlayer : ObservableObject, IDisposable
 
         ClearNicoScriptState();
 
-        Comments.Clear();
+        Comments = Array.Empty<IVideoComment>();
         DisplayingComments.Clear();
 
         WritingComment.Value = string.Empty;
@@ -272,7 +324,6 @@ public class VideoCommentPlayer : ObservableObject, IDisposable
     }
 
     
-
     private async Task SubmitComment()
     {
         using var _lock = await _commentUpdateLock.LockAsync(default);
@@ -311,7 +362,8 @@ public class VideoCommentPlayer : ObservableObject, IDisposable
                     action(videoComment);
                 }
 
-                Comments.Add(videoComment);
+                Comments = Comments.Append(videoComment).ToArray();
+                Array.Sort(Comments, new VideoCommentPositionComparer());
 
                 ResetDisplayingComments(Comments);
             }
@@ -349,7 +401,7 @@ public class VideoCommentPlayer : ObservableObject, IDisposable
         // ニコスクリプトの状態を初期化
         ClearNicoScriptState();
 
-        Comments.Clear();
+        Comments = Array.Empty<IVideoComment>();
         DisplayingComments.Clear();
         HiddenCommentIds.Clear();
 
@@ -357,50 +409,78 @@ public class VideoCommentPlayer : ObservableObject, IDisposable
         {
             foreach (var comment in comments)
             {
-                if (comment.UserId == null)
+                if (EvaluationNicoScriptAndIsValidComment(comment))
                 {
-                    if (comment.DeletedFlag > 0) { continue; }
-                    try
+                    yield return comment;
+                }
+            }
+        }
+        
+        bool EvaluationNicoScriptAndIsValidComment(IVideoComment comment)
+        {
+            if (comment.UserId == null)
+            {
+                if (comment.DeletedFlag > 0) 
+                {
+                    return false;
+                }
+
+                try
+                {
+                    if (TryAddNicoScript(comment))
                     {
-                        if (TryAddNicoScript(comment))
-                        {
-                            // 投コメのニコスクリプトをスキップして
-                            continue;
-                        }
+                        // 投コメのニコスクリプトをスキップ
+                        return false;
                     }
-                    catch (Exception e)
+                    else
                     {
-                        _logger.ZLogWarningWithPayload(e, new Dictionary<string, string>()
+                        return true;
+                    }
+                }
+                catch (Exception e)
+                {
+                    _logger.ZLogWarningWithPayload(e, new Dictionary<string, string>()
                         {
                              { "VideoId", commentSession.ContentId },
                             { "CommentText", comment.CommentText },
                             { "Command", comment.GetJoinedCommandsText() },
                             { "VideoPosition", comment.VideoPosition.ToString() },
                         }, "CommentScript_ParseError Failed");
-                    }
+                    return false;
                 }
-
-                yield return comment;
+            }
+            else
+            {
+                return true;
             }
         }
-        var comments = await commentSession.GetInitialComments();
 
-        Comments.AddRange(commentsAction(comments.OrderBy(x => x.VideoPosition)));
+        var comments = await commentSession.GetInitialComments();
+        Comments = comments.ToArray();
+        Array.Sort(Comments, new VideoCommentPositionComparer());
 
         ResetDisplayingComments(Comments);
 
         _NicoScriptList.Sort((x, y) => (int)(x.BeginTime.Ticks - y.BeginTime.Ticks));
-        _logger.ZLogDebug("コメント数:{0}", Comments.Count);
+        _logger.ZLogDebug("コメント数:{0}", Comments.Length);
+    }
+
+    class VideoCommentPositionComparer : IComparer<IVideoComment>
+    {
+        public int Compare(IVideoComment x, IVideoComment y)
+        {
+            return x.VideoPosition.CompareTo(y.VideoPosition);
+        }
     }
 
 
     void ResetDisplayingComments(IReadOnlyCollection<IVideoComment> comments)
-    {
+    {        
         DisplayingComments.Clear();
         _logger.ZLogDebug("CommentReset");
 
         //var displayingComments = _commentDisplayingRangeExtractor.ResetComments(comments, _mediaPlayer.PlaybackSession.Position);
-        DisplayingComments.AddRange(EnumerateFilteredDisplayComment(comments));
+        DisplayingComments.AddRange(comments);
     }
 
 
@@ -451,7 +531,7 @@ public class VideoCommentPlayer : ObservableObject, IDisposable
             HiddenCommentIds.Add(comment.CommentId, isHiddenComment);
             if (!isHiddenComment)
             {
-                comment.CommentText_Transformed = _commentFiltering.TransformCommentText(comment.CommentText);
+                comment.CommentText_Transformed =  _commentFiltering.TransformCommentText(comment.CommentText);
             }
 
             return isHiddenComment;
@@ -511,7 +591,7 @@ public class VideoCommentPlayer : ObservableObject, IDisposable
     {
         // TODO: Commentsにアクセスする際の非同期ロック
         var currentIndex = CurrentCommentIndex;
-        foreach (var comment in Comments.Skip(CurrentCommentIndex).Cast<IVideoComment>())
+        foreach (var comment in Comments.AsSpan(CurrentCommentIndex))
         {
             if (comment.VideoPosition > position)
             {
@@ -555,7 +635,7 @@ public class VideoCommentPlayer : ObservableObject, IDisposable
 
         if (string.IsNullOrEmpty(content)) { return false; }
 
-        return (content.StartsWith("＠") || content.StartsWith("@") || content.StartsWith("/"));
+        return (content.StartsWith('＠') || content.StartsWith('@') || content.StartsWith('/'));
     }
 
 

@@ -112,6 +112,7 @@
               CommentDefaultColor="{x:Bind _vm.PlayerSettings.CommentColor, Mode=OneWay}"
               DefaultDisplayDuration="{x:Bind _vm.PlayerSettings.CommentDisplayDuration, Mode=OneWay}" 
               Opacity="{x:Bind _vm.PlayerSettings.CommentOpacity, Mode=OneWay}"
+              CommentDisplayPredicate="{x:Bind _vm.CommentPlayer.CommentDisplayPredicate, Mode=OneWay}"
               />
 
           <!-- コントロールUI -->

@@ -27,9 +27,9 @@ public class VideoCommentService : ICommentSession<IVideoComment>
 
     }
 
-    public async Task<IEnumerable<IVideoComment>> GetInitialComments()
+    public Task<IEnumerable<IVideoComment>> GetInitialComments()
     {
-        return await CommentClient.GetCommentsAsync();
+        return CommentClient.GetCommentsAsync();
     }
 
     public bool CanPostComment => CommentClient.CanSubmitComment;

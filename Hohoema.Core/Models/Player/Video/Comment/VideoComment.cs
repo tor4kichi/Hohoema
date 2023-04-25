@@ -16,7 +16,7 @@ public interface IVideoComment : IComment
 }
 
 [DataContract]
-public class VideoComment : ObservableObject, IVideoComment
+public class VideoComment : IVideoComment
 {
     // コメントのデータ構造だけで他のことを知っているべきじゃない
     // このデータを解釈して実際に表示するためのオブジェクトにする部分は処理は
@@ -80,8 +80,8 @@ public class VideoComment : ObservableObject, IVideoComment
     }
 }
 
-
-public class LiveComment : VideoComment
+[ObservableObject]
+public sealed partial class LiveComment : VideoComment
 {
     private string _UserName;
     public string UserName

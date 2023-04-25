@@ -24,10 +24,10 @@ public sealed class CommentFilteringFacade : ObservableObject, ICommentFilter
 
     private readonly ILocalizeService _localizeService;
     private readonly CommentFliteringRepository _commentFliteringRepository;
-    [Obsolete]
+    
     private readonly AppFlagsRepository _appFlagsRepository;
 
-    [Obsolete]
+    
     public CommentFilteringFacade(
         ILocalizeService localizeService,
         CommentFliteringRepository commentFliteringRepository,
@@ -49,7 +49,7 @@ public sealed class CommentFilteringFacade : ObservableObject, ICommentFilter
         Initialize();
     }
 
-    [Obsolete]
+    
     private void Initialize()
     {
         if (!_appFlagsRepository.IsInitializedCommentFilteringCondition)
@@ -70,7 +70,7 @@ public sealed class CommentFilteringFacade : ObservableObject, ICommentFilter
         });
     }
 
-    [Obsolete]
+    
     public void AddCenterCommandFiltering()
     {
         AddFilteredCommentCommand("naka");
@@ -81,7 +81,7 @@ public sealed class CommentFilteringFacade : ObservableObject, ICommentFilter
 
     #region ICommentFilter
 
-    [Obsolete]
+    
     public bool IsHiddenComment(IComment comment)
     {
         if (IsHiddenShareNGScore(comment.NGScore))
@@ -91,7 +91,7 @@ public sealed class CommentFilteringFacade : ObservableObject, ICommentFilter
 
         return IsEnableFilteringCommentOwnerId
             && IsHiddenCommentOwnerUserId(comment.UserId)
-|| IsEnableFilteringCommentText
+            || IsEnableFilteringCommentText
             && _filteringCommentTextKeywords.IsMatchAny(comment.CommentText);
     }
 
@@ -112,10 +112,10 @@ public sealed class CommentFilteringFacade : ObservableObject, ICommentFilter
 
     private RelayCommand<string> _AddFilteredCommentCommandCommand;
 
-    [Obsolete]
+    
     public RelayCommand<string> AddFilteredCommentCommandCommand => _AddFilteredCommentCommandCommand ??= new RelayCommand<string>(AddFilteredCommentCommand);
 
-    [Obsolete]
+    
     public void AddFilteredCommentCommand(string commandText)
     {
         if (_ignoreCommands.Contains(commandText))
@@ -193,7 +193,7 @@ public sealed class CommentFilteringFacade : ObservableObject, ICommentFilter
 
     #region Share NG Score 
 
-    [Obsolete]
+    
     public bool IsHiddenShareNGScore(int score)
     {
         return _commentFliteringRepository.ShareNGScore >= score;
@@ -201,7 +201,7 @@ public sealed class CommentFilteringFacade : ObservableObject, ICommentFilter
 
     private int _shareNGScore;
 
-    [Obsolete]
+    
     public int ShareNGScore
     {
         get => _shareNGScore;
@@ -221,7 +221,7 @@ public sealed class CommentFilteringFacade : ObservableObject, ICommentFilter
 
     private readonly HashSet<string> _filteredCommentOwnerIds = new();
 
-    [Obsolete]
+    
     public bool IsHiddenCommentOwnerUserId(string userId)
     {
         return _commentFliteringRepository.IsFilteringCommentOwnerIdEnabled && _filteredCommentOwnerIds.Contains(userId);
@@ -229,7 +229,7 @@ public sealed class CommentFilteringFacade : ObservableObject, ICommentFilter
 
     private bool _IsEnableFilteringCommentOwnerId;
 
-    [Obsolete]
+    
     public bool IsEnableFilteringCommentOwnerId
     {
         get => _commentFliteringRepository.IsFilteringCommentOwnerIdEnabled;
@@ -319,7 +319,7 @@ public sealed class CommentFilteringFacade : ObservableObject, ICommentFilter
 
     private bool _IsEnableFilteringCommentText;
 
-    [Obsolete]
+    
     public bool IsEnableFilteringCommentText
     {
         get => _commentFliteringRepository.IsFilteringCommentTextEnabled;
