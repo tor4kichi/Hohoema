@@ -1,8 +1,10 @@
 ﻿#nullable enable
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Contracts.AppLifecycle;
 using Hohoema.Contracts.Navigations;
+using Hohoema.Contracts.Services;
 using Hohoema.Contracts.Subscriptions;
 using Hohoema.Helpers;
 using Hohoema.Models.Application;
@@ -11,12 +13,10 @@ using Hohoema.Models.PageNavigation;
 using Hohoema.Models.Playlist;
 using Hohoema.Models.Subscriptions;
 using Hohoema.Models.VideoCache;
-using Hohoema.Services.Navigations;
 using I18NPortable;
 using LiteDB;
 using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Uwp.Notifications;
-using Microsoft.Toolkit.Uwp.UI.Controls.TextToolbarSymbols;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -38,16 +38,26 @@ public class SubscriptionUpdatedEventArgs
     public DateTime NextUpdateTime { get; set; }
 }
 
-public sealed class SubscriptionUpdateManager 
+public enum SubscriptionUpdateStatus
+{
+    NoProbrem,    
+    FailedWithOffline,
+    FailedWithApiError,
+    FailedWithTimeout
+}
+
+public sealed partial class SubscriptionUpdateManager 
     : ObservableObject
     , IDisposable
     , IToastActivationAware
+    , ISuspendAndResumeAware
 {
     private readonly ILogger<SubscriptionUpdateManager> _logger;
     private readonly IMessenger _messenger;
     private readonly INotificationService _notificationService;
     private readonly SubscriptionManager _subscriptionManager;
     private readonly SubscriptionSettings _subscriptionSettings;
+    private readonly QueuePlaylist _queuePlaylist;
     private readonly AsyncLock _timerLock = new AsyncLock();
 
     private bool _isDisposed;
@@ -84,32 +94,24 @@ public sealed class SubscriptionUpdateManager
         private set { SetProperty(ref _isRunning, value); }
     }
 
-    private TimeSpan _updateFrequency;
-    public TimeSpan UpdateFrequency
+    [ObservableProperty]
+    private DateTime _nextUpdateAt;
+
+    [ObservableProperty]
+    private DateTime _lastCheckedAt;
+
+    partial void OnLastCheckedAtChanged(DateTime value)
     {
-        get { return _updateFrequency; }
-        set 
-        {
-            if (value <= TimeSpan.Zero)
-            {
-                throw new ArgumentOutOfRangeException();
-            }
-
-            if (SetProperty(ref _updateFrequency, value))
-            {
-                _subscriptionSettings.SubscriptionsUpdateFrequency = value;
-                StartOrResetTimer();
-            }
-        }
+        _subscriptionSettings.SubscriptionsLastUpdatedAt = value;
     }
-
 
     public SubscriptionUpdateManager(
         ILoggerFactory loggerFactory,
         IMessenger messenger,
         INotificationService notificationService,
         SubscriptionManager subscriptionManager,
-        SubscriptionSettings subscriptionSettingsRepository
+        SubscriptionSettings subscriptionSettingsRepository,
+        QueuePlaylist queuePlaylist
         )
     {
         _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
@@ -125,7 +127,7 @@ public sealed class SubscriptionUpdateManager
         _notificationService = notificationService;
         _subscriptionManager = subscriptionManager;
         _subscriptionSettings = subscriptionSettingsRepository;
-
+        _queuePlaylist = queuePlaylist;
         _messenger.Register<SubscriptionAddedMessage>(this, async (r, m) => 
         {
             using (await _timerLock.LockAsync())
@@ -134,32 +136,27 @@ public sealed class SubscriptionUpdateManager
 
                 using (_timerUpdateCancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
                 {
-                    var result = await _subscriptionManager.RefreshFeedUpdateResultAsync(m.Value, _timerUpdateCancellationTokenSource.Token);
+                    var result = await _subscriptionManager.UpdateSubscriptionFeedVideosAsync(m.Value, cancellationToken: _timerUpdateCancellationTokenSource.Token);
                 }
 
                 _timerUpdateCancellationTokenSource = null;
             }
         });
 
-        _updateFrequency = _subscriptionSettings.SubscriptionsUpdateFrequency;
         _IsAutoUpdateEnabled = _subscriptionSettings.IsSubscriptionAutoUpdateEnabled;
-
+        _lastCheckedAt = _subscriptionSettings.SubscriptionsLastUpdatedAt;
+        _nextUpdateAt = _subscriptionManager.GetNextUpdateTime(_lastCheckedAt);
         StartOrResetTimer();
-
-        App.Current.Suspending += Current_Suspending;
-        App.Current.Resuming += Current_Resuming;
     }
 
-    private async void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
-    {
-        var deferral = e.SuspendingOperation.GetDeferral();
 
+    async ValueTask ISuspendAndResumeAware.OnSuspendingAsync()
+    {
         try
         {
             _timerUpdateCancellationTokenSource?.Cancel();
-            _timerUpdateCancellationTokenSource = null;
         }
-        catch (Exception ex) 
+        catch (Exception ex)
         {
             _logger.ZLogError(ex, "subscription timer cancel faield.");
         }
@@ -169,17 +166,16 @@ public sealed class SubscriptionUpdateManager
         {
             await StopTimerAsync();
         }
-        catch (Exception ex) 
+        catch (Exception ex)
         {
             _logger.ZLogError(ex, "subscription timer stop faield.");
         }
         finally
         {
-            deferral.Complete();
         }
     }
 
-    private async void Current_Resuming(object sender, object e)
+    async ValueTask ISuspendAndResumeAware.OnResumingAsync()
     {
         try
         {
@@ -188,11 +184,13 @@ public sealed class SubscriptionUpdateManager
 
             StartOrResetTimer();
         }
-        catch (Exception ex) 
+        catch (Exception ex)
         {
             _logger.ZLogError(ex, "購読の定期更新の開始に失敗");
         }
     }
+
+    static readonly TimeSpan UpdateTimeout = TimeSpan.FromMinutes(5);
 
     public async Task UpdateIfOverExpirationAsync(CancellationToken ct)
     {
@@ -201,36 +199,100 @@ public sealed class SubscriptionUpdateManager
             return; 
         }
 
-        try
+        DateTime checkedAt = DateTime.Now;
+        if (checkedAt < _nextUpdateAt)
+        {            
+            return;
+        }
+
+        List<SubscriptionFeedUpdateResult> updateResultItems = new();
+        using (_logger.BeginScope("Subscription Update"))
+        using (await _timerLock.LockAsync())
         {
-            _timerUpdateCancellationTokenSource?.Cancel();
-            _timerUpdateCancellationTokenSource?.Dispose();
-            _timerUpdateCancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(180));
-            var timeCt = _timerUpdateCancellationTokenSource.Token;
-            using (var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(ct, timeCt))
-            using (await _timerLock.LockAsync())
+            try
             {
-                _logger.ZLogDebug("start update");
-                var list = await _subscriptionManager.RefreshAllFeedUpdateResultAsync(linkedCts.Token).ToListAsync();
-                _logger.ZLogDebug("end update");
+                _logger.ZLogDebug("Start.");
+                if (_timerUpdateCancellationTokenSource != null)
+                {
+                    _timerUpdateCancellationTokenSource.Cancel();
+                    _timerUpdateCancellationTokenSource.Dispose();
+                }
+                _timerUpdateCancellationTokenSource = new CancellationTokenSource(UpdateTimeout);
+                var timeCt = _timerUpdateCancellationTokenSource.Token;
+                using (var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(ct, timeCt))                
+                {
+                    CancellationToken linkedCt = linkedCts.Token;
+                    foreach (var subscription in _subscriptionManager.GetSortedSubscriptions())
+                    {
+                        if (updateResultItems.Count != 0)
+                        {
+                            // 常に一秒空ける
+                            await Task.Delay(1000, linkedCt);
+                        }
+                        
+                        _logger.ZLogDebug("Start. Label: {0}", subscription.Label);
+                        try
+                        {
+                            var update = _subscriptionManager.GetSubscriptionProps(subscription.SubscriptionId);
+                            if (_subscriptionManager.CheckCanUpdate(isManualUpdate: false, subscription, ref update) is not null and SubscriptionFeedUpdateFailedReason failedReason)
+                            {
+                                _logger.ZLogDebug("Skiped. Label: {0}, Reason: {1}", subscription.Label, failedReason);
+                                continue;
+                            }
+                            var list = await _subscriptionManager.UpdateSubscriptionFeedVideosAsync(subscription, update: update, checkedAt, linkedCt);
+                            updateResultItems.Add(list);
 
-                // 次の自動更新周期を延長して設定
-                _subscriptionSettings.SubscriptionsLastUpdatedAt = DateTime.Now;
+                            _logger.ZLogDebug("Done. Label: {0}", subscription.Label);                            
+                        }
+                        catch (OperationCanceledException)
+                        {
+                            throw;
+                        }
+                        catch (Exception ex) when (InternetConnection.IsInternet() is false)
+                        {
+                            // インターネット接続はあるけど何かしらで失敗した場合は
+                            // API不通を想定して強制的に自動更新をOFFにする
+                            subscription.IsAutoUpdateEnabled = false;                            
+                            _subscriptionManager.UpdateSubscription(subscription);
 
-                NotifyFeedUpdateResult(list.Where(x => x.IsSuccessed));
+                            _messenger.Send(new SubscriptionUpdatedMessage(subscription));
+                            _logger.ZLogDebug("Error. Label: {0}, Exception: {1}", subscription.Label, ex.Message);
+                        }
+                    }
+                }
             }
-        }
-        catch (OperationCanceledException)
-        {
-            await StopTimerAsync();
+            catch (OperationCanceledException)
+            {
+                // TODO: ユーザーに購読更新の停止を通知する
+                _logger.ZLogInformation("Timeout subscription auto update process.");
+            }
+            finally
+            {
+                // 次の自動更新周期を延長して設定
+                LastCheckedAt = checkedAt;
+                NextUpdateAt = _subscriptionManager.GetNextUpdateTime(checkedAt);
+                _timerUpdateCancellationTokenSource!.Dispose();
+                _timerUpdateCancellationTokenSource = null;
+                _logger.ZLogDebug("Complete.");
+            }
 
-            _logger.ZLogInformation("購読の更新にあまりに時間が掛かったため処理を中断し、また定期自動更新も停止しました");
-            
-        }
-        finally
-        {
-            _timerUpdateCancellationTokenSource?.Dispose();
-            _timerUpdateCancellationTokenSource = null;
+            try
+            {
+                AddToQueue(updateResultItems);
+            }
+            catch (Exception ex)
+            {
+                _logger.ZLogError(ex, "failed in new videos add to QueuePlaylist.");
+            }
+
+            try
+            {
+                TriggerToastNotificationFeedUpdateResult(updateResultItems);
+            }
+            catch (Exception ex)
+            {
+                _logger.ZLogError(ex, "failed in new videos notice to user with ToastNotification.");
+            }
         }
     }
 
@@ -275,12 +337,14 @@ public sealed class SubscriptionUpdateManager
                     )
                 {
                     // Note: ObjectId.Empty は デフォルトグループを指す
-                    ObjectId groupId = new ObjectId(groupIdPlay);
-                    // TODO: 購読グループの未視聴動画を再生する
+                    var groupId = SubscriptionGroupId.Parse(groupIdPlay);
+                    var recentVideoInUnchecked = _subscriptionManager.GetSubscFeedVideosNewerAt(groupId).FirstOrDefault();
+                    Guard.IsNotNull(recentVideoInUnchecked, nameof(recentVideoInUnchecked));
+                    await _messenger.Send(VideoPlayRequestMessage.PlayPlaylist(groupId.ToString(), PlaylistItemsSourceOrigin.SubscriptionGroup, string.Empty, recentVideoInUnchecked.VideoId));
                 }
                 else
                 {
-
+                    await _messenger.Send(VideoPlayRequestMessage.PlayPlaylist(_subscriptionManager.AllSubscriptouGroupId, PlaylistItemsSourceOrigin.SubscriptionGroup, string.Empty));
                 }
                   
                 break;
@@ -313,35 +377,42 @@ public sealed class SubscriptionUpdateManager
         return isHandled;
     }
 
-    private void NotifyFeedUpdateResult(IEnumerable<SubscriptionFeedUpdateResult> updateResults)
+    private void TriggerToastNotificationFeedUpdateResult(IEnumerable<SubscriptionFeedUpdateResult> updateResults)
     {
         if (!updateResults.Any()) { return; }
 
-        SubscriptionGroup _defaultSubscGroup = new SubscriptionGroup(SubscriptionGroupId.DefaultGroupId, "SubscGroup_DefaultGroupName".Translate());
-        var resultByGroupId = updateResults.Where(x => x.IsSuccessed && x.NewVideos.Count > 0).GroupBy(x => x.Entity.Group ?? _defaultSubscGroup, SubscriptionGroupComparer.Default);
+        var resultByGroupId = updateResults
+            .Where(x => x.IsSuccessed && x.NewVideos?.Count > 0)
+            .GroupBy(x => x.Subscription.Group ?? _subscriptionManager.DefaultSubscriptionGroup, SubscriptionGroupComparer.Default)
+            .Where(x => _subscriptionManager.GetSubscriptionGroupProps(x.Key.GroupId).IsToastNotificationEnabled)
+            .ToArray();
 
         if (!resultByGroupId.Any()) { return; }
 
         ToastSelectionBox box = new ToastSelectionBox(ToastArgumentValue_UserInputKey_SubscGroupId)
         {
-            DefaultSelectionBoxItemId = resultByGroupId.First().Key.GroupId.ToString()
+            DefaultSelectionBoxItemId = ToastArgumentValue_UserInputValue_NoSelectSubscGroupId,
+            Title = "SubscriptionGroup".Translate()
         };
 
-        box.Items.Add(new ToastSelectionBoxItem(ToastArgumentValue_UserInputValue_NoSelectSubscGroupId, "All".Translate()));
+        int totalNewVideoCount = resultByGroupId.Where(x => x.Any()).Sum(x => x.Sum(x => x.NewVideos!.Count));
+        box.Items.Add(new ToastSelectionBoxItem(ToastArgumentValue_UserInputValue_NoSelectSubscGroupId, $"{"All".Translate()} - {"VideosWithCount".Translate(totalNewVideoCount)}"));
         foreach (var group in resultByGroupId)
-        {                        
-            box.Items.Add(new ToastSelectionBoxItem(group.Key.GroupId.ToString(), $"{group.Key.Name} - {group.Sum(x => x.NewVideos.Count)}件"));
+        {        
+            box.Items.Add(new ToastSelectionBoxItem(group.Key.GroupId.ToString(), $"{group.Key.Name} - {"VideosWithCount".Translate(group.Sum(x => x.NewVideos!.Count))}"));
         }
 
-        var newVideoOwnersText = $"新着動画 {resultByGroupId.Sum(x => x.Sum(x => x.NewVideos.Count))}件";
+        var newVideoOwnersText = "SubscNotification_SampleVideosHeader".Translate();
+        string contentText = string.Join("\n", resultByGroupId.SelectMany(x => x.Select(x => $"- " + x.NewVideos.First().Title)).Take(3));
         _notificationService.ShowToast(
             newVideoOwnersText,
-            string.Join("\n", resultByGroupId.Where(x => x.Any()).Select(x => $"{x.Key.Name} - {x.Sum(x => x.NewVideos.Count)}件")),
-            Microsoft.Toolkit.Uwp.Notifications.ToastDuration.Long,
+            //string.Join("\n", resultByGroupId.Where(x => x.Any()).Select(x => $"{x.Key.Name} - {x.Sum(x => x.NewVideos!.Count)}件")),
+            contentText,
+            Microsoft.Toolkit.Uwp.Notifications.ToastDuration.Short,
             //luanchContent: PlayWithWatchAfterPlaylistParam,
             toastButtons: new IToastButton[] {
-                new ToastButton("WatchVideo".Translate(), MakeSubscPlayToastArguments().ToString()),
-                new ToastButton("ViewList".Translate(), MakeSubscViewListToastArguments().ToString()),
+                new ToastButton("SubscGroup_AllPlayUnwatched".Translate(), MakeSubscPlayToastArguments().ToString()),
+                new ToastButton("OpenSubscriptionSourceVideoList".Translate(), MakeSubscViewListToastArguments().ToString()),
             },
             toastInputs: new IToastInput[] {
                 box
@@ -349,25 +420,42 @@ public sealed class SubscriptionUpdateManager
             );
     }
 
+    private void AddToQueue(IEnumerable<SubscriptionFeedUpdateResult> resultItems)
+    {
+        if (!resultItems.Any()) { return; }
+
+        var resultByGroupId = resultItems
+            .Where(x => x.IsSuccessed && x.NewVideos?.Count > 0 && x.Subscription.IsAddToQueueWhenUpdated)
+            .GroupBy(x => x.Subscription.Group ?? _subscriptionManager.DefaultSubscriptionGroup, SubscriptionGroupComparer.Default)
+            .Where(x => _subscriptionManager.GetSubscriptionGroupProps(x.Key.GroupId).IsAddToQueueWhenUpdated)
+            .ToArray();
+
+        if (!resultByGroupId.Any()) { return; }
+
+        int count = 0;
+        foreach (var item in resultByGroupId.SelectMany(x => x.SelectMany(x => x.NewVideos)))
+        {
+            _queuePlaylist.Add(item);
+            count++;
+        }
+
+        _notificationService.ShowLiteInAppNotification("Notification_SuccessAddToWatchLaterWithAddedCount".Translate(count));
+    }
+
+
 #if DEBUG
     public void TestNotification()
     {
         List<SubscriptionFeedUpdateResult> results = new();
-        var sources = _subscriptionManager.GetAllSubscriptions().Take(3);
+        var sources = _subscriptionManager.GetSubscriptionsWithoutSort().Take(3);
+        var updateAt = DateTime.Now;
         foreach (var source in sources)
         {
             var videos = _subscriptionManager.GetSubscFeedVideos(source, 0, 5).Select(x => new NicoVideo() { Id = x.VideoId, Title = x.Title }).ToList();
-
-            results.Add(new SubscriptionFeedUpdateResult() 
-            {
-                Videos = videos,
-                NewVideos = videos,
-                Entity = source,
-                IsSuccessed = true,
-            });
+            results.Add(new SubscriptionFeedUpdateResult(source, videos, updateAt));
         }
 
-        NotifyFeedUpdateResult(results);
+        TriggerToastNotificationFeedUpdateResult(results);
     }
 #endif
 
@@ -389,7 +477,7 @@ public sealed class SubscriptionUpdateManager
 
             if (!_IsAutoUpdateEnabled) { return; }
 
-            IsRunning = true;
+            IsRunning = true;            
             _timer.Start();
             _ = UpdateIfOverExpirationAsync(CancellationToken.None);
         }
@@ -411,8 +499,6 @@ public sealed class SubscriptionUpdateManager
 
         _isDisposed = true;
         _timer.Stop();
-        App.Current.Suspending -= Current_Suspending;
-        App.Current.Resuming -= Current_Resuming;
     }
 
 }

@@ -122,6 +122,8 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Contracts\Navigations\INavigationResult.cs" />
+    <Compile Include="Contracts\Navigations\INavigationParameters.cs" />
     <Compile Include="Contracts\Services\IDialogService.cs" />
     <Compile Include="Contracts\Services\ILocalizeService.cs" />
     <Compile Include="Contracts\Maintenances\IMaintenance.cs" />
@@ -134,6 +136,7 @@
     <Compile Include="Contracts\Subscriptions\SubscriptionGroupMessages.cs" />
     <Compile Include="Contracts\Subscriptions\SubscriptionMessages.cs" />
     <Compile Include="Contracts\Subscriptions\SusbcriptionId.cs" />
+    <Compile Include="Helpers\ObservableObjectDebugHelper.cs" />
     <Compile Include="IsExternalInit.cs" />
     <Compile Include="MessengerObservableExtensions.cs" />
     <Compile Include="Models\Application\AppearanceSettings.cs" />
@@ -186,20 +189,22 @@
     <Compile Include="Models\Niconico\NicoRepo\LoginUser\LoginUserNicoRepoProvider.cs" />
     <Compile Include="Models\Niconico\NicoRepo\NicoRepoSettings.cs" />
     <Compile Include="Models\Niconico\Recommend\RecommendProvider.cs" />
-    <Compile Include="Models\Niconico\Search\CeApiSearchVideoPlaylist.cs" />
-    <Compile Include="Models\Niconico\Search\CeApiSearchVideoPlaylistSortOption.cs" />
+    <Compile Include="Models\Niconico\Search\SearchVideoPlaylist.cs" />
+    <Compile Include="Models\Niconico\Search\SearchVideoPlaylistSortOption.cs" />
     <Compile Include="Models\Niconico\Search\SearchHistory.cs" />
     <Compile Include="Models\Niconico\Search\SearchProvider.cs" />
     <Compile Include="Models\Niconico\Video\NvapiVideoContent.cs" />
     <Compile Include="Models\Niconico\User\UserVideoPlaylist.cs" />
     <Compile Include="Models\Niconico\User\UserVideoPlaylistSortOption.cs" />
     <Compile Include="Models\Playlist\BufferedPlaylistItemsSource.cs" />
-    <Compile Include="Models\Playlist\MylistResolver.cs" />
-    <Compile Include="Models\Playlist\PlaylistFactory\ChannelVideoPlaylistFactory.cs" />
-    <Compile Include="Models\Playlist\PlaylistFactory\LocalMylistPlaylistFactory.cs" />
-    <Compile Include="Models\Playlist\PlaylistFactory\MylistPlaylistFactory.cs" />
-    <Compile Include="Models\Playlist\PlaylistFactory\SeriesVideoPlaylistFactory.cs" />
-    <Compile Include="Models\Playlist\PlaylistFactory\UserVideoPlaylistFactory.cs" />
+    <Compile Include="Services\Playlist\PlaylistFactory\SubscriptionGroupPlaylistFactory.cs" />
+    <Compile Include="Services\Playlist\PlaylistFactory\SubscriptionPlaylistFactory.cs" />
+    <Compile Include="Services\Playlist\MylistResolver.cs" />
+    <Compile Include="Services\Playlist\PlaylistFactory\ChannelVideoPlaylistFactory.cs" />
+    <Compile Include="Services\Playlist\PlaylistFactory\LocalMylistPlaylistFactory.cs" />
+    <Compile Include="Services\Playlist\PlaylistFactory\MylistPlaylistFactory.cs" />
+    <Compile Include="Services\Playlist\PlaylistFactory\SeriesVideoPlaylistFactory.cs" />
+    <Compile Include="Services\Playlist\PlaylistFactory\UserVideoPlaylistFactory.cs" />
     <Compile Include="Models\Playlist\PlaylistItemSortOrder.cs" />
     <Compile Include="Models\Niconico\Series\SeriesVideoPlaylist.cs" />
     <Compile Include="Models\Niconico\User\IUser.cs" />
@@ -273,7 +278,7 @@
     <Compile Include="Models\Playlist\PlaylistItemsSourceOrigin.cs" />
     <Compile Include="Models\LocalMylist\LocalMylistRepository.cs" />
     <Compile Include="Models\Player\VideoStreamingOriginOrchestrator.cs" />
-    <Compile Include="Models\Playlist\PlaylistItemsSourceResolver.cs" />
+    <Compile Include="Services\Playlist\PlaylistItemsSourceResolver.cs" />
     <Compile Include="Models\Playlist\QueuePlaylist.cs" />
     <Compile Include="Models\Playlist\QueuePlaylistSetting.cs" />
     <Compile Include="Contracts\Playlist\PlayLiveRequestMessage.cs" />
@@ -282,6 +287,7 @@
     <Compile Include="Models\Subscriptions\SubscriptionGroupRepository.cs" />
     <Compile Include="Models\Subscriptions\SubscriptionManager.cs" />
     <Compile Include="Models\Subscriptions\SubscriptionGroupPlaylist.cs" />
+    <Compile Include="Models\Subscriptions\SubscriptionPlaylist.cs" />
     <Compile Include="Models\Subscriptions\SubscriptionRepository.cs" />
     <Compile Include="Models\Subscriptions\SubscriptionSettings.cs" />
     <Compile Include="Models\VideoCache\IVideoCacheDownloadOperation.cs" />
@@ -366,7 +372,7 @@
       <Version>7.1.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.UI.Xaml">
-      <Version>2.7.1-prerelease.211026002</Version>
+      <Version>2.7.2</Version>
     </PackageReference>
     <PackageReference Include="NiconicoToolkit">
       <Version>0.4.2</Version>

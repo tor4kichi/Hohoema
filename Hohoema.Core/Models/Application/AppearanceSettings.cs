@@ -13,7 +13,7 @@ namespace Hohoema.Models.Application;
 
 public class AppearanceSettings : FlagsRepositoryBase
 {
-    [Obsolete]
+    
     public AppearanceSettings(ILocalizeService localizeService)
     {
         _locale = Read(localizeService.GetDefaultLocale(), nameof(Locale));
@@ -39,15 +39,14 @@ public class AppearanceSettings : FlagsRepositoryBase
 
         _PlayerDisplayView = Read(PlayerDisplayView.PrimaryView, nameof(PlayerDisplayView));
         _IsSecondaryViewPrefferedCompactOverlay = Read(false, nameof(IsSecondaryViewPrefferedCompactOverlay));
-        _SecondaryViewDisplayRegionMonitorDeviceId = Read(default(string), nameof(SecondaryViewDisplayRegionMonitorDeviceId));
+        _SecondaryViewDisplayRegionMonitorDeviceId = Read(string.Empty, nameof(SecondaryViewDisplayRegionMonitorDeviceId));
         _SecondaryViewLastWindowPosition = Read(default(Point?), nameof(SecondaryViewLastWindowPosition));
-        _SecondaryViewLastWindowSize = Read(default(Size?), nameof(SecondaryViewLastWindowSize));
-        _UseLegacyVersionVideoPage = Read(false, nameof(UseLegacyVersionVideoPage));
+        _SecondaryViewLastWindowSize = Read(default(Size?), nameof(SecondaryViewLastWindowSize));        
     }
 
     private string _locale;
 
-    [Obsolete]
+    
     public string Locale
     {
         get => _locale;
@@ -56,7 +55,7 @@ public class AppearanceSettings : FlagsRepositoryBase
 
     private HohoemaPageType _firstAppearPageType;
 
-    [Obsolete]
+    
     public HohoemaPageType FirstAppearPageType
     {
         get => _firstAppearPageType;
@@ -65,7 +64,7 @@ public class AppearanceSettings : FlagsRepositoryBase
 
     private ApplicationInteractionMode? _OverrideInteractionMode;
 
-    [Obsolete]
+    
     public ApplicationInteractionMode? OverrideInteractionMode
     {
         get => _OverrideInteractionMode;
@@ -75,7 +74,7 @@ public class AppearanceSettings : FlagsRepositoryBase
     // Themeは他で利用してるためかシリアライズエラーが発生するのでApplicationThemeとしている
     private ElementTheme _Theme;
 
-    [Obsolete]
+    
     public ElementTheme ApplicationTheme
     {
         get => _Theme;
@@ -109,7 +108,7 @@ public class AppearanceSettings : FlagsRepositoryBase
 
     private NavigationViewPaneDisplayMode _menuPaneDisplayMode;
 
-    [Obsolete]
+    
     public NavigationViewPaneDisplayMode MenuPaneDisplayMode
     {
         get => _menuPaneDisplayMode;
@@ -161,7 +160,7 @@ public class AppearanceSettings : FlagsRepositoryBase
 
     private PlayerDisplayView _PlayerDisplayView;
 
-    [Obsolete]
+    
     public PlayerDisplayView PlayerDisplayView
     {
         get => _PlayerDisplayView;
@@ -170,16 +169,14 @@ public class AppearanceSettings : FlagsRepositoryBase
 
     private bool _IsSecondaryViewPrefferedCompactOverlay;
 
-    [Obsolete]
+    
     public bool IsSecondaryViewPrefferedCompactOverlay
     {
         get => _IsSecondaryViewPrefferedCompactOverlay;
         set => SetProperty(ref _IsSecondaryViewPrefferedCompactOverlay, value);
     }
 
-    private string _SecondaryViewDisplayRegionMonitorDeviceId;
-
-    [Obsolete]
+    private string _SecondaryViewDisplayRegionMonitorDeviceId;    
     public string SecondaryViewDisplayRegionMonitorDeviceId
     {
         get => _SecondaryViewDisplayRegionMonitorDeviceId;
@@ -188,7 +185,7 @@ public class AppearanceSettings : FlagsRepositoryBase
 
     private Point? _SecondaryViewLastWindowPosition;
 
-    [Obsolete]
+    
     public Point? SecondaryViewLastWindowPosition
     {
         get => _SecondaryViewLastWindowPosition;
@@ -197,20 +194,11 @@ public class AppearanceSettings : FlagsRepositoryBase
 
     private Size? _SecondaryViewLastWindowSize;
 
-    [Obsolete]
+    
     public Size? SecondaryViewLastWindowSize
     {
         get => _SecondaryViewLastWindowSize;
         set => SetProperty(ref _SecondaryViewLastWindowSize, value);
-    }
-
-    private bool _UseLegacyVersionVideoPage;
-
-    [Obsolete]
-    public bool UseLegacyVersionVideoPage
-    {
-        get => _UseLegacyVersionVideoPage;
-        set => SetProperty(ref _UseLegacyVersionVideoPage, value);
     }
 }
 

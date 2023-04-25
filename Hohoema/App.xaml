@@ -17,6 +17,7 @@
     xmlns:flyouts="using:Hohoema.Views.Flyouts" 
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
   xmlns:locales="using:Hohoema.Locales" 
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
   xmlns:appModels="using:Hohoema.Models.Application" 
   xmlns:videoList="using:Hohoema.Views.Controls.VideoList" 
    xmlns:listPageVM="using:Hohoema.ViewModels.VideoListPage" 
@@ -40,11 +41,11 @@
         <ResourceDictionary Source="Views/Controls/VideoList/VideoListItemControl/VideoListItemControl.xaml"/>
         <ResourceDictionary Source="Views/Mylist/MylistCardView.xaml"/>
 
-        <muxc:XamlControlsResources  />
-
         <ResourceDictionary Source="Styles/DefaultStyle.xaml"/>
 
         <styles:VideoListItemControlDefaultTemplate />
+        
+        <muxc:XamlControlsResources  />
       </ResourceDictionary.MergedDictionaries>
 
       <ResourceDictionary.ThemeDictionaries>
@@ -261,7 +262,7 @@
       <locales:LocalizeWithParameterConverter x:Key="LocalizeWithParameterConverter" />
 
       <DataTemplate x:Key="LocalizedTextItemTemplate">
-        <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}"/>
+        <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}, FallbackValue={i18nExt:Localize Key=NoSelected}}"/>
       </DataTemplate>
       
 
@@ -355,6 +356,21 @@
       <DataTemplate x:Key="VideoListItemFlyoutTemplate">
         <flyouts:VideoItemFlyout />
       </DataTemplate>
+
+      <Style TargetType="AppBarButton">
+        <Setter Property="Margin" Value="2 0" />
+        <Setter Property="Background" Value="{ThemeResource ButtonBackgroundThemeBrush}" />
+        <Setter Property="CornerRadius" Value="4" />
+      </Style>
+      <Style TargetType="AppBarToggleButton">
+        <Setter Property="Margin" Value="2 0" />
+        <Setter Property="Background" Value="{ThemeResource ButtonBackgroundThemeBrush}" />
+        <Setter Property="CornerRadius" Value="4" />
+      </Style>
+      <Style TargetType="AppBarElementContainer">
+        <Setter Property="VerticalContentAlignment" Value="Stretch" />
+        <Setter Property="Margin" Value="2 0" />
+      </Style>
 
     </ResourceDictionary>
   </Application.Resources>

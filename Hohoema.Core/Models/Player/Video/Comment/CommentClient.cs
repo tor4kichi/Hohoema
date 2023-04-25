@@ -96,7 +96,7 @@ public class CommentClient
     public async Task<IEnumerable<IVideoComment>> GetCommentsAsync()
     {
         ThreadResponse commentRes = await _nvCommentApi.GetCommentsAsync(_watchApiData!.Comment.NvComment, ct: default);
-        return commentRes.Data.Threads.SelectMany(x => x.Comments).OrderBy(x => x.VposMs).Select(ToVideoComent);
+        return commentRes.Data.Threads.SelectMany(x => x.Comments).Select(ToVideoComent);
     }
 
     //private VideoComment ChatToComment(NMSG_Chat rawComment)
@@ -181,7 +181,7 @@ public class CommentClient
 }
 
 
-public class NvVideoComment : ObservableObject, IVideoComment
+public class NvVideoComment : IVideoComment
 {
     // コメントのデータ構造だけで他のことを知っているべきじゃない
     // このデータを解釈して実際に表示するためのオブジェクトにする部分は処理は

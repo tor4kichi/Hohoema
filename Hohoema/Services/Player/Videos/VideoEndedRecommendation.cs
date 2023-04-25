@@ -87,7 +87,7 @@ public sealed class VideoEndedRecommendation : ObservableObject, IDisposable,
                 // 他のアイテムが再生されたり、プレイヤーが閉じられたタイミングで
                 //
                 //_queuePlaylist.Remove(currentVideoId);
-                _videoWatchedRepository.VideoPlayed(currentVideoId, sender.Position);
+                //_videoWatchedRepository.VideoPlayed(currentVideoId, sender.Position);
 
                 if (_playerSettings.IsPlaylistAutoMoveEnabled && await _hohoemaPlaylistPlayer.CanGoNextAsync())
                 {                        

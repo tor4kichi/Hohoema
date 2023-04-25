@@ -41,7 +41,7 @@ public sealed class VideoCommentSidePaneContentViewModel : ObservableObject, IDi
         CommentPlayer = commentPlayer;
         CommentFiltering = commentFiltering;
         _dialogService = dialogService;
-        Comments = new AdvancedCollectionView(CommentPlayer.Comments, false);
+        Comments = new AdvancedCollectionView(CommentPlayer.DisplayingComments, false);
 
         HandleCommentFilterConditionChanged();
 

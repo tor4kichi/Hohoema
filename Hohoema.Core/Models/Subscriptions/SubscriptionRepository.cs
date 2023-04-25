@@ -18,7 +18,7 @@ public sealed class SubscriptionRegistrationRepository : LiteDBServiceBase<Subsc
 {    
     static SubscriptionRegistrationRepository()
     {
-        BsonMapper.Global.RegisterType(x => x.AsPrimitive(), x => new SusbcriptionId(x.AsObjectId));
+        BsonMapper.Global.RegisterType(x => x.AsPrimitive(), x => new SubscriptionId(x.AsObjectId));
     }
 
     public SubscriptionRegistrationRepository(LiteDatabase database)
@@ -59,32 +59,41 @@ public sealed class SubscriptionRegistrationRepository : LiteDBServiceBase<Subsc
 
     public override BsonValue CreateItem(Subscription entity)
     {
-        Guard.IsFalse(IsExist(entity), "IsExist(entity)");
-
-        entity.SubscriptionId = SusbcriptionId.NewObjectId();
-        
-        // Note: エンティティが登録されていない状態で .Max() を呼ぶと
-        //       InvalidOperationException が発生する (LiteDb 5.0.16)
-        try
+        if (IsExist(entity))
         {
-            entity.SortIndex = _collection.Max(x => x.SortIndex) + 1;
+            _collection.Update(entity);
+            return entity.SubscriptionId.AsPrimitive();
         }
-        catch
+        else
         {
-            entity.SortIndex = 0;
+            // Note: エンティティが登録されていない状態で .Max() を呼ぶと
+            //       InvalidOperationException が発生する (LiteDb 5.0.16)
+            try
+            {
+                entity.SortIndex = _collection.Max(x => x.SortIndex) + 1;
+            }
+            catch
+            {
+                entity.SortIndex = 0;
+            }
+            BsonValue result = base.CreateItem(entity);
+            return result;
         }
-        BsonValue result = base.CreateItem(entity);
-        return result;
     }
 
-    internal bool DeleteItem(SusbcriptionId subscriptionId)
+    internal bool DeleteItem(SubscriptionId subscriptionId)
     {
         return base.DeleteItem(subscriptionId.AsPrimitive());
     }
 
-    internal Subscription FindById(SusbcriptionId id)
+    internal Subscription FindById(SubscriptionId id)
     {
-        return base.FindById(id.AsPrimitive());
+        return _collection.Include(x => x.Group).FindById(id.AsPrimitive());
+    }
+
+    internal IEnumerable<Subscription> Find(SubscriptionGroupId groupId)
+    {
+        return _collection.Include(x => x.Group).Find(x => x.Group!.GroupId == groupId).OrderBy(x => x.SortIndex);
     }
 }
 
@@ -102,13 +111,45 @@ public enum SubscriptionSourceType
 
 public sealed class Subscription
 {
+    // コンストラクタ引数の並びを変えるとエラー出るかも
+    [BsonCtor]
+    public Subscription(
+        SubscriptionId _id, 
+        int sortIndex, 
+        string label, 
+        SubscriptionSourceType sourceType, 
+        string sourceParameter, 
+        bool isAutoUpdateEnabled, 
+        bool isAddToQueueWhenUpdated, 
+        SubscriptionGroup? group,
+        bool isToastNotificationEnabled
+        )
+    {
+        SubscriptionId = _id;
+        SortIndex = sortIndex;
+        Label = label;
+        SourceType = sourceType;
+        SourceParameter = sourceParameter;
+        IsAutoUpdateEnabled = isAutoUpdateEnabled;
+        IsAddToQueueWhenUpdated = isAddToQueueWhenUpdated;
+        Group = group;
+        IsToastNotificationEnabled = isToastNotificationEnabled;
+    }
+
+    public Subscription(SubscriptionId subscriptionId)
+    {
+        SubscriptionId = subscriptionId;
+    }
+
     [BsonId]
-    public SusbcriptionId SubscriptionId { get; internal set; }
+    public SubscriptionId SubscriptionId { get; internal set; }
     public int SortIndex { get; set; }
     public string Label { get; set; } = string.Empty;
     public SubscriptionSourceType SourceType { get; set; }
     public string SourceParameter { get; set; } = string.Empty;
-    public bool IsEnabled { get; set; } = true;
+    public bool IsToastNotificationEnabled { get; set; } = true;
+    public bool IsAutoUpdateEnabled { get; set; } = true;
+    public bool IsAddToQueueWhenUpdated { get; set; } = true;
 
     [BsonRef]
     public SubscriptionGroup? Group { get; set; }

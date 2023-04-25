@@ -36,6 +36,7 @@ Select = 选择
 WatchVideo = 视图
 Preview = 以前
 Next = 下一个
+ViewList = 显示列表
 
 
 #### Hohoema App ####
@@ -93,7 +94,7 @@ HohoemaPageType.SearchResultMylist = Mylist搜索
 HohoemaPageType.SearchResultTag = 标签搜索
 HohoemaPageType.Settings = 设定
 HohoemaPageType.Splash = 启动画面
-HohoemaPageType.Subscription = 新视频
+HohoemaPageType.Subscription = 订阅管理
 HohoemaPageType.SubscVideoList = 新视频列表
 HohoemaPageType.Timeshift = 时移
 HohoemaPageType.UserInfo = 用户信息
@@ -106,7 +107,7 @@ HohoemaPageType.WatchHistory = 播放历史
 HohoemaPageType.LocalPlaylist = 播放清单
 HohoemaPageType.Mylist = Mylist
 HohoemaPageType.VideoQueue = 队列
-HohoemaPageType.SubscriptionManagement = 新视频
+HohoemaPageType.SubscriptionManagement = 订阅管理
 HohoemaPageType.OwnerMylistManage = Mylist管理
 HohoemaPageType.LocalPlaylistManage = Local Mylist管理
 
@@ -192,6 +193,9 @@ CacheVideo_ToastNotification_CacheDelete = 删除
 
 
 #### Subscription ####
+SubscriptionNewVideos = 新影片
+SubscriptionGroup = 订阅组
+
 SubscriptionAdd = 添加订阅
 SubscriptionAddUserVideos = 将作者添加到订阅
 SubscriptionAddSeries = 将系列添加到订阅
@@ -201,24 +205,30 @@ SubscriptionSourceType.Channel = 频道
 SubscriptionSourceType.Mylist = Mylist
 SubscriptionSourceType.TagSearch = 标签搜寻
 SubscriptionSourceType.KeywordSearch = 关键字搜寻
+SubscriptionSourceType.Series = 系列
 
 SubscriptionsAutoUpdateRunning = 自动更新
 SubscriptionsNextUpdateTime = 下次更新
 SubscriptionsAutoNotUpdateRunning = 自动更新已停止
+SubscriptionsPrevUpdateTime = 最后更新
 
 StopSubscribe? = 我可以停止检查新来者吗？
 StopSubscribe = 停止检查新来者
 
 OpenSubscriptionSourceVideoList = 打开视频列表
-ReorderSubsciprionSource_Move = 移动
-ReorderSubsciprionSource_MovePreview = 上移一个
-ReorderSubsciprionSource_MoveNext = 下移一个
-ReorderSubsciprionSource_MoveToHead = 移到顶部
-ReorderSubsciprionSource_MoveToTail = 移到最后
+ReorderSubsciprionSource_Move = 更改排序顺序...
+ReorderSubsciprionSource_MovePreview = 前进
+ReorderSubsciprionSource_MoveNext = 退一
+ReorderSubsciprionSource_MoveToHead = 移到前面
+ReorderSubsciprionSource_MoveToTail = 移动到最后
 
-Notification_SuccessAddSubscriptionSourceWithLabel = 在订阅中添加了“ {0}”。 \ n将来，新视频将添加到“稍后观看”中。
+Notification_SuccessAddSubscriptionSourceWithLabel = 向新支票添加“{0}”
 Notification_FailedSubscriptionUpdate = 订阅续订失败
 Notification_SuccessAddToWatchLaterWithAddedCount = 已将新视频{0}添加到“稍后查看”
+SubscNotification_SampleVideosHeader = 找到新视频
+VideosWithCount = {0} 个视频
+
+
 
 SubscGroup_DefaultGroupName = 默认
 AddSubscriptionGroup_InputSubscGroupName_Title = 确定订阅组名称
@@ -229,8 +239,24 @@ SubscGroup_Rename = 重命名订阅组
 SubscGroup_DeleteComfirmDialogContent = 即使您删除订阅的群组，订阅的群组也会更改为“默认”，因此您可以放心删除。 \n你确定要删除它吗？
 SubscGroup_DeleteComfirmDialogTitle = 您确定要删除 {0} 组吗？
 
-VideoNoItem = 没有可显示的视频
+SubscGroupVideosAllCheckedWithSubscGroupTitle = 没有可显示的视频
+SubscVideosDisplayChecked = 显示勾选
+SubscVideos_MarkAsCheckedWithDays = {0} 天前检查过
+SubscVideos_MarkAsChecked = 标记为选中
+SubscVideos_AllMarkAsChecked = 全部勾选
+Subsc_UnwatchedVideoCount = 新的 {0} 个视频
 
+SubscGroupSettings_Title = 订阅组名称
+SubscGroupSettings = 显示和通知设置
+SubscGroupSettings_Notification = 通知我新来者
+SubscGroupSettings_AddToQueue = 添加新队列
+SubscGroupSettings_ShowAppMenu = 在菜单中显示组
+
+SubscGroup_PlayFromHere = 看这里
+SubscGroup_AllPlayUnwatched = 播放新视频
+SubscGroup_AddToQueue = 添加到队列
+
+SubscVideos_ShowAllSubsc = 显示所有
 
 
 
@@ -241,6 +267,7 @@ NavigationViewPaneDisplayMode.Left = 始终显示在左侧
 NavigationViewPaneDisplayMode.Top = 始终显示在顶部
 NavigationViewPaneDisplayMode.LeftCompact = 左侧紧凑型显示屏
 NavigationViewPaneDisplayMode.LeftMinimal = 左侧最小显示
+FullScreenWhenAppLaunched_CheckBoxText = 全屏启动
 AppearanceSettings = 显示设定
 ApplicationDisplayMode = 显示方式
 ApplicationDisplayMode.TV = 电视台
@@ -295,8 +322,10 @@ ErrorReportDialog_UserInputTextBoxDesc = 说明发生错误的情况（最多100
 UserDataSettings = 后备
 BackupUserData = 导出备份
 RestoreUserData = 读取备份
+BackupSaveComplete = 保存备份
+BackupSaveFailed = 无法保存备份。 \n{0}
 BackupRestoreComplete = 从备份还原完成
-BackupRestoreFailed = 从备份还原失败
+BackupRestoreFailed = 从备份恢复失败\n{0}
 
 ApplicationDiagnosticsReport = 应用使用情况报告
 EnableCrashReport = 发送应用错误信息
@@ -775,28 +804,22 @@ CommunitySearchNoItems = 没有与关键字匹配的社区
 SearchHistory = 搜索记录
 RemoveSearchHistory = 从搜索记录中删除
 
-VideoSortKey.NewComment_Asc = 最早的评论
-VideoSortKey.NewComment_Desc = 最新评论
+VideoSortKey.Hot = 人气
+VideoSortKey.Personalized = 为您推荐的顺序
+VideoSortKey.LastCommentTime_Asc = 最早的评论
+VideoSortKey.LastCommentTime_Desc = 最新评论
 VideoSortKey.ViewCount_Asc = 观看次数最少的顺序
 VideoSortKey.ViewCount_Desc = 最多玩
 VideoSortKey.MylistCount_Asc = 我列表中数量最少的订单
 VideoSortKey.MylistCount_Desc = 最我的清单
 VideoSortKey.CommentCount_Asc = 评论最少的顺序
 VideoSortKey.CommentCount_Desc = 评论最多的顺序
-VideoSortKey.FirstRetrieve_Asc = 最早的发布日期
-VideoSortKey.FirstRetrieve_Desc = 最新发布日期
-VideoSortKey.Length_Asc = 视频时间最短
-VideoSortKey.Length_Desc = 最长的录像时间
-VideoSortKey.Popurarity_Asc = 人气下降
-VideoSortKey.Popurarity_Desc = 最受欢迎的
-VideoSortKey.MylistPopurarity_Asc = 人气下降
-VideoSortKey.MylistPopurarity_Desc = 最受欢迎的
-VideoSortKey.VideoCount_Asc = 视频最少的顺序
-VideoSortKey.VideoCount_Desc = 多数视频优先
-VideoSortKey.UpdateTime_Asc = 最旧的更新优先
-VideoSortKey.UpdateTime_Desc = 更新是最新的
-VideoSortKey.Relation_Asc = 精度降序
-VideoSortKey.Relation_Desc = 精度降序
+VideoSortKey.RegisteredAt_Asc = 最早的发布日期
+VideoSortKey.RegisteredAt_Desc = 最新发布日期
+VideoSortKey.Duration_Asc = 视频时间最短
+VideoSortKey.Duration_Desc = 最长的录像时间
+VideoSortKey.LikeCount_Asc = 好的！按升序排列
+VideoSortKey.LikeCount_Desc = 好的！降序
 
 MylistSort.TitleAsc = 标题升序
 MylistSort.TitleDesc = 标题降序

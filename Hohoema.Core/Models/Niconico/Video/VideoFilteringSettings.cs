@@ -50,7 +50,7 @@ public sealed class VideoOwnerFilteringRemovedMessagePayload
 
 public sealed class VideoFilteringSettings : FlagsRepositoryBase
 {
-    [System.Obsolete]
+    
     public VideoFilteringSettings(
         IMessenger messenger,
         VideoIdFilteringRepository videoIdFilteringRepository,
@@ -111,7 +111,7 @@ public sealed class VideoFilteringSettings : FlagsRepositoryBase
 
     private bool _NGVideoIdEnable;
 
-    [System.Obsolete]
+    
     public bool NGVideoIdEnable
     {
         get => _NGVideoIdEnable;
@@ -162,7 +162,7 @@ public sealed class VideoFilteringSettings : FlagsRepositoryBase
 
     private bool _NGVideoOwnerUserIdEnable;
 
-    [System.Obsolete]
+    
     public bool NGVideoOwnerUserIdEnable
     {
         get => _NGVideoOwnerUserIdEnable;
@@ -222,7 +222,7 @@ public sealed class VideoFilteringSettings : FlagsRepositoryBase
 
     private bool _NGVideoTitleKeywordEnable;
 
-    [System.Obsolete]
+    
     public bool NGVideoTitleKeywordEnable
     {
         get => _NGVideoTitleKeywordEnable;
@@ -232,7 +232,7 @@ public sealed class VideoFilteringSettings : FlagsRepositoryBase
 
     private string _NGVideoTitleTestText;
 
-    [System.Obsolete]
+    
     public string NGVideoTitleTestText
     {
         get => _NGVideoTitleTestText;

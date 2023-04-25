@@ -24,7 +24,6 @@ public record PlaylistId
 
 public interface IPlaylistSortOption : IEquatable<IPlaylistSortOption>
 {
-    string Label { get; }
     string Serialize();
 }
 
@@ -67,4 +66,9 @@ public interface ISortablePlaylist : IPlaylist
 
 public interface IUserManagedPlaylist : ISortablePlaylist, INotifyCollectionChanged
 {
+}
+
+public interface IPlaylistItemWatchedAware
+{
+    void OnVideoWatched(IVideoContent video);
 }

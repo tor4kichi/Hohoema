@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using Hohoema.Contracts.Navigations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,13 +12,7 @@ namespace Hohoema.Services.Navigations;
 
 
 
-public static class NavigationServiceExtensions
-{
-    public static Task<INavigationResult> NavigateAsync(this INavigationService ns, string pageName, params (string key, object value)[] parameters)
-    {
-        return ns.NavigateAsync(pageName, new NavigationParameters(parameters));
-    }
-}
+
 
 public sealed class NavigationService : INavigationService
 {

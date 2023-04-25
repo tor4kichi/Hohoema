@@ -36,6 +36,7 @@ Select = Choice
 WatchVideo = View
 Preview = Previous
 Next = Next
+ViewList = Show list
 
 
 #### Hohoema App ####
@@ -93,7 +94,7 @@ HohoemaPageType.SearchResultMylist = Mylist search
 HohoemaPageType.SearchResultTag = Tag search
 HohoemaPageType.Settings = Configuration
 HohoemaPageType.Splash = Startup screen
-HohoemaPageType.Subscription = New videos
+HohoemaPageType.Subscription = Subsc management
 HohoemaPageType.SubscVideoList = List of new videos
 HohoemaPageType.Timeshift = Time shift
 HohoemaPageType.UserInfo = User information
@@ -106,7 +107,7 @@ HohoemaPageType.WatchHistory = Viewing history
 HohoemaPageType.LocalPlaylist = playlist
 HohoemaPageType.Mylist = Mylist
 HohoemaPageType.VideoQueue = Queue
-HohoemaPageType.SubscriptionManagement = New videos
+HohoemaPageType.SubscriptionManagement = Subsc management
 HohoemaPageType.OwnerMylistManage = Mylist management
 HohoemaPageType.LocalPlaylistManage = Local Mylist Management
 
@@ -192,6 +193,9 @@ CacheVideo_ToastNotification_CacheDelete = Delete
 
 
 #### Subscription ####
+SubscriptionNewVideos = New videos
+SubscriptionGroup = Subscription group
+
 SubscriptionAdd = Add subscription
 SubscriptionAddUserVideos = Add Contributor to Subscription
 SubscriptionAddSeries = Add series to subscription
@@ -201,24 +205,30 @@ SubscriptionSourceType.Channel = Channel
 SubscriptionSourceType.Mylist = Mylist
 SubscriptionSourceType.TagSearch = Tag search
 SubscriptionSourceType.KeywordSearch = Keyword search
+SubscriptionSourceType.Series = Series
 
 SubscriptionsAutoUpdateRunning = Automatic updating
 SubscriptionsNextUpdateTime = Next update
 SubscriptionsAutoNotUpdateRunning = Automatic update is stopped
+SubscriptionsPrevUpdateTime = Last update
 
 StopSubscribe? = Can I stop checking for new arrivals?
 StopSubscribe = Stop checking new arrivals
 
 OpenSubscriptionSourceVideoList = Open video list
-ReorderSubsciprionSource_Move = Move
-ReorderSubsciprionSource_MovePreview = Move up one
-ReorderSubsciprionSource_MoveNext = Move down one
-ReorderSubsciprionSource_MoveToHead = Move to the top
+ReorderSubsciprionSource_Move = Change the sort order...
+ReorderSubsciprionSource_MovePreview = Move forward
+ReorderSubsciprionSource_MoveNext = Move back
+ReorderSubsciprionSource_MoveToHead = Move to front
 ReorderSubsciprionSource_MoveToTail = Move to the end
 
-Notification_SuccessAddSubscriptionSourceWithLabel = Added "{0}" to the subscription. \n New videos will be added to "Watch Later" in the future.
+Notification_SuccessAddSubscriptionSourceWithLabel = Added "{0}" to subscription.
 Notification_FailedSubscriptionUpdate = Subscription renewal failed
 Notification_SuccessAddToWatchLaterWithAddedCount = New videos {0} added to See later
+SubscNotification_SampleVideosHeader = new video found
+VideosWithCount = {0} videos
+
+
 
 SubscGroup_DefaultGroupName = Default
 AddSubscriptionGroup_InputSubscGroupName_Title = Decide on a subscription group name
@@ -229,8 +239,24 @@ SubscGroup_Rename = Rename subscription group
 SubscGroup_DeleteComfirmDialogContent = Even if you delete a subscribed group, the subscribed group will be changed to "default", so you can safely delete it. \nAre you sure you want to delete it?
 SubscGroup_DeleteComfirmDialogTitle = Are you sure you want to delete the {0} group?
 
-VideoNoItem = No videos to display
+SubscGroupVideosAllCheckedWithSubscGroupTitle = No videos to display
+SubscVideosDisplayChecked = Show checked
+SubscVideos_MarkAsCheckedWithDays = Checked {0} days ago
+SubscVideos_MarkAsChecked = Mark as checked
+SubscVideos_AllMarkAsChecked = Mark all checked
+Subsc_UnwatchedVideoCount = New {0} videos
 
+SubscGroupSettings_Title = Subscription group name
+SubscGroupSettings = Display and notification settings
+SubscGroupSettings_Notification = Notify me of new arrivals
+SubscGroupSettings_AddToQueue = Add New to Queue
+SubscGroupSettings_ShowAppMenu = Show group in menu
+
+SubscGroup_PlayFromHere = Watch from here
+SubscGroup_AllPlayUnwatched = Play new video
+SubscGroup_AddToQueue = Add to queue
+
+SubscVideos_ShowAllSubsc = Show all
 
 
 
@@ -241,6 +267,7 @@ NavigationViewPaneDisplayMode.Left = Always displayed on the left
 NavigationViewPaneDisplayMode.Top = Always displayed at the top
 NavigationViewPaneDisplayMode.LeftCompact = Compact display on the left
 NavigationViewPaneDisplayMode.LeftMinimal = Minimum display on the left
+FullScreenWhenAppLaunched_CheckBoxText = Launch with FullScreen
 AppearanceSettings = Display settings
 ApplicationDisplayMode = Display mode
 ApplicationDisplayMode.TV = TV set
@@ -295,8 +322,10 @@ ErrorReportDialog_UserInputTextBoxDesc = Explain the situation where the error o
 UserDataSettings = Backup
 BackupUserData = Export backup
 RestoreUserData = Load backup
+BackupSaveComplete = saved a backup
+BackupSaveFailed = Failed to save backup. \n{0}
 BackupRestoreComplete = Restore from backup is complete
-BackupRestoreFailed = Restore from backup failed
+BackupRestoreFailed = Failed to restore from backup\n{0}
 
 ApplicationDiagnosticsReport = App usage report
 EnableCrashReport = Send app error information
@@ -775,28 +804,22 @@ CommunitySearchNoItems = No community matches the keyword
 SearchHistory = Search history
 RemoveSearchHistory = Delete from search history
 
-VideoSortKey.NewComment_Asc = Comments are in old order
-VideoSortKey.NewComment_Desc = Comments are newest first
-VideoSortKey.ViewCount_Asc = In ascending order of the number of views
-VideoSortKey.ViewCount_Desc = Most played
-VideoSortKey.MylistCount_Asc = Ascending order of mylist
-VideoSortKey.MylistCount_Desc = Ascending order of mylist
-VideoSortKey.CommentCount_Asc = In ascending order of comments
-VideoSortKey.CommentCount_Desc = Most commentary
-VideoSortKey.FirstRetrieve_Asc = In order from oldest posted date
-VideoSortKey.FirstRetrieve_Desc = Posting date is newest first
-VideoSortKey.Length_Asc = Shortest video time
-VideoSortKey.Length_Desc = Longest video time
-VideoSortKey.Popurarity_Asc = Most popular
-VideoSortKey.Popurarity_Desc = Most popular
-VideoSortKey.MylistPopurarity_Asc = Most popular
-VideoSortKey.MylistPopurarity_Desc = Most popular
-VideoSortKey.VideoCount_Asc = Ascending order of number of videos
-VideoSortKey.VideoCount_Desc = Most videos
-VideoSortKey.UpdateTime_Asc = Oldest to newest
-VideoSortKey.UpdateTime_Desc = Updates are newest first
-VideoSortKey.Relation_Asc = Ascending order of precision
-VideoSortKey.Relation_Desc = Highest precision
+VideoSortKey.Hot = Popularity
+VideoSortKey.Personalized = Recommended
+VideoSortKey.LastCommentTime_Asc = Oldest comment time
+VideoSortKey.LastCommentTime_Desc = Newest comment time
+VideoSortKey.ViewCount_Asc = View count Asc
+VideoSortKey.ViewCount_Desc = View count Desc
+VideoSortKey.MylistCount_Asc = Mylist connt Asc
+VideoSortKey.MylistCount_Desc = Mylist count Desc
+VideoSortKey.CommentCount_Asc = Comment count Asc
+VideoSortKey.CommentCount_Desc = Comment count Desc
+VideoSortKey.RegisteredAt_Asc = Oldest posted date
+VideoSortKey.RegisteredAt_Desc = Newest posted date
+VideoSortKey.Duration_Asc = Shortest video time
+VideoSortKey.Duration_Desc = Longest video time
+VideoSortKey.LikeCount_Asc = Like! Asc
+VideoSortKey.LikeCount_Desc = Like! Desc
 
 MylistSort.TitleAsc = Ascending title
 MylistSort.TitleDesc = Title descending

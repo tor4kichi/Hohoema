@@ -44,7 +44,7 @@
           <TextBlock Text="{i18nExt:Localize Key=Comment}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" />
 
           <TextBlock VerticalAlignment="Center">
-                <Run Text="{i18nExt:Localize Key=CommentCount}" />:<Run Text="{x:Bind _viewModel.CommentPlayer.Comments.Count, Mode=OneWay}" />
+                <Run Text="{i18nExt:Localize Key=CommentCount}" />:<Run Text="{x:Bind _viewModel.CommentPlayer.DisplayingComments.Count, Mode=OneWay}" />
           </TextBlock>
         </StackPanel>
 

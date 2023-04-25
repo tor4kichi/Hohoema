@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.LocalMylist;
@@ -40,7 +41,7 @@ namespace Hohoema.ViewModels.Pages.Niconico.Mylist;
 
 using MylistFollowContext = FollowContext<IMylist>;
 
-public class MylistPageViewModel : HohoemaPageViewModelBase, IPinablePage, ITitleUpdatablePage
+public sealed partial class MylistPageViewModel : HohoemaPageViewModelBase, IPinablePage, ITitleUpdatablePage
 	{
     HohoemaPin IPinablePage.GetPin()
     {
@@ -355,6 +356,8 @@ public class MylistPageViewModel : HohoemaPageViewModelBase, IPinablePage, ITitl
         set => SetProperty(ref _FollowContext, value);
     }
 
+    [ObservableProperty]
+    private bool _nowLoading;
 
 
     #region Commands
@@ -540,142 +543,149 @@ public class MylistPageViewModel : HohoemaPageViewModelBase, IPinablePage, ITitl
     public override async Task OnNavigatedToAsync(INavigationParameters parameters)
     {
         await base.OnNavigatedToAsync(parameters);
-
-        IsMylistNotFound = false;
-        MylistId? maybeMylistId = null;
-
-        if (parameters.TryGetValue<MylistId>("id", out var justMylistId))
+        NowLoading = true;
+        try
         {
-            maybeMylistId = justMylistId;
-        }
-        else if (parameters.TryGetValue<string>("id", out var idString))
-        {
-            maybeMylistId = idString;
-        }
-        else if (parameters.TryGetValue<uint>("id", out var idInt))
-        {
-            maybeMylistId = idInt;
-        }
+            IsMylistNotFound = false;
+            MylistId? maybeMylistId = null;
 
-        if (maybeMylistId == null) 
-        {
-
-        }
-
-        var mylistId = maybeMylistId.Value;
-        var mylist = await _mylistRepository.GetMylistAsync(mylistId);
-
-        if (mylist == null) 
-        {
-            return; 
-        }
-
-        Mylist.Value = mylist;
-        
-        IsUserOwnerdMylist = _mylistRepository.IsLoginUserMylistId(mylist.MylistId);
-        IsLoginUserDeflist = mylist.MylistId.IsWatchAfterMylist;
-        IsWatchAfterLocalMylist = false;
-        IsLocalMylist = false;
-
-        if (mylist is LoginUserMylistPlaylist loginMylist)
-        {
-            Observable.FromEventPattern<MylistItemAddedEventArgs>(
-            h => loginMylist.MylistItemAdded += h,
-            h => loginMylist.MylistItemAdded -= h
-            )
-            .Subscribe(e =>
+            if (parameters.TryGetValue<MylistId>("id", out var justMylistId))
             {
-                var args = e.EventArgs;
-                if (args.MylistId == Mylist.Value.MylistId)
-                {
-                    RefreshCommand.Execute(null);
-                }
-            })
-            .AddTo(_navigationDisposables);
+                maybeMylistId = justMylistId;
+            }
+            else if (parameters.TryGetValue<string>("id", out var idString))
+            {
+                maybeMylistId = idString;
+            }
+            else if (parameters.TryGetValue<uint>("id", out var idInt))
+            {
+                maybeMylistId = idInt;
+            }
 
-            Observable.FromEventPattern<MylistItemRemovedEventArgs>(
-                h => loginMylist.MylistItemRemoved += h,
-                h => loginMylist.MylistItemRemoved -= h
+            if (maybeMylistId == null)
+            {
+
+            }
+
+            var mylistId = maybeMylistId.Value;
+            var mylist = await _mylistRepository.GetMylistAsync(mylistId);
+
+            if (mylist == null)
+            {
+                return;
+            }
+
+            Mylist.Value = mylist;
+
+            IsUserOwnerdMylist = _mylistRepository.IsLoginUserMylistId(mylist.MylistId);
+            IsLoginUserDeflist = mylist.MylistId.IsWatchAfterMylist;
+            IsWatchAfterLocalMylist = false;
+            IsLocalMylist = false;
+
+            if (mylist is LoginUserMylistPlaylist loginMylist)
+            {
+                Observable.FromEventPattern<MylistItemAddedEventArgs>(
+                h => loginMylist.MylistItemAdded += h,
+                h => loginMylist.MylistItemAdded -= h
                 )
                 .Subscribe(e =>
                 {
                     var args = e.EventArgs;
                     if (args.MylistId == Mylist.Value.MylistId)
                     {
-                        foreach (var removed in args.SuccessedItems)
+                        RefreshCommand.Execute(null);
+                    }
+                })
+                .AddTo(_navigationDisposables);
+
+                Observable.FromEventPattern<MylistItemRemovedEventArgs>(
+                    h => loginMylist.MylistItemRemoved += h,
+                    h => loginMylist.MylistItemRemoved -= h
+                    )
+                    .Subscribe(e =>
+                    {
+                        var args = e.EventArgs;
+                        if (args.MylistId == Mylist.Value.MylistId)
                         {
-                            var removedItem = MylistItems.FirstOrDefault(x => x.VideoId == removed.VideoId);
-                            if (removedItem != null)
+                            foreach (var removed in args.SuccessedItems)
                             {
-                                MylistItems.Remove(removedItem);
+                                var removedItem = MylistItems.FirstOrDefault(x => x.VideoId == removed.VideoId);
+                                if (removedItem != null)
+                                {
+                                    MylistItems.Remove(removedItem);
+                                }
                             }
+                        }
+                    })
+                    .AddTo(_navigationDisposables);
+
+                Observable.FromEventPattern<MylistItemMovedEventArgs>(
+                h => loginMylist.MylistMoved += h,
+                h => loginMylist.MylistMoved -= h
+                )
+                .Subscribe(e =>
+                {
+                    var args = e.EventArgs;
+                    if (args.SourceMylistId == Mylist.Value.MylistId)
+                    {
+                        foreach (var id in args.SuccessedItems)
+                        {
+                            var removeTarget = MylistItems.FirstOrDefault(x => x.VideoId == id);
+                            MylistItems.Remove(removeTarget);
                         }
                     }
                 })
                 .AddTo(_navigationDisposables);
-            
-            Observable.FromEventPattern<MylistItemMovedEventArgs>(
-            h => loginMylist.MylistMoved += h,
-            h => loginMylist.MylistMoved -= h
-            )
-            .Subscribe(e =>
+            }
+
+            var lastSort = _mylistUserSelectedSortRepository.GetMylistSort(mylistId);
+            if (!IsLoginUserDeflist)
             {
-                var args = e.EventArgs;
-                if (args.SourceMylistId == Mylist.Value.MylistId)
-                {
-                    foreach (var id in args.SuccessedItems)
-                    {
-                        var removeTarget = MylistItems.FirstOrDefault(x => x.VideoId == id);
-                        MylistItems.Remove(removeTarget);
-                    }
-                }
-            })
-            .AddTo(_navigationDisposables);
-        }
-
-        var lastSort = _mylistUserSelectedSortRepository.GetMylistSort(mylistId);
-        if (!IsLoginUserDeflist)
-        {
-            SelectedSortOptionItem.Value = SortItems.First(x => x.SortKey == (lastSort.SortKey ?? Mylist.Value.DefaultSortKey) && x.SortOrder == (lastSort.SortOrder ?? Mylist.Value.DefaultSortOrder));
-        }
-        else
-        {
-            SelectedSortOptionItem.Value = SortItems.First(x => x.SortKey == (lastSort.SortKey ?? MylistSortKey.AddedAt) && x.SortOrder == (lastSort.SortOrder ?? MylistSortOrder.Desc));
-        }
-
-
-
-        MylistItems = CreateItemsSource(mylist);
-        MaxItemsCount = Mylist.Value.Count;
-
-        try
-        {
-            if (NiconicoSession.IsLoggedIn && Mylist.Value != null)
-            {
-                FollowContext = await MylistFollowContext.CreateAsync(_mylistFollowProvider, Mylist.Value);
+                SelectedSortOptionItem.Value = SortItems.First(x => x.SortKey == (lastSort.SortKey ?? Mylist.Value.DefaultSortKey) && x.SortOrder == (lastSort.SortOrder ?? Mylist.Value.DefaultSortOrder));
             }
             else
             {
+                SelectedSortOptionItem.Value = SortItems.First(x => x.SortKey == (lastSort.SortKey ?? MylistSortKey.AddedAt) && x.SortOrder == (lastSort.SortOrder ?? MylistSortOrder.Desc));
+            }
+
+
+
+            MylistItems = CreateItemsSource(mylist);
+            MaxItemsCount = Mylist.Value.Count;
+
+            try
+            {
+                if (NiconicoSession.IsLoggedIn && Mylist.Value != null)
+                {
+                    FollowContext = await MylistFollowContext.CreateAsync(_mylistFollowProvider, Mylist.Value);
+                }
+                else
+                {
+                    FollowContext = MylistFollowContext.Default;
+                }
+            }
+            catch
+            {
                 FollowContext = MylistFollowContext.Default;
             }
+
+            SelectedSortOptionItem
+                .Where(x => x is not null)
+                .Subscribe(x =>
+            {
+                RefreshCommand.Execute(null);
+
+                _mylistUserSelectedSortRepository.SetMylistSort(Mylist.Value.MylistId, x.SortKey, x.SortOrder);
+            })
+                .AddTo(_navigationDisposables);
+
+            EditMylistGroupCommand.NotifyCanExecuteChanged();
+            DeleteMylistCommand.NotifyCanExecuteChanged();
         }
-        catch
+        finally
         {
-            FollowContext = MylistFollowContext.Default;
+            NowLoading = false;
         }
-
-        SelectedSortOptionItem
-            .Where(x => x is not null)
-            .Subscribe(x =>
-        {
-            RefreshCommand.Execute(null);
-
-            _mylistUserSelectedSortRepository.SetMylistSort(Mylist.Value.MylistId, x.SortKey, x.SortOrder);
-        })
-            .AddTo(_navigationDisposables);
-
-        EditMylistGroupCommand.NotifyCanExecuteChanged();
-        DeleteMylistCommand.NotifyCanExecuteChanged();
     }
    
 

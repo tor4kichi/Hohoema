@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using Hohoema.Contracts.Navigations;
 using Hohoema.Models.Playlist;
 using System.ComponentModel;
 using System.Threading.Tasks;

@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using Hohoema.Models.Niconico.Search;
+using NiconicoToolkit.Search.Video;
 using System;
 using System.ComponentModel;
 using System.Runtime.Serialization;
@@ -10,10 +11,10 @@ namespace Hohoema.Services.Navigations;
 public abstract class VideoSearchOption : SearchPagePayloadContentBase, IEquatable<VideoSearchOption>
 {
 	[DataMember]
-	public VideoSortOrder Order { get; set; } = VideoSortOrder.Desc;
+	public SortOrder Order { get; set; } = SortOrder.Desc;
 
 	[DataMember]
-	public VideoSortKey Sort { get; set; } = VideoSortKey.FirstRetrieve;
+	public SortKey Sort { get; set; } = SortKey.RegisteredAt;
 
 
 
