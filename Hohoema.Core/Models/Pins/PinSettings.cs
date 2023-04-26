@@ -24,7 +24,16 @@ public sealed class PinSettings : LiteDBServiceBase<HohoemaPin>
 
     private HohoemaPin CreatePin(string label, HohoemaPageType pageType, string parameter)
     {
-        int sortIndex = _collection.Max(x => x.SortIndex);
+        int sortIndex;
+        try
+        {
+            sortIndex = _collection.Max(x => x.SortIndex);
+        }
+        catch
+        {
+            sortIndex = 0;
+        }
+        
 
         HohoemaPin pin = new()
         {
