@@ -43,7 +43,7 @@ namespace Hohoema.Views.Pages;
 
 public sealed partial class PrimaryWindowCoreLayout : UserControl
 {
-    private readonly PrimaryWindowCoreLayoutViewModel _viewModel;
+    private readonly PrimaryWindowCoreLayoutViewModel _vm;
     private readonly IScheduler _scheduler;
     private readonly Services.CurrentActiveWindowUIContextService _currentActiveWindowUIContextService;
     private readonly ILogger<PrimaryWindowCoreLayout> _logger;
@@ -59,7 +59,7 @@ public sealed partial class PrimaryWindowCoreLayout : UserControl
         ILoggerFactory loggerFactory
         )
     {
-        DataContext = _viewModel = viewModel;
+        DataContext = _vm = viewModel;
 
         this.InitializeComponent();
         _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
@@ -153,7 +153,7 @@ public sealed partial class PrimaryWindowCoreLayout : UserControl
 
         new[]
         {
-            _viewModel.PrimaryViewPlayerManager.ObserveProperty(x => x.DisplayMode).ToUnit(),
+            _vm.PrimaryViewPlayerManager.ObserveProperty(x => x.DisplayMode).ToUnit(),
             Observable.FromEventPattern(ContentFrame, "Navigated").ToUnit(),
             Observable.FromEventPattern(PlayerFrame, "Navigated").Delay(TimeSpan.FromMilliseconds(1000), _scheduler).ToUnit(),
         }
@@ -164,7 +164,7 @@ public sealed partial class PrimaryWindowCoreLayout : UserControl
         this.GettingFocus += PrimaryWindowCoreLayout_GettingFocus;
 
 
-        _viewModel.AppearanceSettings.ObserveProperty(x => x.ApplicationTheme)
+        _vm.AppearanceSettings.ObserveProperty(x => x.ApplicationTheme)
             .Subscribe(theme => 
             {
                 if (theme == ElementTheme.Default)
@@ -200,13 +200,13 @@ public sealed partial class PrimaryWindowCoreLayout : UserControl
         CoreNavigationView.ObserveDependencyProperty(Microsoft.UI.Xaml.Controls.NavigationView.PaneDisplayModeProperty)
             .Subscribe(_ => 
             {
-                _viewModel.ApplicationLayoutManager.SetCurrentNavigationViewPaneDisplayMode(CoreNavigationView.PaneDisplayMode);                    
+                _vm.ApplicationLayoutManager.SetCurrentNavigationViewPaneDisplayMode(CoreNavigationView.PaneDisplayMode);                    
             });
 
         CoreNavigationView.ObserveDependencyProperty(Microsoft.UI.Xaml.Controls.NavigationView.IsBackButtonVisibleProperty)
             .Subscribe(_ =>
             {
-                _viewModel.ApplicationLayoutManager.SetCurrentNavigationViewIsBackButtonVisible(CoreNavigationView.IsBackButtonVisible);
+                _vm.ApplicationLayoutManager.SetCurrentNavigationViewIsBackButtonVisible(CoreNavigationView.IsBackButtonVisible);
             });
 
         WeakReferenceMessenger.Default.Register<LiteNotificationMessage>(this, (r, m) => 
@@ -235,7 +235,7 @@ public sealed partial class PrimaryWindowCoreLayout : UserControl
         Window.Current.Activated += Current_Activated;
         
         // Xbox向けのメニュー表示、下部のマージンを追加する
-        if (_viewModel.ApplicationLayoutManager.AppLayout == ApplicationLayout.TV)
+        if (_vm.ApplicationLayoutManager.AppLayout == ApplicationLayout.TV)
         {
             Resources["NavigationViewPaneContentGridMargin"] = new Thickness(0, 27, 0, 27);
         }
@@ -254,7 +254,7 @@ public sealed partial class PrimaryWindowCoreLayout : UserControl
         {
             try
             {
-                if (_viewModel.PrimaryViewPlayerManager.DisplayMode is PlayerDisplayMode.FillWindow or PlayerDisplayMode.FullScreen or PlayerDisplayMode.CompactOverlay)
+                if (_vm.PrimaryViewPlayerManager.DisplayMode is PlayerDisplayMode.FillWindow or PlayerDisplayMode.FullScreen or PlayerDisplayMode.CompactOverlay)
                 {
                     if (PlayerFrame.Content is IDraggableAreaAware draggableArea)
                     {
@@ -319,13 +319,13 @@ public sealed partial class PrimaryWindowCoreLayout : UserControl
 
     public void TogglePlayerFillBtwWindowInWindow()
     {
-        if (_viewModel.PrimaryViewPlayerManager.DisplayMode == PlayerDisplayMode.FillWindow)
+        if (_vm.PrimaryViewPlayerManager.DisplayMode == PlayerDisplayMode.FillWindow)
         {
-            _viewModel.PrimaryViewPlayerManager.ShowWithWindowInWindow();
+            _vm.PrimaryViewPlayerManager.ShowWithWindowInWindow();
         }
-        else if (_viewModel.PrimaryViewPlayerManager.DisplayMode == PlayerDisplayMode.WindowInWindow)
+        else if (_vm.PrimaryViewPlayerManager.DisplayMode == PlayerDisplayMode.WindowInWindow)
         {
-            _viewModel.PrimaryViewPlayerManager.ShowWithFill();
+            _vm.PrimaryViewPlayerManager.ShowWithFill();
         }
     }
     
@@ -351,13 +351,13 @@ public sealed partial class PrimaryWindowCoreLayout : UserControl
 
     private void ContentFrame_Navigating(object sender, NavigatingCancelEventArgs e)
     {
-        if (_viewModel.ApplicationLayoutManager.AppLayout == ApplicationLayout.TV)
+        if (_vm.ApplicationLayoutManager.AppLayout == ApplicationLayout.TV)
         {
             _isFocusMenu.Value = false;
         }
 
         // 選択状態を解除
-        _viewModel.VideoItemsSelectionContext.EndSelectioin();
+        _vm.VideoItemsSelectionContext.EndSelectioin();
     }
 
     NavigationTransitionInfo _contentFrameDefaultTransitionInfo = new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight };
@@ -407,9 +407,9 @@ public sealed partial class PrimaryWindowCoreLayout : UserControl
 
                 Debug.WriteLineIf(!result.IsSuccess, result.Exception?.ToString());
 
-                if (_viewModel.PrimaryViewPlayerManager.DisplayMode is PlayerDisplayMode.FillWindow or PlayerDisplayMode.FullScreen)
+                if (_vm.PrimaryViewPlayerManager.DisplayMode is PlayerDisplayMode.FillWindow or PlayerDisplayMode.FullScreen)
                 {
-                    _viewModel.PrimaryViewPlayerManager.ShowWithWindowInWindow();
+                    _vm.PrimaryViewPlayerManager.ShowWithWindowInWindow();
                 }
 
                 CoreNavigationView.IsBackEnabled = _contentFrameNavigationService.CanGoBack();
@@ -563,7 +563,7 @@ public sealed partial class PrimaryWindowCoreLayout : UserControl
             return false;
         }
 
-        var displayMode = _viewModel.PrimaryViewPlayerManager.DisplayMode;
+        var displayMode = _vm.PrimaryViewPlayerManager.DisplayMode;
         if (displayMode == PlayerDisplayMode.FillWindow
             || displayMode == PlayerDisplayMode.FullScreen
             || displayMode == PlayerDisplayMode.CompactOverlay
@@ -663,9 +663,9 @@ public sealed partial class PrimaryWindowCoreLayout : UserControl
         // ナビゲーション状態の保存
         var (currentPage, currentPageParameters) = _contentFrameNavigationService.GetCurrentPage();
         Debug.WriteLine($"[NavvigationRestore] Save CurrentPage: {currentPage.Name}");
-        _viewModel.RestoreNavigationManager.SetCurrentNavigationEntry(MakePageEnetry(currentPage, currentPageParameters));
+        _vm.RestoreNavigationManager.SetCurrentNavigationEntry(MakePageEnetry(currentPage, currentPageParameters));
 
-        await _viewModel.RestoreNavigationManager.SetBackNavigationEntriesAsync(
+        await _vm.RestoreNavigationManager.SetBackNavigationEntriesAsync(
             _contentFrameNavigationService.GetBackStackPages().Select(x => MakePageEnetry(x.PageType, x.Parameters))
         );
         
@@ -691,7 +691,7 @@ public sealed partial class PrimaryWindowCoreLayout : UserControl
 
     public async Task RestoreNavigationStack()
     {
-        var navigationManager = _viewModel.RestoreNavigationManager;
+        var navigationManager = _vm.RestoreNavigationManager;
         try
         {
             var currentEntry = navigationManager.GetCurrentNavigationEntry();
@@ -819,7 +819,7 @@ public sealed partial class PrimaryWindowCoreLayout : UserControl
     {
         if (GetCurrentPagePin() is not null and var pin)
         {
-            _viewModel.AddPin(pin);
+            _vm.AddPin(pin);
         }
     }
 
@@ -836,7 +836,7 @@ public sealed partial class PrimaryWindowCoreLayout : UserControl
     void AddBookmarkFolder()
     {
         var pinGroup = new HohoemaPin { PinType = Models.Pins.BookmarkType.Folder, Label = "PinFolder_DefaultName".Translate() };
-        _viewModel.AddPin(pinGroup);
+        _vm.AddPin(pinGroup);
     }
 
 
@@ -894,7 +894,7 @@ public sealed partial class PrimaryWindowCoreLayout : UserControl
         }
         else
         {
-            (_viewModel.SearchCommand as ICommand).Execute(args.QueryText);
+            (_vm.SearchCommand as ICommand).Execute(args.QueryText);
         }
 
         if (CoreNavigationView.IsPaneOpen && 
@@ -914,23 +914,23 @@ public sealed partial class PrimaryWindowCoreLayout : UserControl
     {
         if (args.InvokedItemContainer?.DataContext is IPageNavigatable menuItemVM)
         {
-            _viewModel.PageManager.OpenPageCommand.Execute(menuItemVM);                
+            _vm.PageManager.OpenPageCommand.Execute(menuItemVM);                
         }
         else if (args.InvokedItemContainer?.DataContext is LiveContentMenuItemViewModel live)
         {
-            (_viewModel.OpenLiveContentCommand as ICommand).Execute(live);
+            (_vm.OpenLiveContentCommand as ICommand).Execute(live);
         }
         else if (args.InvokedItem is IPageNavigatable menuItem)
         {
-            _viewModel.PageManager.OpenPageCommand.Execute(menuItem);
+            _vm.PageManager.OpenPageCommand.Execute(menuItem);
         }
         else if ((args.InvokedItem as FrameworkElement)?.DataContext is IPageNavigatable item)
         {
-            _viewModel.PageManager.OpenPageCommand.Execute(item);
+            _vm.PageManager.OpenPageCommand.Execute(item);
         }
         else if (args.IsSettingsInvoked)
         {
-            _viewModel.PageManager.OpenPage(HohoemaPageType.Settings);
+            _vm.PageManager.OpenPage(HohoemaPageType.Settings);
         }
     }
 
@@ -1006,9 +1006,9 @@ public sealed partial class PrimaryWindowCoreLayout : UserControl
 
         moveToFolderSubItem.Items.Clear();
 
-        var folderItems = _viewModel.GetPinFolders();
+        var folderItems = _vm.GetPinFolders();
 
-        var parentFolderVM = _viewModel.GetParentPinFolder(itemVM);
+        var parentFolderVM = _vm.GetParentPinFolder(itemVM);
         // TODO: 今いるフォルダをDisableに
         moveToFolderSubItem.Items.Add(new MenuFlyoutItem { Text = "PinMoveToRoot".Translate(), Command = itemVM.MoveToRootFolderCommand, IsEnabled = parentFolderVM != null });
         moveToFolderSubItem.Items.Add(new MenuFlyoutSeparator());
@@ -1027,7 +1027,7 @@ public sealed partial class PrimaryWindowCoreLayout : UserControl
 
             var folderVM = item.DataContext as PinFolderMenuItemViewModel;
             if (folderVM == null) { return; }
-            _viewModel.AddPinToFolder(pin, folderVM);
+            _vm.AddPinToFolder(pin, folderVM);
         }
     }
 
@@ -1045,7 +1045,7 @@ public sealed partial class PrimaryWindowCoreLayout : UserControl
     private void CoreNavigationView_DisplayModeChanged(Microsoft.UI.Xaml.Controls.NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewDisplayModeChangedEventArgs args)
     {
         // TODO: Top の場合でもMinimalになってしまうためページヘッダー向けの条件分岐としては不十分
-        _viewModel.ApplicationLayoutManager.SetCurrentNavigationViewDisplayMode(args.DisplayMode);
+        _vm.ApplicationLayoutManager.SetCurrentNavigationViewDisplayMode(args.DisplayMode);
     }
 }
 

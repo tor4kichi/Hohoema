@@ -189,9 +189,51 @@ public partial class PrimaryWindowCoreLayoutViewModel : ObservableObject, IRecip
             new NavigateAwareMenuItemViewModel(HohoemaPageType.CacheManagement.Translate(), HohoemaPageType.CacheManagement),
         };
 
-
+        NiconicoSession.LogIn += NiconicoSession_LogIn;
+        NiconicoSession.LogOut += NiconicoSession_LogOut;
+        NiconicoSession.LogInFailed += NiconicoSession_LogInFailed;
     }
 
+    private void NiconicoSession_LogInFailed(object sender, NiconicoSessionLoginErrorEventArgs e)
+    {
+        IsLoggedIn = false;
+        LoginUserName = null;
+        LoginUserIcon = null;
+
+        _notificationService.ShowLiteInAppNotification_Fail(e.LoginFailedReason.Translate(), Models.Notification.DisplayDuration.MoreAttention);
+    }
+
+    private void NiconicoSession_LogOut(object sender, EventArgs e)
+    {
+        IsLoggedIn = false;
+        LoginUserName = null;
+        LoginUserIcon = null;
+    }
+
+    private async void NiconicoSession_LogIn(object sender, NiconicoSessionLoginEventArgs e)
+    {
+        IsLoggedIn = true;
+        if (await NiconicoSession.GetLoginUserDetailsAsync() is { } userInfo)
+        {            
+            LoginUserName = userInfo.UserName;
+            LoginUserIcon = userInfo.UserIconUrl;
+        }
+        else
+        {
+            LoginUserName = null;
+            LoginUserIcon = null;
+        }
+    }
+
+    [ObservableProperty]
+    private bool _isLoggedIn;
+
+    [ObservableProperty]
+    private string? _loginUserName;
+
+    [ObservableProperty]
+    private Uri? _loginUserIcon;
+    
     [RelayCommand]
     void OpenFollowPage()
     {

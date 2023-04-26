@@ -248,7 +248,7 @@ public sealed partial class SubscriptionUpdateManager
                         {
                             throw;
                         }
-                        catch (Exception ex) when (InternetConnection.IsInternet() is false)
+                        catch (Exception ex) when (InternetConnection.IsInternet())
                         {
                             // インターネット接続はあるけど何かしらで失敗した場合は
                             // API不通を想定して強制的に自動更新をOFFにする
