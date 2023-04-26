@@ -386,7 +386,7 @@
               </Button>
             </StackPanel>
             <!-- 右上 -->                     
-            <Button x:Name="ExitWindonwInWindowViewButton" Command="{x:Bind _vm.PrimaryViewPlayerManager.FillCommand}" Background="Transparent" Visibility="Collapsed" uwpControls:DockPanel.Dock="Right" Margin="0 8 0 0" MinWidth="48" MinHeight="48">
+            <Button x:Name="ExitWindonwInWindowViewButton" Command="{x:Bind _vm.PrimaryViewPlayerManager.ShowWithFillCommand}" Background="Transparent" Visibility="Collapsed" uwpControls:DockPanel.Dock="Right" Margin="0 8 0 0" MinWidth="48" MinHeight="48">
               <SymbolIcon Symbol="FullScreen" />
             </Button>
             <Button x:Name="ExitCompactOverlayButton" Command="{x:Bind _vm.PlayerView.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" uwpControls:DockPanel.Dock="Right" Margin="0 8 0 0" MinWidth="48" MinHeight="48">

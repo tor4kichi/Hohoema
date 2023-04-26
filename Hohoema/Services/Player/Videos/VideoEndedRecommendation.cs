@@ -223,7 +223,7 @@ public sealed class VideoEndedRecommendation : ObservableObject, IDisposable,
             switch (_playerSettings.PlaylistEndAction)
             {
                 case PlaylistEndAction.ChangeIntoSplit:
-                    _primaryViewPlayerManager.ShowWithWindowInWindow();
+                    _primaryViewPlayerManager.ShowWithWindowInWindowAsync();
                     return true;
                 case PlaylistEndAction.CloseIfPlayWithCurrentWindow:
                     _primaryViewPlayerManager.CloseAsync();
