@@ -321,11 +321,11 @@ public sealed partial class PrimaryWindowCoreLayout : UserControl
     {
         if (_vm.PrimaryViewPlayerManager.DisplayMode == PlayerDisplayMode.FillWindow)
         {
-            _vm.PrimaryViewPlayerManager.ShowWithWindowInWindow();
+            _vm.PrimaryViewPlayerManager.ShowWithWindowInWindowAsync();
         }
         else if (_vm.PrimaryViewPlayerManager.DisplayMode == PlayerDisplayMode.WindowInWindow)
         {
-            _vm.PrimaryViewPlayerManager.ShowWithFill();
+            _vm.PrimaryViewPlayerManager.ShowWithFillAsync();
         }
     }
     
@@ -409,7 +409,7 @@ public sealed partial class PrimaryWindowCoreLayout : UserControl
 
                 if (_vm.PrimaryViewPlayerManager.DisplayMode is PlayerDisplayMode.FillWindow or PlayerDisplayMode.FullScreen)
                 {
-                    _vm.PrimaryViewPlayerManager.ShowWithWindowInWindow();
+                    _vm.PrimaryViewPlayerManager.ShowWithWindowInWindowAsync();
                 }
 
                 CoreNavigationView.IsBackEnabled = _contentFrameNavigationService.CanGoBack();
