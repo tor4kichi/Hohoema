@@ -34,30 +34,8 @@ public sealed class NiconicoLoginService : IDisposable,
         // 二要素認証を求められるケースに対応する
         // 起動後の自動ログイン時に二要素認証を要求されることもある
         _messenger.Register<NiconicoSessionLoginRequireTwoFactorAsyncRequestMessage>(this);
-
-        NiconicoSession.LogIn += NiconicoSession_LogIn;
-        NiconicoSession.LogInFailed += NiconicoSession_LogInFailed;
-        NiconicoSession.LogOut += NiconicoSession_LogOut;
     }
 
-    private void NiconicoSession_LogInFailed(object sender, NiconicoSessionLoginErrorEventArgs e)
-    {
-        _twoFactorAuthLoginCts?.SetResult(0);
-    }
-
-    private void NiconicoSession_LogOut(object sender, EventArgs e)
-    {
-        
-    }
-
-    private void NiconicoSession_LogIn(object sender, NiconicoSessionLoginEventArgs e)
-    {
-        _twoFactorAuthLoginCts?.SetResult(0);
-    }
-
-
-
-    TaskCompletionSource<long> _twoFactorAuthLoginCts;
 
     public NiconicoSession NiconicoSession { get; }
     public DialogService DialogService { get; }
@@ -70,7 +48,6 @@ public sealed class NiconicoLoginService : IDisposable,
     public RelayCommand LoginCommand => _LoginCommand
         ?? (_LoginCommand = new RelayCommand(async () => 
         {
-
             try
             {
                 var currentView = CoreApplication.GetCurrentView();
@@ -87,13 +64,8 @@ public sealed class NiconicoLoginService : IDisposable,
             }
             catch (OperationCanceledException)
             {
-
+                await NiconicoSession.SignOutAsync();
             }
-            finally
-            {
-                
-            }
-
         }));
 
     private async Task StartLoginSequence()
@@ -107,12 +79,11 @@ public sealed class NiconicoLoginService : IDisposable,
 
             NotificationService.ShowLiteInAppNotification("UnavailableNiconicoService".Translate(), DisplayDuration.MoreAttention, Windows.UI.Xaml.Controls.Symbol.Important);
         }
-
-        var account = await AccountManager.GetPrimaryAccount();
-        if (account != null)
+        
+        if (await AccountManager.GetPrimaryAccount() is { } account)
         {
-            dialog.Mail = account.Item1;
-            dialog.Password = account.Item2;
+            dialog.Mail = account.MailOrTel;
+            dialog.Password = "";
 
             dialog.IsRememberPassword = true;
         }
@@ -121,8 +92,7 @@ public sealed class NiconicoLoginService : IDisposable,
         bool isCanceled = false;
         while (!isLoginSuccess)
         {
-            var result = await dialog.ShowAsync();
-            if (result != Windows.UI.Xaml.Controls.ContentDialogResult.Primary)
+            if (await dialog.ShowAsync() is not Windows.UI.Xaml.Controls.ContentDialogResult.Primary)
             {
                 isCanceled = true;
                 break;
@@ -130,40 +100,61 @@ public sealed class NiconicoLoginService : IDisposable,
 
             dialog.WarningText = string.Empty;
 
-            _twoFactorAuthLoginCts = new TaskCompletionSource<long>();
-            var loginResult = await NiconicoSession.SignIn(dialog.Mail, dialog.Password, true);
-
-            if (loginResult == NiconicoSessionStatus.RequireTwoFactorAuth)
+            var twoFactorAuthLoginCts = new TaskCompletionSource<long>();
+            void NiconicoSession_LogInFailed(object sender, NiconicoSessionLoginErrorEventArgs e)
             {
-                await _twoFactorAuthLoginCts.Task;
-
-                loginResult = await NiconicoSession.CheckSignedInStatus();
+                twoFactorAuthLoginCts?.SetResult(0);
             }
 
-            _twoFactorAuthLoginCts = null;
+            void NiconicoSession_LogIn(object sender, NiconicoSessionLoginEventArgs e)
+            {
+                twoFactorAuthLoginCts?.SetResult(0);
+            }
+
+            NiconicoSession.LogIn += NiconicoSession_LogIn;
+            NiconicoSession.LogInFailed += NiconicoSession_LogInFailed;
             
-            if (loginResult == NiconicoSessionStatus.ServiceUnavailable)
+            try
             {
-                // サービス障害中
-                // 何か通知を出す？
-                NotificationService.ShowLiteInAppNotification("UnavailableNiconicoService".Translate(), DisplayDuration.MoreAttention, Windows.UI.Xaml.Controls.Symbol.Important);
-                break;
-            }
-            else if (loginResult == NiconicoSessionStatus.Failed)
-            {
-                dialog.WarningText = "LoginFailed_WrongMailOrPassword".Translate();
-            }
+                var loginResult = await NiconicoSession.SignIn(dialog.Mail, dialog.Password, true);
+                if (loginResult == NiconicoSessionStatus.RequireTwoFactorAuth)
+                {
+                    await twoFactorAuthLoginCts.Task;
+                    loginResult = await NiconicoSession.CheckSignedInStatus();
+                }
+                else
+                {
+                    twoFactorAuthLoginCts.TrySetCanceled();
+                }
 
-            isLoginSuccess = loginResult == NiconicoSessionStatus.Success;
+                if (loginResult == NiconicoSessionStatus.ServiceUnavailable)
+                {
+                    // サービス障害中
+                    // 何か通知を出す？
+                    NotificationService.ShowLiteInAppNotification("UnavailableNiconicoService".Translate(), DisplayDuration.MoreAttention, Windows.UI.Xaml.Controls.Symbol.Important);
+                    break;
+                }
+                else if (loginResult == NiconicoSessionStatus.Failed)
+                {
+                    dialog.WarningText = "LoginFailed_WrongMailOrPassword".Translate();
+                }
+
+                isLoginSuccess = loginResult == NiconicoSessionStatus.Success;
+            }
+            finally
+            {
+                NiconicoSession.LogIn -= NiconicoSession_LogIn;
+                NiconicoSession.LogInFailed -= NiconicoSession_LogInFailed;
+            }
         }
 
         // ログインを選択していた場合にのみアカウント情報を更新する
         // （キャンセル時は影響を発生させない）
         if (!isCanceled)
         {
-            if (account != null)
+            if (await AccountManager.GetPrimaryAccount() is { } primaryAccount)
             {
-                AccountManager.RemoveAccount(account.Item1);
+                AccountManager.RemoveAccount(primaryAccount.MailOrTel);
             }
 
             AccountManager.SetPrimaryAccountId(dialog.Mail);

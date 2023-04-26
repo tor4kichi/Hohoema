@@ -1,5 +1,4 @@
 ﻿#nullable enable
-#nullable enable
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,6 +12,21 @@ namespace Hohoema.Helpers
     // Xboxとそれ以外でアカウント管理の方法を切り替えます
     // PCやモバイルでは Windows.Security.Credentials を利用し、
     // XboxOneでは 暗号化してローカルストレージに保存します。
+
+
+    public readonly struct AccountLoginData
+    {
+        public AccountLoginData(string mailOrTel, string password)
+        {
+            MailOrTel = mailOrTel;
+            Password = password;
+        }
+
+        public readonly string MailOrTel;
+        public readonly string Password;
+    }
+    
+    
 
     public static class AccountManager
     {
@@ -71,7 +85,7 @@ namespace Hohoema.Helpers
             container.Values["primary_id"] = mailAddress;
         }
 
-        public static string GetPrimaryAccountId()
+        public static string? GetPrimaryAccountId()
         {
             ApplicationDataContainer container = ApplicationData.Current.LocalSettings.CreateContainer(PRIMARY_ACCOUNT, ApplicationDataCreateDisposition.Always);
             return container.Values["primary_id"] as string;
@@ -205,8 +219,16 @@ namespace Hohoema.Helpers
             return false;
         }
 
+        public static async ValueTask RemovePrimaryAccount()
+        {
+            if (await GetPrimaryAccount() is { } account)
+            {
+                RemoveAccount(account.MailOrTel);
+            }
+        }
 
-        public static async ValueTask<Tuple<string, string>> GetPrimaryAccount()
+
+        public static async ValueTask<AccountLoginData?> GetPrimaryAccount()
         {
             if (HasPrimaryAccount())
             {
@@ -230,24 +252,24 @@ namespace Hohoema.Helpers
         }
 
 
-        public static Tuple<string, string> _GetPrimaryAccount()
+        public static AccountLoginData? _GetPrimaryAccount()
         {
             Windows.Security.Credentials.PasswordVault vault = new();
             try
             {
-                string primary_id = GetPrimaryAccountId();
+                string? primary_id = GetPrimaryAccountId();
 
                 if (string.IsNullOrWhiteSpace(primary_id)) { return null; }
-
+                
                 Windows.Security.Credentials.PasswordCredential credential = vault.Retrieve(AccountResrouceKey, primary_id);
                 credential.RetrievePassword();
-                return new Tuple<string, string>(credential.UserName, credential.Password);
+                return new AccountLoginData(credential.UserName, credential.Password);
             }
             catch { }
             return null;
         }
 
-        public static async Task<Tuple<string, string>> _GetPrimaryAccount_Xbox()
+        public static async Task<AccountLoginData?> _GetPrimaryAccount_Xbox()
         {
             ApplicationDataContainer container = ApplicationData.Current.LocalSettings.CreateContainer(XBOX_ACCOUNT_PASSWORD_CONTAINER, ApplicationDataCreateDisposition.Always);
             string encryptKey = await GetXboxEncryptKey();
@@ -257,7 +279,7 @@ namespace Hohoema.Helpers
                 string encryptedPassword = (string)pair.Value;
                 string plainPassword = Helpers.EncryptHelper.DecryptStringHelper(encryptedPassword, encryptKey);
 
-                return new Tuple<string, string>(mail, plainPassword);
+                return new AccountLoginData(mail, plainPassword);
             }
 
             return null;

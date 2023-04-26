@@ -30,10 +30,9 @@ public struct NiconicoSessionLoginEventArgs
 {
     public uint UserId { get; set; }
     public bool IsPremium { get; set; }
-
-    public string UserName { get; set; }
-    public string UserIconUrl { get; set; }
 }
+
+
 
 public class NiconicoSessionLoginRequireTwoFactorAuthResponse
 {
@@ -81,6 +80,11 @@ public sealed class NiconicoSession : ObservableObject
         ToolkitContext.SetupDefaultRequestHeaders();
 
         _messenger = messenger;
+
+        // Singleton前提でイベント購読
+        NetworkInformation.NetworkStatusChanged += OnNetworkStatusChanged;
+        CoreApplication.Suspending += CoreApplication_Suspending;
+        CoreApplication.Resuming += CoreApplication_Resuming;
     }
 
 
@@ -143,9 +147,9 @@ public sealed class NiconicoSession : ObservableObject
     // Logout 
     // LoginError exception, またはエラー理由のテキスト
 
-    public event EventHandler<NiconicoSessionLoginEventArgs> LogIn;
-    public event EventHandler LogOut;
-    public event EventHandler<NiconicoSessionLoginErrorEventArgs> LogInFailed;
+    public event EventHandler<NiconicoSessionLoginEventArgs>? LogIn;
+    public event EventHandler? LogOut;
+    public event EventHandler<NiconicoSessionLoginErrorEventArgs>? LogInFailed;
 
 
     // ServiceStatusとIsLoggedInは別々に管理する
@@ -163,25 +167,11 @@ public sealed class NiconicoSession : ObservableObject
     /// <summary>
     /// ユーザーID
     /// </summary>
-    private UserId _UserId;
-    public UserId UserId
+    private UserId? _UserId;
+    public UserId? UserId
     {
         get => _UserId;
         private set => SetProperty(ref _UserId, value);
-    }
-
-    private string _UserName;
-    public string UserName
-    {
-        get => _UserName;
-        private set => SetProperty(ref _UserName, value);
-    }
-
-    private string _UserIconUrl;
-    public string UserIconUrl
-    {
-        get => _UserIconUrl;
-        private set => SetProperty(ref _UserIconUrl, value);
     }
 
     private bool _IsPremiumAccount;
@@ -201,8 +191,17 @@ public sealed class NiconicoSession : ObservableObject
     public NiconicoToolkit.NiconicoContext ToolkitContext { get; }
 
     public AsyncLock SigninLock { get; } = new AsyncLock();
+    
 
+    public async ValueTask<(string UserName, Uri UserIconUrl)?> GetLoginUserDetailsAsync()
+    {
+        if (IsLoggedIn is false)
+        {
+            throw new InvalidOperationException();
+        }
 
+        return await LoginAfterResolveUserDetailAction(ToolkitContext);
+    }
 
     public bool IsLoginUserId(UserId id)
     {
@@ -214,38 +213,41 @@ public sealed class NiconicoSession : ObservableObject
     public async Task<NiconicoSessionStatus> SignInWithPrimaryAccount()
     {
         // 資格情報からログインパラメータを取得
-        string primaryAccount_id = null;
-        string primaryAccount_Password = null;
-
-        Tuple<string, string> account = await AccountManager.GetPrimaryAccount();
-        if (account != null)
+        if (await TryGetPrimaryAccountAsync() is { } account)
         {
-            primaryAccount_id = account.Item1;
-            primaryAccount_Password = account.Item2;
+            return await SignIn(account.MailOrTel, account.Password);
         }
-
-        return string.IsNullOrWhiteSpace(primaryAccount_id) || string.IsNullOrWhiteSpace(primaryAccount_Password)
-            ? NiconicoSessionStatus.Failed
-            : await SignIn(primaryAccount_id, primaryAccount_Password);
+        else
+        {
+            return NiconicoSessionStatus.Failed;
+        }
     }
-
 
     public async ValueTask<bool> CanSignInWithPrimaryAccount()
     {
-        string primaryAccount_id = null;
-        string primaryAccount_Password = null;
-
-        Tuple<string, string> account = await AccountManager.GetPrimaryAccount();
-        if (account != null)
-        {
-            primaryAccount_id = account.Item1;
-            primaryAccount_Password = account.Item2;
-        }
-
-        return !string.IsNullOrWhiteSpace(primaryAccount_id) && !string.IsNullOrWhiteSpace(primaryAccount_Password);
+        return await TryGetPrimaryAccountAsync() is not null;
     }
 
-    private void HandleLoginError(Exception e = null)
+    private async ValueTask<AccountLoginData?> TryGetPrimaryAccountAsync()
+    {
+        try
+        {
+            if (await AccountManager.GetPrimaryAccount() is { } account
+                && !string.IsNullOrWhiteSpace(account.MailOrTel)
+                && !string.IsNullOrWhiteSpace(account.Password)
+                )
+            {
+                return account;
+            }
+            else
+            {
+                return null;
+            }
+        }
+        catch { return null; }
+    }
+
+    private void HandleLoginError(Exception e)
     {
         UpdateServiceStatus();
 
@@ -259,7 +261,7 @@ public sealed class NiconicoSession : ObservableObject
         });
     }
 
-    private async Task<(string UserName, Uri? IconUrl)> LoginAfterResolveUserDetailAction(NiconicoToolkit.NiconicoContext context)
+    private async Task<(string UserName, Uri IconUrl)?> LoginAfterResolveUserDetailAction(NiconicoToolkit.NiconicoContext context)
     {        
         try
         {
@@ -277,10 +279,10 @@ public sealed class NiconicoSession : ObservableObject
                 Debugger.Break();
             }
 #endif
-            return (string.Empty, default);
+            return null;
         }
     }
-
+    
     public async Task<NiconicoSessionStatus> SignIn(string mailOrTelephone, string password, bool withClearAuthenticationCache = false)
     {
         using (IDisposable releaser = await SigninLock.LockAsync())
@@ -291,18 +293,9 @@ public sealed class NiconicoSession : ObservableObject
             }
         }
 
-        NetworkInformation.NetworkStatusChanged -= OnNetworkStatusChanged;
-        CoreApplication.Suspending -= CoreApplication_Suspending;
-        CoreApplication.Resuming -= CoreApplication_Resuming;
-
-        NetworkInformation.NetworkStatusChanged += OnNetworkStatusChanged;
-        CoreApplication.Suspending += CoreApplication_Suspending;
-        CoreApplication.Resuming += CoreApplication_Resuming;
-
-
         if (IsLoggedIn)
         {
-            _ = await SignOut();
+            await SignOutAsync();
         }
 
         using (await SigninLock.LockAsync())
@@ -316,91 +309,124 @@ public sealed class NiconicoSession : ObservableObject
             }
             */
 
+            TaskCompletionSource<NiconicoSessionStatus>? loginTcs = new ();
+            TaskCompletionSource<NiconicoSessionStatus>? mfaTcs = new ();
+
+            void Account_LoggedIn(object sender, NiconicoLoggedInEventArgs e)
+            {
+                _dispatcherQueue.TryEnqueue(() =>
+                {
+                    try
+                    {
+                        IsLoggedIn = true;
+                        IsPremiumAccount = e.IsPremiumAccount;
+                        UserId = e.UserId;
+
+                        loginTcs.SetResult(NiconicoSessionStatus.Success);
+                    }
+                    catch (Exception ex)
+                    {
+                        loginTcs.SetException(ex);
+                    }
+                });
+            }
+
+            void Account_LoginFailed(object sender, object e)
+            {
+                loginTcs.SetResult(NiconicoSessionStatus.Failed);
+            }
+
+            void Account_RequireTwoFactorAuth(object sender, NiconicoTwoFactorAuthEventArgs e)
+            {
+                _dispatcherQueue.TryEnqueue(async () =>
+                {
+                    try
+                    {
+                        NiconicoSessionLoginRequireTwoFactorAuthResponse res = await _messenger.Send(new NiconicoSessionLoginRequireTwoFactorAsyncRequestMessage(e.Location, ToolkitContext));
+                        NiconicoSessionStatus result = NiconicoSessionStatus.Failed;
+                        if (res != null)
+                        {
+                            result = await e.MfaAsync(res.Code, res.IsTrustDevice, res.DeviceName);
+                        }
+
+                        mfaTcs.SetResult(result);
+                    }
+                    catch (Exception ex)
+                    {
+                        mfaTcs.SetException(ex);
+                    }
+                });
+            }
+
+            ToolkitContext.Account.RequireTwoFactorAuth += Account_RequireTwoFactorAuth;
+            ToolkitContext.Account.LoggedIn += Account_LoggedIn;
+            ToolkitContext.Account.LogInFailed += Account_LoginFailed;
+
             try
             {
-                ToolkitContext.Account.RequireTwoFactorAuth += Account_RequireTwoFactorAuth;
-                ToolkitContext.Account.LoggedIn += Account_LoggedIn;
-
                 (NiconicoSessionStatus status, NiconicoAccountAuthority authority, UserId userId) = await ToolkitContext.Account.SignInAsync(new NiconicoToolkit.Account.MailAndPasswordAuthToken(mailOrTelephone, password));
-
-                UpdateServiceStatus(status);
-
-                if (status is NiconicoSessionStatus.Success or NiconicoSessionStatus.RequireTwoFactorAuth)
+               
+                if (status is NiconicoSessionStatus.RequireTwoFactorAuth)
                 {
-
+                    await mfaTcs.Task;
                 }
                 else
+                {
+                    mfaTcs.SetCanceled();
+                }
+
+                status = await loginTcs.Task;
+
+                if (status is NiconicoSessionStatus.Success)
+                {
+                    LogIn?.Invoke(this, new NiconicoSessionLoginEventArgs()
+                    {
+                        UserId = UserId!.Value,
+                        IsPremium = IsPremiumAccount,
+                    });
+                }                
+                else if (status is NiconicoSessionStatus.Failed or NiconicoSessionStatus.ServiceUnavailable)
                 {
                     LogInFailed?.Invoke(this, new NiconicoSessionLoginErrorEventArgs()
                     {
                         LoginFailedReason = status == NiconicoSessionStatus.Failed ? LoginFailedReason.InvalidMailOrPassword : LoginFailedReason.ServiceNotAvailable
                     });
                 }
+                else
+                {
+                    // ここには来ないはず
+                    Debug.WriteLine(status.ToString());
+                }
+
+                UpdateServiceStatus(status);
 
                 return status;
             }
             catch (Exception e)
             {
-                ToolkitContext.Account.RequireTwoFactorAuth -= Account_RequireTwoFactorAuth;
-                ToolkitContext.Account.LoggedIn -= Account_LoggedIn;
                 HandleLoginError(e);
 
                 return NiconicoSessionStatus.Failed;
             }
-        }
-    }
-
-    private void Account_LoggedIn(object sender, NiconicoLoggedInEventArgs e)
-    {
-        _ = _dispatcherQueue.TryEnqueue(async () =>
-        {
-            IsLoggedIn = true;
-            IsPremiumAccount = e.IsPremiumAccount;
-            UserId = e.UserId;
-
-            try
+            finally
             {
-                (string UserName, Uri IconUrl) userInfo = await LoginAfterResolveUserDetailAction(ToolkitContext);
-                UserName = userInfo.UserName;
-                UserIconUrl = userInfo.IconUrl.OriginalString;
+                ToolkitContext.Account.RequireTwoFactorAuth -= Account_RequireTwoFactorAuth;
+                ToolkitContext.Account.LoggedIn -= Account_LoggedIn;
+                ToolkitContext.Account.LogInFailed -= Account_LoginFailed;
             }
-            catch
-            {
-                
-            }
-
-            LogIn?.Invoke(this, new NiconicoSessionLoginEventArgs()
-            {
-                UserId = UserId,
-                IsPremium = IsPremiumAccount,
-                UserName = UserName,
-                UserIconUrl = UserIconUrl,
-            });
-        });
-    }
-
-
-    private async void Account_RequireTwoFactorAuth(object sender, NiconicoTwoFactorAuthEventArgs e)
-    {
-        NiconicoSessionLoginRequireTwoFactorAuthResponse res = await _messenger.Send(new NiconicoSessionLoginRequireTwoFactorAsyncRequestMessage(e.Location, ToolkitContext));
-        if (res != null)
-        {
-            NiconicoSessionStatus result = await e.MfaAsync(res.Code, res.IsTrustDevice, res.DeviceName);
-            UpdateServiceStatus(result);
         }
     }
 
 
-    public async Task<NiconicoSessionStatus> SignOut()
+
+
+    public async Task<NiconicoSessionStatus> SignOutAsync()
     {
         NiconicoSessionStatus result = NiconicoSessionStatus.Failed;
 
         using (IDisposable releaser = await SigninLock.LockAsync())
         {
-            UserName = null;
             UserId = default(uint);
-            UserIconUrl = null;
-
             IsLoggedIn = false;
 
             UpdateServiceStatus();
@@ -416,6 +442,14 @@ public sealed class NiconicoSession : ObservableObject
                 LogOut?.Invoke(this, EventArgs.Empty);
             }
         }
+
+        try
+        {
+            await AccountManager.RemovePrimaryAccount();
+        }
+        catch { }
+
+        Debug.WriteLine("logout");
 
         return result;
     }
