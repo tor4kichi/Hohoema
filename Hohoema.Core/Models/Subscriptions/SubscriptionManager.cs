@@ -669,18 +669,21 @@ public sealed class SubscriptionManager
                         videos: latestVideos
                         );
 
-            foreach (var newVideo in newSubscVideos)
-            {
-                _messenger.Send(new NewSubscFeedVideoMessage(newVideo));
-            }
-
             if (update.UpdateCount == 0)
             {
+                UpdateSubscriptionCheckedAt(subscription, newVideos.Any() ? newVideos.Max(x => x.PostedAt) : null);
+
                 newVideos.Clear();
+                newSubscVideos.Clear();                
             }
 
             update.UpdateCount++;
             SetSubscriptionProps(update);
+
+            foreach (var newVideo in newSubscVideos)
+            {
+                _messenger.Send(new NewSubscFeedVideoMessage(newVideo));
+            }
 
             var result = new SubscriptionFeedUpdateResult(subscription, newVideos, currentUpdatedAt);
             _messenger.Send(new SubscriptionFeedUpdatedMessage(result));
