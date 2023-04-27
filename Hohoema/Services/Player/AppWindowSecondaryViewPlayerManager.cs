@@ -26,18 +26,18 @@ using Windows.UI.Xaml.Media.Animation;
 
 namespace Hohoema.Services.Player;
 
-public sealed class AppWindowSecondaryViewPlayerManager : ObservableObject, IPlayerView
+public sealed partial class AppWindowSecondaryViewPlayerManager : ObservableObject, IPlayerView
 {
     private readonly AppearanceSettings _appearanceSettings;
     private readonly HohoemaPlaylistPlayer _playlistPlayer;
     private readonly CurrentActiveWindowUIContextService _currentActiveWindowUIContextService;
-    AppWindow _appWindow;
+    private AppWindow _appWindow;
     private Border _rootBorder;
     private INavigationService _navigationService;
     private readonly DrillInNavigationTransitionInfo _PlayerPageNavgationTransitionInfo;
     private readonly SuppressNavigationTransitionInfo _BlankPageNavgationTransitionInfo;
     private readonly DispatcherQueue _dispatcherQueue;
-    AsyncLock _appWindowUpdateLock = new AsyncLock();
+    private readonly AsyncLock _appWindowUpdateLock = new AsyncLock();
 
     CancellationTokenSource _appWindowCloseCts;
 
@@ -81,12 +81,14 @@ public sealed class AppWindowSecondaryViewPlayerManager : ObservableObject, IPla
 
     public string LastNavigatedPageName { get; private set; }
 
+    private InputActivationListener _activationListener;
+
     public HohoemaPlaylistPlayer PlaylistPlayer => _playlistPlayer;
 
-    ICommand _ToggleFullScreenCommand;
-    public ICommand ToggleFullScreenCommand => _ToggleFullScreenCommand ??= new RelayCommand(() => _ = ToggleFullScreenAsync());
+    ICommand IPlayerView.ToggleFullScreenCommand => ToggleFullScreenCommand;
 
-    public async Task ToggleFullScreenAsync()
+    [RelayCommand]
+    public void ToggleFullScreen()
     {
         if (!_appWindow.Presenter.IsPresentationSupported(AppWindowPresentationKind.FullScreen)) { return; }
 
@@ -108,12 +110,10 @@ public sealed class AppWindowSecondaryViewPlayerManager : ObservableObject, IPla
     }
 
 
-    ICommand _ToggleCompactOverlayCommand;
-    private InputActivationListener _activationListener;
+    ICommand IPlayerView.ToggleCompactOverlayCommand => ToggleCompactOverlayCommand;
 
-    public ICommand ToggleCompactOverlayCommand => _ToggleCompactOverlayCommand ??= new RelayCommand(() => _ = ToggleCompactOverlayAsync());
-
-    public async Task ToggleCompactOverlayAsync()
+    [RelayCommand]
+    public void ToggleCompactOverlay()
     {
         if (!_appWindow.Presenter.IsPresentationSupported(AppWindowPresentationKind.CompactOverlay)) { return; }
 
@@ -180,37 +180,9 @@ public sealed class AppWindowSecondaryViewPlayerManager : ObservableObject, IPla
                 _rootBorder.Child = secondaryWindowCoreLayout;
                 _navigationService = secondaryWindowCoreLayout.CreateNavigationService();
                 ElementCompositionPreview.SetAppWindowContent(_appWindow, _rootBorder);
-
-                _displaySettingSaveTimer = _dispatcherQueue.CreateTimer();
-                _displaySettingSaveTimer.Interval = TimeSpan.FromSeconds(1);
-                _displaySettingSaveTimer.Tick += (s, e) => 
-                {
-                    if (!_appWindow.IsVisible) { return; }
-
-                    var config = _appWindow.Presenter.GetConfiguration();
-                    _appearanceSettings.IsSecondaryViewPrefferedCompactOverlay = config.Kind == AppWindowPresentationKind.CompactOverlay;
-
-                    var windowPlacement = _appWindow.GetPlacement();
-
-                    var regions = _appWindow.GetDisplayRegions();
-                    _appearanceSettings.SecondaryViewDisplayRegionMonitorDeviceId = windowPlacement.DisplayRegion.DisplayMonitorDeviceId;
-                    
-                    if (windowPlacement.DisplayRegion.WorkAreaSize.Width > windowPlacement.Offset.X)
-                    {
-
-                    }
-
-                    _appearanceSettings.SecondaryViewLastWindowPosition = windowPlacement.Offset;
-                    _appearanceSettings.SecondaryViewLastWindowSize = windowPlacement.Size;
-
-                    Debug.WriteLine($"{windowPlacement.Offset.X}, {windowPlacement.Offset.Y}");
-                };
                 
                 _appWindow.Closed += async (s, e) =>
                 {
-                    _displaySettingSaveTimer.Stop();
-                    _displaySettingSaveTimer = null;
-
                     _appWindowCloseCts.Cancel();
                     _appWindowCloseCts.Dispose();
                     _appWindowCloseCts = null;
@@ -229,22 +201,31 @@ public sealed class AppWindowSecondaryViewPlayerManager : ObservableObject, IPla
                     _closingTaskCompletionSource?.SetResult(0);
                 };
 
-                _appWindow.Changed += async (s, e) => 
-                {
-                    await Task.Delay(500);
+                _appWindow.Changed += (s, e) => 
+                {                    
+                    Debug.WriteLine($"{nameof(e.DidFrameChange)}: {e.DidFrameChange}");
+                    Debug.WriteLine($"{nameof(e.DidWindowPresentationChange)}: {e.DidWindowPresentationChange}");
+                    Debug.WriteLine($"{nameof(e.DidAvailableWindowPresentationsChange)}: {e.DidAvailableWindowPresentationsChange}");
+                    Debug.WriteLine($"{nameof(e.DidTitleBarChange)}: {e.DidTitleBarChange}");
+                    Debug.WriteLine($"{nameof(e.DidSizeChange)}: {e.DidSizeChange}");
+                    Debug.WriteLine($"{nameof(e.DidVisibilityChange)}: {e.DidVisibilityChange}");
+                    Debug.WriteLine($"{nameof(e.DidDisplayRegionsChange)}: {e.DidDisplayRegionsChange}");
 
+                    var config = s.Presenter.GetConfiguration();
+
+                    Debug.WriteLine($"Config{nameof(config.Kind)}: {config.Kind}");
                     if (e.DidWindowPresentationChange || e.DidSizeChange)
                     {
-                        var config = s.Presenter.GetConfiguration();
+                        
                         if (config.Kind == AppWindowPresentationKind.FullScreen)
-                        {
+                        {                            
                             _displayMode = PlayerDisplayMode.FullScreen;
                             IsFullScreen = true;
                             IsCompactOverlay = false;
                         }
                         else if (config.Kind == AppWindowPresentationKind.CompactOverlay)
                         {
-                            _displayMode = PlayerDisplayMode.FullScreen;
+                            _displayMode = PlayerDisplayMode.CompactOverlay;
                             IsFullScreen = false;
                             IsCompactOverlay = true;
                         }
@@ -253,7 +234,38 @@ public sealed class AppWindowSecondaryViewPlayerManager : ObservableObject, IPla
                             _displayMode = PlayerDisplayMode.FillWindow;
                             IsFullScreen = false;
                             IsCompactOverlay = false;
+                        }                        
+                    }
+
+                    Debug.WriteLine($"{nameof(_appWindow.IsVisible)}: {_appWindow.IsVisible}");
+                    if (!_appWindow.IsVisible) { return; }
+
+                    var windowPlacement = _appWindow.GetPlacement();
+
+                    Debug.WriteLine($"{nameof(windowPlacement.Size)}: {windowPlacement.Size}");
+                    Debug.WriteLine($"{nameof(windowPlacement.Offset)}: {windowPlacement.Offset}");
+                    Debug.WriteLine($"{nameof(windowPlacement.DisplayRegion.DisplayMonitorDeviceId)}: {windowPlacement.DisplayRegion.DisplayMonitorDeviceId}");
+                    Debug.WriteLine($"WindowingEnvironment{nameof(windowPlacement.DisplayRegion.WindowingEnvironment.Kind)}: {windowPlacement.DisplayRegion.WindowingEnvironment.Kind}");
+                    Debug.WriteLine($"{nameof(windowPlacement.DisplayRegion.WorkAreaSize)}: {windowPlacement.DisplayRegion.WorkAreaSize}");
+                    Debug.WriteLine($"{nameof(windowPlacement.DisplayRegion.WorkAreaOffset)}: {windowPlacement.DisplayRegion.WorkAreaOffset}");
+                    Debug.WriteLine($"{nameof(windowPlacement.DisplayRegion.IsVisible)}: {windowPlacement.DisplayRegion.IsVisible}");
+
+                    if (e.DidDisplayRegionsChange || e.DidWindowPresentationChange || e.DidSizeChange || e.DidVisibilityChange)
+                    {
+                        _appearanceSettings.IsSecondaryViewPrefferedCompactOverlay = config.Kind == AppWindowPresentationKind.CompactOverlay;
+
+                        var regions = _appWindow.GetDisplayRegions();
+                        _appearanceSettings.SecondaryViewDisplayRegionMonitorDeviceId = windowPlacement.DisplayRegion.DisplayMonitorDeviceId;
+
+                        if (windowPlacement.DisplayRegion.WorkAreaSize.Width > windowPlacement.Offset.X)
+                        {
+
                         }
+
+                        _appearanceSettings.SecondaryViewLastWindowPosition = windowPlacement.Offset;
+                        _appearanceSettings.SecondaryViewLastWindowSize = windowPlacement.Size;
+
+                        Debug.WriteLine($"{windowPlacement.Offset.X}, {windowPlacement.Offset.Y}");
                     }
                 };
 
@@ -269,19 +281,18 @@ public sealed class AppWindowSecondaryViewPlayerManager : ObservableObject, IPla
 //                        _appWindow.RequestSize(lastSize);
                 }
 
-                _displaySettingSaveTimer.Start();
-
                 await _appWindow.TryShowAsync();
 
-                await Task.Delay(1000);
-
                 var regions = _appWindow.GetDisplayRegions();
+
+#if DEBUG
                 foreach (var regionDeviceId in regions)
                 {
                     Debug.WriteLine($"{regionDeviceId.DisplayMonitorDeviceId}");
                     Debug.WriteLine($"{regionDeviceId.WorkAreaOffset}");
                     Debug.WriteLine($"{regionDeviceId.WorkAreaSize}");
                 }
+#endif
 
                 DisplayRegion lastRegion = regions.FirstOrDefault(x => x.DisplayMonitorDeviceId == _appearanceSettings.SecondaryViewDisplayRegionMonitorDeviceId)
                     ?? regions.First();
@@ -396,17 +407,17 @@ public sealed class AppWindowSecondaryViewPlayerManager : ObservableObject, IPla
             case PlayerDisplayMode.FillWindow:
                 if (IsCompactOverlay)
                 {
-                    await ToggleCompactOverlayAsync();
+                    ToggleCompactOverlay();
                 }
                 else if (IsFullScreen)
                 {
-                    await ToggleFullScreenAsync();
+                    ToggleFullScreen();
                 }
                 break;
             case PlayerDisplayMode.FullScreen:
                 if (IsFullScreen is false)
                 {
-                    await ToggleFullScreenAsync();
+                    ToggleFullScreen();
                 }
                 break;
             case PlayerDisplayMode.WindowInWindow:
@@ -414,7 +425,7 @@ public sealed class AppWindowSecondaryViewPlayerManager : ObservableObject, IPla
             case PlayerDisplayMode.CompactOverlay:
                 if (IsCompactOverlay is false)
                 {
-                    await ToggleCompactOverlayAsync();
+                    ToggleCompactOverlay();
                 }
                 break;
         }

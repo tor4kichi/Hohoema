@@ -23,7 +23,7 @@ using Windows.UI.Xaml.Media.Animation;
 
 namespace Hohoema.Services.Player;
 
-public sealed class SecondaryViewPlayerManager : ObservableObject, IPlayerView
+public sealed partial class SecondaryViewPlayerManager : ObservableObject, IPlayerView
 {
     /* 複数ウィンドウでプレイヤーを一つだけ表示するための管理をしています
      * 
@@ -351,7 +351,7 @@ public sealed class SecondaryViewPlayerManager : ObservableObject, IPlayerView
         });
     }
 
-
+    [RelayCommand]
     public async Task ToggleCompactOverlayAsync()
     {
         if (!IsShowSecondaryView) { return; }
@@ -377,6 +377,7 @@ public sealed class SecondaryViewPlayerManager : ObservableObject, IPlayerView
         });
     }
 
+    [RelayCommand]
     public async Task ToggleFullScreenAsync()
     {
         if (!IsShowSecondaryView) { return; }
@@ -398,28 +399,8 @@ public sealed class SecondaryViewPlayerManager : ObservableObject, IPlayerView
         });
     }
 
-
     ICommand IPlayerView.ToggleFullScreenCommand => ToggleFullScreenCommand;
-
-    private RelayCommand _ToggleFullScreenCommand;
-    public RelayCommand ToggleFullScreenCommand =>
-        _ToggleFullScreenCommand ?? (_ToggleFullScreenCommand = new RelayCommand(ExecuteToggleFullScreenCommand));
-
-    void ExecuteToggleFullScreenCommand()
-    {
-        _ = ToggleFullScreenAsync();
-    }
-
     ICommand IPlayerView.ToggleCompactOverlayCommand => ToggleCompactOverlayCommand;
-
-    private RelayCommand _ToggleCompactOverlayCommand;
-    public RelayCommand ToggleCompactOverlayCommand =>
-        _ToggleCompactOverlayCommand ??= new RelayCommand(ExecuteToggleCompactOverlayCommand);
-
-    void ExecuteToggleCompactOverlayCommand()
-    {
-        _ = ToggleCompactOverlayAsync();
-    }
 
     public Task<bool> TrySetDisplayModeAsync(PlayerDisplayMode mode)
     {
