@@ -2,6 +2,7 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging.Messages;
 using Hohoema.Contracts.AppLifecycle;
 using Hohoema.Contracts.Navigations;
 using Hohoema.Contracts.Services;
@@ -29,14 +30,25 @@ using ZLogger;
 
 namespace Hohoema.Services.Subscriptions;
 
-// Note: Subscriptionsが０個の場合、自動更新は必要ないが
-// 自動更新周期が長く、また０個であれば処理時間も短く済むため、場合分け処理を入れていない
-
-public class SubscriptionUpdatedEventArgs
+public readonly struct SubscriptionUpdatedEventArgs 
 {
-    public DateTime UpdatedTime { get; set; }
-    public DateTime NextUpdateTime { get; set; }
+    public SubscriptionUpdatedEventArgs(DateTime updatedTime, DateTime nextUpdateTime)
+    {
+        UpdatedTime = updatedTime;
+        NextUpdateTime = nextUpdateTime;
+    }
+
+    public readonly DateTime UpdatedTime;
+    public readonly DateTime NextUpdateTime;
 }
+
+public class SubscriptionUpdateCompletedMessage : ValueChangedMessage<SubscriptionUpdatedEventArgs>
+{
+    public SubscriptionUpdateCompletedMessage(DateTime updatedTime, DateTime nextUpdateTime) : base(new (updatedTime, nextUpdateTime))
+    {
+    }
+}
+
 
 public enum SubscriptionUpdateStatus
 {
@@ -190,7 +202,7 @@ public sealed partial class SubscriptionUpdateManager
         }
     }
 
-    static readonly TimeSpan UpdateTimeout = TimeSpan.FromMinutes(5);
+    static readonly TimeSpan UpdateTimeout = TimeSpan.FromMinutes(15);
 
     public async Task UpdateIfOverExpirationAsync(CancellationToken ct)
     {
@@ -259,11 +271,10 @@ public sealed partial class SubscriptionUpdateManager
                             _logger.ZLogDebug("Error. Label: {0}, Exception: {1}", subscription.Label, ex.Message);
                         }
                     }
-                }
+                }                
             }
             catch (OperationCanceledException)
             {
-                // TODO: ユーザーに購読更新の停止を通知する
                 _logger.ZLogInformation("Timeout subscription auto update process.");
             }
             finally
@@ -274,6 +285,14 @@ public sealed partial class SubscriptionUpdateManager
                 _timerUpdateCancellationTokenSource!.Dispose();
                 _timerUpdateCancellationTokenSource = null;
                 _logger.ZLogDebug("Complete.");
+                _messenger.Send(new SubscriptionUpdateCompletedMessage(checkedAt, NextUpdateAt));
+                _notificationService.ShowLiteInAppNotification("SubscNotification_CompleteAutoUpdate".Translate());
+            }
+
+            if (updateResultItems.Any() is false)
+            {
+                _notificationService.ShowLiteInAppNotification("SubscNotification_NoNewVideos".Translate());
+                return;
             }
 
             try
@@ -422,7 +441,10 @@ public sealed partial class SubscriptionUpdateManager
 
     private void AddToQueue(IEnumerable<SubscriptionFeedUpdateResult> resultItems)
     {
-        if (!resultItems.Any()) { return; }
+        if (!resultItems.Any()) 
+        {            
+            return; 
+        }
 
         var resultByGroupId = resultItems
             .Where(x => x.IsSuccessed && x.NewVideos?.Count > 0 && x.Subscription.IsAddToQueueWhenUpdated)
