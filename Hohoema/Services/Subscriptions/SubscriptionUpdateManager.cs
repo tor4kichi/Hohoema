@@ -401,7 +401,7 @@ public sealed partial class SubscriptionUpdateManager
         if (!updateResults.Any()) { return; }
 
         var resultByGroupId = updateResults
-            .Where(x => x.IsSuccessed && x.NewVideos?.Count > 0)
+            .Where(x => x.IsSuccessed && x.NewVideos?.Count > 0 && x.Subscription.IsToastNotificationEnabled)
             .GroupBy(x => x.Subscription.Group ?? _subscriptionManager.DefaultSubscriptionGroup, SubscriptionGroupComparer.Default)
             .Where(x => _subscriptionManager.GetSubscriptionGroupProps(x.Key.GroupId).IsToastNotificationEnabled)
             .ToArray();
