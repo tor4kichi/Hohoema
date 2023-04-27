@@ -829,29 +829,21 @@ public class LivePlayerPageViewModel : HohoemaPageViewModelBase
         {
             try
             {
-                var timeshiftDetailsRes = await LoginUserLiveReservationProvider.GetReservtionsDetailAsync();
-                if (timeshiftDetailsRes.IsSuccess is false)
-                {
-                    _TimeshiftProgram = null;
-                    return;
-                }
+                var timeshiftDetailsRes = await LoginUserLiveReservationProvider.GetReservtionsAsync();
 
-                foreach (var timeshift in timeshiftDetailsRes.Data.Items)
+                if (timeshiftDetailsRes.Reservations.Items.FirstOrDefault(x => x.ProgramId == LiveId) is { } reservation)
                 {
-                    if (LiveId.EndsWith(timeshift.LiveId))
-                    {
-                        _TimeshiftProgram = timeshift;
-                    }
+                    _Reservation = reservation;
                 }
             }
             catch
             {
-                _TimeshiftProgram = null;
+                _Reservation = null;
             }
         }
         else
         {
-            _TimeshiftProgram = null;
+            _Reservation = null;
         }
     }
 
@@ -864,9 +856,12 @@ public class LivePlayerPageViewModel : HohoemaPageViewModelBase
         // チケットを使用するかダイアログで表示する
         // タイムシフトでの視聴かつタイムシフトの視聴予約済みかつ視聴権が未取得の場合は
         // 視聴権の使用を確認する
-        if (_TimeshiftProgram?.GetReservationStatus() == ReservationStatus.FIRST_WATCH)
+        var now = DateTime.Now;
+        if (_Reservation.IsActive
+            && _Reservation.TimeshiftSetting.EndTime < now
+            )
         {
-            var dialog = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Services.DialogService>();
+            var dialog = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<IDialogService>();
 
             // 視聴権に関する詳細な情報提示
 
@@ -874,28 +869,26 @@ public class LivePlayerPageViewModel : HohoemaPageViewModelBase
             // ただし公開期限がそれより先に来る場合には公開期限が視聴期限となる
             var outdatedTime = DateTimeOffset.Now.ToOffset(JapanTimeZoneOffset) + (EndTime - StartTime) + TimeSpan.FromHours(24);
             string desc = string.Empty;
-            if (_TimeshiftProgram.ExpiredAt != null && outdatedTime > _TimeshiftProgram.ExpiredAt)
+            if (_Reservation.TimeshiftTicket.ExpireTime is { } expireTime && outdatedTime > expireTime)
             {
-                outdatedTime = _TimeshiftProgram.ExpiredAt.Value.LocalDateTime;
-                desc = "Dialog_ConfirmTimeshiftWatch_WatchLimitByDate".Translate(_TimeshiftProgram.ExpiredAt.Value.ToString("g"));
+                outdatedTime = expireTime.LocalDateTime;
+                desc = "Dialog_ConfirmTimeshiftWatch_WatchLimitByDate".Translate(expireTime.ToString("g"));
             }
             else
             {
                 desc = "Dialog_ConfirmTimeshiftWatch_WatchLimitByDuration".Translate(outdatedTime.ToString("g"));
             }
 
-
-
             var result = await dialog.ShowMessageDialog(
-                desc
-                , _TimeshiftProgram.Title, "WatchLiveStreaming".Translate(), "Cancel".Translate()
+                content: desc,
+                title: _Reservation.Program.Title, acceptButtonText: "WatchLiveStreaming".Translate(), cancelButtonText: "Cancel".Translate()
                 );
 
             if (result)
             {
                 await Task.Delay(500);
 
-                await LoginUserLiveReservationProvider.UseReservationAsync(_TimeshiftProgram.LiveId);
+                await LoginUserLiveReservationProvider.UseReservationAsync(_Reservation.ProgramId);
 
                 await Task.Delay(3000);
 
@@ -903,7 +896,9 @@ public class LivePlayerPageViewModel : HohoemaPageViewModelBase
                 // 視聴権利用を開始したアイテムがFIRST_WATCH以外の視聴可能を示すステータスになっているはず
                 await RefreshTimeshiftProgram();
 
-                Debug.WriteLine("use reservation after status: " + _TimeshiftProgram.Status);
+                Debug.WriteLine($"TSSettings {nameof(_Reservation.TimeshiftSetting.StatusText)}: {_Reservation.TimeshiftSetting.StatusText}");
+                Debug.WriteLine($"TSSettings {nameof(_Reservation.TimeshiftSetting.RequirementText)}: {_Reservation.TimeshiftSetting.RequirementText}");
+                Debug.WriteLine($"TSSettings {nameof(_Reservation.TimeshiftSetting.WatchLimitText)}: {_Reservation.TimeshiftSetting.WatchLimitText}");
 
                 // 視聴情報を更新
                 _PlayerProp = await LiveContext.Live.GetLiveWatchPageDataPropAsync(LiveId);
@@ -1747,7 +1742,7 @@ public class LivePlayerPageViewModel : HohoemaPageViewModelBase
 
     private ConcurrentStack<uint> UnresolvedUserId = new ConcurrentStack<uint>();
     private ConcurrentDictionary<uint, List<LiveComment>> UserIdToComments = new ConcurrentDictionary<uint, List<LiveComment>>();
-    private TimeshiftReservationDetailItem _TimeshiftProgram;
+    private NiconicoToolkit.Live.Timeshift.Reservation _Reservation;
 
     private void UpdateCommentUserName(uint userId, string name)
     {

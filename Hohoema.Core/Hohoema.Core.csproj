@@ -375,7 +375,7 @@
       <Version>2.7.2</Version>
     </PackageReference>
     <PackageReference Include="NiconicoToolkit">
-      <Version>0.4.2</Version>
+      <Version>0.4.6</Version>
     </PackageReference>
     <PackageReference Include="ReactiveProperty">
       <Version>7.12.0</Version>

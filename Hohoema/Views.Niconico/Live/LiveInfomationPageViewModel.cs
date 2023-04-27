@@ -312,8 +312,8 @@ public sealed class LiveInfomationPageViewModel : HohoemaPageViewModelBase, IPin
     }
     
 
-    private string _timeshiftStatus;
-    public string TimeshiftStatus
+    private string? _timeshiftStatus;
+    public string? TimeshiftStatus
     {
         get { return _timeshiftStatus; }
         set { SetProperty(ref _timeshiftStatus, value); }
@@ -389,9 +389,9 @@ public sealed class LiveInfomationPageViewModel : HohoemaPageViewModelBase, IPin
                 {
                     if (!NiconicoSession.IsLoggedIn) { return; }
 
-                    var reservations = await NiconicoSession.ToolkitContext.Timeshift.GetTimeshiftReservationsDetailAsync();
+                    var reservations = await NiconicoSession.ToolkitContext.Timeshift.GetTimeshiftReservationsAsync();
                     
-                    if (reservations.Data.Items.Any(x => x.LiveId == LiveId))
+                    if (reservations.Reservations.Items.Any(x => x.ProgramId == LiveId))
                     {
                         var result = await DeleteReservation(LiveId, LiveProgram.Title);
                         if (result)
@@ -432,19 +432,19 @@ public sealed class LiveInfomationPageViewModel : HohoemaPageViewModelBase, IPin
         {
             await NiconicoSession.ToolkitContext.Timeshift.DeleteTimeshiftReservationAsync(liveId, token);
 
-            var deleteAfterReservations = await NiconicoSession.ToolkitContext.Timeshift.GetTimeshiftReservationsDetailAsync();
+            var deleteAfterReservations = await NiconicoSession.ToolkitContext.Timeshift.GetTimeshiftReservationsAsync();
 
-            isDeleted = !deleteAfterReservations.Data.Items.Any(x => liveId.EndsWith(x.LiveId));
+            isDeleted = !deleteAfterReservations.Reservations.Items.Any(x => liveId.EndsWith(x.ProgramId));
             if (isDeleted)
             {
                 // 削除成功
-                var notificationService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Services.NotificationService>();
+                var notificationService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<INotificationService>();
                 notificationService.ShowLiteInAppNotification_Success("InAppNotification_DeletedTimeshift".Translate());
             }
             else
             {
                 // まだ存在するゾイ
-                var notificationService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Services.NotificationService>();
+                var notificationService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<INotificationService>();
                 notificationService.ShowLiteInAppNotification_Fail("InAppNotification_FailedDeleteTimeshift".Translate());
 
                 Debug.Fail("タイムシフト削除に失敗しました: " + liveId);
@@ -479,7 +479,7 @@ public sealed class LiveInfomationPageViewModel : HohoemaPageViewModelBase, IPin
         {
             // 予約できてるはず
             // LiveInfoのタイムシフト周りの情報と共に通知
-            var notificationService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Services.NotificationService>();
+            var notificationService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<INotificationService>();
             notificationService.ShowLiteInAppNotification_Success("InAppNotification_AddedTimeshiftWithTitle".Translate(liveTitle));
 
             isAdded = true;
@@ -490,12 +490,12 @@ public sealed class LiveInfomationPageViewModel : HohoemaPageViewModelBase, IPin
         }
         else if (result.IsReservationDeuplicated)
         {
-            var notificationService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Services.NotificationService>();
+            var notificationService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<INotificationService>();
             notificationService.ShowLiteInAppNotification_Success("InAppNotification_ExistTimeshift".Translate());
         }
         else if (result.IsReservationExpired)
         {
-            var notificationService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Services.NotificationService>();
+            var notificationService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<INotificationService>();
             notificationService.ShowLiteInAppNotification_Fail("InAppNotification_TimeshiftExpired".Translate());
         }
 
@@ -707,15 +707,18 @@ public sealed class LiveInfomationPageViewModel : HohoemaPageViewModelBase, IPin
 
     async Task RefreshReservationInfo(LiveId liveId)
     {
-        var reseevations = await NiconicoSession.ToolkitContext.Timeshift.GetTimeshiftReservationsDetailAsync();
-        var thisLiveReservation = reseevations.Data.Items.FirstOrDefault(x => x.LiveId == liveId);
-        if (thisLiveReservation != null)
+        if (await NiconicoSession.ToolkitContext.Timeshift.GetTimeshiftReservationsAsync() is { } res
+            && res.Reservations.Items.FirstOrDefault(x => x.ProgramId == liveId) is { } existReservation
+            )
         {
-            var timeshiftList = await NiconicoSession.ToolkitContext.Timeshift.GetTimeshiftReservationsAsync();
-            TimeshiftStatus = timeshiftList.Reservations.Items.FirstOrDefault(x => x.ProgramId == liveId).TimeshiftSetting.Status.ToString();
+            TimeshiftStatus = existReservation.TimeshiftSetting.StatusText;
+            _IsTsPreserved.Value = true;
         }
-
-        _IsTsPreserved.Value = thisLiveReservation != null;
+        else
+        {
+            TimeshiftStatus = null;
+            _IsTsPreserved.Value = false;
+        }        
     }
 
     public bool IsIchibaInitialized { get; private set; } = false;
@@ -759,9 +762,9 @@ public sealed class LiveInfomationPageViewModel : HohoemaPageViewModelBase, IPin
         }
     }
 
-    TimeshiftReservationsDetailResponse _Reservations;
-
+    
     AsyncLock _UpdateLock = new AsyncLock();
+    private TimeshiftReservationsResponse _reservations;
     private readonly AppearanceSettings _appearanceSettings;
 
     public bool IsLiveRecommendInitialized { get; private set; } = false;
@@ -783,7 +786,7 @@ public sealed class LiveInfomationPageViewModel : HohoemaPageViewModelBase, IPin
             {
                 if (NiconicoSession.IsLoggedIn)
                 {
-                    _Reservations = await NiconicoSession.ToolkitContext.Timeshift.GetTimeshiftReservationsDetailAsync();
+                    _reservations = await NiconicoSession.ToolkitContext.Timeshift.GetTimeshiftReservationsAsync();
                 }
             }
             catch { }

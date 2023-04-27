@@ -114,7 +114,7 @@ public sealed partial class SearchResultLivePageViewModel : HohoemaListingPageVi
 
 
     private RelayCommand _ShowSearchHistoryCommand;
-		public RelayCommand ShowSearchHistoryCommand
+    public RelayCommand ShowSearchHistoryCommand
 		{
 			get
 			{
@@ -134,6 +134,8 @@ public sealed partial class SearchResultLivePageViewModel : HohoemaListingPageVi
 
     #endregion
 
+    private TimeshiftReservationsResponse? _reservation;
+
     public override async Task OnNavigatedToAsync(INavigationParameters parameters)
     {
         var mode = parameters.GetNavigationMode();
@@ -147,10 +149,11 @@ public sealed partial class SearchResultLivePageViewModel : HohoemaListingPageVi
         _NowNavigatingTo = true;
         try
         {
-            if (NiconicoSession.IsLoggedIn)
-            {
-                _reservation = await NiconicoSession.ToolkitContext.Timeshift.GetTimeshiftReservationsDetailAsync();
-            }
+            _reservation = NiconicoSession.IsLoggedIn ? await NiconicoSession.ToolkitContext.Timeshift.GetTimeshiftReservationsAsync() : null;
+        }
+        catch
+        {
+            _reservation = null;
         }
         finally
         {
@@ -192,9 +195,7 @@ public sealed partial class SearchResultLivePageViewModel : HohoemaListingPageVi
             _nicoLiveCacheRepository)
             );
 	}
-
-    private TimeshiftReservationsDetailResponse _reservation;
-
+    
 
     [RelayCommand]
     public void SearchOptionsUpdated()
@@ -212,7 +213,7 @@ public class LiveSearchSource : IIncrementalSource<LiveInfoListItemViewModel>
         NiconicoToolkit.Search.Live.Status status,
         NiconicoToolkit.Search.Live.Sort sort,
         NiconicoToolkit.Search.Live.Provider provider,
-        TimeshiftReservationsDetailResponse? reservation,
+        TimeshiftReservationsResponse? reservationRes,
         SearchProvider searchProvider,
         NiconicoSession niconicoSession,
         NicoLiveCacheRepository nicoLiveCacheRepository
@@ -222,14 +223,14 @@ public class LiveSearchSource : IIncrementalSource<LiveInfoListItemViewModel>
         Status = status;
         Sort = sort;
         Provider = provider;
-        _reservation = reservation;
+        _reservationRes = reservationRes;
         SearchProvider = searchProvider;
         NiconicoSession = niconicoSession;
         _nicoLiveCacheRepository = nicoLiveCacheRepository;
     }
 
     private HashSet<string> SearchedVideoIdsHash = new HashSet<string>();
-    private TimeshiftReservationsDetailResponse? _reservation;
+    private TimeshiftReservationsResponse? _reservationRes;
 
     private readonly NicoLiveCacheRepository _nicoLiveCacheRepository;
 
@@ -270,13 +271,15 @@ public class LiveSearchSource : IIncrementalSource<LiveInfoListItemViewModel>
                 var liveInfoVM = new LiveInfoListItemViewModel(item.ProgramId);
                 liveInfoVM.Setup(item);
 
-                if (_reservation?.IsSuccess ?? false)
+                if (_reservationRes?.Reservations?.Items is { } reservations
+                    && reservations.FirstOrDefault(reservation => item.ProgramId == reservation.ProgramId) is { }  reservation
+                    )
                 {
-                    var reserve = _reservation?.Data?.Items.FirstOrDefault(reservation => item.ProgramId == reservation.LiveId);
-                    if (reserve != null)
-                    {
-                        liveInfoVM.SetReservation(reserve);
-                    }
+                    liveInfoVM.SetReservation(reservation);
+                }
+                else
+                {
+                    liveInfoVM.SetReservation(null);
                 }
 
                 items.Add(liveInfoVM);
