@@ -42,6 +42,7 @@ public sealed class BackupManager
     private readonly LocalMylistRepository _playlistRepository;
     private readonly SubscriptionRegistrationRepository _subscriptionRegistrationRepository;
     private readonly SubscriptionGroupRepository _subscriptionGroupRepository;
+    private readonly SubscriptionGroupPropsRespository _subscriptionGroupPropsRespository;
     private readonly PinSettings _pinSettings;
     private readonly VideoRankingSettings _videoRankingSettings;
     private readonly VideoFilteringSettings _videoFilteringSettings;
@@ -57,6 +58,7 @@ public sealed class BackupManager
     public BackupManager(LocalMylistRepository playlistRepository,
         SubscriptionRegistrationRepository subscriptionRegistrationRepository,
         SubscriptionGroupRepository subscriptionGroupRepository,
+        SubscriptionGroupPropsRespository subscriptionGroupPropsRespository,
         PinSettings pinSettings,
         VideoRankingSettings videoRankingSettings,
         VideoFilteringSettings videoFilteringSettings,
@@ -69,6 +71,7 @@ public sealed class BackupManager
         _playlistRepository = playlistRepository;
         _subscriptionRegistrationRepository = subscriptionRegistrationRepository;
         _subscriptionGroupRepository = subscriptionGroupRepository;
+        _subscriptionGroupPropsRespository = subscriptionGroupPropsRespository;
         _pinSettings = pinSettings;
         _videoRankingSettings = videoRankingSettings;
         _videoFilteringSettings = videoFilteringSettings;
@@ -116,16 +119,25 @@ public sealed class BackupManager
                         _ => throw new NotSupportedException()
                     },
                     SourceParameter = x.SourceParameter,
-                    GroupId = x.Group?.GroupId.ToString()
+                    GroupId = x.Group?.GroupId.ToString(),
+                    IsAutoUpdate = x.IsAutoUpdateEnabled,
+                    IsAddToQueue = x.IsAddToQueueWhenUpdated,
+                    IsToastNotification = x.IsToastNotificationEnabled,
+                    SortIndex = x.SortIndex,
                 })
                 .ToArray(),
             SubscriptionGroupItems = _subscriptionGroupRepository.ReadAllItems()
                 .Where(x => x.GroupId != SubscriptionGroupId.DefaultGroupId)
+                .Select(x => (Group: x, Props: _subscriptionGroupPropsRespository.GetOrAdd(x.GroupId)))
                 .Select(x => new SubscriptionGroupBackupEntry()
                 {
-                    GroupId = x.GroupId.ToString(),
-                    Label = x.Name,
-                    Order = x.Order,
+                    GroupId = x.Group.GroupId.ToString(),
+                    Label = x.Group.Name,
+                    Order = x.Group.Order,
+                    IsAutoUpdate = x.Props.IsAutoUpdateEnabled,
+                    IsAddToQueue = x.Props.IsAddToQueueWhenUpdated,
+                    IsShowMenuItem = x.Props.IsShowInAppMenu,
+                    IsToastNotification = x.Props.IsToastNotificationEnabled,
                 })
                 .ToArray(),
             PinItems = _pinSettings.ReadAllItems()
@@ -254,68 +266,93 @@ public sealed class BackupManager
 
     public void RestoreSubscription(BackupContainer backup)
     {
-        if (backup.SubscriptionGroupItems == null) { return; }
-
-        Dictionary<SubscriptionGroupId, SubscriptionGroup> groupMaps 
+        Dictionary<SubscriptionGroupId, SubscriptionGroup> groupMaps
             = _subscriptionGroupRepository.ReadAllItems().ToDictionary(x => x.GroupId);
-        foreach (var groupBackup in backup.SubscriptionGroupItems)
+        if (backup.SubscriptionGroupItems != null)
         {
-            if (groupBackup.GroupId == null) { continue; }
-
-            var groupId = SubscriptionGroupId.Parse(groupBackup.GroupId);
-            if (groupMaps.ContainsKey(groupId))
+            foreach (var groupBackup in backup.SubscriptionGroupItems)
             {
-                continue;
-            }
+                if (groupBackup.GroupId == null) { continue; }
 
-            if (groupId == SubscriptionGroupId.DefaultGroupId)
-            {
-                continue;
-            }
+                var groupId = SubscriptionGroupId.Parse(groupBackup.GroupId);
+                if (groupMaps.ContainsKey(groupId))
+                {
+                    continue;
+                }
 
-            var restoreGroup = new SubscriptionGroup(groupId, groupBackup.Label) { Order = groupBackup.Order };
-            _subscriptionGroupRepository.CreateItem(restoreGroup);
-            groupMaps.Add(restoreGroup.GroupId, restoreGroup);
+                if (groupId == SubscriptionGroupId.DefaultGroupId)
+                {
+                    continue;
+                }
+
+                var restoreGroup = new SubscriptionGroup(
+                    groupId,
+                    groupBackup.Label
+                    )
+                {
+                    Order = groupBackup.Order
+                };
+                _subscriptionGroupRepository.CreateItem(restoreGroup);
+                groupMaps.Add(restoreGroup.GroupId, restoreGroup);
+
+                var props = _subscriptionGroupPropsRespository.GetOrAdd(groupId);
+                props.IsAutoUpdateEnabled = groupBackup.IsAutoUpdate;
+                props.IsAddToQueueWhenUpdated = groupBackup.IsAddToQueue;
+                props.IsInAppLiteNotificationEnabled = groupBackup.IsToastNotification;
+                props.IsShowInAppMenu = groupBackup.IsShowMenuItem;
+                _subscriptionGroupPropsRespository.UpdateItem(props);
+            }
         }
 
-        if (backup.SubscriptionItems == null) { return; }
-
-        List<Subscription> items = _subscriptionRegistrationRepository.ReadAllItems();
-        foreach (SubscriptionBackupEntry s in backup.SubscriptionItems)
+        if (backup.SubscriptionItems != null)
         {
-            SubscriptionSourceType sourceType = s.SourceType switch
+            List<Subscription> items = _subscriptionRegistrationRepository.ReadAllItems();
+            foreach (SubscriptionBackupEntry s in backup.SubscriptionItems)
             {
-                BackupSusbcriptionSourceType.User => SubscriptionSourceType.User,
-                BackupSusbcriptionSourceType.Mylist => SubscriptionSourceType.Mylist,
-                BackupSusbcriptionSourceType.Channel => SubscriptionSourceType.Channel,
-                BackupSusbcriptionSourceType.Series => SubscriptionSourceType.Series,
-                BackupSusbcriptionSourceType.SearchWithKeyword => SubscriptionSourceType.SearchWithKeyword,
-                BackupSusbcriptionSourceType.SearchWithTag => SubscriptionSourceType.SearchWithTag,
-                _ => throw new NotSupportedException()
-            };
+                SubscriptionSourceType sourceType = s.SourceType switch
+                {
+                    BackupSusbcriptionSourceType.User => SubscriptionSourceType.User,
+                    BackupSusbcriptionSourceType.Mylist => SubscriptionSourceType.Mylist,
+                    BackupSusbcriptionSourceType.Channel => SubscriptionSourceType.Channel,
+                    BackupSusbcriptionSourceType.Series => SubscriptionSourceType.Series,
+                    BackupSusbcriptionSourceType.SearchWithKeyword => SubscriptionSourceType.SearchWithKeyword,
+                    BackupSusbcriptionSourceType.SearchWithTag => SubscriptionSourceType.SearchWithTag,
+                    _ => throw new NotSupportedException()
+                };
 
-            // ObjectIdのパースが死んでるのでパラメータで同値判定してる
-            if (items.Any(x => x.SourceType == sourceType && x.SourceParameter == s.SourceParameter)) { continue; }
+                // ObjectIdのパースが死んでるのでパラメータで同値判定してる
+                if (items.Any(x => x.SourceType == sourceType && x.SourceParameter == s.SourceParameter)) { continue; }
 
-            // GroupIdに該当アイテムが無い場合はグループ無指定のまま処理する
-            SubscriptionGroup? group = null;
-            if (s.GroupId != null)
-            {
-                groupMaps.TryGetValue(SubscriptionGroupId.Parse(s.GroupId), out group);
+                // GroupIdに該当アイテムが無い場合はグループ無指定のまま処理する
+                SubscriptionGroup? group = null;
+                if (s.GroupId != null)
+                {
+                    groupMaps.TryGetValue(SubscriptionGroupId.Parse(s.GroupId), out group);
+                }
+
+                Subscription entity = new(
+                    _id: SubscriptionId.NewObjectId(),
+                    sortIndex: s.SortIndex ?? 0,
+                    label: s.Label,
+                    sourceType: sourceType,
+                    sourceParameter: s.SourceParameter,
+                    isAutoUpdateEnabled: s.IsAutoUpdate,
+                    isAddToQueueWhenUpdated: s.IsAddToQueue,
+                    group: group,
+                    isToastNotificationEnabled: s.IsToastNotification
+                    );
+
+                _ = _subscriptionRegistrationRepository.UpdateItem(entity);
             }
 
-            Subscription entity = new(SubscriptionId.NewObjectId(), s.SortIndex ?? 0, s.Label, sourceType, s.SourceParameter, true, false, group, true);
-
-            _ = _subscriptionRegistrationRepository.UpdateItem(entity);
-        }
-
-        // v1.5.4以前のバックアップデータにはSortIndexを含めていなかったので
-        // 古いバックアップデータに備えて並び順を再指定しておく
-        int index = 0;
-        foreach (var source in _subscriptionRegistrationRepository.ReadAllItems().OrderBy(x => x.SortIndex).ThenBy(x => x.Label).ToArray())
-        {
-            source.SortIndex = index++;
-            _subscriptionRegistrationRepository.UpdateItem(source);
+            // v1.5.4以前のバックアップデータにはSortIndexを含めていなかったので
+            // 古いバックアップデータに備えて並び順を再指定しておく
+            int index = 0;
+            foreach (var source in _subscriptionRegistrationRepository.ReadAllItems().OrderBy(x => x.SortIndex).ThenBy(x => x.Label).ToArray())
+            {
+                source.SortIndex = index++;
+                _subscriptionRegistrationRepository.UpdateItem(source);
+            }
         }
     }
 
@@ -613,7 +650,16 @@ public sealed class SubscriptionBackupEntry
     public string? GroupId { get; set; }
 
     [JsonPropertyName("sortIndex")]
-    public int? SortIndex { get; set; } 
+    public int? SortIndex { get; set; }
+
+    [JsonPropertyName("isAutoUpdate")]
+    public bool IsAutoUpdate { get; set; } = true;
+
+    [JsonPropertyName("isAddToQueue")]
+    public bool IsAddToQueue { get; set; } = true;
+    
+    [JsonPropertyName("isToastNotification")]
+    public bool IsToastNotification { get; set; } = true;
 }
 
 public sealed class SubscriptionGroupBackupEntry
@@ -626,6 +672,18 @@ public sealed class SubscriptionGroupBackupEntry
 
     [JsonPropertyName("order")]
     public int Order { get; set; }
+
+    [JsonPropertyName("isAutoUpdate")]
+    public bool IsAutoUpdate { get; set; } = true;
+
+    [JsonPropertyName("isAddToQueue")]
+    public bool IsAddToQueue { get; set; } = true;
+
+    [JsonPropertyName("isToastNotification")]
+    public bool IsToastNotification { get; set; } = true;
+
+    [JsonPropertyName("isShowMenuItem")]
+    public bool IsShowMenuItem { get; set; } = true;
 }
 
 public enum BackupSusbcriptionSourceType
