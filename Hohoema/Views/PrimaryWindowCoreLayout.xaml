@@ -743,21 +743,6 @@
                   </NavigationThemeTransition>
                 </TransitionCollection>
               </Frame.ContentTransitions>
-
-              <myextensions:ContextFlyoutExtension.FlyoutTemplateSelector>
-                <templateSelector:HohoemaFlyoutTemplateSelector>
-                  <templateSelector:HohoemaFlyoutTemplateSelector.LiveFlyoutTemplate>
-                    <DataTemplate>
-                      <listItemControls:LiveListItemFlyout />
-                    </DataTemplate>
-                  </templateSelector:HohoemaFlyoutTemplateSelector.LiveFlyoutTemplate>
-                  <templateSelector:HohoemaFlyoutTemplateSelector.SearchHistoryFlyoutTemplate>
-                    <DataTemplate>
-                      <local:SearchHistoryListItemFlyout />
-                    </DataTemplate>
-                  </templateSelector:HohoemaFlyoutTemplateSelector.SearchHistoryFlyoutTemplate>
-                </templateSelector:HohoemaFlyoutTemplateSelector>
-              </myextensions:ContextFlyoutExtension.FlyoutTemplateSelector>
             </Frame>
           </muxc:NavigationView.Content>
         </muxc:NavigationView>

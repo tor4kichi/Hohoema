@@ -69,17 +69,6 @@ public sealed partial class VideoItemsListView : UserControl
         DependencyProperty.Register("ItemTemplateSelector", typeof(DataTemplateSelector), typeof(VideoItemsListView), new PropertyMetadata(null));
 
 
-    public DataTemplate ItemContextFlyoutTemplate
-    {
-        get { return (DataTemplate)GetValue(ItemContextFlyoutTemplateProperty); }
-        set { SetValue(ItemContextFlyoutTemplateProperty, value); }
-    }
-
-    public static readonly DependencyProperty ItemContextFlyoutTemplateProperty =
-        DependencyProperty.Register("ItemContextFlyoutTemplate", typeof(DataTemplate), typeof(VideoItemsListView), new PropertyMetadata(null));
-
-
-
 
 
     public ICommand ItemCommand
@@ -388,17 +377,7 @@ public sealed partial class VideoItemsListView : UserControl
     private void ItemsList_ContextRequested(UIElement sender, ContextRequestedEventArgs args)
     {
         var list = sender as ListViewBase;
-        if (ItemContextFlyoutTemplate is null) { return; }
-
-        var cached = _cache.TryGetValue(ItemContextFlyoutTemplate, out var itemFlyout);
-        itemFlyout ??= ItemContextFlyoutTemplate.LoadContent() as FlyoutBase;
-        if (itemFlyout == null) { return; }
-
-        if (cached is false)
-        {
-            _cache.Add(ItemContextFlyoutTemplate, itemFlyout);
-        }
-
+        var itemFlyout = sender.ContextFlyout;
         if (itemFlyout is VideoItemFlyout videoItemFlyout)
         {
             if (list.SelectionMode is ListViewSelectionMode.Multiple or ListViewSelectionMode.Extended && list.SelectedItems.Count > 0)

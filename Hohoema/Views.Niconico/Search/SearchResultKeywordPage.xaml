@@ -24,7 +24,6 @@
       ItemsSource="{x:Bind _vm.ItemsView, Mode=OneWay}" 
       ItemCommand="{x:Bind _vm.VideoPlayWithQueueCommand}" 
       ItemTemplate="{StaticResource VideoListItemControlDefaultTemplate}"
-      ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}" 
       RefreshCommand="{x:Bind _vm.ResetListCommand}" 
       PlaylistPassToFlyout="{x:Bind _vm.SearchVideoPlaylist, Mode=OneWay}"
       x:Name="VideoItemsListView">

@@ -18,8 +18,7 @@
 
   <Grid>
     <videolistPage:VideoItemsListView ItemsSource="{x:Bind _vm.ItemsView, Mode=OneWay}"
-                                      ItemCommand="{x:Bind _vm.VideoPlayWithQueueCommand}"
-                                      ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
+                                      ItemCommand="{x:Bind _vm.VideoPlayWithQueueCommand}"                                      
                                       RefreshCommand="{x:Bind _vm.ResetListCommand}"
                                       x:Name="VideoItemsListView"
                                       >

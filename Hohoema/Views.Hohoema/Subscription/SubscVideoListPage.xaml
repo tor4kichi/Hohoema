@@ -60,7 +60,6 @@
       ItemsSource="{Binding Source={StaticResource SubscVideosItemsViewSource}}"
       ItemCommand="{x:Bind _vm.VideoPlayWithQueueCommand}"
       ItemTemplate="{StaticResource SubscVideoListItemTemplate}"
-      ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
       RefreshCommand="{x:Bind _vm.ResetListCommand}"
       x:Name="VideoItemsListView"
      ui:FrameworkElementExtensions.EnableActualSizeBinding="True"          
