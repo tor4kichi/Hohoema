@@ -39,7 +39,6 @@
 
     <videolistPage:VideoItemsListView ItemsSource="{Binding Source={StaticResource CacheItemsViewSource}}"
                                       ItemCommand="{Binding VideoPlayWithQueueCommand}"
-                                      ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
                                       RefreshCommand="{Binding ResetListCommand}"
                                       x:Name="VideoItemsListView"
                                       >

@@ -26,7 +26,6 @@
   <Grid>
     <videolistPage:VideoItemsListView ItemsSource="{Binding ItemsView}"
                                       ItemCommand="{Binding VideoPlayWithQueueCommand}"
-                                      ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
                                       RefreshCommand="{Binding ResetListCommand}"
                                       PlaylistPassToFlyout="{Binding ChannelVideoPlaylist}"
                                       x:Name="VideoItemsListView"

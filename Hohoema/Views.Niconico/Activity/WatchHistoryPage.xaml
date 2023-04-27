@@ -21,7 +21,6 @@
       x:Name="VideoItemsListView" 
       ItemsSource="{x:Bind _vm.Histories, Mode=OneWay}"
       ItemCommand="{x:Bind _vm.VideoPlayWithQueueCommand}" 
-      ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}" 
       RefreshCommand="{x:Bind _vm.RefreshCommand}" 
       >
       <videolistPage:VideoItemsListView.Header>

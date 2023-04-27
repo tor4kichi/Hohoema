@@ -29,11 +29,6 @@
                                       PlaylistPassToFlyout="{x:Bind _vm.Playlist, Mode=OneWay}"
                                       x:Name="VideoItemsListView"
                                       >
-      <videolistPage:VideoItemsListView.ItemContextFlyoutTemplate>
-        <DataTemplate>
-          <flyouts:VideoItemFlyout />
-        </DataTemplate>
-      </videolistPage:VideoItemsListView.ItemContextFlyoutTemplate>
 
       <videolistPage:VideoItemsListView.Header>
         <Grid x:Name="HeaderLayout" BorderThickness="0 0 0 1" BorderBrush="{StaticResource HohoemaLightBorderBrush}">

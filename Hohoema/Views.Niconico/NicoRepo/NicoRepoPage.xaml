@@ -91,12 +91,12 @@
     <ListView x:Name="ItemsList"
               ItemsSource="{x:Bind _vm.ItemsView, Mode=OneWay}"
               ItemTemplateSelector="{StaticResource NicoRepoItemTemplateSelector}"
+              ItemContainerStyleSelector="{StaticResource ListViewItemContainerStyleSelector}"
               IsItemClickEnabled="True"
               IncrementalLoadingTrigger="Edge"
               UseSystemFocusVisuals="True"
               SelectionMode="None"
               HorizontalContentAlignment="Stretch"
-              ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
               uwpExtensions:ScrollViewerExtensions.VerticalScrollBarMargin="0 0 0 0"
               xmlns:myExtensions="using:Hohoema.Views.Extensions"
               myExtensions:ListViewBase.DeferInitialize="True"
@@ -106,20 +106,6 @@
       <ListView.ItemContainerTransitions>
         <TransitionCollection />
       </ListView.ItemContainerTransitions>
-      <myExtensions:ListViewBase.ItemContextFlyoutTemplateSelector>
-        <templateSelector:HohoemaFlyoutTemplateSelector>
-          <templateSelector:HohoemaFlyoutTemplateSelector.VideoFlyoutTemplate>
-            <DataTemplate>
-              <flyouts:VideoItemFlyout />
-            </DataTemplate>
-          </templateSelector:HohoemaFlyoutTemplateSelector.VideoFlyoutTemplate>
-          <templateSelector:HohoemaFlyoutTemplateSelector.LiveFlyoutTemplate>
-            <DataTemplate>
-              <controls:LiveListItemFlyout />
-            </DataTemplate>
-          </templateSelector:HohoemaFlyoutTemplateSelector.LiveFlyoutTemplate>
-        </templateSelector:HohoemaFlyoutTemplateSelector>
-      </myExtensions:ListViewBase.ItemContextFlyoutTemplateSelector>
       <i:Interaction.Behaviors>
         <core:EventTriggerBehavior EventName="ItemClick">
           <core:InvokeCommandAction Command="{x:Bind _vm.OpenNicoRepoItemCommand}" InputConverter="{StaticResource ItemClickEventArgsConverter}" />
