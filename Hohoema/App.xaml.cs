@@ -346,7 +346,7 @@ public sealed partial class App : Application
             AppearanceSettings appearanceSettings = c.Resolve<AppearanceSettings>();
             return appearanceSettings.PlayerDisplayView == PlayerDisplayView.PrimaryView
                 ? c.Resolve<PrimaryViewPlayerManager>()
-                : c.Resolve<AppWindowSecondaryViewPlayerManager>();
+                : c.Resolve<AppWindowSecondaryViewPlayerManager>(args: new object[] { (IPlayerView)Container.Resolve<AppWindowSecondaryViewPlayerManager>() });
         });
 
         // MediaPlayerを各ウィンドウごとに一つずつ作るように
