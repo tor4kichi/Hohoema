@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.Niconico.Channel;
 using Hohoema.Models.Niconico.Follow.LoginUser;
 using Hohoema.Models.Niconico.Video;
@@ -22,8 +23,7 @@ public class ChannelViewModel : IChannel
     public string Name { get; init; }
 }
 public sealed partial class ChannelInfoFlyout : Microsoft.UI.Xaml.Controls.CommandBarFlyout
-{        
-    
+{            
     public static async Task<ChannelInfoFlyout?> CreateAsync(ChannelId channelId)
     {
         var userFollowProvider = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<ChannelFollowProvider>();
@@ -92,15 +92,15 @@ public sealed partial class ChannelInfoFlyout : Microsoft.UI.Xaml.Controls.Comma
         }
     }
 
-    private readonly PageManager _pageManager;
+    private readonly IMessenger _messenger;
     private readonly VideoFilteringSettings _filterSettings;
 
     ChannelInfoFlyout()
     {
         this.InitializeComponent();
 
-        _pageManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<PageManager>();
-        _filterSettings = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<VideoFilteringSettings>();
+        _messenger = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<IMessenger>();
+        _filterSettings = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<VideoFilteringSettings>();
     }
 
 
@@ -110,7 +110,7 @@ public sealed partial class ChannelInfoFlyout : Microsoft.UI.Xaml.Controls.Comma
     {
         if (ChannelId is not null and ChannelId channelId)
         {
-            _pageManager.OpenPageWithId(Models.PageNavigation.HohoemaPageType.ChannelVideo, channelId);
+            _ = _messenger.OpenPageWithIdAsync(Models.PageNavigation.HohoemaPageType.ChannelVideo, channelId);
         }
     }
 

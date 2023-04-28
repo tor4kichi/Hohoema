@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.Niconico.Live;
 using Hohoema.Models.PageNavigation;
 
@@ -6,14 +7,14 @@ namespace Hohoema.ViewModels.Niconico.Live;
 
 public sealed class OpenBroadcasterInfoCommand : CommandBase
 {
-    public OpenBroadcasterInfoCommand(
-        PageManager pageManager
+    private readonly IMessenger _messenger;
+
+    public OpenBroadcasterInfoCommand(    
+        IMessenger messenger
         )
     {
-        PageManager = pageManager;
+        _messenger = messenger;
     }
-
-    public PageManager PageManager { get; }
 
     protected override bool CanExecute(object parameter)
     {
@@ -27,7 +28,7 @@ public sealed class OpenBroadcasterInfoCommand : CommandBase
         {
             if (!string.IsNullOrEmpty(content.ProviderId))
             {
-                PageManager.OpenPageWithId(HohoemaPageType.Community, content.ProviderId);
+                _ = _messenger.OpenPageWithIdAsync(HohoemaPageType.Community, content.ProviderId);
             }
         }
     }

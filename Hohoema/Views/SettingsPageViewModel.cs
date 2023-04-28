@@ -54,8 +54,7 @@ public sealed partial class SettingsPageViewModel : HohoemaPageViewModelBase
     private readonly VideoCacheFolderManager _videoCacheFolderManager;
     private readonly VideoFilteringSettings _videoFilteringRepository;
     private readonly BackupManager _backupManager;
-    private readonly CommentFilteringFacade _commentFiltering;
-    private readonly PageManager _pageManager;
+    private readonly CommentFilteringFacade _commentFiltering;    
     private readonly INotificationService _notificationService;
     private readonly PlayerSettings PlayerSettings;
     private readonly VideoRankingSettings RankingSettings;
@@ -68,8 +67,7 @@ public sealed partial class SettingsPageViewModel : HohoemaPageViewModelBase
     public SettingsPageViewModel(
         IMessenger messenger,
         ILoggerFactory loggerFactory,
-        IDialogService dialogService,
-        PageManager pageManager,
+        IDialogService dialogService,        
         INotificationService toastService,
         PlayerSettings playerSettings,
         VideoRankingSettings rankingSettings,
@@ -83,7 +81,6 @@ public sealed partial class SettingsPageViewModel : HohoemaPageViewModelBase
         )
     {
         _messenger = messenger;
-        _pageManager = pageManager;
         _notificationService = toastService;
         RankingSettings = rankingSettings;
         _HohoemaDialogService = dialogService;
@@ -330,9 +327,9 @@ public sealed partial class SettingsPageViewModel : HohoemaPageViewModelBase
 
 
     [RelayCommand]
-    void OpenUserPage(VideoOwnerIdFilteringEntry entry)
+    async Task OpenUserPage(VideoOwnerIdFilteringEntry entry)
     {
-        _pageManager.OpenPageWithId(HohoemaPageType.UserInfo, entry.UserId);
+        await _messenger.OpenPageWithIdAsync(HohoemaPageType.UserInfo, entry.UserId);
     }
 
 

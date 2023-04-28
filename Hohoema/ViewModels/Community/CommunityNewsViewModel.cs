@@ -1,5 +1,7 @@
 ﻿#nullable enable
+using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Helpers;
 using Hohoema.Models.Application;
 using System;
@@ -9,17 +11,16 @@ using Windows.UI.Xaml;
 namespace Hohoema.ViewModels.Community;
 
 public class CommunityNewsViewModel
-	{
-    static public async Task<CommunityNewsViewModel> Create(
-			string communityId,
-			string title, 
-			string authorName, 
-			DateTime postAt, 
-			string contentHtml,
-        PageManager pageManager,
+{
+    public static async Task<CommunityNewsViewModel> Create(
+        string communityId,
+        string title,
+        string authorName,
+        DateTime postAt,
+        string contentHtml,
         AppearanceSettings appearanceSettings
-			)
-		{
+            )
+    {
         ApplicationTheme appTheme;
         if (appearanceSettings.ApplicationTheme == ElementTheme.Dark)
         {
@@ -35,17 +36,16 @@ public class CommunityNewsViewModel
         }
 
         var id = $"{communityId}_{postAt.ToString("yy-MM-dd-H-mm")}";
-			var uri = await HtmlFileHelper.PartHtmlOutputToCompletlyHtml(id, contentHtml, appTheme);
-			return new CommunityNewsViewModel(communityId, title, authorName, postAt, uri, pageManager);
-		}
+        var uri = await HtmlFileHelper.PartHtmlOutputToCompletlyHtml(id, contentHtml, appTheme);
+        return new CommunityNewsViewModel(communityId, title, authorName, postAt, uri);
+    }
 
     private CommunityNewsViewModel(
         string communityId,
         string title,
         string authorName,
         DateTime postAt,
-        Uri htmlUri,
-        PageManager pageManager
+        Uri htmlUri
         )
     {
         CommunityId = communityId;
@@ -53,33 +53,21 @@ public class CommunityNewsViewModel
         AuthorName = authorName;
         PostAt = postAt;
         ContentHtmlFileUri = htmlUri;
-        PageManager = pageManager;
     }
 
     public string CommunityId { get; private set; }
-		public string Title { get; private set; }
-		public string AuthorName { get; private set; }
-		public DateTime PostAt { get; private set; }
-		public Uri ContentHtmlFileUri { get; private set; }
+    public string Title { get; private set; }
+    public string AuthorName { get; private set; }
+    public DateTime PostAt { get; private set; }
+    public Uri ContentHtmlFileUri { get; private set; }
 
-		public PageManager PageManager { get; private set; }
+    private RelayCommand<Uri>? _ScriptNotifyCommand;
+    public RelayCommand<Uri> ScriptNotifyCommand => _ScriptNotifyCommand ??= new RelayCommand<Uri>((parameter) =>
+    {
+        if (parameter == null) { return; }
+        System.Diagnostics.Debug.WriteLine($"script notified: {parameter}");
 
-		
+        _ = Ioc.Default.GetRequiredService<IMessenger>().OpenUriAsync(parameter);
+    });
 
-
-		private RelayCommand<Uri> _ScriptNotifyCommand;
-		public RelayCommand<Uri> ScriptNotifyCommand
-		{
-			get
-			{
-				return _ScriptNotifyCommand
-					?? (_ScriptNotifyCommand = new RelayCommand<Uri>((parameter) =>
-					{
-						System.Diagnostics.Debug.WriteLine($"script notified: {parameter}");
-
-						PageManager.OpenPage(parameter);
-					}));
-			}
-		}
-
-	}
+}

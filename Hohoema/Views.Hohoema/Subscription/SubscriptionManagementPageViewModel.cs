@@ -80,8 +80,7 @@ public sealed partial class SubscriptionManagementPageViewModel : HohoemaPageVie
         ISubscriptionDialogService subscriptionDialogService,
         SubscriptionManager subscriptionManager,
         SubscriptionUpdateManager subscriptionUpdateManager,
-        DialogService dialogService,
-        PageManager pageManager,
+        DialogService dialogService,        
         ApplicationLayoutManager applicationLayoutManager,
         QueuePlaylist queuePlaylist
         )
@@ -228,7 +227,7 @@ public sealed partial class SubscriptionManagementPageViewModel : HohoemaPageVie
             _ => throw new NotImplementedException(),
         };
 
-        _ = _messenger.SendNavigationRequestAsync(pageType, param);
+        _ = _messenger.OpenPageWithIdAsync(pageType, param);
     }
 
 
@@ -236,7 +235,7 @@ public sealed partial class SubscriptionManagementPageViewModel : HohoemaPageVie
     [RelayCommand]
     void OpenSubscVideoListPage()
     {
-        _ = _messenger.SendNavigationRequestAsync(HohoemaPageType.SubscVideoList);
+        _ = _messenger.OpenPageAsync(HohoemaPageType.SubscVideoList);
     }
 
     [RelayCommand]
@@ -522,7 +521,7 @@ public sealed partial class SubscriptionGroupViewModel
     [RelayCommand]
     async Task OpenSubscVideoListPage()
     {
-        await _messenger.SendNavigationRequestAsync(HohoemaPageType.SubscVideoList, 
+        await _messenger.OpenPageAsync(HohoemaPageType.SubscVideoList, 
             new NavigationParameters( ("SubscGroupId", SubscriptionGroup.GroupId.ToString())) 
             );
     }
@@ -830,7 +829,7 @@ public partial class SubscriptionViewModel
             _ => throw new NotImplementedException(),
         };
 
-        await _messenger.SendNavigationRequestAsync(pageType, new NavigationParameters(param));
+        await _messenger.OpenPageAsync(pageType, new NavigationParameters(param));
     }
 
 

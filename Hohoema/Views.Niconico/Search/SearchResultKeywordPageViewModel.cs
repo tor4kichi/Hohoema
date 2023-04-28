@@ -47,8 +47,7 @@ public class SearchResultKeywordPageViewModel
         return this.ObserveProperty(x => x.Keyword);
     }
 
-    public ApplicationLayoutManager ApplicationLayoutManager { get; }
-    public PageManager PageManager { get; }
+    public ApplicationLayoutManager ApplicationLayoutManager { get; }    
     public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
     public PlaylistPlayAllCommand PlaylistPlayAllCommand { get; }
     public AddKeywordSearchSubscriptionCommand AddKeywordSearchSubscriptionCommand { get; }
@@ -86,8 +85,7 @@ public class SearchResultKeywordPageViewModel
         NiconicoSession niconicoSession,
         ApplicationLayoutManager applicationLayoutManager,
         SearchProvider searchProvider,
-        SubscriptionManager subscriptionManager,
-        PageManager pageManager,
+        SubscriptionManager subscriptionManager,        
         SearchHistoryRepository searchHistoryRepository,
         VideoPlayWithQueueCommand videoPlayWithQueueCommand,
         PlaylistPlayAllCommand playlistPlayAllCommand,
@@ -104,8 +102,7 @@ public class SearchResultKeywordPageViewModel
 
         SelectedSearchTarget = new ReactiveProperty<SearchTarget>();
         _niconicoSession = niconicoSession;
-        ApplicationLayoutManager = applicationLayoutManager;
-        PageManager = pageManager;
+        ApplicationLayoutManager = applicationLayoutManager;        
         _searchHistoryRepository = searchHistoryRepository;
         VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
         PlaylistPlayAllCommand = playlistPlayAllCommand;
@@ -129,24 +126,17 @@ public class SearchResultKeywordPageViewModel
     public ReactiveProperty<SearchTarget> SelectedSearchTarget { get; }
 
     private RelayCommand<SearchTarget?> _ChangeSearchTargetCommand;
-    public RelayCommand<SearchTarget?> ChangeSearchTargetCommand
-    {
-        get
+    public RelayCommand<SearchTarget?> ChangeSearchTargetCommand =>
+        _ChangeSearchTargetCommand ??= new RelayCommand<SearchTarget?>(target =>
         {
-            return _ChangeSearchTargetCommand
-                ?? (_ChangeSearchTargetCommand = new RelayCommand<SearchTarget?>(target =>
-                {
-                    if (target.HasValue && target.Value != SearchOption.SearchTarget)
-                    {
-                        PageManager.Search(target.Value, SearchOption.Keyword);
-                    }
-                }));
-        }
-    }
-
-    public ReactiveProperty<bool> FailLoading { get; private set; }
+            if (target.HasValue && target.Value != SearchOption.SearchTarget)
+            {
+                _ = _messenger.OpenSearchPageAsync(target.Value, SearchOption.Keyword);
+            }
+        });
 
     static public KeywordSearchPagePayloadContent SearchOption { get; private set; }
+    public ReactiveProperty<bool> FailLoading { get; private set; }
     public ReactiveProperty<int> LoadedPage { get; private set; }
 
     private string _keyword;
@@ -156,26 +146,16 @@ public class SearchResultKeywordPageViewModel
         set { SetProperty(ref _keyword, value); }
     }
 
-    #region Commands
-
-
-    private RelayCommand _ShowSearchHistoryCommand;
     private readonly NiconicoSession _niconicoSession;
     private readonly SearchHistoryRepository _searchHistoryRepository;
 
-    public RelayCommand ShowSearchHistoryCommand
-    {
-        get
-        {
-            return _ShowSearchHistoryCommand
-                ?? (_ShowSearchHistoryCommand = new RelayCommand(() =>
-                {
-                    PageManager.OpenPage(HohoemaPageType.Search);
-                }));
-        }
-    }
 
-    #endregion
+    private RelayCommand _ShowSearchHistoryCommand;
+    public RelayCommand ShowSearchHistoryCommand =>
+        _ShowSearchHistoryCommand ??= new RelayCommand(() =>
+        {
+            _ = _messenger.OpenPageAsync(HohoemaPageType.Search);
+        });
 
     public override Task OnNavigatedToAsync(INavigationParameters parameters)
     {

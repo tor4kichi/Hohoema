@@ -38,6 +38,8 @@ public class SearchResultTagPageViewModel
     , IPinablePage
     , ITitleUpdatablePage
 {
+    string ITag.Tag => SearchOption.Keyword;
+
     HohoemaPin IPinablePage.GetPin()
     {
         return new HohoemaPin()
@@ -54,21 +56,15 @@ public class SearchResultTagPageViewModel
     }
 
 
-
     public ApplicationLayoutManager ApplicationLayoutManager { get; }
     public NiconicoSession NiconicoSession { get; }
     public SearchProvider SearchProvider { get; }
-    public SubscriptionManager SubscriptionManager { get; }
-    public PageManager PageManager { get; }
+    public SubscriptionManager SubscriptionManager { get; }    
     public Services.DialogService HohoemaDialogService { get; }
     public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
     public PlaylistPlayAllCommand PlaylistPlayAllCommand { get; }
     public AddTagSearchSubscriptionCommand AddTagSearchSubscriptionCommand { get; }
     public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
-
-
-
-
 
     private SearchVideoPlaylist _SearchVideoPlaylist;
     public SearchVideoPlaylist SearchVideoPlaylist
@@ -88,11 +84,7 @@ public class SearchResultTagPageViewModel
 
     private VideoSortOptionViewModel DefaultSortOptionVM => SortOptions.First(x => x.SortOption == SearchVideoPlaylist.DefaultSortOption);
 
-
     public ReadOnlyReactivePropertySlim<PlaylistToken?> CurrentPlaylistToken { get; }
-
-
-
 
     private string _keyword;
     public string Keyword
@@ -121,7 +113,7 @@ public class SearchResultTagPageViewModel
                 {
                     if (target.HasValue && target.Value != SearchOption.SearchTarget)
                     {
-                        PageManager.Search(target.Value, SearchOption.Keyword);
+                        _ = _messenger.OpenSearchPageAsync(target.Value, SearchOption.Keyword);
                     }
                 }));
         }
@@ -143,7 +135,6 @@ public class SearchResultTagPageViewModel
         NiconicoSession niconicoSession,
         TagFollowProvider tagFollowProvider,
         SubscriptionManager subscriptionManager,
-        PageManager pageManager,
         SearchHistoryRepository searchHistoryRepository,
         Services.DialogService dialogService,
         VideoPlayWithQueueCommand videoPlayWithQueueCommand,
@@ -155,7 +146,6 @@ public class SearchResultTagPageViewModel
     {        
         _tagFollowProvider = tagFollowProvider;
         SubscriptionManager = subscriptionManager;
-        PageManager = pageManager;
         _searchHistoryRepository = searchHistoryRepository;
         ApplicationLayoutManager = applicationLayoutManager;
         NiconicoSession = niconicoSession;
@@ -183,14 +173,11 @@ public class SearchResultTagPageViewModel
     }
 
 
-
-    #region Commands
-
-
-    private RelayCommand _ShowSearchHistoryCommand;
     private readonly TagFollowProvider _tagFollowProvider;
     private readonly SearchHistoryRepository _searchHistoryRepository;
 
+
+    private RelayCommand _ShowSearchHistoryCommand;
     public RelayCommand ShowSearchHistoryCommand
     {
         get
@@ -198,14 +185,10 @@ public class SearchResultTagPageViewModel
             return _ShowSearchHistoryCommand
                 ?? (_ShowSearchHistoryCommand = new RelayCommand(() =>
                 {
-                    PageManager.OpenPage(HohoemaPageType.Search);
+                    _ = _messenger.OpenPageAsync(HohoemaPageType.Search);
                 }));
         }
     }
-
-    string ITag.Tag => SearchOption.Keyword;
-
-    #endregion
 
     public override async Task OnNavigatedToAsync(INavigationParameters parameters)
     {

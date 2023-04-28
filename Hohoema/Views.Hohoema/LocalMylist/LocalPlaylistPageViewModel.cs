@@ -39,7 +39,6 @@ public sealed class LocalPlaylistPageViewModel : HohoemaListingPageViewModelBase
         return this.ObserveProperty(x => x.Playlist).Select(x => x?.Name);
     }
 
-    private readonly PageManager _pageManager;
     private readonly LocalMylistManager _localMylistManager;
     private readonly NicoVideoProvider _nicoVideoProvider;
     private readonly IMessenger _messenger;
@@ -48,7 +47,6 @@ public sealed class LocalPlaylistPageViewModel : HohoemaListingPageViewModelBase
         ILoggerFactory loggerFactory,
         IMessenger messenger, 
         ApplicationLayoutManager applicationLayoutManager,
-        PageManager pageManager,
         LocalMylistManager localMylistManager,
         NicoVideoProvider nicoVideoProvider,
         VideoPlayWithQueueCommand videoPlayWithQueueCommand,
@@ -59,7 +57,6 @@ public sealed class LocalPlaylistPageViewModel : HohoemaListingPageViewModelBase
         : base(loggerFactory.CreateLogger<LocalPlaylistPageViewModel>())
     {
         ApplicationLayoutManager = applicationLayoutManager;
-        _pageManager = pageManager;
         _localMylistManager = localMylistManager;
         _nicoVideoProvider = nicoVideoProvider;
         LocalPlaylistDeleteCommand = localPlaylistDeleteCommand;
@@ -189,8 +186,8 @@ public sealed class LocalPlaylistPageViewModel : HohoemaListingPageViewModelBase
                 {
                     if (Playlist.PlaylistId == removed.PlaylistId)
                     {
-                        _pageManager.ForgetLastPage();
-                        _pageManager.OpenPage(HohoemaPageType.UserMylist);
+                        // TODO: ForgetLastの実装
+                        _ = _messenger.OpenPageAsync(HohoemaPageType.UserMylist);
                     }
                 })
                 .AddTo(_navigationDisposables);

@@ -74,9 +74,6 @@ public sealed partial class MylistPageViewModel
     private readonly MylistUserSelectedSortRepository _mylistUserSelectedSortRepository;
 
     public ApplicationLayoutManager ApplicationLayoutManager { get; }
-    public PageManager PageManager { get; }
-
-
     public NiconicoSession NiconicoSession { get; }
     public MylistProvider MylistProvider { get; }
     public UserProvider UserProvider { get; }
@@ -160,8 +157,7 @@ public sealed partial class MylistPageViewModel
     public MylistPageViewModel(
         IMessenger messenger,
         ILoggerFactory loggerFactory,
-        ApplicationLayoutManager applicationLayoutManager,
-        PageManager pageManager,
+        ApplicationLayoutManager applicationLayoutManager,        
         NiconicoSession niconicoSession,
         MylistProvider mylistProvider,
         MylistFollowProvider mylistFollowProvider,
@@ -182,7 +178,6 @@ public sealed partial class MylistPageViewModel
     {
         _messenger = messenger;
         ApplicationLayoutManager = applicationLayoutManager;
-        PageManager = pageManager;
         NiconicoSession = niconicoSession;
         MylistProvider = mylistProvider;
         _mylistFollowProvider = mylistFollowProvider;
@@ -550,7 +545,7 @@ public sealed partial class MylistPageViewModel
             return _OpenMylistOwnerCommand
                 ?? (_OpenMylistOwnerCommand = new RelayCommand(() =>
                 {
-                    PageManager.OpenPageWithId(HohoemaPageType.UserInfo, Mylist.Value.UserId);
+                    _messenger.OpenPageWithIdAsync(HohoemaPageType.UserInfo, Mylist.Value.UserId);
                 }));
         }
     }
@@ -634,8 +629,7 @@ public sealed partial class MylistPageViewModel
                             await UserMylistManager.RemoveMylist(mylist.PlaylistId.Id);
                         }
 
-
-                        PageManager.OpenPage(HohoemaPageType.UserMylist, OwnerUserId);
+                        await _messenger.OpenPageWithIdAsync(HohoemaPageType.UserMylist, OwnerUserId);
 
                         //Microsoft.AppCenter.Analytics.Analytics.TrackEvent("Mylist_Removed");
                     }));

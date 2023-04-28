@@ -24,7 +24,7 @@ public abstract class VideoListingPageViewModelBase<ITEM_VM>
     , IRecipient<VideoOwnerFilteringRemovedMessage>
     where ITEM_VM : VideoItemViewModel
 {
-    private readonly IMessenger _messenger;
+    protected readonly IMessenger _messenger;
 
     protected VideoListingPageViewModelBase(
         IMessenger messenger,

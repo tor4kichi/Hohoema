@@ -182,6 +182,9 @@
     <Compile Include="ViewModels\CommandBase.cs" />
     <Compile Include="ViewModels\Hohoema.LocalMylist\LocalMylistCreateCommand.cs" />
     <Compile Include="ViewModels\HohoemaVideoListException.cs" />
+    <Compile Include="ViewModels\Navigation.Commands\OpenContentOwnerPageCommand.cs" />
+    <Compile Include="ViewModels\Navigation.Commands\OpenPageCommand.cs" />
+    <Compile Include="ViewModels\Navigation.Commands\OpenVideoListPageCommand.cs" />
     <Compile Include="ViewModels\Navigation.Commands\OpenVideoOwnerMylistListCommand.cs" />
     <Compile Include="ViewModels\Navigation.Commands\OpenVideoOwnerSeriesListCommand.cs" />
     <Compile Include="ViewModels\Navigation.Commands\OpenVideoOwnerVideoListCommand.cs" />
@@ -199,8 +202,6 @@
     <Compile Include="Services\NoProcessUIScreenContext.cs" />
     <Compile Include="Services\CheckingClipboardAndNotificationService.cs" />
     <Compile Include="Services\VideoCache\NotificationCacheVideoDeletedService.cs" />
-    <Compile Include="Services\Navigations\PageManager.cs" />
-    <Compile Include="Services\Navigations\PageManagerSearchExtention.cs" />
     <Compile Include="Services\Navigations\PagePayload\LoginRedirectPayload.cs" />
     <Compile Include="Services\Navigations\PagePayload\MylistPagePayload.cs" />
     <Compile Include="Services\Navigations\PagePayload\PagePayloadBase.cs" />

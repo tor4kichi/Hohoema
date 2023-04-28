@@ -6,6 +6,7 @@ using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Live;
 using Hohoema.Models.Niconico.Live.LoginUser;
 using Hohoema.Services;
+using Hohoema.ViewModels.Navigation.Commands;
 using Hohoema.ViewModels.Niconico.Share;
 using I18NPortable;
 using Microsoft.Extensions.Logging;
@@ -25,20 +26,22 @@ public partial class LiveInfoListItemViewModel : ObservableObject, ILiveContent,
 {
     private static readonly ILogger<LiveInfoListItemViewModel> _logger;
 
-    public static PageManager PageManager { get; }
     public static OpenLiveContentCommand OpenLiveContentCommand { get; }
     public static OpenShareUICommand OpenShareUICommand { get; }
     public static CopyToClipboardCommand CopyToClipboardCommand { get; }
     public static CopyToClipboardWithShareTextCommand CopyToClipboardWithShareTextCommand { get; }
+    public static OpenPageCommand OpenPageCommand { get; }
+    public static OpenContentOwnerPageCommand OpenPageCommanOpenContentOwnerPageCommand { get; }
 
     static LiveInfoListItemViewModel()
     {
-        _logger = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger<LiveInfoListItemViewModel>();
-        PageManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<PageManager>();
+        _logger = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger<LiveInfoListItemViewModel>();        
         OpenLiveContentCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<OpenLiveContentCommand>();
         OpenShareUICommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<OpenShareUICommand>();
         CopyToClipboardCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<CopyToClipboardCommand>();
         CopyToClipboardWithShareTextCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<CopyToClipboardWithShareTextCommand>();
+        OpenPageCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<OpenPageCommand>();
+        OpenPageCommanOpenContentOwnerPageCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<OpenContentOwnerPageCommand>();
     }
 
 

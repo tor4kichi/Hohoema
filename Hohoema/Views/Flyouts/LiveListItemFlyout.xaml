@@ -14,11 +14,11 @@
   <MenuFlyoutSeparator />
 
   <MenuFlyoutItem Text="{i18nExt:Localize Key=HohoemaPageType.LiveInfomation}"
-                  Command="{Binding PageManager.OpenPageCommand}"
+                  Command="{Binding OpenPageCommand}"
                   CommandParameter="{Binding}" />
 
   <MenuFlyoutItem Text="{i18nExt:Localize Key=LiveBroadcasterInfomation}"
-                  Command="{Binding PageManager.OpenContentOwnerPageCommand}"
+                  Command="{Binding OpenContentOwnerPageCommand}"
                   CommandParameter="{Binding}" />
 
   <MenuFlyoutSeparator />

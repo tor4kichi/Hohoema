@@ -12,12 +12,9 @@ public sealed class FolloMylistGroupViewModel : FollowGroupViewModel<IMylist>,
     IRecipient<MylistFollowRemovedMessage>,
     IDisposable
 {
-    private readonly IMessenger _messenger;
-
-    public FolloMylistGroupViewModel(MylistFollowProvider followProvider, PageManager pageManager, IMessenger messenger) 
-        : base(FollowItemType.Mylist, followProvider, new FollowMylistIncrementalSource(followProvider), pageManager)
-    {
-        _messenger = messenger; 
+    public FolloMylistGroupViewModel(MylistFollowProvider followProvider, IMessenger messenger) 
+        : base(FollowItemType.Mylist, followProvider, new FollowMylistIncrementalSource(followProvider), messenger)
+    {        
         _messenger.RegisterAll(this);
     }
 

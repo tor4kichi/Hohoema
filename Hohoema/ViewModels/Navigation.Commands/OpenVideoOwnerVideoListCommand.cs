@@ -1,21 +1,23 @@
 ﻿#nullable enable
+using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.Niconico.Video;
 
 namespace Hohoema.ViewModels.Navigation.Commands;
 
 public sealed class OpenVideoOwnerVideoListCommand : CommandBase
 {
-    private readonly PageManager _pageManager;
+    private readonly IMessenger _messenger;
     private readonly NicoVideoProvider _nicoVideoProvider;
-
+    
     public OpenVideoOwnerVideoListCommand(
-        PageManager pageManager,
+        IMessenger messenger,
         NicoVideoProvider nicoVideoProvider
         )
     {
-        _pageManager = pageManager;
+        _messenger = messenger;
         _nicoVideoProvider = nicoVideoProvider;
     }
+
 
     protected override bool CanExecute(object parameter)
     {
@@ -30,11 +32,11 @@ public sealed class OpenVideoOwnerVideoListCommand : CommandBase
             {
                 if (provider.ProviderType is NiconicoToolkit.Video.OwnerType.User)
                 {
-                    _pageManager.OpenPageWithId(Models.PageNavigation.HohoemaPageType.UserVideo, provider.ProviderId);
+                    _ = _messenger.OpenPageWithIdAsync(Models.PageNavigation.HohoemaPageType.UserVideo, provider.ProviderId);
                 }
                 else if (provider.ProviderType is NiconicoToolkit.Video.OwnerType.Channel)
                 {
-                    _pageManager.OpenPageWithId(Models.PageNavigation.HohoemaPageType.ChannelVideo, provider.ProviderId);
+                    _ = _messenger.OpenPageWithIdAsync(Models.PageNavigation.HohoemaPageType.ChannelVideo, provider.ProviderId);
                 }
                 return;
             }
@@ -46,11 +48,11 @@ public sealed class OpenVideoOwnerVideoListCommand : CommandBase
             var video = await _nicoVideoProvider.GetCachedVideoInfoAsync(content.VideoId);
             if (video.ProviderType is NiconicoToolkit.Video.OwnerType.User)
             {
-                _pageManager.OpenPageWithId(Models.PageNavigation.HohoemaPageType.UserVideo, video.ProviderId);
+                _ = _messenger.OpenPageWithIdAsync(Models.PageNavigation.HohoemaPageType.UserVideo, video.ProviderId);
             }
             else if (video.ProviderType is NiconicoToolkit.Video.OwnerType.Channel)
             {
-                _pageManager.OpenPageWithId(Models.PageNavigation.HohoemaPageType.ChannelVideo, video.ProviderId);
+                _ = _messenger.OpenPageWithIdAsync(Models.PageNavigation.HohoemaPageType.ChannelVideo, video.ProviderId);
             }
         }
 

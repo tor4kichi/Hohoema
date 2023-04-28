@@ -61,8 +61,7 @@ public class CommunityVideoPageViewModel
 
     private readonly CommunityFollowProvider _communityFollowProvider;
     public ApplicationLayoutManager ApplicationLayoutManager { get; }
-    public CommunityProvider CommunityProvider { get; }
-    public PageManager PageManager { get; }
+    public CommunityProvider CommunityProvider { get; }    
     public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
 
 
@@ -113,16 +112,14 @@ public class CommunityVideoPageViewModel
 		ILoggerFactory loggerFactory,
 		ApplicationLayoutManager applicationLayoutManager,
 		CommunityProvider communityProvider,
-		CommunityFollowProvider communityFollowProvider,
-	PageManager pageManager,
+		CommunityFollowProvider communityFollowProvider,	
 		VideoPlayWithQueueCommand videoPlayWithQueueCommand
 		)
 		: base(messenger, loggerFactory.CreateLogger<CommunityVideoPageViewModel>(), disposeItemVM: false)
 	{
 		ApplicationLayoutManager = applicationLayoutManager;
 		CommunityProvider = communityProvider;
-		_communityFollowProvider = communityFollowProvider;
-		PageManager = pageManager;
+		_communityFollowProvider = communityFollowProvider;		
 		VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
 
 		CurrentPlaylistToken = Observable.CombineLatest(
@@ -201,17 +198,11 @@ public class CommunityVideoPageViewModel
 	}
 
 	private RelayCommand _OpenCommunityPageCommand;
-	public RelayCommand OpenCommunityPageCommand
-	{
-		get
+	public RelayCommand OpenCommunityPageCommand =>
+		_OpenCommunityPageCommand ??= new RelayCommand(() =>
 		{
-			return _OpenCommunityPageCommand
-				?? (_OpenCommunityPageCommand = new RelayCommand(() =>
-				{
-					PageManager.OpenPageWithId(HohoemaPageType.Community, CommunityId);
-				}));
-		}
-	}
+			_ = _messenger.OpenPageWithIdAsync(HohoemaPageType.Community, CommunityId);
+		});
 }
 
 

@@ -39,21 +39,18 @@ public sealed class RelatedVideoContentsAggregator
         NiconicoSession niconicoSession,
        NicoVideoProvider nicoVideoProvider,
        ChannelProvider channelProvider,
-       MylistResolver mylistRepository,
-       PageManager pageManager
+       MylistResolver mylistRepository
        )
     {
         _niconicoSession = niconicoSession;
         _nicoVideoProvider = nicoVideoProvider;
         _channelProvider = channelProvider;
-        _mylistRepository = mylistRepository;
-        _pageManager = pageManager;
+        _mylistRepository = mylistRepository;       
     }
 
     private readonly NiconicoSession _niconicoSession;
     private readonly NicoVideoProvider _nicoVideoProvider;
     private readonly ChannelProvider _channelProvider;
-    private readonly PageManager _pageManager;
     private readonly MylistResolver _mylistRepository;
 
     public NicoVideoSessionProvider Video { get; }

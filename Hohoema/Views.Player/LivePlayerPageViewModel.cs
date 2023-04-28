@@ -2,6 +2,7 @@
 using AngleSharp.Html.Parser;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Contracts.Services.Player;
 using Hohoema.Helpers;
 using Hohoema.Models.Application;
@@ -17,6 +18,7 @@ using Hohoema.Models.Player.Comment;
 using Hohoema.Services;
 using Hohoema.Services.Player;
 using Hohoema.Services.Player.Videos;
+using Hohoema.ViewModels.Navigation.Commands;
 using Hohoema.ViewModels.Niconico.Share;
 using Hohoema.ViewModels.Player.Commands;
 using Hohoema.ViewModels.Player.PlayerSidePaneContent;
@@ -100,8 +102,8 @@ public class LivePlayerPageViewModel : HohoemaPageViewModelBase
     public UserProvider UserProvider { get; }
     public CommunityProvider CommunityProvider { get; }
     public DialogService _HohoemaDialogService { get; }
-    public PageManager PageManager { get; }
 
+    private readonly IMessenger _messenger;
     private readonly UserNameProvider _userNameRepository;
     private NotificationService _NotificationService;
     private readonly CommentFilteringFacade _commentFiltering;
@@ -118,6 +120,8 @@ public class LivePlayerPageViewModel : HohoemaPageViewModelBase
     public CopyToClipboardCommand CopyToClipboardCommand { get; }
     public CopyToClipboardWithShareTextCommand CopyToClipboardWithShareTextCommand { get; }
     public OpenShareUICommand OpenShareUICommand { get; }
+    public OpenPageCommand OpenPageCommand { get; }
+    public OpenContentOwnerPageCommand OpenContentOwnerPageCommand { get; }
 
     private LiveContent _liveInfo;
     public LiveContent LiveInfo
@@ -353,7 +357,7 @@ public class LivePlayerPageViewModel : HohoemaPageViewModelBase
             return _OpenBroadcastCommunityCommand
                 ?? (_OpenBroadcastCommunityCommand = new RelayCommand(() =>
                 {
-                    PageManager.OpenPageWithId(HohoemaPageType.Community, CommunityId);
+                    _ = _messenger.OpenPageWithIdAsync(HohoemaPageType.Community, CommunityId);
                 }
                 ));
         }
@@ -369,6 +373,7 @@ public class LivePlayerPageViewModel : HohoemaPageViewModelBase
 
 
     public LivePlayerPageViewModel(
+        IMessenger messenger,
         IScheduler scheduler,
         IPlayerView playerView,
         PlayerSettings playerSettings,
@@ -381,7 +386,6 @@ public class LivePlayerPageViewModel : HohoemaPageViewModelBase
         UserNameProvider userNameRepository,
         CommunityProvider communityProvider,
         Services.DialogService dialogService,
-        PageManager pageManager,
         NotificationService notificationService,
         MediaPlayer mediaPlayer,
         ObservableMediaPlayer observableMediaPlayer,
@@ -394,14 +398,16 @@ public class LivePlayerPageViewModel : HohoemaPageViewModelBase
         OpenLinkCommand openLinkCommand,
         CopyToClipboardCommand copyToClipboardCommand,
         CopyToClipboardWithShareTextCommand copyToClipboardWithShareTextCommand,
-        OpenShareUICommand openShareUICommand
+        OpenShareUICommand openShareUICommand,
+        OpenPageCommand openPageCommand,
+        OpenContentOwnerPageCommand openContentOwnerPageCommand
         )
     {
         CurrentPlayerDisplayView = appearanceSettings
             .ObserveProperty(x => x.PlayerDisplayView)
             .ToReadOnlyReactivePropertySlim()
             .AddTo(_CompositeDisposable);
-
+        _messenger = messenger;
         _scheduler = scheduler;
         PlayerView = playerView;
         PlayerSettings = playerSettings;
@@ -415,7 +421,6 @@ public class LivePlayerPageViewModel : HohoemaPageViewModelBase
         CommunityProvider = communityProvider;
 
         _HohoemaDialogService = dialogService;
-        PageManager = pageManager;
         _NotificationService = notificationService;
         MediaPlayer = mediaPlayer;
         ObservableMediaPlayer = observableMediaPlayer;
@@ -429,6 +434,8 @@ public class LivePlayerPageViewModel : HohoemaPageViewModelBase
         CopyToClipboardCommand = copyToClipboardCommand;
         CopyToClipboardWithShareTextCommand = copyToClipboardWithShareTextCommand;
         OpenShareUICommand = openShareUICommand;
+        OpenPageCommand = openPageCommand;
+        OpenContentOwnerPageCommand = openContentOwnerPageCommand;
         DisplayingLiveComments = new ReadOnlyObservableCollection<LiveComment>(_DisplayingLiveComments);
 
         SeekCommand = new MediaPlayerSeekCommand(MediaPlayer);
@@ -857,7 +864,8 @@ public class LivePlayerPageViewModel : HohoemaPageViewModelBase
         // タイムシフトでの視聴かつタイムシフトの視聴予約済みかつ視聴権が未取得の場合は
         // 視聴権の使用を確認する
         var now = DateTime.Now;
-        if (_Reservation.IsActive
+        if (_Reservation != null
+            && _Reservation.IsActive
             && _Reservation.TimeshiftSetting.EndTime < now
             )
         {

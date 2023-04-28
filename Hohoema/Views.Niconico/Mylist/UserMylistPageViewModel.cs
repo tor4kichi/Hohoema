@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Mylist;
 using Hohoema.Models.Niconico.User;
@@ -8,6 +9,7 @@ using Hohoema.Models.Playlist;
 using Hohoema.Services;
 using Hohoema.Services.LocalMylist;
 using Hohoema.Services.Playlist;
+using Hohoema.ViewModels.Navigation.Commands;
 using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Collections;
 using NiconicoToolkit.User;
@@ -41,9 +43,10 @@ public class UserMylistPageViewModel : HohoemaListingPageViewModelBase<MylistPla
     }
 
     public UserMylistPageViewModel(
+        IMessenger messenger,
         ILoggerFactory loggerFactory,
         ApplicationLayoutManager applicationLayoutManager,
-        PageManager pageManager,
+        OpenPageCommand openPageCommand,
         Services.DialogService dialogService,
         NiconicoSession niconicoSession,
         UserProvider userProvider,
@@ -52,8 +55,9 @@ public class UserMylistPageViewModel : HohoemaListingPageViewModelBase<MylistPla
         )
         : base(loggerFactory.CreateLogger<UserMylistPageViewModel>())
     {
+        _messenger = messenger;
         ApplicationLayoutManager = applicationLayoutManager;
-        PageManager = pageManager;
+        OpenPageCommand = openPageCommand;
         DialogService = dialogService;
         NiconicoSession = niconicoSession;
         UserProvider = userProvider;
@@ -62,10 +66,12 @@ public class UserMylistPageViewModel : HohoemaListingPageViewModelBase<MylistPla
     }
 
     public ApplicationLayoutManager ApplicationLayoutManager { get; }
-    public PageManager PageManager { get; }
+    public OpenPageCommand OpenPageCommand { get; }    
     public Services.DialogService DialogService { get; }
     public NiconicoSession NiconicoSession { get; }
     public UserProvider UserProvider { get; }
+
+    private readonly IMessenger _messenger;
     private readonly MylistResolver _mylistRepository;
     private readonly LocalMylistManager _localMylistManager;
 
@@ -95,9 +101,8 @@ public class UserMylistPageViewModel : HohoemaListingPageViewModelBase<MylistPla
         if ((!UserId.HasValue && NiconicoSession.IsLoggedIn) || UserId.HasValue && (NiconicoSession.IsLoginUserId(UserId.Value)))
         {
             // ログインユーザー用のマイリスト一覧ページにリダイレクト
-            PageManager.ForgetLastPage();
-            PageManager.OpenPage(HohoemaPageType.OwnerMylistManage);
-
+            // TODO: ForgetLastの実装
+            _ =  _messenger.OpenPageAsync(HohoemaPageType.OwnerMylistManage);
             return;
         }
         else if (UserId != null)

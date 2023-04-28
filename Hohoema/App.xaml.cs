@@ -356,7 +356,6 @@ public sealed partial class App : Application
         container.Register<HohoemaPlaylistPlayer>(reuse: Reuse.Singleton);
 
         // Service
-        container.Register<PageManager>(reuse: Reuse.Singleton);
         container.Register<PrimaryViewPlayerManager>(reuse: Reuse.Singleton);
         container.Register<SecondaryViewPlayerManager>(reuse: Reuse.Singleton);
         container.Register<AppWindowSecondaryViewPlayerManager>(reuse: Reuse.Singleton);
@@ -682,7 +681,6 @@ public sealed partial class App : Application
         }
         else
         {
-            var pageManager = Container.Resolve<Services.PageManager>();
 
 
 #if false
@@ -876,9 +874,9 @@ public sealed partial class App : Application
         }
 
 #if !DEBUG
-        var navigationService = Container.Resolve<PageManager>();
+        var messenger = Container.Resolve<IMessenger>();
         var settings = Container.Resolve<AppearanceSettings>();
-        navigationService.OpenPage(settings.FirstAppearPageType);
+        await messenger.OpenPageAsync(settings.FirstAppearPageType);
 #endif
 
 #if false

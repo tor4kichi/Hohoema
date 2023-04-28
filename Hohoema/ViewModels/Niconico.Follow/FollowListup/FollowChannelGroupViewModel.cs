@@ -16,10 +16,9 @@ public sealed class FollowChannelGroupViewModel : FollowGroupViewModel<IChannel>
 
     public FollowChannelGroupViewModel(
         ChannelFollowProvider followProvider, 
-        PageManager pageManager, 
         IMessenger messenger
         ) 
-        : base(FollowItemType.Channel, followProvider, new FollowChannelIncrementalSource(followProvider), pageManager)
+        : base(FollowItemType.Channel, followProvider, new FollowChannelIncrementalSource(followProvider), messenger)
     {
         _messenger = messenger;
         _messenger.RegisterAll(this);

@@ -159,8 +159,8 @@
               
               <Button.Flyout>
                 <MenuFlyout>
-                  <MenuFlyoutItem Text="{i18nExt:Localize Key=VideoOwnerDetail}" Command="{x:Bind _vm.PageManager.OpenContentOwnerPageCommand}" CommandParameter="{x:Bind _vm.VideoInfo, Mode=OneWay}" />
-                  <MenuFlyoutItem Text="{i18nExt:Localize Key=OpenOwnerVideos}" Command="{x:Bind _vm.PageManager.OpenVideoListPageCommand}" CommandParameter="{x:Bind _vm.VideoInfo, Mode=OneWay}"></MenuFlyoutItem>
+                  <MenuFlyoutItem Text="{i18nExt:Localize Key=VideoOwnerDetail}" Command="{x:Bind _vm.OpenContentOwnerPageCommand}" CommandParameter="{x:Bind _vm.VideoInfo, Mode=OneWay}" />
+                  <MenuFlyoutItem Text="{i18nExt:Localize Key=OpenOwnerVideos}" Command="{x:Bind _vm.OpenVideoListPageCommand}" CommandParameter="{x:Bind _vm.VideoInfo, Mode=OneWay}"></MenuFlyoutItem>
                   <MenuFlyoutItem Text="{i18nExt:Localize Key=HohoemaPageType.UserSeries}" Command="{x:Bind _vm.OpenUserSeriesPageCommand}" />
                   <MenuFlyoutItem 
                         Text="{i18nExt:Localize Key=SubscriptionAddUserVideos}" 
@@ -214,7 +214,7 @@
         <ItemsControl ItemsSource="{x:Bind _vm.VideoDetails.Tags, Mode=OneWay}" x:Name="TagsList" IsTabStop="False">
           <ItemsControl.ItemTemplate>
             <DataTemplate x:DataType="videoModels:NicoVideoTag">
-              <Button Margin="0 0 0 0" Command="{Binding ElementName=TagsList, Path=DataContext.PageManager.OpenPageCommand}" CommandParameter="{x:Bind}">
+              <Button Margin="0 0 0 0" Command="{Binding ElementName=TagsList, Path=DataContext.OpenPageCommand}" CommandParameter="{x:Bind}">
                 <TextBlock Text="{x:Bind Tag}" />
               </Button>
             </DataTemplate>

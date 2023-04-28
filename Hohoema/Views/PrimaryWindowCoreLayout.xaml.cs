@@ -914,7 +914,7 @@ public sealed partial class PrimaryWindowCoreLayout : UserControl
     {
         if (args.InvokedItemContainer?.DataContext is IPageNavigatable menuItemVM)
         {
-            _vm.PageManager.OpenPageCommand.Execute(menuItemVM);                
+            (_vm.OpenPageCommand as ICommand).Execute(menuItemVM);                
         }
         else if (args.InvokedItemContainer?.DataContext is LiveContentMenuItemViewModel live)
         {
@@ -922,15 +922,15 @@ public sealed partial class PrimaryWindowCoreLayout : UserControl
         }
         else if (args.InvokedItem is IPageNavigatable menuItem)
         {
-            _vm.PageManager.OpenPageCommand.Execute(menuItem);
+            (_vm.OpenPageCommand as ICommand).Execute(menuItem);
         }
         else if ((args.InvokedItem as FrameworkElement)?.DataContext is IPageNavigatable item)
         {
-            _vm.PageManager.OpenPageCommand.Execute(item);
+            (_vm.OpenPageCommand as ICommand).Execute(item);
         }
         else if (args.IsSettingsInvoked)
         {
-            _vm.PageManager.OpenPage(HohoemaPageType.Settings);
+            (_vm.OpenPageCommand as ICommand).Execute(HohoemaPageType.Settings);
         }
     }
 

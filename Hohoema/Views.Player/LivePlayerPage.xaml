@@ -316,8 +316,8 @@
                                 DefaultLabelPosition="Right" 
                                 >
 
-                      <AppBarButton Label="{i18nExt:Localize Key=LiveInfomation}" Command="{Binding PageManager.OpenPageCommand}" CommandParameter="{Binding LiveInfo}" />
-                      <AppBarButton Label="{i18nExt:Localize Key=LiveBroadcasterInfomation}" Command="{Binding PageManager.OpenContentOwnerPageCommand}" CommandParameter="{Binding LiveInfo}" />
+                      <AppBarButton Label="{i18nExt:Localize Key=LiveInfomation}" Command="{Binding OpenPageCommand}" CommandParameter="{Binding LiveInfo}" />
+                      <AppBarButton Label="{i18nExt:Localize Key=LiveBroadcasterInfomation}" Command="{Binding OpenContentOwnerPageCommand}" CommandParameter="{Binding LiveInfo}" />
                       <AppBarButton Label="{i18nExt:Localize Key=Share}" Icon="Link" Command="{Binding OpenShareUICommand}" CommandParameter="{Binding LiveInfo}" />
                       <AppBarButton x:Name="CopyActionsAppBarButton" Label="{i18nExt:Localize Key=Copy}" Icon="Copy">
                         <AppBarButton.Flyout>

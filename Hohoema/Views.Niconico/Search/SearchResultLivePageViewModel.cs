@@ -31,6 +31,7 @@ using LiveSort = NiconicoToolkit.Search.Live.Sort;
 using LiveProvider = NiconicoToolkit.Search.Live.Provider;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Diagnostics;
+using CommunityToolkit.Mvvm.Messaging;
 
 namespace Hohoema.ViewModels.Pages.Niconico.Search;
 
@@ -56,21 +57,21 @@ public sealed partial class SearchResultLivePageViewModel
     }
 
     public SearchResultLivePageViewModel(
+        IMessenger messenger,
         ILoggerFactory loggerFactory,
         ApplicationLayoutManager applicationLayoutManager,
         NiconicoSession niconicoSession,
-        SearchProvider searchProvider,
-        PageManager pageManager,
+        SearchProvider searchProvider,        
         SearchHistoryRepository searchHistoryRepository,
         NicoLiveCacheRepository nicoLiveCacheRepository,
         OpenLiveContentCommand openLiveContentCommand
         )
         : base(loggerFactory.CreateLogger<SearchResultLivePageViewModel>())
     {
+        _messenger = messenger;
         ApplicationLayoutManager = applicationLayoutManager;
         NiconicoSession = niconicoSession;
         SearchProvider = searchProvider;
-        PageManager = pageManager;
         _searchHistoryRepository = searchHistoryRepository;
         _nicoLiveCacheRepository = nicoLiveCacheRepository;
         OpenLiveContentCommand = openLiveContentCommand;
@@ -101,6 +102,12 @@ public sealed partial class SearchResultLivePageViewModel
     public ReactiveProperty<LiveSort> SelectedSort { get; private set; }
     public ReactiveProperty<LiveProvider> SelectedProvider { get; private set; }
 
+    public ApplicationLayoutManager ApplicationLayoutManager { get; }
+    public NiconicoSession NiconicoSession { get; }
+    public SearchProvider SearchProvider { get; }
+    public OpenLiveContentCommand OpenLiveContentCommand { get; }
+
+    private readonly IMessenger _messenger;
     private readonly SearchHistoryRepository _searchHistoryRepository;
     private readonly NicoLiveCacheRepository _nicoLiveCacheRepository;
 
@@ -124,16 +131,10 @@ public sealed partial class SearchResultLivePageViewModel
 				return _ShowSearchHistoryCommand
 					?? (_ShowSearchHistoryCommand = new RelayCommand(() =>
 					{
-						PageManager.OpenPage(HohoemaPageType.Search);
+                        _ = _messenger.OpenPageAsync(HohoemaPageType.Search);
 					}));
 			}
 		}
-
-    public ApplicationLayoutManager ApplicationLayoutManager { get; }
-    public NiconicoSession NiconicoSession { get; }
-    public SearchProvider SearchProvider { get; }
-    public PageManager PageManager { get; }
-    public OpenLiveContentCommand OpenLiveContentCommand { get; }
 
     #endregion
 

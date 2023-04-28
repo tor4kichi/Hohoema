@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.Niconico.Video;
 using NiconicoToolkit.Video;
 
@@ -6,11 +7,11 @@ namespace Hohoema.ViewModels.Pages.VideoListPage.Commands;
 
 public sealed class OpenVideoOwnerPageCommand : CommandBase
 {
-    private readonly PageManager _pageManager;
+    private readonly IMessenger _messenger;
 
-    public OpenVideoOwnerPageCommand(PageManager pageManager)
+    public OpenVideoOwnerPageCommand(IMessenger messenger)
     {
-        _pageManager = pageManager;
+        _messenger = messenger;
     }
 
     protected override bool CanExecute(object parameter)
@@ -24,7 +25,7 @@ public sealed class OpenVideoOwnerPageCommand : CommandBase
         {
             if (video.ProviderType == OwnerType.User)
             {
-                _pageManager.OpenPageWithId(Models.PageNavigation.HohoemaPageType.UserInfo, video.ProviderId);
+                _ = _messenger.OpenPageWithIdAsync(Models.PageNavigation.HohoemaPageType.UserInfo, video.ProviderId);
             }
             else if (video.ProviderType == OwnerType.Channel)
             {

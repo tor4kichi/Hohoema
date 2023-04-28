@@ -25,8 +25,7 @@ public class WatchHistoryPageViewModel : HohoemaPageViewModelBase
     ILoggerFactory loggerFactory,
     ApplicationLayoutManager applicationLayoutManager,
     NiconicoSession niconicoSession,
-    WatchHistoryManager watchHistoryManager,
-    PageManager pageManager,
+    WatchHistoryManager watchHistoryManager,    
     VideoPlayWithQueueCommand videoPlayWithQueueCommand,
     WatchHistoryRemoveAllCommand watchHistoryRemoveAllCommand,
     SelectionModeToggleCommand selectionModeToggleCommand
@@ -35,8 +34,7 @@ public class WatchHistoryPageViewModel : HohoemaPageViewModelBase
         _logger = loggerFactory.CreateLogger<WatchHistoryPageViewModel>();
         ApplicationLayoutManager = applicationLayoutManager;
         _niconicoSession = niconicoSession;
-        _watchHistoryManager = watchHistoryManager;
-        PageManager = pageManager;
+        _watchHistoryManager = watchHistoryManager;        
         VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
         WatchHistoryRemoveAllCommand = watchHistoryRemoveAllCommand;
         SelectionModeToggleCommand = selectionModeToggleCommand;
@@ -51,7 +49,6 @@ public class WatchHistoryPageViewModel : HohoemaPageViewModelBase
     private readonly ILogger<WatchHistoryPageViewModel> _logger;
 
     public ApplicationLayoutManager ApplicationLayoutManager { get; }
-    public PageManager PageManager { get; }
     public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
     public WatchHistoryRemoveAllCommand WatchHistoryRemoveAllCommand { get; }
     public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
