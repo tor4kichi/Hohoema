@@ -17,6 +17,8 @@ using System.Reactive.Concurrency;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Linq;
+using NiconicoToolkit.Live.WatchPageProp;
 
 namespace Hohoema.ViewModels.VideoListPage;
 
@@ -25,12 +27,11 @@ public interface ISourcePlaylistPresenter
     PlaylistId GetPlaylistId();
 }
 
-public class VideoItemViewModel : ObservableObject, IVideoContent, IPlaylistItemPlayable, IDisposable, ISourcePlaylistPresenter,
-    IRecipient<VideoWatchedMessage>,
-    IRecipient<PlaylistItemAddedMessage>,
-    IRecipient<PlaylistItemRemovedMessage>,
-    IRecipient<ItemIndexUpdatedMessage>,
-    IRecipient<VideoCacheStatusChangedMessage>
+public class VideoItemViewModel 
+    : ObservableObject
+    , IVideoContent
+    , IPlaylistItemPlayable
+    , ISourcePlaylistPresenter
 {
     private static readonly VideoWatchedRepository _videoWatchedRepository;
     private static readonly VideoCacheManager _cacheManager;
@@ -49,16 +50,10 @@ public class VideoItemViewModel : ObservableObject, IVideoContent, IPlaylistItem
         _removeWatchAfterCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<QueueRemoveItemCommand>();
     }
 
-    protected void SetLength(TimeSpan length)
-    {
-        Length = length;
-        OnPropertyChanged(nameof(Length));
-    }
-
 
     public VideoId VideoId { get; init; }
 
-    public TimeSpan Length { get; private set; }
+    public TimeSpan Length { get; init; }
 
     public string ThumbnailUrl { get; }
 
@@ -87,28 +82,19 @@ public class VideoItemViewModel : ObservableObject, IVideoContent, IPlaylistItem
         Length = videoLength;
         PostedAt = postedAt;
 
-        SubscribeAll(videoId);
+        Initialize(VideoId);
     }
 
-    VideoId? _subsribedVideoId;
-    protected void SubscribeAll(VideoId videoId)
+    void Initialize(VideoId videoId)
     {
-        if (_subsribedVideoId is not null and VideoId subscribedVideoId)
-        {
-            _messenger.Unregister<VideoWatchedMessage, VideoId>(this, subscribedVideoId);
-            _messenger.Unregister<PlaylistItemAddedMessage, VideoId>(this, subscribedVideoId);
-            _messenger.Unregister<PlaylistItemRemovedMessage, VideoId>(this, subscribedVideoId);
-            _messenger.Unregister<ItemIndexUpdatedMessage, VideoId>(this, subscribedVideoId);
-            _messenger.Unregister<VideoCacheStatusChangedMessage, VideoId>(this, subscribedVideoId);
-            _subsribedVideoId = null;
-        }
+        RefreshCacheStatus(_cacheManager.GetVideoCache(videoId));
+        InitializeWatched(videoId);
+        InitializeQueueItem(videoId);
+    }
 
-        _messenger.Register<VideoWatchedMessage, VideoId>(this, videoId);
-        _messenger.Register<PlaylistItemAddedMessage, VideoId>(this, videoId);
-        _messenger.Register<PlaylistItemRemovedMessage, VideoId>(this, videoId);
-        _messenger.Register<ItemIndexUpdatedMessage, VideoId>(this, videoId);
-        _messenger.Register<VideoCacheStatusChangedMessage, VideoId>(this, videoId);
 
+    void InitializeQueueItem(VideoId videoId)
+    {
         IsQueueItem = _queuePlaylist.Contains(videoId);
         if (IsQueueItem)
         {
@@ -118,25 +104,6 @@ public class VideoItemViewModel : ObservableObject, IVideoContent, IPlaylistItem
         {
             QueueItemIndex = -1;
         }
-
-        var cacheRequest = _cacheManager.GetVideoCache(videoId);
-        RefreshCacheStatus(cacheRequest?.Status, cacheRequest);
-        SubscriptionWatchedIfNotWatch(videoId);
-
-        _subsribedVideoId = videoId;
-    }
-
-    public virtual void Dispose()
-    {
-        if (_subsribedVideoId is not null and VideoId subscribedVideoId)
-        {
-            _messenger.Unregister<VideoWatchedMessage, VideoId>(this, subscribedVideoId);
-            _messenger.Unregister<PlaylistItemAddedMessage, VideoId>(this, subscribedVideoId);
-            _messenger.Unregister<PlaylistItemRemovedMessage, VideoId>(this, subscribedVideoId);
-            _messenger.Unregister<ItemIndexUpdatedMessage, VideoId>(this, subscribedVideoId);
-            _messenger.Unregister<VideoCacheStatusChangedMessage, VideoId>(this, subscribedVideoId);
-            _subsribedVideoId = null;
-        }
     }
 
     #region Watched
@@ -145,59 +112,41 @@ public class VideoItemViewModel : ObservableObject, IVideoContent, IPlaylistItem
     public bool IsWatched
     {
         get { return _IsWatched; }
-        set { SetProperty(ref _IsWatched, value); }
+        private set { SetProperty(ref _IsWatched, value); }
     }
 
     private double _LastWatchedPositionInterpolation;
     public double LastWatchedPositionInterpolation
     {
         get { return _LastWatchedPositionInterpolation; }
-        set { SetProperty(ref _LastWatchedPositionInterpolation, value); }
+        private set { SetProperty(ref _LastWatchedPositionInterpolation, value); }
     }
 
-
-    void IRecipient<VideoWatchedMessage>.Receive(VideoWatchedMessage message)
+    public void OnWatched(VideoWatchedMessage message)
     {
-        Watched(message.Value);
+        if (message.Value.ContentId == VideoId)
+        {
+            IsWatched = true;
+            LastWatchedPositionInterpolation = Math.Clamp(message.Value.PlayedPosition.TotalSeconds / Length.TotalSeconds, 0.0, 1.0);
+        }
     }
 
-    void Watched(VideoWatchedMessage.VideoPlayedEventArgs args)
+    void InitializeWatched(VideoId videoId)
     {
-        IsWatched = true;
-        LastWatchedPositionInterpolation = Math.Clamp(args.PlayedPosition.TotalSeconds / Length.TotalSeconds, 0.0, 1.0);
-    }
-
-    void SubscriptionWatchedIfNotWatch(VideoId videoId)
-    {
-        UnsubscriptionWatched(_subsribedVideoId);
-
         var watched = _videoWatchedRepository.IsVideoPlayed(videoId, out var hisotory);
         IsWatched = watched;
-        if (!watched)
-        {
-            if (!_messenger.IsRegistered<VideoWatchedMessage, VideoId>(this, videoId))
-            {
-                _messenger.Register<VideoWatchedMessage, VideoId>(this, videoId);
-            }
-        }
-        else
+        if (watched)
         {
             LastWatchedPositionInterpolation = hisotory.LastPlayedPosition != TimeSpan.Zero
                 ? Math.Clamp(hisotory.LastPlayedPosition.TotalSeconds / Length.TotalSeconds, 0.0, 1.0)
                 : 1.0
                 ;
         }
-    }
-
-    void UnsubscriptionWatched(VideoId? videoId)
-    {
-        if (videoId != null)
+        else
         {
-            _messenger.Unregister<VideoWatchedMessage, VideoId>(this, videoId.Value);
+            LastWatchedPositionInterpolation = 0.0;
         }
     }
-
-
 
 
     #endregion
@@ -236,25 +185,28 @@ public class VideoItemViewModel : ObservableObject, IVideoContent, IPlaylistItem
     public bool IsQueueItem
     {
         get { return _IsQueueItem; }
-        set { SetProperty(ref _IsQueueItem, value); }
+        private set { SetProperty(ref _IsQueueItem, value); }
     }
 
     private int _QueueItemIndex;
     public int QueueItemIndex
     {
         get { return _QueueItemIndex; }
-        set { SetProperty(ref _QueueItemIndex, value + 1); }
+        private set { SetProperty(ref _QueueItemIndex, value + 1); }
     }
 
-    void IRecipient<PlaylistItemAddedMessage>.Receive(PlaylistItemAddedMessage message)
+
+
+    public void OnPlaylistItemAdded(PlaylistItemAddedMessage message)
     {
+        if (!message.Value.AddedItems.Any(x => x.VideoId == VideoId)) { return; }
         if (message.Value.PlaylistId != QueuePlaylist.Id) { return; }
         _scheduler.Schedule(() => IsQueueItem = true);
-
     }
 
-    void IRecipient<PlaylistItemRemovedMessage>.Receive(PlaylistItemRemovedMessage message)
+    public void OnPlaylistItemRemoved(PlaylistItemRemovedMessage message)
     {
+        if (!message.Value.RemovedItems.Any(x => x.VideoId == VideoId)) { return; }
         if (message.Value.PlaylistId != QueuePlaylist.Id) { return; }
         _scheduler.Schedule(() =>
         {
@@ -264,8 +216,9 @@ public class VideoItemViewModel : ObservableObject, IVideoContent, IPlaylistItem
     }
 
 
-    void IRecipient<ItemIndexUpdatedMessage>.Receive(ItemIndexUpdatedMessage message)
+    public void OnQueueItemIndexUpdated(ItemIndexUpdatedMessage message)
     {
+        if (message.Value.ContentId != VideoId) { return; }
         if (message.Value.PlaylistId != QueuePlaylist.Id) { return; }
         _scheduler.Schedule(() =>
         {
@@ -284,41 +237,45 @@ public class VideoItemViewModel : ObservableObject, IVideoContent, IPlaylistItem
     public NicoVideoQuality? CacheRequestedQuality
     {
         get { return _CacheRequestedQuality; }
-        set { SetProperty(ref _CacheRequestedQuality, value); }
+        private set { SetProperty(ref _CacheRequestedQuality, value); }
     }
 
     private VideoCacheStatus? _CacheStatus;
     public VideoCacheStatus? CacheStatus
     {
         get { return _CacheStatus; }
-        set { SetProperty(ref _CacheStatus, value); }
+        private set { SetProperty(ref _CacheStatus, value); }
     }
 
-    void IRecipient<VideoCacheStatusChangedMessage>.Receive(VideoCacheStatusChangedMessage message)
+    public void OnCacheStatusChanged(VideoCacheStatusChangedMessage message)
     {
-        _scheduler.Schedule(() =>
+        if (message.Value.VideoId == VideoId)
         {
-            RefreshCacheStatus(message.Value.CacheStatus, message.Value.Item);
-        });
+            RefreshCacheStatus(message.Value.Item);
+        }
     }
 
-    void RefreshCacheStatus(VideoCacheStatus? status, VideoCacheItem item)
+    void RefreshCacheStatus(VideoCacheItem? item)
     {
-        CacheStatus = status;
-        if (item?.DownloadedVideoQuality is not null and not NicoVideoQuality.Unknown and var quality)
+        if (item == null)
         {
-            CacheRequestedQuality = quality;
+            CacheStatus = null;
+            CacheRequestedQuality = null;
         }
         else
         {
-            CacheRequestedQuality = item?.RequestedVideoQuality;
+            CacheStatus = item.Status;
+            if (item.DownloadedVideoQuality is not NicoVideoQuality.Unknown and var quality)
+            {
+                CacheRequestedQuality = quality;
+            }
+            else
+            {
+                CacheRequestedQuality = item.RequestedVideoQuality;
+            }
         }
     }
 
-    private void UnsubscribeCacheState()
-    {
-        _messenger.Unregister<VideoCacheStatusChangedMessage, VideoId>(this, VideoId);
-    }
 
     #endregion
 
@@ -331,9 +288,9 @@ public class VideoItemViewModel : ObservableObject, IVideoContent, IPlaylistItem
 
 
 
-public class VideoListItemControlViewModel : VideoItemViewModel, IVideoDetail, IDisposable,
-    IRecipient<VideoOwnerFilteringAddedMessage>,
-    IRecipient<VideoOwnerFilteringRemovedMessage>
+public class VideoListItemControlViewModel
+    : VideoItemViewModel
+    , IVideoDetail
 {
     static VideoListItemControlViewModel()
     {
@@ -354,12 +311,7 @@ public class VideoListItemControlViewModel : VideoItemViewModel, IVideoDetail, I
         )
         : base(videoId, title, thumbnailUrl, videoLength, postedAt)
     {
-        UpdateIsHidenVideoOwner(this);
-        
-        if (VideoId != VideoId && VideoId != null)
-        {
-            SubscribeAll(VideoId);
-        }
+        InitializeIsHiddenVideoOwner(this);
     }
 
     public VideoListItemControlViewModel(
@@ -384,12 +336,7 @@ public class VideoListItemControlViewModel : VideoItemViewModel, IVideoDetail, I
 
         IsRequirePayment = videoItem.IsPaymentRequired;
 
-        UpdateIsHidenVideoOwner(this);
-
-        if (VideoId != VideoId && VideoId != null)
-        {
-            SubscribeAll(VideoId);
-        }
+        InitializeIsHiddenVideoOwner(this);
     }
 
     public VideoListItemControlViewModel(
@@ -405,12 +352,7 @@ public class VideoListItemControlViewModel : VideoItemViewModel, IVideoDetail, I
             ProviderIconUrl = videoItem.Owner.IconUrl;
         }
 
-        UpdateIsHidenVideoOwner(this);
-
-        if (VideoId != VideoId && VideoId != null)
-        {
-            SubscribeAll(VideoId);
-        }
+        InitializeIsHiddenVideoOwner(this);
     }
 
     public VideoListItemControlViewModel(
@@ -425,12 +367,7 @@ public class VideoListItemControlViewModel : VideoItemViewModel, IVideoDetail, I
         CommentCount = videoItem.CommentCount;
         MylistCount = videoItem.MylistCount;
 
-        UpdateIsHidenVideoOwner(this);
-
-        if (VideoId != VideoId && VideoId != null)
-        {
-            SubscribeAll(VideoId);
-        }
+        InitializeIsHiddenVideoOwner(this);
     }
 
     public bool Equals(IVideoContent other)
@@ -462,12 +399,11 @@ public class VideoListItemControlViewModel : VideoItemViewModel, IVideoDetail, I
             var oldProviderId = _ProviderId;
             if (SetProperty(ref _ProviderId, value))
             {
-                RegisterVideoOwnerFilteringMessageReceiver(_ProviderId, oldProviderId);
-                UpdateIsHidenVideoOwner(this);
+                InitializeIsHiddenVideoOwner(this);
             }
         }
     }
-    
+
     private string _ProviderName;
     public string ProviderName
     {
@@ -476,14 +412,10 @@ public class VideoListItemControlViewModel : VideoItemViewModel, IVideoDetail, I
     }
 
 
-    
+
     public string ProviderIconUrl { get; private set; }
 
-    public OwnerType ProviderType { get; set; }
-
-    public IMylist OnwerPlaylist { get; }
-
-    public VideoStatus VideoStatus { get; private set; }
+    public OwnerType ProviderType { get; init; }
 
     private string _Description;
     public string Description
@@ -493,12 +425,9 @@ public class VideoListItemControlViewModel : VideoItemViewModel, IVideoDetail, I
     }
 
 
-    public int ViewCount { get; set; }
-
-
-    public int MylistCount { get; set; }
-
-    public int CommentCount { get; set; }
+    public int ViewCount { get; init; }
+    public int MylistCount { get; init; }
+    public int CommentCount { get; init; }
 
     private bool _IsDeleted;
     public bool IsDeleted
@@ -533,42 +462,33 @@ public class VideoListItemControlViewModel : VideoItemViewModel, IVideoDetail, I
 
     #region NG 
 
-    void RegisterVideoOwnerFilteringMessageReceiver(string currentProviderId, string oldProviderId)
+    public void OnVideoOwnerFilteringAdded(VideoOwnerFilteringAddedMessage message)
     {
-        if (oldProviderId is not null)
+        if (message.Value.OwnerId == ProviderId
+            && _ngSettings.TryGetHiddenReason(this, out var result)
+            )
         {
-            _messenger.Unregister<VideoOwnerFilteringAddedMessage, string>(this, oldProviderId);
-            _messenger.Unregister<VideoOwnerFilteringRemovedMessage, string>(this, oldProviderId);
-        }
-
-        if (currentProviderId is not null)
-        {
-            _messenger.Register<VideoOwnerFilteringAddedMessage, string>(this, currentProviderId);
-            _messenger.Register<VideoOwnerFilteringRemovedMessage, string>(this, currentProviderId);
+            VideoHiddenInfo = result;
         }
     }
 
-    void IRecipient<VideoOwnerFilteringAddedMessage>.Receive(VideoOwnerFilteringAddedMessage message)
+    public void OnVideoOwnerFilteringRemoved(VideoOwnerFilteringRemovedMessage message)
     {
-        UpdateIsHidenVideoOwner(this);
-
-    }
-
-    void IRecipient<VideoOwnerFilteringRemovedMessage>.Receive(VideoOwnerFilteringRemovedMessage message)
-    {
-        UpdateIsHidenVideoOwner(this);
+        if (message.Value.OwnerId == ProviderId)
+        {
+            VideoHiddenInfo = null;
+        }
     }
 
 
-    private FilteredResult _VideoHiddenInfo;
-    public FilteredResult VideoHiddenInfo
+    private FilteredResult? _VideoHiddenInfo;
+    public FilteredResult? VideoHiddenInfo
     {
         get { return _VideoHiddenInfo; }
-        set { SetProperty(ref _VideoHiddenInfo, value); }
+        private set { SetProperty(ref _VideoHiddenInfo, value); }
     }
 
-
-    protected void UpdateIsHidenVideoOwner(IVideoContent video)
+    void InitializeIsHiddenVideoOwner(IVideoContent video)
     {
         if (video != null)
         {
@@ -598,69 +518,13 @@ public class VideoListItemControlViewModel : VideoItemViewModel, IVideoDetail, I
 
     #endregion
 
-
-
-    public override void Dispose()
-    {
-        base.Dispose();
-
-        RegisterVideoOwnerFilteringMessageReceiver(null, _ProviderId);
-    }
-
-
-
-
-    public async ValueTask EnsureProviderIdAsync(CancellationToken ct)
-    {
-        if (string.IsNullOrEmpty(Label))
-        {
-            Debug.WriteLine("");
-            return;
-        }
-
-        if (ProviderId is null && ProviderType != OwnerType.Hidden)
-        {
-            var owner = await _nicoVideoProvider.ResolveVideoOwnerAsync(VideoId);
-            if (owner is not null)
-            {
-                ProviderId = owner.OwnerId;
-                ProviderType = owner.UserType;
-                ProviderName = owner.ScreenName;
-            }
-        }
-
-        UpdateIsHidenVideoOwner(this);
-
-        OnInitialized();
-    }
-
-
-    protected virtual void OnInitialized() { }
-
     protected virtual VideoPlayPayload MakeVideoPlayPayload()
-		{
-			return new VideoPlayPayload()
-			{
-				VideoId = VideoId,
-				Quality = null,
-			};
-		}
+    {
+        return new VideoPlayPayload()
+        {
+            VideoId = VideoId,
+            Quality = null,
+        };
+    }
 }
 
-public static class VideoListItemControlViewModelExtesnsion
-{
-
-
-   
-
-}
-
-
-
-
-[Flags]
-public enum VideoStatus
-{
-    Watched = 0x0001,
-    Filtered = 0x1000,
-}

@@ -41,7 +41,10 @@ namespace Hohoema.ViewModels.Pages.Niconico.Mylist;
 
 using MylistFollowContext = FollowContext<IMylist>;
 
-public sealed partial class MylistPageViewModel : HohoemaPageViewModelBase, IPinablePage, ITitleUpdatablePage
+public sealed partial class MylistPageViewModel 
+    : VideoListingPageViewModelBase<VideoListItemControlViewModel>
+    , IPinablePage
+    , ITitleUpdatablePage
 	{
     HohoemaPin IPinablePage.GetPin()
     {
@@ -58,9 +61,105 @@ public sealed partial class MylistPageViewModel : HohoemaPageViewModelBase, IPin
         return Mylist.Select(x => x?.Name);
     }
 
+
+    public ReadOnlyReactivePropertySlim<PlaylistToken> CurrentPlaylistToken { get; }
+
+    public MylistPlaylistSortOption[] SortItems => MylistPlaylist.SortOptions;
+
+    public ReactiveProperty<MylistPlaylistSortOption> SelectedSortOptionItem { get; }
+
+    private readonly IMessenger _messenger;
+    private readonly MylistFollowProvider _mylistFollowProvider;
+    private readonly MylistResolver _mylistRepository;
+    private readonly MylistUserSelectedSortRepository _mylistUserSelectedSortRepository;
+
+    public ApplicationLayoutManager ApplicationLayoutManager { get; }
+    public PageManager PageManager { get; }
+
+
+    public NiconicoSession NiconicoSession { get; }
+    public MylistProvider MylistProvider { get; }
+    public UserProvider UserProvider { get; }
+    public LoginUserMylistProvider LoginUserMylistProvider { get; }
+    public LoginUserOwnedMylistManager UserMylistManager { get; }
+    public LocalMylistManager LocalMylistManager { get; }
+    public SubscriptionManager SubscriptionManager { get; }
+    public IMylistGroupDialogService DialogService { get; }
+    public AddSubscriptionCommand AddSubscriptionCommand { get; }
+    public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
+    public PlaylistPlayAllCommand PlaylistPlayAllCommand { get; }
+    public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
+    public ReactiveProperty<MylistPlaylist?> Mylist { get; private set; }
+
+    public int MaxItemsCount { get; private set; }
+
+    public string OwnerUserId { get; private set; }
+
+    private bool _IsUserOwnerdMylist;
+    public bool IsUserOwnerdMylist
+    {
+        get { return _IsUserOwnerdMylist; }
+        set { SetProperty(ref _IsUserOwnerdMylist, value); }
+    }
+
+    private bool _IsLoginUserDeflist;
+    public bool IsLoginUserDeflist
+    {
+        get { return _IsLoginUserDeflist; }
+        set { SetProperty(ref _IsLoginUserDeflist, value); }
+    }
+
+    private bool _IsWatchAfterLocalMylist;
+    public bool IsWatchAfterLocalMylist
+    {
+        get { return _IsWatchAfterLocalMylist; }
+        set { SetProperty(ref _IsWatchAfterLocalMylist, value); }
+    }
+
+    private bool _IsLocalMylist;
+    public bool IsLocalMylist
+    {
+        get { return _IsLocalMylist; }
+        set { SetProperty(ref _IsLocalMylist, value); }
+    }
+
+    private string _UserName;
+    public string UserName
+    {
+        get { return _UserName; }
+        set { SetProperty(ref _UserName, value); }
+    }
+
+    public int DeflistRegistrationCapacity { get; private set; }
+    public int DeflistRegistrationCount { get; private set; }
+    public int MylistRegistrationCapacity { get; private set; }
+    public int MylistRegistrationCount { get; private set; }
+
+
+    private bool _IsMylistNotFound;
+    public bool IsMylistNotFound
+    {
+        get { return _IsMylistNotFound; }
+        set { SetProperty(ref _IsMylistNotFound, value); }
+    }
+
+    // Follow
+    private MylistFollowContext _FollowContext = MylistFollowContext.Default;
+    public MylistFollowContext FollowContext
+    {
+        get => _FollowContext;
+        set => SetProperty(ref _FollowContext, value);
+    }
+
+    [ObservableProperty]
+    private bool _nowLoading;
+
+
+
+
     public MylistPageViewModel(
-        ILoggerFactory loggerFactory,
         IMessenger messenger,
+        ILoggerFactory loggerFactory,
         ApplicationLayoutManager applicationLayoutManager,
         PageManager pageManager,
         NiconicoSession niconicoSession,
@@ -79,8 +178,8 @@ public sealed partial class MylistPageViewModel : HohoemaPageViewModelBase, IPin
         PlaylistPlayAllCommand playlistPlayAllCommand,
         VideoPlayWithQueueCommand videoPlayWithQueueCommand
         )
+        : base(messenger, loggerFactory.CreateLogger<MylistPageViewModel>(), disposeItemVM: false)
     {
-        _logger = loggerFactory.CreateLogger<MylistPageViewModel>();
         _messenger = messenger;
         ApplicationLayoutManager = applicationLayoutManager;
         PageManager = pageManager;
@@ -259,105 +358,185 @@ public sealed partial class MylistPageViewModel : HohoemaPageViewModelBase, IPin
         */
     }
 
-    public ReadOnlyReactivePropertySlim<PlaylistToken> CurrentPlaylistToken { get; }
 
-    public MylistPlaylistSortOption[] SortItems => MylistPlaylist.SortOptions;
-
-    public ReactiveProperty<MylistPlaylistSortOption> SelectedSortOptionItem { get; }
-
-    private readonly ILogger<MylistPageViewModel> _logger;
-    private readonly IMessenger _messenger;
-    private readonly MylistFollowProvider _mylistFollowProvider;
-    private readonly MylistResolver _mylistRepository;
-    private readonly MylistUserSelectedSortRepository _mylistUserSelectedSortRepository;
-    
-    public ApplicationLayoutManager ApplicationLayoutManager { get; }
-    public PageManager PageManager { get; }
-
-
-    public NiconicoSession NiconicoSession { get; }
-    public MylistProvider MylistProvider { get; }
-    public UserProvider UserProvider { get; }
-    public LoginUserMylistProvider LoginUserMylistProvider { get; }
-    public LoginUserOwnedMylistManager UserMylistManager { get; }
-    public LocalMylistManager LocalMylistManager { get; }
-    public SubscriptionManager SubscriptionManager { get; }
-    public IMylistGroupDialogService DialogService { get; }
-    public AddSubscriptionCommand AddSubscriptionCommand { get; }
-    public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
-    public PlaylistPlayAllCommand PlaylistPlayAllCommand { get; }
-    public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
-    public ReactiveProperty<MylistPlaylist> Mylist { get; private set; }
-
-    private ICollection<VideoListItemControlViewModel> _mylistItems;
-    public ICollection<VideoListItemControlViewModel> MylistItems
+    public override async Task OnNavigatedToAsync(INavigationParameters parameters)
     {
-        get { return _mylistItems; }
-        private set { SetProperty(ref _mylistItems, value); }
+        NowLoading = true;
+        try
+        {
+            IsMylistNotFound = false;
+            MylistId? maybeMylistId = null;
+
+            if (parameters.TryGetValue<MylistId>("id", out var justMylistId))
+            {
+                maybeMylistId = justMylistId;
+            }
+            else if (parameters.TryGetValue<string>("id", out var idString))
+            {
+                maybeMylistId = idString;
+            }
+            else if (parameters.TryGetValue<uint>("id", out var idInt))
+            {
+                maybeMylistId = idInt;
+            }
+
+            if (maybeMylistId == null)
+            {
+
+            }
+
+            var mylistId = maybeMylistId.Value;
+            var mylist = await _mylistRepository.GetMylistAsync(mylistId);
+
+            if (mylist == null)
+            {
+                return;
+            }
+
+            Mylist.Value = mylist;
+
+            IsUserOwnerdMylist = _mylistRepository.IsLoginUserMylistId(mylist.MylistId);
+            IsLoginUserDeflist = mylist.MylistId.IsWatchAfterMylist;
+            IsWatchAfterLocalMylist = false;
+            IsLocalMylist = false;
+
+            if (mylist is LoginUserMylistPlaylist loginMylist)
+            {
+                Observable.FromEventPattern<MylistItemAddedEventArgs>(
+                h => loginMylist.MylistItemAdded += h,
+                h => loginMylist.MylistItemAdded -= h
+                )
+                .Subscribe(e =>
+                {
+                    var args = e.EventArgs;
+                    if (args.MylistId == Mylist.Value.MylistId)
+                    {
+                        RefreshCommand.Execute(null);
+                    }
+                })
+                .AddTo(_navigationDisposables);
+
+                Observable.FromEventPattern<MylistItemRemovedEventArgs>(
+                    h => loginMylist.MylistItemRemoved += h,
+                    h => loginMylist.MylistItemRemoved -= h
+                    )
+                    .Subscribe(e =>
+                    {
+                        if (ItemsView == null) { return; }
+                        var args = e.EventArgs;
+                        if (args.MylistId == Mylist.Value.MylistId)
+                        {
+                            foreach (var removed in args.SuccessedItems)
+                            {
+                                var removedItem = ItemsView.Cast<VideoItemViewModel>().FirstOrDefault(x => x.VideoId == removed.VideoId);
+                                if (removedItem != null)
+                                {
+                                    ItemsView.Remove(removedItem);
+                                }
+                            }
+                        }
+                    })
+                    .AddTo(_navigationDisposables);
+
+                Observable.FromEventPattern<MylistItemMovedEventArgs>(
+                    h => loginMylist.MylistMoved += h,
+                    h => loginMylist.MylistMoved -= h
+                    )
+                    .Subscribe(e =>
+                    {
+                        if (ItemsView == null) { return; }
+                        var args = e.EventArgs;
+                        if (args.SourceMylistId == Mylist.Value.MylistId)
+                        {
+                            foreach (var id in args.SuccessedItems)
+                            {
+                                var removeTarget = ItemsView.Cast<VideoItemViewModel>().FirstOrDefault(x => x.VideoId == id);
+                                ItemsView.Remove(removeTarget);
+                            }
+                        }
+                    })
+                    .AddTo(_navigationDisposables);
+            }
+
+            var lastSort = _mylistUserSelectedSortRepository.GetMylistSort(mylistId);
+            if (!IsLoginUserDeflist)
+            {
+                SelectedSortOptionItem.Value = SortItems.First(x => x.SortKey == (lastSort.SortKey ?? Mylist.Value.DefaultSortKey) && x.SortOrder == (lastSort.SortOrder ?? Mylist.Value.DefaultSortOrder));
+            }
+            else
+            {
+                SelectedSortOptionItem.Value = SortItems.First(x => x.SortKey == (lastSort.SortKey ?? MylistSortKey.AddedAt) && x.SortOrder == (lastSort.SortOrder ?? MylistSortOrder.Desc));
+            }
+
+            try
+            {
+                if (NiconicoSession.IsLoggedIn && Mylist.Value != null)
+                {
+                    FollowContext = await MylistFollowContext.CreateAsync(_mylistFollowProvider, Mylist.Value);
+                }
+                else
+                {
+                    FollowContext = MylistFollowContext.Default;
+                }
+            }
+            catch
+            {
+                FollowContext = MylistFollowContext.Default;
+            }
+
+            SelectedSortOptionItem
+                .Where(x => x is not null)
+                .Subscribe(x =>
+                {
+                    RefreshCommand.Execute(null);
+
+                    _mylistUserSelectedSortRepository.SetMylistSort(Mylist.Value.MylistId, x.SortKey, x.SortOrder);
+                })
+                .AddTo(_navigationDisposables);
+
+            EditMylistGroupCommand.NotifyCanExecuteChanged();
+            DeleteMylistCommand.NotifyCanExecuteChanged();
+        }
+        finally
+        {
+            NowLoading = false;
+        }
+
+        await base.OnNavigatedToAsync(parameters);
     }
 
-    public int MaxItemsCount { get; private set; }
-
-    public string OwnerUserId { get; private set; }
-
-    private bool _IsUserOwnerdMylist;
-    public bool IsUserOwnerdMylist
+    protected override void PostResetList()
     {
-        get { return _IsUserOwnerdMylist; }
-        set { SetProperty(ref _IsUserOwnerdMylist, value); }
-    }
+        MaxItemsCount = Mylist.Value.Count;
 
-    private bool _IsLoginUserDeflist;
-    public bool IsLoginUserDeflist
+        base.PostResetList();
+    }
+    protected override (int PageSize, IIncrementalSource<VideoListItemControlViewModel> IncrementalSource) GenerateIncrementalSource()
     {
-        get { return _IsLoginUserDeflist; }
-        set { SetProperty(ref _IsLoginUserDeflist, value); }
+        var sortOption = SelectedSortOptionItem.Value;
+        if (sortOption == null)
+        {
+            var lastSort = _mylistUserSelectedSortRepository.GetMylistSort(Mylist.Value.MylistId);
+            if (!IsLoginUserDeflist)
+            {
+                sortOption = SelectedSortOptionItem.Value = SortItems.First(x => x.SortKey == (lastSort.SortKey ?? Mylist.Value.DefaultSortKey) && x.SortOrder == (lastSort.SortOrder ?? Mylist.Value.DefaultSortOrder));
+            }
+            else
+            {
+                sortOption = SelectedSortOptionItem.Value = SortItems.First(x => x.SortKey == (lastSort.SortKey ?? MylistSortKey.AddedAt) && x.SortOrder == (lastSort.SortOrder ?? MylistSortOrder.Desc));
+            }
+        }
+
+        if (Mylist.Value is LoginUserMylistPlaylist loginUserMylist)
+        {
+            return (25, new LoginUserMylistIncrementalSource(loginUserMylist, sortOption, _logger));
+
+        }
+        else
+        {
+            return (25, new MylistIncrementalSource(Mylist.Value, sortOption, _logger));
+        }
     }
-
-    private bool _IsWatchAfterLocalMylist;
-    public bool IsWatchAfterLocalMylist
-    {
-        get { return _IsWatchAfterLocalMylist; }
-        set { SetProperty(ref _IsWatchAfterLocalMylist, value); }
-    }
-
-    private bool _IsLocalMylist;
-    public bool IsLocalMylist
-    {
-        get { return _IsLocalMylist; }
-        set { SetProperty(ref _IsLocalMylist, value); }
-    }
-
-    private string _UserName;
-    public string UserName
-    {
-        get { return _UserName; }
-        set { SetProperty(ref _UserName, value); }
-    }
-
-    public int DeflistRegistrationCapacity { get; private set; }
-    public int DeflistRegistrationCount { get; private set; }
-    public int MylistRegistrationCapacity { get; private set; }
-    public int MylistRegistrationCount { get; private set; }
-
-
-    private bool _IsMylistNotFound;
-    public bool IsMylistNotFound
-    {
-        get { return _IsMylistNotFound; }
-        set { SetProperty(ref _IsMylistNotFound, value); }
-    }
-
-    // Follow
-    private MylistFollowContext _FollowContext = MylistFollowContext.Default;
-    public MylistFollowContext FollowContext
-    {
-        get => _FollowContext;
-        set => SetProperty(ref _FollowContext, value);
-    }
-
-    [ObservableProperty]
-    private bool _nowLoading;
 
 
     #region Commands
@@ -380,10 +559,6 @@ public sealed partial class MylistPageViewModel : HohoemaPageViewModelBase, IPin
     public ReactiveCommand UnregistrationMylistCommand { get; private set; }
     public ReactiveCommand CopyMylistCommand { get; private set; }
     public ReactiveCommand MoveMylistCommand { get; private set; }
-
-
-
-
 
     private RelayCommand<IPlaylist> _EditMylistGroupCommand;
     public RelayCommand<IPlaylist> EditMylistGroupCommand
@@ -500,10 +675,7 @@ public sealed partial class MylistPageViewModel : HohoemaPageViewModelBase, IPin
             return _RefreshCommand
                 ?? (_RefreshCommand = new RelayCommand(async () =>
                 {
-                    if (Mylist.Value != null)
-                    {
-                        MylistItems = CreateItemsSource(Mylist.Value);
-                    }
+                    ResetList();
                 }));
         }
     }
@@ -512,212 +684,6 @@ public sealed partial class MylistPageViewModel : HohoemaPageViewModelBase, IPin
 
     #endregion
 
-
-    /*
-
-    private async Task<bool> FavoriteMylist()
-		{
-			if (PlayableList.Value == null) { return false; }
-        if (PlayableList.Value.Origin != PlaylistOrigin.OtherUser) { return false; }
-
-			var favManager = HohoemaApp.FollowManager;
-			var result = await favManager.AddFollow(FollowItemType.Mylist, PlayableList.Value.Id, PlayableList.Value.Label);
-
-			return result == ContentManageResult.Success || result == ContentManageResult.Exist;
-		}
-
-		private async Task<bool> UnfavoriteMylist()
-		{
-			if (PlayableList.Value == null) { return false; }
-        if (PlayableList.Value.Origin != PlaylistOrigin.OtherUser) { return false; }
-
-        var favManager = HohoemaApp.FollowManager;
-			var result = await favManager.RemoveFollow(FollowItemType.Mylist, PlayableList.Value.Id);
-
-			return result == ContentManageResult.Success;
-
-		}
-
-*/
-
-    public override async Task OnNavigatedToAsync(INavigationParameters parameters)
-    {
-        await base.OnNavigatedToAsync(parameters);
-        NowLoading = true;
-        try
-        {
-            IsMylistNotFound = false;
-            MylistId? maybeMylistId = null;
-
-            if (parameters.TryGetValue<MylistId>("id", out var justMylistId))
-            {
-                maybeMylistId = justMylistId;
-            }
-            else if (parameters.TryGetValue<string>("id", out var idString))
-            {
-                maybeMylistId = idString;
-            }
-            else if (parameters.TryGetValue<uint>("id", out var idInt))
-            {
-                maybeMylistId = idInt;
-            }
-
-            if (maybeMylistId == null)
-            {
-
-            }
-
-            var mylistId = maybeMylistId.Value;
-            var mylist = await _mylistRepository.GetMylistAsync(mylistId);
-
-            if (mylist == null)
-            {
-                return;
-            }
-
-            Mylist.Value = mylist;
-
-            IsUserOwnerdMylist = _mylistRepository.IsLoginUserMylistId(mylist.MylistId);
-            IsLoginUserDeflist = mylist.MylistId.IsWatchAfterMylist;
-            IsWatchAfterLocalMylist = false;
-            IsLocalMylist = false;
-
-            if (mylist is LoginUserMylistPlaylist loginMylist)
-            {
-                Observable.FromEventPattern<MylistItemAddedEventArgs>(
-                h => loginMylist.MylistItemAdded += h,
-                h => loginMylist.MylistItemAdded -= h
-                )
-                .Subscribe(e =>
-                {
-                    var args = e.EventArgs;
-                    if (args.MylistId == Mylist.Value.MylistId)
-                    {
-                        RefreshCommand.Execute(null);
-                    }
-                })
-                .AddTo(_navigationDisposables);
-
-                Observable.FromEventPattern<MylistItemRemovedEventArgs>(
-                    h => loginMylist.MylistItemRemoved += h,
-                    h => loginMylist.MylistItemRemoved -= h
-                    )
-                    .Subscribe(e =>
-                    {
-                        var args = e.EventArgs;
-                        if (args.MylistId == Mylist.Value.MylistId)
-                        {
-                            foreach (var removed in args.SuccessedItems)
-                            {
-                                var removedItem = MylistItems.FirstOrDefault(x => x.VideoId == removed.VideoId);
-                                if (removedItem != null)
-                                {
-                                    MylistItems.Remove(removedItem);
-                                }
-                            }
-                        }
-                    })
-                    .AddTo(_navigationDisposables);
-
-                Observable.FromEventPattern<MylistItemMovedEventArgs>(
-                h => loginMylist.MylistMoved += h,
-                h => loginMylist.MylistMoved -= h
-                )
-                .Subscribe(e =>
-                {
-                    var args = e.EventArgs;
-                    if (args.SourceMylistId == Mylist.Value.MylistId)
-                    {
-                        foreach (var id in args.SuccessedItems)
-                        {
-                            var removeTarget = MylistItems.FirstOrDefault(x => x.VideoId == id);
-                            MylistItems.Remove(removeTarget);
-                        }
-                    }
-                })
-                .AddTo(_navigationDisposables);
-            }
-
-            var lastSort = _mylistUserSelectedSortRepository.GetMylistSort(mylistId);
-            if (!IsLoginUserDeflist)
-            {
-                SelectedSortOptionItem.Value = SortItems.First(x => x.SortKey == (lastSort.SortKey ?? Mylist.Value.DefaultSortKey) && x.SortOrder == (lastSort.SortOrder ?? Mylist.Value.DefaultSortOrder));
-            }
-            else
-            {
-                SelectedSortOptionItem.Value = SortItems.First(x => x.SortKey == (lastSort.SortKey ?? MylistSortKey.AddedAt) && x.SortOrder == (lastSort.SortOrder ?? MylistSortOrder.Desc));
-            }
-
-
-
-            MylistItems = CreateItemsSource(mylist);
-            MaxItemsCount = Mylist.Value.Count;
-
-            try
-            {
-                if (NiconicoSession.IsLoggedIn && Mylist.Value != null)
-                {
-                    FollowContext = await MylistFollowContext.CreateAsync(_mylistFollowProvider, Mylist.Value);
-                }
-                else
-                {
-                    FollowContext = MylistFollowContext.Default;
-                }
-            }
-            catch
-            {
-                FollowContext = MylistFollowContext.Default;
-            }
-
-            SelectedSortOptionItem
-                .Where(x => x is not null)
-                .Subscribe(x =>
-            {
-                RefreshCommand.Execute(null);
-
-                _mylistUserSelectedSortRepository.SetMylistSort(Mylist.Value.MylistId, x.SortKey, x.SortOrder);
-            })
-                .AddTo(_navigationDisposables);
-
-            EditMylistGroupCommand.NotifyCanExecuteChanged();
-            DeleteMylistCommand.NotifyCanExecuteChanged();
-        }
-        finally
-        {
-            NowLoading = false;
-        }
-    }
-   
-
-    private ICollection<VideoListItemControlViewModel> CreateItemsSource(MylistPlaylist mylist)
-    {
-        var sortOption = SelectedSortOptionItem.Value;
-        if (sortOption == null) 
-        {
-            var lastSort = _mylistUserSelectedSortRepository.GetMylistSort(Mylist.Value.MylistId);
-            if (!IsLoginUserDeflist)
-            {
-                SelectedSortOptionItem.Value = SortItems.First(x => x.SortKey == (lastSort.SortKey ?? Mylist.Value.DefaultSortKey) && x.SortOrder == (lastSort.SortOrder ?? Mylist.Value.DefaultSortOrder));
-            }
-            else
-            {
-                SelectedSortOptionItem.Value = SortItems.First(x => x.SortKey == (lastSort.SortKey ?? MylistSortKey.AddedAt) && x.SortOrder == (lastSort.SortOrder ?? MylistSortOrder.Desc));
-            }
-        }
-
-        if (mylist is LoginUserMylistPlaylist loginUserMylist)
-        {
-            return new HohoemaListingPageViewModelBase<VideoListItemControlViewModel>.HohoemaIncrementalLoadingCollection(
-                new LoginUserMylistIncrementalSource(loginUserMylist, sortOption, _logger)
-                );
-        }
-        else
-        {
-            return new HohoemaListingPageViewModelBase<VideoListItemControlViewModel>.HohoemaIncrementalLoadingCollection(
-                new MylistIncrementalSource(mylist, sortOption, _logger)
-                );
-        }
-    }
 
     private RelayCommand<IVideoContent> _PlayWithCurrentPlaylistCommand;
     public RelayCommand<IVideoContent> PlayWithCurrentPlaylistCommand
@@ -734,14 +700,14 @@ public sealed partial class MylistPageViewModel : HohoemaPageViewModelBase, IPin
     }
 }
 
-	public class MylistIncrementalSource : IIncrementalSource<VideoListItemControlViewModel>
-	{
+public class MylistIncrementalSource : IIncrementalSource<VideoListItemControlViewModel>
+{
     private readonly MylistPlaylist _mylist;
     private readonly MylistPlaylistSortOption _sortOption;
     private readonly ILogger _logger;
 
     public MylistIncrementalSource(
-        MylistPlaylist mylist, 
+        MylistPlaylist mylist,
         MylistPlaylistSortOption sortOption,
         ILogger logger
         )
@@ -765,7 +731,7 @@ public sealed partial class MylistPageViewModel : HohoemaPageViewModelBase, IPin
         }
         catch (Exception e)
         {
-            _logger.ZLogErrorWithPayload(exception:e, (MylistId: _mylist.MylistId, SortOption: _sortOption), "Mylist items loading error");
+            _logger.ZLogErrorWithPayload(exception: e, (MylistId: _mylist.MylistId, SortOption: _sortOption), "Mylist items loading error");
             return Enumerable.Empty<VideoListItemControlViewModel>();
         }
     }

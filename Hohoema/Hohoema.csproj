@@ -229,6 +229,7 @@
     <Compile Include="ViewModels\Niconico.Likes\VideoLikesContext.cs" />
     <Compile Include="ViewModels\Niconico.Live\LiveInfoListItemViewModel.cs" />
     <Compile Include="ViewModels\Niconico.Share\CopyToClipboardWithShareTextCommand.cs" />
+    <Compile Include="ViewModels\VideoListingPageViewModelBase.cs" />
     <Compile Include="Views.Hohoema\Subscription\EditSubscriptionGroupDialog.xaml.cs">
       <DependentUpon>EditSubscriptionGroupDialog.xaml</DependentUpon>
     </Compile>

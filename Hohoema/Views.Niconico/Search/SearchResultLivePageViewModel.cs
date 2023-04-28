@@ -34,7 +34,10 @@ using CommunityToolkit.Diagnostics;
 
 namespace Hohoema.ViewModels.Pages.Niconico.Search;
 
-public sealed partial class SearchResultLivePageViewModel : HohoemaListingPageViewModelBase<LiveInfoListItemViewModel>, IPinablePage, ITitleUpdatablePage
+public sealed partial class SearchResultLivePageViewModel 
+    : HohoemaListingPageViewModelBase<LiveInfoListItemViewModel>
+    , IPinablePage
+    , ITitleUpdatablePage
 {
     HohoemaPin IPinablePage.GetPin()
     {

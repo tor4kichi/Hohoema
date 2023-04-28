@@ -21,7 +21,7 @@
     >
   
   <Grid>
-    <videolistPage:VideoItemsListView ItemsSource="{x:Bind _vm.MylistItems, Mode=OneWay}" 
+    <videolistPage:VideoItemsListView ItemsSource="{x:Bind _vm.ItemsView, Mode=OneWay}" 
                                       ItemCommand="{x:Bind _vm.VideoPlayWithQueueCommand}" 
                                       ItemTemplate="{StaticResource VideoListItemControlDefaultTemplate}"
                                       RefreshCommand="{x:Bind _vm.RefreshCommand}" 

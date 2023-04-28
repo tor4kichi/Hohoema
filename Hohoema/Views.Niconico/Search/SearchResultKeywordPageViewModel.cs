@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Search;
 using Hohoema.Models.PageNavigation;
@@ -26,7 +27,10 @@ using Windows.UI.Xaml.Navigation;
 
 namespace Hohoema.ViewModels.Pages.Niconico.Search;
 
-public class SearchResultKeywordPageViewModel : HohoemaListingPageViewModelBase<VideoListItemControlViewModel>, IPinablePage, ITitleUpdatablePage
+public class SearchResultKeywordPageViewModel 
+    : VideoListingPageViewModelBase<VideoListItemControlViewModel>
+    , IPinablePage
+    , ITitleUpdatablePage
 {
     HohoemaPin IPinablePage.GetPin()
     {
@@ -73,10 +77,11 @@ public class SearchResultKeywordPageViewModel : HohoemaListingPageViewModelBase<
     private VideoSortOptionViewModel DefaultSortOptionVM => SortOptions.First(x => x.SortOption == SearchVideoPlaylist.DefaultSortOption);
 
 
-    public ReadOnlyReactivePropertySlim<PlaylistToken> CurrentPlaylistToken { get; }
+    public ReadOnlyReactivePropertySlim<PlaylistToken?> CurrentPlaylistToken { get; }
 
 
     public SearchResultKeywordPageViewModel(
+        IMessenger messenger,
         ILoggerFactory loggerFactory,
         NiconicoSession niconicoSession,
         ApplicationLayoutManager applicationLayoutManager,
@@ -89,7 +94,7 @@ public class SearchResultKeywordPageViewModel : HohoemaListingPageViewModelBase<
         AddKeywordSearchSubscriptionCommand addKeywordSearchSubscriptionCommand,
         SelectionModeToggleCommand selectionModeToggleCommand
         )
-        : base(loggerFactory.CreateLogger<SearchResultKeywordPageViewModel>())
+        : base(messenger, loggerFactory.CreateLogger<SearchResultKeywordPageViewModel>(), disposeItemVM: false)
     {
         FailLoading = new ReactiveProperty<bool>(false)
             .AddTo(_CompositeDisposable);

@@ -98,11 +98,6 @@ public class WatchHistoryPageViewModel : HohoemaPageViewModelBase
 
     public override void OnNavigatedFrom(INavigationParameters parameters)
     {
-        foreach (var history in Histories)
-        {
-            history.Dispose();
-        }
-
         Histories.Clear();
 
         base.OnNavigatedFrom(parameters);
@@ -131,20 +126,20 @@ public class WatchHistoryPageViewModel : HohoemaPageViewModelBase
                             x.Video.Thumbnail.ListingUrl.OriginalString,
                             TimeSpan.FromSeconds(x.Video.Duration),
                             x.Video.RegisteredAt.DateTime
-                            );
-
-                        vm.ProviderId = x.Video.Owner.Id;
-                        vm.ProviderType = x.Video.Owner.OwnerType switch
+                            )
                         {
-                            NiconicoToolkit.Video.OwnerType.User => OwnerType.User,
-                            NiconicoToolkit.Video.OwnerType.Channel => OwnerType.Channel,
-                            _ => OwnerType.Hidden
+                            ProviderId = x.Video.Owner.Id,
+                            ProviderType = x.Video.Owner.OwnerType switch
+                            {
+                                NiconicoToolkit.Video.OwnerType.User => OwnerType.User,
+                                NiconicoToolkit.Video.OwnerType.Channel => OwnerType.Channel,
+                                _ => OwnerType.Hidden
+                            },
+                            ProviderName = x.Video.Owner.Name,
+                            CommentCount = x.Video.Count.Comment,
+                            ViewCount = x.Video.Count.View,
+                            MylistCount = x.Video.Count.Mylist,
                         };
-                        vm.ProviderName = x.Video.Owner.Name;
-
-                        vm.CommentCount = x.Video.Count.Comment;
-                        vm.ViewCount = x.Video.Count.View;
-                        vm.MylistCount = x.Video.Count.Mylist;
 
                         Histories.Add(vm);
                     }
