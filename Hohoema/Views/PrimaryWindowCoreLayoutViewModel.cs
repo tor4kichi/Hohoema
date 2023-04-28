@@ -22,6 +22,7 @@ using Hohoema.ViewModels.Niconico.Account;
 using Hohoema.ViewModels.Niconico.Live;
 using Hohoema.ViewModels.Niconico.Video;
 using Hohoema.ViewModels.PrimaryWindowCoreLayout;
+using Hohoema.Views.Pages.Hohoema;
 using I18NPortable;
 using LiteDB;
 using Microsoft.Extensions.Logging;
@@ -52,7 +53,6 @@ public partial class PrimaryWindowCoreLayoutViewModel : ObservableObject, IRecip
 
 
     public NiconicoSession NiconicoSession { get; }
-    public PageManager PageManager { get; }
     public PinSettings PinSettings { get; }
     public AppearanceSettings AppearanceSettings { get; }
     public SearchCommand SearchCommand { get; }
@@ -69,6 +69,7 @@ public partial class PrimaryWindowCoreLayoutViewModel : ObservableObject, IRecip
     private readonly SubscriptionManager _subscriptionManager;
 
     public OpenLiveContentCommand OpenLiveContentCommand { get; }
+    public OpenPageCommand OpenPageCommand { get; }
 
     private readonly ILogger _logger;
     private readonly IMessenger _messenger;
@@ -89,7 +90,6 @@ public partial class PrimaryWindowCoreLayoutViewModel : ObservableObject, IRecip
         IMessenger messenger,
         ILoggerFactory loggerFactory,        
         NiconicoSession niconicoSession,
-        PageManager pageManager,
         PinSettings pinSettings,
         AppearanceSettings appearanceSettings,
         SearchCommand searchCommand,
@@ -107,13 +107,13 @@ public partial class PrimaryWindowCoreLayoutViewModel : ObservableObject, IRecip
         LocalMylistManager localMylistManager,
         QueuePlaylist queuePlaylist,
         OpenLiveContentCommand openLiveContentCommand,
-        SubscriptionManager subscriptionManager
+        SubscriptionManager subscriptionManager,
+        OpenPageCommand openPageCommand
         )
     {
         _logger = loggerFactory.CreateLogger<PrimaryWindowCoreLayoutViewModel>();
         _messenger = messenger;
         NiconicoSession = niconicoSession;
-        PageManager = pageManager;
         PinSettings = pinSettings;
         AppearanceSettings = appearanceSettings;
         SearchCommand = searchCommand;
@@ -134,17 +134,17 @@ public partial class PrimaryWindowCoreLayoutViewModel : ObservableObject, IRecip
             new SearchAutoSuggestItemViewModel()
             {
                 Id = "VideoSearchSuggest",
-                SearchAction = (s) => PageManager.Search(SearchTarget.Keyword, s),
+                SearchAction = (s) => _= _messenger.OpenSearchPageAsync(SearchTarget.Keyword, s),
             },
             new SearchAutoSuggestItemViewModel()
             {
                 Id = "LiveSearchSuggest",
-                SearchAction = (s) => PageManager.Search(SearchTarget.Niconama, s),
+                SearchAction = (s) => _= _messenger.OpenSearchPageAsync(SearchTarget.Niconama, s),
             },
             new SearchAutoSuggestItemViewModel()
             {
                 Id = "DetailSearchSuggest",
-                SearchAction = (s) => PageManager.OpenPage(HohoemaPageType.Search, ""),
+                SearchAction = (s) => _= _messenger.OpenPageAsync(HohoemaPageType.Search),
             },
         };
 
@@ -154,8 +154,9 @@ public partial class PrimaryWindowCoreLayoutViewModel : ObservableObject, IRecip
         _queuePlaylist = queuePlaylist;
         OpenLiveContentCommand = openLiveContentCommand;
         _subscriptionManager = subscriptionManager;
+        OpenPageCommand = openPageCommand;
         _pinsMenuSubItemViewModel = new PinsMenuSubItemViewModel("Pin".Translate(), PinSettings, _dialogService, _notificationService, loggerFactory.CreateLogger<PinsMenuSubItemViewModel>());
-        _localMylistMenuSubItemViewModel = new LocalMylistSubMenuItemViewModel(_localMylistManager, PageManager.OpenPageCommand);
+        _localMylistMenuSubItemViewModel = new LocalMylistSubMenuItemViewModel(_localMylistManager, OpenPageCommand);
 
         // メニュー項目の初期化
         MenuItems_LoggedIn = new ObservableCollection<HohoemaListingPageItemBase>()
@@ -167,7 +168,7 @@ public partial class PrimaryWindowCoreLayoutViewModel : ObservableObject, IRecip
             new NavigateAwareMenuItemViewModel(HohoemaPageType.NicoRepo.Translate(), HohoemaPageType.NicoRepo, new NavigationParameters("type=Video")),
             new SubscriptionMenuItemViewModel(_messenger, _subscriptionManager, _queuePlaylist, _notificationService),
             //new NavigateAwareMenuItemViewModel("WatchAfterMylist".Translate(), HohoemaPageType.Mylist, new NavigationParameters(("id", MylistId.WatchAfterMylistId.ToString()))),
-            new MylistSubMenuMenu(_userMylistManager, PageManager.OpenPageCommand),
+            new MylistSubMenuMenu(_userMylistManager, OpenPageCommand),
             _localMylistMenuSubItemViewModel,
             new NavigateAwareMenuItemViewModel(HohoemaPageType.WatchHistory.Translate(), HohoemaPageType.WatchHistory),
             new NavigateAwareMenuItemViewModel(HohoemaPageType.CacheManagement.Translate(), HohoemaPageType.CacheManagement),
@@ -238,7 +239,7 @@ public partial class PrimaryWindowCoreLayoutViewModel : ObservableObject, IRecip
     void OpenFollowPage()
     {
         //new NavigateAwareMenuItemViewModel(HohoemaPageType.FollowManage.Translate(), HohoemaPageType.FollowManage),
-        PageManager.OpenPage(HohoemaPageType.FollowManage);
+        _ = _messenger.OpenPageAsync(HohoemaPageType.FollowManage);
     }
 
 
@@ -254,7 +255,7 @@ public partial class PrimaryWindowCoreLayoutViewModel : ObservableObject, IRecip
 
                     if (NiconicoSession.IsLoggedIn)
                     {
-                        PageManager.OpenPageWithId(HohoemaPageType.UserInfo, NiconicoSession.UserId);
+                        _messenger.OpenPageWithIdAsync(HohoemaPageType.UserInfo, NiconicoSession.UserId);
                     }
                 }));
         }
@@ -266,7 +267,7 @@ public partial class PrimaryWindowCoreLayoutViewModel : ObservableObject, IRecip
         {
             return new RelayCommand(() =>
             {
-                PageManager.OpenDebugPage();
+                _ = _messenger.Send<NavigationAsyncRequestMessage>(new (nameof(DebugPage)));
             });
         }
     }
@@ -1192,7 +1193,7 @@ public sealed partial class SubscriptionMenuItemViewModel
     [RelayCommand]
     void OpenSubscriptionGroupManagementPage()
     {
-        _ = _messenger.SendNavigationRequestAsync(HohoemaPageType.SubscriptionManagement);
+        _ = _messenger.OpenPageAsync(HohoemaPageType.SubscriptionManagement);
     }
 
     void IRecipient<SubscriptionFeedUpdatedMessage>.Receive(SubscriptionFeedUpdatedMessage message)
@@ -1289,7 +1290,7 @@ public sealed partial class SubscriptionGroupMenuItemViewModel : NavigateAwareMe
     [RelayCommand]
     async Task OpenSubscriptionGroupVideoListPage()
     {
-        await _messenger.SendNavigationRequestAsync(HohoemaPageType.SubscVideoList,
+        await _messenger.OpenPageAsync(HohoemaPageType.SubscVideoList,
             new NavigationParameters(("SubscGroupId", GroupId.ToString()))
             );
     }

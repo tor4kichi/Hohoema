@@ -15,6 +15,8 @@ using NiconicoToolkit.Video;
 using System;
 using System.Threading.Tasks;
 using Windows.Foundation.Collections;
+using System.Linq;
+using System.Diagnostics;
 
 namespace Hohoema.Services.Navigations;
 
@@ -24,21 +26,18 @@ public sealed class NavigationTriggerFromExternal
     private readonly MylistResolver _mylistResolver;
     private readonly NicoVideoProvider _nicoVideoProvider;
     private readonly VideoCacheManager _videoCacheManager;
-    private readonly PageManager _pageManager;
     private readonly IMessenger _messenger;
 
     public NavigationTriggerFromExternal(
         MylistResolver mylistResolver,
         NicoVideoProvider nicoVideoProvider, 
         VideoCacheManager videoCacheManager,
-        PageManager pageManager,
         IMessenger messenger
         )
     {
         _mylistResolver = mylistResolver;
         _nicoVideoProvider = nicoVideoProvider;
-        _videoCacheManager = videoCacheManager;
-        _pageManager = pageManager;
+        _videoCacheManager = videoCacheManager;        
         _messenger = messenger;
     }
 
@@ -104,11 +103,11 @@ public sealed class NavigationTriggerFromExternal
 
                         if (toastArguments.TryGetValue(ToastNotificationConstants.ToastArgumentKey_PageParameters, out string parameters))
                         {
-                            _pageManager.OpenPage(pageType, parameters);
+                            await _messenger.OpenPageWithIdAsync(pageType, parameters);
                         }
                         else
                         {
-                            _pageManager.OpenPage(pageType);
+                            await _messenger.OpenPageAsync(pageType);
                         }
                     }
                     break;
@@ -137,5 +136,5 @@ public sealed class NavigationTriggerFromExternal
     public void PlayLiveVideoFromExternal(LiveId liveId)
     {
         _messenger.Send(new PlayLiveRequestMessage(liveId));
-    }
+    }    
 }

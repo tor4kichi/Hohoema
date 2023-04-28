@@ -58,6 +58,17 @@ public sealed class ChannelVideoPageViewModel
         return this.ObserveProperty(x => x.ChannelName);
     }
 
+
+    public ApplicationLayoutManager ApplicationLayoutManager { get; }
+    public NiconicoSession NiconicoSession { get; }
+    public ChannelProvider ChannelProvider { get; }
+    public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
+    public PlaylistPlayAllCommand PlaylistPlayAllCommand { get; }
+    public OpenLinkCommand OpenLinkCommand { get; }
+    public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
+    private readonly ChannelFollowProvider _channelFollowProvider;
+
+
     public ChannelVideoPageViewModel(
         IMessenger messenger,
         ILoggerFactory loggerFactory,
@@ -65,7 +76,6 @@ public sealed class ChannelVideoPageViewModel
         NiconicoSession niconicoSession,
         ChannelProvider channelProvider,
         ChannelFollowProvider channelFollowProvider,
-        PageManager pageManager,
         VideoPlayWithQueueCommand videoPlayWithQueueCommand,
         PlaylistPlayAllCommand playlistPlayAllCommand,
         OpenLinkCommand openLinkCommand,
@@ -77,7 +87,6 @@ public sealed class ChannelVideoPageViewModel
         NiconicoSession = niconicoSession;
         ChannelProvider = channelProvider;
         _channelFollowProvider = channelFollowProvider;
-        PageManager = pageManager;
         VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
         PlaylistPlayAllCommand = playlistPlayAllCommand;
         OpenLinkCommand = openLinkCommand;
@@ -252,8 +261,6 @@ public sealed class ChannelVideoPageViewModel
 
 
     private RelayCommand _ShowWithBrowserCommand;
-    private readonly ChannelFollowProvider _channelFollowProvider;
-
     public RelayCommand ShowWithBrowserCommand
     {
         get
@@ -266,14 +273,6 @@ public sealed class ChannelVideoPageViewModel
         }
     }
 
-    public ApplicationLayoutManager ApplicationLayoutManager { get; }
-    public NiconicoSession NiconicoSession { get; }
-    public ChannelProvider ChannelProvider { get; }
-    public PageManager PageManager { get; }
-    public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
-    public PlaylistPlayAllCommand PlaylistPlayAllCommand { get; }
-    public OpenLinkCommand OpenLinkCommand { get; }
-    public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
 }
 
 public sealed class ChannelVideoListItemViewModel : VideoListItemControlViewModel

@@ -12,12 +12,9 @@ public sealed class FollowTagGroupViewModel : FollowGroupViewModel<ITag>,
     IRecipient<TagFollowRemovedMessage>,
     IDisposable
 {
-    private readonly IMessenger _messenger;
-
-    public FollowTagGroupViewModel(TagFollowProvider followProvider, PageManager pageManager, IMessenger messenger) 
-        : base(FollowItemType.Tag, followProvider, new FollowTagIncrementalSource(followProvider), pageManager)
+    public FollowTagGroupViewModel(TagFollowProvider followProvider, IMessenger messenger) 
+        : base(FollowItemType.Tag, followProvider, new FollowTagIncrementalSource(followProvider), messenger)
     {
-        _messenger = messenger;
         _messenger.RegisterAll(this);
     }
 

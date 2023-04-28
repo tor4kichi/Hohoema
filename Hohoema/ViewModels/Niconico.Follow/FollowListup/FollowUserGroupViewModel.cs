@@ -12,12 +12,9 @@ public sealed class FollowUserGroupViewModel : FollowGroupViewModel<IUser>,
     IRecipient<UserFollowRemovedMessage>,
     IDisposable
 {
-    private readonly IMessenger _messenger;
-
-    public FollowUserGroupViewModel(UserFollowProvider followProvider, PageManager pageManager, IMessenger messenger) 
-        : base(FollowItemType.User, followProvider, new FollowUserIncrementalSource(followProvider), pageManager)
+    public FollowUserGroupViewModel(UserFollowProvider followProvider, IMessenger messenger) 
+        : base(FollowItemType.User, followProvider, new FollowUserIncrementalSource(followProvider), messenger)
     {
-        _messenger = messenger;
         _messenger.RegisterAll(this);
     }
 

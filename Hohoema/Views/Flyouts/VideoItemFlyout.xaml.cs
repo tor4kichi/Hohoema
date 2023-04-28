@@ -71,13 +71,13 @@ public sealed partial class VideoItemFlyout : MenuFlyout
 
 
     public static QueuePlaylist QueuePlaylist { get; }
-    public static PageManager PageManager { get; }
     public static LoginUserOwnedMylistManager UserMylistManager { get; }
     public static LocalMylistManager LocalMylistManager { get; }
     public static SubscriptionManager SubscriptionManager { get; }
     public static VideoCacheManager VideoCacheManager { get; }
     public static VideoItemsSelectionContext VideoItemsSelectionContext { get; }
     public static VideoFilteringSettings VideoFilteringSettings { get; }
+    public static OpenPageCommand OpenPageCommand { get; }
 
     private static readonly IMessenger _messenger;
 
@@ -98,7 +98,6 @@ public sealed partial class VideoItemFlyout : MenuFlyout
         _messenger = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<IMessenger>();
         CreateMylistCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<MylistCreateCommand>();
         CreateLocalMylistCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<LocalPlaylistCreateCommand>();
-        PageManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<PageManager>();
         UserMylistManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<LoginUserOwnedMylistManager>();
         LocalMylistManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<LocalMylistManager>();
         SubscriptionManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<SubscriptionManager>();
@@ -106,6 +105,7 @@ public sealed partial class VideoItemFlyout : MenuFlyout
         VideoItemsSelectionContext = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<VideoItemsSelectionContext>();
         VideoFilteringSettings = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<VideoFilteringSettings>();
 
+        OpenPageCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<OpenPageCommand>();
         OpenLinkCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<OpenLinkCommand>();
         CopyToClipboardCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<CopyToClipboardCommand>();
         CopyToClipboardWithShareTextCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<CopyToClipboardWithShareTextCommand>();
@@ -124,7 +124,7 @@ public sealed partial class VideoItemFlyout : MenuFlyout
         RemoveWatchAfter.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<QueueRemoveItemCommand>();
         PlaylistPlayFromHere.Command = new PlaylistPlayFromHereCommand(_messenger);
 
-        OpenVideoInfoPage.Command = PageManager.OpenPageCommand;
+        OpenVideoInfoPage.Command = OpenPageCommand;
         OpenOwnerMylistsPage.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<OpenVideoOwnerMylistListCommand>();
         OpenOwnerVideosPage.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<OpenVideoOwnerVideoListCommand>();
         OpenOwnerSeriesPage.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<OpenVideoOwnerSeriesListCommand>(); 

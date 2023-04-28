@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Contracts.Services.Player;
 using Hohoema.Models.Application;
 using Hohoema.Models.Niconico;
@@ -42,12 +43,15 @@ namespace Hohoema.ViewModels.Player;
 
 public class LegacyVideoPlayerPageViewModel : HohoemaPageViewModelBase
 	{
+    private readonly IMessenger _messenger;
+
     // TODO: HohoemaViewModelBaseとの依存性を排除（ViewModelBaseとの関係性は維持）
     private readonly IScheduler _scheduler;
     private readonly QueuePlaylist _queuePlaylist;
     private readonly HohoemaPlaylistPlayer _hohoemaPlaylistPlayer;        
 
     public LegacyVideoPlayerPageViewModel(
+        IMessenger messenger,
         ILoggerFactory loggerFactory,
         IScheduler scheduler,
         IPlayerView playerView,
@@ -62,7 +66,6 @@ public class LegacyVideoPlayerPageViewModel : HohoemaPageViewModelBase
         ApplicationLayoutManager applicationLayoutManager,
         LocalMylistManager localMylistManager,
         LoginUserOwnedMylistManager userMylistManager,
-        PageManager pageManager,
         QueuePlaylist queuePlaylist,
         HohoemaPlaylistPlayer hohoemaPlaylistPlayer,
         MediaPlayer mediaPlayer,
@@ -100,7 +103,7 @@ public class LegacyVideoPlayerPageViewModel : HohoemaPageViewModelBase
             .ObserveProperty(x => x.PlayerDisplayView)
             .ToReadOnlyReactivePropertySlim()
             .AddTo(_CompositeDisposable);
-
+        _messenger = messenger;
         _scheduler = scheduler;
         PlayerView = playerView;
         NiconicoSession = niconicoSession;
@@ -113,7 +116,6 @@ public class LegacyVideoPlayerPageViewModel : HohoemaPageViewModelBase
         ApplicationLayoutManager = applicationLayoutManager;
         LocalMylistManager = localMylistManager;
         UserMylistManager = userMylistManager;
-        PageManager = pageManager;
         _queuePlaylist = queuePlaylist;
         _hohoemaPlaylistPlayer = hohoemaPlaylistPlayer;
         _NotificationService = notificationService;
@@ -201,7 +203,6 @@ public class LegacyVideoPlayerPageViewModel : HohoemaPageViewModelBase
     
     public LocalMylistManager LocalMylistManager { get; }
     public LoginUserOwnedMylistManager UserMylistManager { get; }
-    public PageManager PageManager { get; }
     public SecondaryViewPlayerManager PlayerViewManager { get; }
     public AddSubscriptionCommand AddSubscriptionCommand { get; }
     public LocalPlaylistCreateCommand CreateLocalMylistCommand { get; }
@@ -313,7 +314,7 @@ public class LegacyVideoPlayerPageViewModel : HohoemaPageViewModelBase
             return _OpenVideoInfoCommand
                 ?? (_OpenVideoInfoCommand = new RelayCommand(() =>
                 {
-                    PageManager.OpenPageWithId(HohoemaPageType.VideoInfomation, VideoId);
+                    _ = _messenger.OpenPageWithIdAsync(HohoemaPageType.VideoInfomation, VideoId);
                 }
                 ));
         }

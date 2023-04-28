@@ -51,7 +51,7 @@
           </CommandBar.PrimaryCommands>
 
           <CommandBar.SecondaryCommands>
-            <AppBarButton Label="{i18nExt:Localize Key=OpenPlaylistSourcePage}"  Command="{Binding PageManager.OpenPageCommand}" CommandParameter="{Binding CurrentPlaylist.Value, Mode=OneWay}" />
+            <AppBarButton Label="{i18nExt:Localize Key=OpenPlaylistSourcePage}"  Command="{Binding OpenPageCommand}" CommandParameter="{Binding CurrentPlaylist.Value, Mode=OneWay}" />
           </CommandBar.SecondaryCommands>
         </CommandBar>
       </uwpControls:DockPanel>

@@ -17,14 +17,12 @@ public sealed class VideoMenuSubPageContent : MenuItemBase, IDisposable
     public VideoMenuSubPageContent(
         NiconicoSession niconicoSession,
         LocalMylistManager localMylistManager,
-        LoginUserOwnedMylistManager mylistManager,
-        PageManager pageManager
+        LoginUserOwnedMylistManager mylistManager
         )
     {
         NiconicoSession = niconicoSession;
         LocalMylistManager = localMylistManager;
         MylistManager = mylistManager;
-        PageManager = pageManager;
         MenuItems = new ObservableCollection<HohoemaListingPageItemBase>();
 
         ResetMenuItems();
@@ -47,7 +45,6 @@ public sealed class VideoMenuSubPageContent : MenuItemBase, IDisposable
     public LoginUserOwnedMylistManager MylistManager { get; }
     public NiconicoSession NiconicoSession { get; }
     public LocalMylistManager LocalMylistManager { get; }
-    public PageManager PageManager { get; }
 
     private CompositeDisposable _CompositeDisposable = new CompositeDisposable();
 

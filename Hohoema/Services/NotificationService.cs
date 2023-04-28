@@ -31,7 +31,6 @@ public sealed class HohoemaNotificationService
 {
     private static readonly TimeSpan DefaultNotificationShowDuration = TimeSpan.FromSeconds(20);
 
-    public PageManager PageManager { get; }
     public NotificationService NotificationService { get; }
     public NicoVideoProvider NicoVideoProvider { get; }
     public MylistProvider MylistProvider { get; }
@@ -45,7 +44,6 @@ public sealed class HohoemaNotificationService
     private readonly NiconicoSession _niconicoSession;
 
     public HohoemaNotificationService(
-        PageManager pageManager,
         QueuePlaylist queuePlaylist,
         HohoemaPlaylistPlayer hohoemaPlaylistPlayer,
         NiconicoSession niconicoSession,
@@ -58,7 +56,6 @@ public sealed class HohoemaNotificationService
         IMessenger messenger
         )
     {
-        PageManager = pageManager;
         _queuePlaylist = queuePlaylist;
         _niconicoSession = niconicoSession;
         NotificationService = notificationService;
@@ -147,7 +144,7 @@ public sealed class HohoemaNotificationService
                         Label = HohoemaPageType.VideoInfomation.Translate(),
                         Command = new RelayCommand(() =>
                         {
-                            PageManager.OpenPageWithId(HohoemaPageType.VideoInfomation, videoId);
+                            _messenger.OpenPageWithIdAsync(HohoemaPageType.VideoInfomation, videoId);
 
                             NotificationService.DismissInAppNotification();
                         })
@@ -185,7 +182,7 @@ public sealed class HohoemaNotificationService
                         Label = HohoemaPageType.LiveInfomation.Translate(),
                         Command = new RelayCommand(() =>
                         {
-                            PageManager.OpenPageWithId(HohoemaPageType.LiveInfomation, liveId);
+                            _messenger.OpenPageWithIdAsync(HohoemaPageType.LiveInfomation, liveId);
 
                             NotificationService.DismissInAppNotification();
                         })
@@ -201,7 +198,7 @@ public sealed class HohoemaNotificationService
                 Label = HohoemaPageType.Community.Translate(),
                 Command = new RelayCommand(() =>
                 {
-                    PageManager.OpenPageWithId(HohoemaPageType.Community, liveDesc.Data.ProviderId);
+                    _messenger.OpenPageWithIdAsync(HohoemaPageType.Community, liveDesc.Data.ProviderId);
 
                     NotificationService.DismissInAppNotification();
                 })
@@ -233,7 +230,7 @@ public sealed class HohoemaNotificationService
                         Label = HohoemaPageType.Mylist.Translate(),
                         Command = new RelayCommand(() =>
                         {
-                            PageManager.OpenPageWithId(HohoemaPageType.Mylist, mylistId);
+                            _messenger.OpenPageWithIdAsync(HohoemaPageType.Mylist, mylistId);
 
                             NotificationService.DismissInAppNotification();
                         })
@@ -266,7 +263,7 @@ public sealed class HohoemaNotificationService
         //                Label = HohoemaPageType.Community.Translate(),
         //                Command = new RelayCommand(() =>
         //                {
-        //                    PageManager.OpenPageWithId(HohoemaPageType.Community, communityId);
+        //                    _messenger.OpenPageAsync(HohoemaPageType.Community, communityId);
 
         //                    NotificationService.DismissInAppNotification();
         //                })
@@ -292,7 +289,7 @@ public sealed class HohoemaNotificationService
                         Label = HohoemaPageType.UserInfo.Translate(),
                         Command = new RelayCommand(() =>
                         {
-                            PageManager.OpenPageWithId(HohoemaPageType.UserInfo, userId);
+                            _messenger.OpenPageWithIdAsync(HohoemaPageType.UserInfo, userId);
 
                             NotificationService.DismissInAppNotification();
                         })
@@ -302,7 +299,7 @@ public sealed class HohoemaNotificationService
                         Label = HohoemaPageType.UserVideo.Translate(),
                         Command = new RelayCommand(() =>
                         {
-                            PageManager.OpenPageWithId(HohoemaPageType.UserVideo, userId);
+                            _messenger.OpenPageWithIdAsync(HohoemaPageType.UserVideo, userId);
 
                             NotificationService.DismissInAppNotification();
                         })
@@ -336,7 +333,7 @@ public sealed class HohoemaNotificationService
                         Label = HohoemaPageType.Series.Translate(),
                         Command = new RelayCommand(() =>
                         {
-                            PageManager.OpenPageWithId(HohoemaPageType.Series, seriesId);
+                            _messenger.OpenPageWithIdAsync(HohoemaPageType.Series, seriesId);
 
                             NotificationService.DismissInAppNotification();
                         })

@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.LocalMylist;
 using Hohoema.Models.PageNavigation;
 using Hohoema.Models.Playlist;
@@ -15,7 +16,7 @@ namespace Hohoema.ViewModels.Pages.Hohoema.LocalMylist;
 
 public sealed class LocalPlaylistManagePageViewModel : HohoemaPageViewModelBase
 {
-    private readonly PageManager _pageManager;
+    private readonly IMessenger _messenger;
     private readonly LocalMylistManager _localMylistManager;
 
     public AdvancedCollectionView ItemsView { get; }
@@ -27,7 +28,7 @@ public sealed class LocalPlaylistManagePageViewModel : HohoemaPageViewModelBase
     public RelayCommand<LocalPlaylist> RenameLocalPlaylistCommand { get; }
 
     public LocalPlaylistManagePageViewModel(
-        PageManager pageManager,
+        IMessenger messenger,
         Services.DialogService dialogService,
         ApplicationLayoutManager applicationLayoutManager,
         LocalMylistManager localMylistManager,
@@ -36,7 +37,7 @@ public sealed class LocalPlaylistManagePageViewModel : HohoemaPageViewModelBase
         LocalPlaylistDeleteCommand localPlaylistDeleteCommand
         )
     {
-        _pageManager = pageManager;
+        _messenger = messenger;
         ApplicationLayoutManager = applicationLayoutManager;
         _localMylistManager = localMylistManager;
         PlaylistPlayAllCommand = playlistPlayAllCommand;
@@ -49,7 +50,7 @@ public sealed class LocalPlaylistManagePageViewModel : HohoemaPageViewModelBase
 
         OpenMylistCommand.Subscribe(listItem =>
         {
-            _pageManager.OpenPageWithId(HohoemaPageType.LocalPlaylist, listItem.PlaylistId.Id);
+            _ = _messenger.OpenPageWithIdAsync(HohoemaPageType.LocalPlaylist, listItem.PlaylistId.Id);
         });
 
 

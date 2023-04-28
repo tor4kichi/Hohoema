@@ -34,7 +34,6 @@ public sealed partial class SubscVideoListPageViewModel : HohoemaPageViewModelBa
     private readonly IMessenger _messenger;
     private readonly ILocalizeService _localizeService;
     private readonly INotificationService _notificationService;
-    private readonly PageManager _pageManager;
     private readonly SubscriptionManager _subscriptionManager;
     private readonly NicoVideoProvider _nicoVideoProvider;
     private readonly QueuePlaylist _queuePlaylist;
@@ -81,8 +80,7 @@ public sealed partial class SubscVideoListPageViewModel : HohoemaPageViewModelBa
         ILogger logger,
         IMessenger messenger,
         ILocalizeService localizeService,
-        INotificationService notificationService,
-        PageManager pageManager,
+        INotificationService notificationService,        
         SubscriptionManager subscriptionManager,
         NicoVideoProvider nicoVideoProvider,
         QueuePlaylist queuePlaylist,
@@ -95,8 +93,7 @@ public sealed partial class SubscVideoListPageViewModel : HohoemaPageViewModelBa
     {
         _messenger = messenger;
         _localizeService = localizeService;
-        _notificationService = notificationService;
-        _pageManager = pageManager;
+        _notificationService = notificationService;        
         _subscriptionManager = subscriptionManager;
         _nicoVideoProvider = nicoVideoProvider;
         _queuePlaylist = queuePlaylist;
@@ -274,7 +271,7 @@ public sealed partial class SubscVideoListPageViewModel : HohoemaPageViewModelBa
     [RelayCommand]
     public void OpenSubscManagementPage()
     {
-        _pageManager.OpenPage(Models.PageNavigation.HohoemaPageType.SubscriptionManagement);
+        _ = _messenger.OpenPageAsync(Models.PageNavigation.HohoemaPageType.SubscriptionManagement);
     }
 
 
@@ -471,7 +468,7 @@ public sealed partial class SubscriptionNewVideosViewModel : ObservableObject, I
             _ => throw new NotImplementedException(),
         };
 
-        await _messenger.SendNavigationRequestAsync(pageType, new NavigationParameters(param));
+        await _messenger.OpenPageAsync(pageType, new NavigationParameters(param));
     }
 
     [RelayCommand(CanExecute = nameof(HasNewVideos))]

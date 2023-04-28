@@ -13,8 +13,7 @@ namespace Hohoema.ViewModels.Pages.Niconico.Follow;
 public class FollowManagePageViewModel : HohoemaPageViewModelBase
 {
     public FollowManagePageViewModel(
-       ApplicationLayoutManager applicationLayoutManager,
-       PageManager pageManager,
+       ApplicationLayoutManager applicationLayoutManager,       
        NiconicoSession niconicoSession,
        IMessenger messenger,
        UserFollowProvider userFollowProvider,
@@ -25,7 +24,6 @@ public class FollowManagePageViewModel : HohoemaPageViewModelBase
        )
     {
         ApplicationLayoutManager = applicationLayoutManager;
-        PageManager = pageManager;
         NiconicoSession = niconicoSession;
         _messenger = messenger;
         _userFollowProvider = userFollowProvider;
@@ -41,7 +39,6 @@ public class FollowManagePageViewModel : HohoemaPageViewModelBase
 
 
     public ApplicationLayoutManager ApplicationLayoutManager { get; }
-    public PageManager PageManager { get; }
     public NiconicoSession NiconicoSession { get; }
 
     object[] _FollowGroups_AvoidListViewMemoryLeak;
@@ -58,11 +55,11 @@ public class FollowManagePageViewModel : HohoemaPageViewModelBase
     {
         FollowGroups = new object[]
         {
-            new FollowUserGroupViewModel(_userFollowProvider, PageManager, _messenger),
-            new FollowTagGroupViewModel(_tagFollowProvider, PageManager, _messenger),
-            new FolloMylistGroupViewModel(_mylistFollowProvider, PageManager, _messenger),
-            new FollowChannelGroupViewModel(_channelFollowProvider, PageManager, _messenger),
-            new FollowCommunityGroupViewModel(_communityFollowProvider, NiconicoSession.UserId ?? 0, PageManager, _messenger),
+            new FollowUserGroupViewModel(_userFollowProvider, _messenger),
+            new FollowTagGroupViewModel(_tagFollowProvider, _messenger),
+            new FolloMylistGroupViewModel(_mylistFollowProvider, _messenger),
+            new FollowChannelGroupViewModel(_channelFollowProvider, _messenger),
+            new FollowCommunityGroupViewModel(_communityFollowProvider, NiconicoSession.UserId ?? 0, _messenger),
         }; ;
         OnPropertyChanged(nameof(FollowGroups));
 

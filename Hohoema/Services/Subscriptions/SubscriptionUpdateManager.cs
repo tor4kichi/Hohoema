@@ -359,17 +359,17 @@ public sealed partial class SubscriptionUpdateManager
                     try
                     {
                         ObjectId groupId = new ObjectId(groupIdViewList);
-                        await _messenger.SendNavigationRequestAsync(HohoemaPageType.SubscVideoList, new NavigationParameters(("SubscGroupId", groupId.ToString())));
+                        await _messenger.OpenPageAsync(HohoemaPageType.SubscVideoList, new NavigationParameters(("SubscGroupId", groupId.ToString())));
                     }
                     catch
                     {
                         // 購読グループが既に消されていた場合など                            
-                        await _messenger.SendNavigationRequestAsync(HohoemaPageType.SubscVideoList);
+                        await _messenger.OpenPageAsync(HohoemaPageType.SubscVideoList);
                     }
                 }
                 else
                 {
-                    await _messenger.SendNavigationRequestAsync(HohoemaPageType.SubscVideoList);
+                    await _messenger.OpenPageAsync(HohoemaPageType.SubscVideoList);
                 }
                 break;
         }

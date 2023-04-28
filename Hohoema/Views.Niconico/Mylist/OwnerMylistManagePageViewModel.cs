@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Mylist.LoginUser;
 using Hohoema.Models.PageNavigation;
@@ -31,8 +32,8 @@ public class OwnerMylistManagePageViewModel : HohoemaPageViewModelBase
     public ReactivePropertySlim<bool> NowLoading { get; } = new ReactivePropertySlim<bool>();
 
     private readonly DispatcherQueue _dispatcherQueue;
+    private readonly IMessenger _messenger;
     private readonly NiconicoSession _niconicoSession;
-    private readonly PageManager _pageManager;
     private readonly IMylistGroupDialogService _dialogService;
     private readonly LoginUserOwnedMylistManager _userMylistManager;
 
@@ -45,8 +46,8 @@ public class OwnerMylistManagePageViewModel : HohoemaPageViewModelBase
     public RelayCommand<LoginUserMylistPlaylist> EditMylistGroupCommand { get; }
 
     public OwnerMylistManagePageViewModel(
+        IMessenger messenger,
         NiconicoSession niconicoSession,
-        PageManager pageManager,
         Services.DialogService dialogService,
         ApplicationLayoutManager applicationLayoutManager,
         LoginUserOwnedMylistManager userMylistManager,
@@ -54,8 +55,8 @@ public class OwnerMylistManagePageViewModel : HohoemaPageViewModelBase
         )
     {
         _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
-        _niconicoSession = niconicoSession;
-        _pageManager = pageManager;
+        _messenger = messenger;
+        _niconicoSession = niconicoSession;        
         _dialogService = dialogService;
         ApplicationLayoutManager = applicationLayoutManager;
         _userMylistManager = userMylistManager;
@@ -68,7 +69,7 @@ public class OwnerMylistManagePageViewModel : HohoemaPageViewModelBase
 
         OpenMylistCommand.Subscribe(listItem =>
         {
-            _pageManager.OpenPageWithId(HohoemaPageType.Mylist, listItem.MylistId);
+            _ = _messenger.OpenPageWithIdAsync(HohoemaPageType.Mylist, listItem.MylistId);
         });
 
         AddMylistGroupCommand = new RelayCommand(async () =>

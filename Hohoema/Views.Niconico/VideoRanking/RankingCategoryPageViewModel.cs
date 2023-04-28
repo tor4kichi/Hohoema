@@ -146,7 +146,6 @@ public sealed partial class RankingCategoryPageViewModel
     public ReactivePropertySlim<bool> IsFailedRefreshRanking { get; }
     public ReactivePropertySlim<bool> CanChangeRankingParameter { get; }
     public ApplicationLayoutManager ApplicationLayoutManager { get; }
-    public PageManager PageManager { get; }
     public NicoVideoProvider NicoVideoProvider { get; }
     public VideoRankingSettings RankingSettings { get; }
     public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
@@ -164,7 +163,6 @@ public sealed partial class RankingCategoryPageViewModel
         ILoggerFactory loggerFactory,
         ApplicationLayoutManager applicationLayoutManager,
         NiconicoSession niconicoSession,
-        PageManager pageManager,
         NicoVideoProvider nicoVideoProvider,
         RankingProvider rankingProvider,
         VideoRankingSettings rankingSettings,
@@ -177,7 +175,6 @@ public sealed partial class RankingCategoryPageViewModel
     {
         ApplicationLayoutManager = applicationLayoutManager;
         _niconicoSession = niconicoSession;
-        PageManager = pageManager;
         NicoVideoProvider = nicoVideoProvider;
         RankingProvider = rankingProvider;
         RankingSettings = rankingSettings;

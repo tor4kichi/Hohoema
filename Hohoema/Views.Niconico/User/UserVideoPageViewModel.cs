@@ -55,7 +55,6 @@ public class UserVideoPageViewModel
         ApplicationLayoutManager applicationLayoutManager,
         UserProvider userProvider,
         SubscriptionManager subscriptionManager,
-        PageManager pageManager,
         VideoPlayWithQueueCommand videoPlayWithQueueCommand,
         PlaylistPlayAllCommand playlistPlayAllCommand,
         AddSubscriptionCommand addSubscriptionCommand,
@@ -66,7 +65,6 @@ public class UserVideoPageViewModel
         SubscriptionManager = subscriptionManager;
         ApplicationLayoutManager = applicationLayoutManager;
         UserProvider = userProvider;
-        PageManager = pageManager;
         VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
         PlaylistPlayAllCommand = playlistPlayAllCommand;
         AddSubscriptionCommand = addSubscriptionCommand;
@@ -88,7 +86,6 @@ public class UserVideoPageViewModel
     public SubscriptionManager SubscriptionManager { get; }
     public ApplicationLayoutManager ApplicationLayoutManager { get; }
     public UserProvider UserProvider { get; }
-    public PageManager PageManager { get; }
     public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
     public PlaylistPlayAllCommand PlaylistPlayAllCommand { get; }
     public AddSubscriptionCommand AddSubscriptionCommand { get; }
@@ -190,7 +187,7 @@ public class UserVideoPageViewModel
             return _OpenVideoOwnerUserPageCommand
                 ?? (_OpenVideoOwnerUserPageCommand = new RelayCommand(() =>
                 {
-                    PageManager.OpenPageWithId(HohoemaPageType.UserInfo, UserId);
+                    _messenger.OpenPageWithIdAsync(HohoemaPageType.UserInfo, UserId);
                 }));
         }
     }

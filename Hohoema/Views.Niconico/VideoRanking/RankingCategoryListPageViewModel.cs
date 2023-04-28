@@ -31,7 +31,6 @@ public class RankingCategoryListPageViewModel : HohoemaPageViewModelBase,
     public RankingCategoryListPageViewModel(
         IMessenger messenger,
         ApplicationLayoutManager applicationLayoutManager,
-        PageManager pageManager,
         Services.DialogService dialogService,
         VideoRankingSettings rankingSettings,
         AppFlagsRepository appFlagsRepository,
@@ -40,7 +39,6 @@ public class RankingCategoryListPageViewModel : HohoemaPageViewModelBase,
     {
         _messenger = messenger;
         ApplicationLayoutManager = applicationLayoutManager;
-        PageManager = pageManager;
         HohoemaDialogService = dialogService;
         RankingSettings = rankingSettings;
         _appFlagsRepository = appFlagsRepository;
@@ -272,7 +270,6 @@ public class RankingCategoryListPageViewModel : HohoemaPageViewModelBase,
     }
 
     public ApplicationLayoutManager ApplicationLayoutManager { get; }
-    public PageManager PageManager { get; }
 
     public Services.DialogService HohoemaDialogService { get; }
     public VideoRankingSettings RankingSettings { get; }
@@ -294,7 +291,7 @@ public class RankingCategoryListPageViewModel : HohoemaPageViewModelBase,
 
         _prevSelectedGenre = info.Genre;
 
-        PageManager.OpenPage(HohoemaPageType.RankingCategory, p);
+        _ = _messenger.OpenPageAsync(HohoemaPageType.RankingCategory, p);
     }
 
     private RankingGenre? _prevSelectedGenre;
