@@ -524,18 +524,14 @@ public class VideoInfomationPageViewModel : HohoemaPageViewModelBase, IPinablePa
         _IsInitializedRelatedVideos = false;
         
         FollowContext = FollowContext<IUser>.Default;
-
-        RelatedVideos?.ForEach(x => x.Dispose());
-
+      
         if (NextSeriesVideo != null)
         {
-            Array.ForEach(NextSeriesVideo, x => x.Dispose());
             NextSeriesVideo = null;
         }
 
         if (PrevSeriesVideo != null)
         {
-            Array.ForEach(PrevSeriesVideo, x => x.Dispose());
             PrevSeriesVideo = null;
         }
 
@@ -606,10 +602,6 @@ public class VideoInfomationPageViewModel : HohoemaPageViewModelBase, IPinablePa
 
                 if (_navigationCancellationToken.IsCancellationRequested)
                 {
-                    foreach (var item in items)
-                    {
-                        item.Dispose();
-                    }
                     return;
                 }
 

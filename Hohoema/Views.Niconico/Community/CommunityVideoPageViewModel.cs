@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.Niconico.Community;
 using Hohoema.Models.Niconico.Follow.LoginUser;
 using Hohoema.Models.PageNavigation;
@@ -29,7 +30,10 @@ using CommunityFollowContext = FollowContext<ICommunity>;
 
 
 
-public class CommunityVideoPageViewModel : HohoemaListingPageViewModelBase<CommunityVideoInfoViewModel>, IPinablePage, ITitleUpdatablePage
+public class CommunityVideoPageViewModel 
+	: VideoListingPageViewModelBase<CommunityVideoInfoViewModel>
+	, IPinablePage
+	, ITitleUpdatablePage
 {
 	HohoemaPin IPinablePage.GetPin()
 	{
@@ -55,8 +59,57 @@ public class CommunityVideoPageViewModel : HohoemaListingPageViewModelBase<Commu
 		set => SetProperty(ref _followContext, value);
 	}
 
+    private readonly CommunityFollowProvider _communityFollowProvider;
+    public ApplicationLayoutManager ApplicationLayoutManager { get; }
+    public CommunityProvider CommunityProvider { get; }
+    public PageManager PageManager { get; }
+    public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
 
-	public CommunityVideoPageViewModel(
+
+
+    public CommunityId? CommunityId { get; private set; }
+
+    private string _CommunityName;
+    public string CommunityName
+    {
+        get { return _CommunityName; }
+        set { SetProperty(ref _CommunityName, value); }
+    }
+
+
+    private bool _CanDownload;
+    public bool CanDownload
+    {
+        get { return _CanDownload; }
+        set { SetProperty(ref _CanDownload, value); }
+    }
+
+
+    private CommunityVideoPlaylist _CommunityVideoPlaylist;
+    public CommunityVideoPlaylist CommunityVideoPlaylist
+    {
+        get { return _CommunityVideoPlaylist; }
+        private set { SetProperty(ref _CommunityVideoPlaylist, value); }
+    }
+
+
+    public CommunityVideoPlaylistSortOption[] SortOptions => CommunityVideoPlaylist.SortOptions;
+
+
+    private CommunityVideoPlaylistSortOption _selectedSortOption;
+    public CommunityVideoPlaylistSortOption SelectedSortOption
+    {
+        get { return _selectedSortOption; }
+        set { SetProperty(ref _selectedSortOption, value); }
+    }
+
+
+    public ReadOnlyReactivePropertySlim<PlaylistToken?> CurrentPlaylistToken { get; }
+
+
+
+    public CommunityVideoPageViewModel(
+		IMessenger messenger,
 		ILoggerFactory loggerFactory,
 		ApplicationLayoutManager applicationLayoutManager,
 		CommunityProvider communityProvider,
@@ -64,7 +117,7 @@ public class CommunityVideoPageViewModel : HohoemaListingPageViewModelBase<Commu
 	PageManager pageManager,
 		VideoPlayWithQueueCommand videoPlayWithQueueCommand
 		)
-		: base(loggerFactory.CreateLogger<CommunityVideoPageViewModel>())
+		: base(messenger, loggerFactory.CreateLogger<CommunityVideoPageViewModel>(), disposeItemVM: false)
 	{
 		ApplicationLayoutManager = applicationLayoutManager;
 		CommunityProvider = communityProvider;
@@ -80,47 +133,6 @@ public class CommunityVideoPageViewModel : HohoemaListingPageViewModelBase<Commu
 			.ToReadOnlyReactivePropertySlim()
 			.AddTo(_CompositeDisposable);
 	}
-
-
-	public CommunityId? CommunityId { get; private set; }
-
-	private string _CommunityName;
-	public string CommunityName
-	{
-		get { return _CommunityName; }
-		set { SetProperty(ref _CommunityName, value); }
-	}
-
-
-	private bool _CanDownload;
-	public bool CanDownload
-	{
-		get { return _CanDownload; }
-		set { SetProperty(ref _CanDownload, value); }
-	}
-
-
-	private CommunityVideoPlaylist _CommunityVideoPlaylist;
-	public CommunityVideoPlaylist CommunityVideoPlaylist
-	{
-		get { return _CommunityVideoPlaylist; }
-		private set { SetProperty(ref _CommunityVideoPlaylist, value); }
-	}
-
-
-	public CommunityVideoPlaylistSortOption[] SortOptions => CommunityVideoPlaylist.SortOptions;
-
-
-	private CommunityVideoPlaylistSortOption _selectedSortOption;
-	public CommunityVideoPlaylistSortOption SelectedSortOption
-	{
-		get { return _selectedSortOption; }
-		set { SetProperty(ref _selectedSortOption, value); }
-	}
-
-
-	public ReadOnlyReactivePropertySlim<PlaylistToken> CurrentPlaylistToken { get; }
-
 
 
 	public override async Task OnNavigatedToAsync(INavigationParameters parameters)
@@ -189,8 +201,6 @@ public class CommunityVideoPageViewModel : HohoemaListingPageViewModelBase<Commu
 	}
 
 	private RelayCommand _OpenCommunityPageCommand;
-	private readonly CommunityFollowProvider _communityFollowProvider;
-
 	public RelayCommand OpenCommunityPageCommand
 	{
 		get
@@ -202,11 +212,6 @@ public class CommunityVideoPageViewModel : HohoemaListingPageViewModelBase<Commu
 				}));
 		}
 	}
-
-	public ApplicationLayoutManager ApplicationLayoutManager { get; }
-	public CommunityProvider CommunityProvider { get; }
-	public PageManager PageManager { get; }
-	public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
 }
 
 

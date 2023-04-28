@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Follow.LoginUser;
 using Hohoema.Models.Niconico.Search;
@@ -31,7 +32,11 @@ namespace Hohoema.ViewModels.Pages.Niconico.Search;
 
 using TagFollowContext = FollowContext<Models.Niconico.Video.ITag>;
 
-public class SearchResultTagPageViewModel : HohoemaListingPageViewModelBase<VideoListItemControlViewModel>, ITag, IPinablePage, ITitleUpdatablePage
+public class SearchResultTagPageViewModel 
+    : VideoListingPageViewModelBase<VideoListItemControlViewModel>
+    , ITag
+    , IPinablePage
+    , ITitleUpdatablePage
 {
     HohoemaPin IPinablePage.GetPin()
     {
@@ -84,7 +89,7 @@ public class SearchResultTagPageViewModel : HohoemaListingPageViewModelBase<Vide
     private VideoSortOptionViewModel DefaultSortOptionVM => SortOptions.First(x => x.SortOption == SearchVideoPlaylist.DefaultSortOption);
 
 
-    public ReadOnlyReactivePropertySlim<PlaylistToken> CurrentPlaylistToken { get; }
+    public ReadOnlyReactivePropertySlim<PlaylistToken?> CurrentPlaylistToken { get; }
 
 
 
@@ -132,6 +137,7 @@ public class SearchResultTagPageViewModel : HohoemaListingPageViewModelBase<Vide
     }
 
     public SearchResultTagPageViewModel(
+        IMessenger messenger,
         ILoggerFactory loggerFactory,
         ApplicationLayoutManager applicationLayoutManager,
         NiconicoSession niconicoSession,
@@ -145,7 +151,7 @@ public class SearchResultTagPageViewModel : HohoemaListingPageViewModelBase<Vide
         AddTagSearchSubscriptionCommand addTagSearchSubscriptionCommand,
         SelectionModeToggleCommand selectionModeToggleCommand
         )
-        : base(loggerFactory.CreateLogger<SearchResultTagPageViewModel>())
+        : base(messenger, loggerFactory.CreateLogger<SearchResultTagPageViewModel>(), disposeItemVM: false)
     {        
         _tagFollowProvider = tagFollowProvider;
         SubscriptionManager = subscriptionManager;

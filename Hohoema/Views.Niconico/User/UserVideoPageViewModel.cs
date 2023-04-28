@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.Niconico.User;
 using Hohoema.Models.PageNavigation;
 using Hohoema.Models.Pins;
@@ -28,7 +29,10 @@ using ZLogger;
 
 namespace Hohoema.ViewModels.Pages.Niconico.User;
 
-public class UserVideoPageViewModel : HohoemaListingPageViewModelBase<VideoListItemControlViewModel>, IPinablePage, ITitleUpdatablePage
+public class UserVideoPageViewModel
+    : VideoListingPageViewModelBase<VideoListItemControlViewModel>
+    , IPinablePage
+    , ITitleUpdatablePage
 {
     HohoemaPin IPinablePage.GetPin()
     {
@@ -46,6 +50,7 @@ public class UserVideoPageViewModel : HohoemaListingPageViewModelBase<VideoListI
     }
 
     public UserVideoPageViewModel(
+        IMessenger messenger,
         ILoggerFactory loggerFactory,
         ApplicationLayoutManager applicationLayoutManager,
         UserProvider userProvider,
@@ -56,7 +61,7 @@ public class UserVideoPageViewModel : HohoemaListingPageViewModelBase<VideoListI
         AddSubscriptionCommand addSubscriptionCommand,
         SelectionModeToggleCommand selectionModeToggleCommand
         )
-        : base(loggerFactory.CreateLogger<UserVideoPageViewModel>())
+        : base(messenger, loggerFactory.CreateLogger<UserVideoPageViewModel>(), disposeItemVM: false)
     {
         SubscriptionManager = subscriptionManager;
         ApplicationLayoutManager = applicationLayoutManager;
@@ -75,7 +80,7 @@ public class UserVideoPageViewModel : HohoemaListingPageViewModelBase<VideoListI
             )
             .ToReadOnlyReactivePropertySlim()
             .AddTo(_CompositeDisposable);
-        
+
         SelectedSortOption = UserVideoPlaylist.DefaultSortOption;
     }
 
@@ -155,7 +160,7 @@ public class UserVideoPageViewModel : HohoemaListingPageViewModelBase<VideoListI
                     .AddTo(_navigationDisposables);
             }
         }
-        catch 
+        catch
         {
             UserVideoPlaylist = new UserVideoPlaylist(UserId.Value, new PlaylistId() { Id = UserId.Value, Origin = PlaylistItemsSourceOrigin.UserVideos }, "", UserProvider);
             SelectedSortOption = UserVideoPlaylist.DefaultSortOption;
@@ -166,37 +171,37 @@ public class UserVideoPageViewModel : HohoemaListingPageViewModelBase<VideoListI
 
 
 
-		protected override (int, IIncrementalSource<VideoListItemControlViewModel>) GenerateIncrementalSource()
-		{
+    protected override (int, IIncrementalSource<VideoListItemControlViewModel>) GenerateIncrementalSource()
+    {
         if (_selectedSortOption is null)
         {
             SelectedSortOption = UserVideoPlaylist.DefaultSortOption;
         }
 
         return (UserVideoIncrementalSource.OneTimeLoadCount, new UserVideoIncrementalSource(UserId, User, UserProvider, UserVideoPlaylist, SelectedSortOption, _logger));
-		}
+    }
 
 
     private RelayCommand _OpenVideoOwnerUserPageCommand;
-		public RelayCommand OpenVideoOwnerUserPageCommand
-		{
-			get
-			{
-				return _OpenVideoOwnerUserPageCommand
-					?? (_OpenVideoOwnerUserPageCommand = new RelayCommand(() => 
-					{
-						PageManager.OpenPageWithId(HohoemaPageType.UserInfo, UserId);
-					}));
-			}
-		}
+    public RelayCommand OpenVideoOwnerUserPageCommand
+    {
+        get
+        {
+            return _OpenVideoOwnerUserPageCommand
+                ?? (_OpenVideoOwnerUserPageCommand = new RelayCommand(() =>
+                {
+                    PageManager.OpenPageWithId(HohoemaPageType.UserInfo, UserId);
+                }));
+        }
+    }
 
 
-		private string _UserName;
-		public string UserName
-		{
-			get { return _UserName; }
-			set { SetProperty(ref _UserName, value); }
-		}
+    private string _UserName;
+    public string UserName
+    {
+        get { return _UserName; }
+        set { SetProperty(ref _UserName, value); }
+    }
 
     private bool _IsOwnerVideoPrivate;
     public bool IsOwnerVideoPrivate
@@ -207,13 +212,13 @@ public class UserVideoPageViewModel : HohoemaListingPageViewModelBase<VideoListI
 
     public UserDetail User { get; private set; }
 
-		
-		public UserId? UserId { get; private set; }
-	}
+
+    public UserId? UserId { get; private set; }
+}
 
 
-	public class UserVideoIncrementalSource : IIncrementalSource<VideoListItemControlViewModel>
-	{
+public class UserVideoIncrementalSource : IIncrementalSource<VideoListItemControlViewModel>
+{
 
     public const int OneTimeLoadCount = 25;
     private readonly UserVideoPlaylist _userVideoPlaylist;
@@ -221,20 +226,20 @@ public class UserVideoPageViewModel : HohoemaListingPageViewModelBase<VideoListI
     private readonly ILogger _logger;
 
     public uint UserId { get; }
-		public UserProvider UserProvider { get; }
-    public UserDetail User { get; private set;}
+    public UserProvider UserProvider { get; }
+    public UserDetail User { get; private set; }
 
-		public UserVideoIncrementalSource(
-        string userId, 
-        UserDetail userDetail,
-        UserProvider userProvider, 
-        UserVideoPlaylist userVideoPlaylist, 
-        UserVideoPlaylistSortOption selectedSortOption,
-        ILogger logger
-        )
-		{
-			UserId = uint.Parse(userId);
-			User = userDetail;
+    public UserVideoIncrementalSource(
+    string userId,
+    UserDetail userDetail,
+    UserProvider userProvider,
+    UserVideoPlaylist userVideoPlaylist,
+    UserVideoPlaylistSortOption selectedSortOption,
+    ILogger logger
+    )
+    {
+        UserId = uint.Parse(userId);
+        User = userDetail;
         UserProvider = userProvider;
         _userVideoPlaylist = userVideoPlaylist;
         _selectedSortOption = selectedSortOption;
@@ -259,8 +264,8 @@ public class UserVideoPageViewModel : HohoemaListingPageViewModelBase<VideoListI
             var items = res.Data.Items;
             _count += items.Length;
             _isEnd = _count >= res.Data.TotalCount;
-            return items.Select((item, i) => 
-            new VideoListItemControlViewModel(item.Essential) 
+            return items.Select((item, i) =>
+            new VideoListItemControlViewModel(item.Essential)
             {
                 PlaylistItemToken = new PlaylistItemToken(_userVideoPlaylist, _selectedSortOption, new NvapiVideoContent(item.Essential))
             }

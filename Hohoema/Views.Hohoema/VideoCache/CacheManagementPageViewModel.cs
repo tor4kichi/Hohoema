@@ -291,10 +291,8 @@ public class CacheVideoViewModel : VideoItemViewModel, IDisposable,
 
     
 
-    public override void Dispose()
+    public void Dispose()
     {
-        base.Dispose();
-
         WeakReferenceMessenger.Default.Unregister<VideoCacheStatusChangedMessage, VideoId>(recipient, VideoId);
         WeakReferenceMessenger.Default.Unregister<VideoCacheProgressChangedMessage, VideoId>(this, VideoId);
     }

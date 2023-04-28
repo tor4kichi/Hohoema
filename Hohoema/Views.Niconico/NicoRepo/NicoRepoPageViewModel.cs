@@ -1,11 +1,15 @@
 ﻿#nullable enable
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using Hohoema.Contracts.Player;
 using Hohoema.Models.Niconico.Live;
 using Hohoema.Models.Niconico.NicoRepo;
 using Hohoema.Models.Niconico.NicoRepo.LoginUser;
 using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.Playlist;
 using Hohoema.Models.Subscriptions;
 using Hohoema.Services;
+using Hohoema.Services.VideoCache.Events;
 using Hohoema.ViewModels.Niconico.Live;
 using Hohoema.ViewModels.Niconico.Video.Commands;
 using Hohoema.ViewModels.VideoListPage;
@@ -18,6 +22,7 @@ using NiconicoToolkit.Video;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -30,23 +35,52 @@ using Windows.UI.Xaml.Navigation;
 
 namespace Hohoema.ViewModels.Pages.Niconico.NicoRepo;
 
-public class NicoRepoPageViewModel : HohoemaListingPageViewModelBase<INicoRepoItem>
+public sealed partial class NicoRepoPageViewModel 
+    : HohoemaListingPageViewModelBase<INicoRepoItem>
+    , IRecipient<VideoWatchedMessage>
+    , IRecipient<PlaylistItemAddedMessage>
+    , IRecipient<PlaylistItemRemovedMessage>
+    , IRecipient<ItemIndexUpdatedMessage>
+    , IRecipient<VideoCacheStatusChangedMessage>
 {
+    private readonly IMessenger _messenger;    
+    private readonly NicoVideoProvider _nicoVideoProvider;
+    private readonly OpenLiveContentCommand _openLiveContentCommand;
+    public ApplicationLayoutManager ApplicationLayoutManager { get; }
+    public NicoRepoSettings ActivityFeedSettings { get; }
+    public LoginUserNicoRepoProvider LoginUserNicoRepoProvider { get; }
+    public SubscriptionManager SubscriptionManager { get; }
+    public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
+
+
+    bool _NicoRepoMuteContextTriggersChanged;
+
+    public ImmutableArray<NicoRepoType> NicoRepoTypeList { get; } = new[]
+    {
+        NiconicoToolkit.NicoRepo.NicoRepoType.All,
+        NiconicoToolkit.NicoRepo.NicoRepoType.Video,
+        NiconicoToolkit.NicoRepo.NicoRepoType.Program,
+    }
+    .ToImmutableArray();
+
+    public ReactiveProperty<NicoRepoType> NicoRepoType { get; }
+    public ReactiveProperty<NicoRepoDisplayTarget> NicoRepoDisplayTarget { get; }
+
+
     public NicoRepoPageViewModel(
-        ILoggerFactory loggerFactory,
-        IScheduler scheduler,
+        IMessenger messenger,
+        ILoggerFactory loggerFactory,        
         ApplicationLayoutManager applicationLayoutManager,
-        NicoVideoProvider nicoVideoProvider,
-        PageManager pageManager,
+        NicoVideoProvider nicoVideoProvider,        
         NicoRepoSettings activityFeedSettings,
         LoginUserNicoRepoProvider loginUserNicoRepoProvider,
         SubscriptionManager subscriptionManager,
         OpenLiveContentCommand openLiveContentCommand,
         VideoPlayWithQueueCommand videoPlayWithQueueCommand
         )
-        : base(loggerFactory.CreateLogger<NicoRepoPageViewModel>())
+        : base(loggerFactory.CreateLogger<NicoRepoPageViewModel>(), disposeItemVM: false)
     {
-        _scheduler = scheduler;
+        _messenger = messenger;
         ApplicationLayoutManager = applicationLayoutManager;
         _nicoVideoProvider = nicoVideoProvider;
         ActivityFeedSettings = activityFeedSettings;
@@ -70,25 +104,6 @@ public class NicoRepoPageViewModel : HohoemaListingPageViewModelBase<INicoRepoIt
         .AddTo(_CompositeDisposable);
     }
 
-    bool _NicoRepoMuteContextTriggersChanged;
-
-    public ImmutableArray<NicoRepoType> NicoRepoTypeList { get; } = new[]
-    {
-        NiconicoToolkit.NicoRepo.NicoRepoType.All,
-        NiconicoToolkit.NicoRepo.NicoRepoType.Video,
-        NiconicoToolkit.NicoRepo.NicoRepoType.Program,
-    }
-    .ToImmutableArray();
-
-
-    public ReactiveProperty<NicoRepoType> NicoRepoType { get; }
-    public ReactiveProperty<NicoRepoDisplayTarget> NicoRepoDisplayTarget { get; }
-
-    public ApplicationLayoutManager ApplicationLayoutManager { get; }
-    public NicoRepoSettings ActivityFeedSettings { get; }
-    public LoginUserNicoRepoProvider LoginUserNicoRepoProvider { get; }
-    public SubscriptionManager SubscriptionManager { get; }
-    public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
 
     public override void OnNavigatedTo(INavigationParameters parameters)
     {
@@ -97,13 +112,38 @@ public class NicoRepoPageViewModel : HohoemaListingPageViewModelBase<INicoRepoIt
             NicoRepoType.Value = Enum.Parse<NicoRepoType>(showType);
         }
 
-        base.OnNavigatedTo(parameters);
+        _messenger.Register<VideoWatchedMessage>(this);
+        _messenger.Register<PlaylistItemAddedMessage>(this);
+        _messenger.Register<PlaylistItemRemovedMessage>(this);
+        _messenger.Register<ItemIndexUpdatedMessage>(this);
+        _messenger.Register<VideoCacheStatusChangedMessage>(this);
+
+        try
+        {
+            base.OnNavigatedTo(parameters);
+        }
+        catch
+        {
+            _messenger.Unregister<VideoWatchedMessage>(this);
+            _messenger.Unregister<PlaylistItemAddedMessage>(this);
+            _messenger.Unregister<PlaylistItemRemovedMessage>(this);
+            _messenger.Unregister<ItemIndexUpdatedMessage>(this);
+            _messenger.Unregister<VideoCacheStatusChangedMessage>(this);
+
+            throw;
+        }
     }
 
     public override void OnNavigatedFrom(INavigationParameters parameters)
     {
+        _messenger.Unregister<VideoWatchedMessage>(this);
+        _messenger.Unregister<PlaylistItemAddedMessage>(this);
+        _messenger.Unregister<PlaylistItemRemovedMessage>(this);
+        _messenger.Unregister<ItemIndexUpdatedMessage>(this);
+        _messenger.Unregister<VideoCacheStatusChangedMessage>(this);
+
         // ニレコポ表示設定をニコレポの設定に書き戻し
-//            ActivityFeedSettings.DisplayNicoRepoMuteContextTriggers = DisplayNicoRepoMuteContextTriggers.Distinct().ToList();
+        //            ActivityFeedSettings.DisplayNicoRepoMuteContextTriggers = DisplayNicoRepoMuteContextTriggers.Distinct().ToList();
 
         base.OnNavigatedFrom(parameters);
     }
@@ -130,31 +170,83 @@ public class NicoRepoPageViewModel : HohoemaListingPageViewModelBase<INicoRepoIt
     }
 
 
-    RelayCommand<object> _openNicoRepoItemCommand;
-    private readonly IScheduler _scheduler;
-    private readonly NicoVideoProvider _nicoVideoProvider;
-    private readonly OpenLiveContentCommand _openLiveContentCommand;
-
-    public RelayCommand<object> OpenNicoRepoItemCommand => _openNicoRepoItemCommand
-        ?? (_openNicoRepoItemCommand = new RelayCommand<object>(item => 
+    static IEnumerable<VideoItemViewModel> ToVideoItemVMEnumerable(IEnumerable items)
+    {
+        foreach (var item in items)
         {
-            if (item is NicoRepoVideoTimeline videoItem)
+            if (item is VideoItemViewModel videoItemVM)
             {
-                var command = VideoPlayWithQueueCommand as ICommand;
-                if (command.CanExecute(videoItem))
-                {
-                    command.Execute(videoItem);
-                }
+                yield return videoItemVM;
             }
-            else if (item is NicoRepoLiveTimeline liveItem)
+        }
+    }
+
+    void IRecipient<VideoWatchedMessage>.Receive(VideoWatchedMessage message)
+    {
+        if (ItemsView == null) { return; }
+        foreach (var videoItemVM in ToVideoItemVMEnumerable(ItemsView.SourceCollection))
+        {
+            videoItemVM.OnWatched(message);
+        }
+    }
+
+    void IRecipient<PlaylistItemAddedMessage>.Receive(PlaylistItemAddedMessage message)
+    {
+        if (ItemsView == null) { return; }
+        foreach (var videoItemVM in ToVideoItemVMEnumerable(ItemsView.SourceCollection))
+        {
+            videoItemVM.OnPlaylistItemAdded(message);
+        }
+    }
+
+    void IRecipient<PlaylistItemRemovedMessage>.Receive(PlaylistItemRemovedMessage message)
+    {
+        if (ItemsView == null) { return; }
+        foreach (var videoItemVM in ToVideoItemVMEnumerable(ItemsView.SourceCollection))
+        {
+            videoItemVM.OnPlaylistItemRemoved(message);
+        }
+    }
+
+    void IRecipient<ItemIndexUpdatedMessage>.Receive(ItemIndexUpdatedMessage message)
+    {
+        if (ItemsView == null) { return; }
+        foreach (var videoItemVM in ToVideoItemVMEnumerable(ItemsView.SourceCollection))
+        {
+            videoItemVM.OnQueueItemIndexUpdated(message);
+        }
+    }
+
+    void IRecipient<VideoCacheStatusChangedMessage>.Receive(VideoCacheStatusChangedMessage message)
+    {
+        if (ItemsView == null) { return; }
+        foreach (var videoItemVM in ToVideoItemVMEnumerable(ItemsView.SourceCollection))
+        {
+            videoItemVM.OnCacheStatusChanged(message);
+        }
+    }
+
+
+    [RelayCommand]
+    void OpenNicoRepoItem(object item)
+    {
+        if (item is NicoRepoVideoTimeline videoItem)
+        {
+            var command = VideoPlayWithQueueCommand as ICommand;
+            if (command.CanExecute(videoItem))
             {
-                var command = _openLiveContentCommand as ICommand;
-                if (command.CanExecute(liveItem))
-                {
-                    command.Execute(liveItem);
-                }
+                command.Execute(videoItem);
             }
-        }));
+        }
+        else if (item is NicoRepoLiveTimeline liveItem)
+        {
+            var command = _openLiveContentCommand as ICommand;
+            if (command.CanExecute(liveItem))
+            {
+                command.Execute(liveItem);
+            }
+        }
+    }
 }
 
 
@@ -214,12 +306,6 @@ public class NicoRepoVideoTimeline : VideoListItemControlViewModel, IVideoConten
         _nicoRepoEntry = nicoRepoEntry;
         ItemTopic = itemType;
 
-        //VideoId = nicoRepoEntry.GetContentId();
-        if (VideoId != VideoId)
-        {
-            SubscribeAll(VideoId);
-        }
-
         if (_nicoRepoEntry.Actor != null)
         {
             if (_nicoRepoEntry.Actor.Url.OriginalString.StartsWith("https://ch.nicovideo.jp/"))
@@ -255,10 +341,6 @@ public class NicoRepoVideoTimeline : VideoListItemControlViewModel, IVideoConten
     public string ItempTopicDescription { get; }
 
     public NicoRepoMuteContextTrigger ItemTopic { get; private set; }
-
-    protected override void OnInitialized()
-    {
-    }
 }
 
 

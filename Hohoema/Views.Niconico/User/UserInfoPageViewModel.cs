@@ -296,10 +296,6 @@ public class UserInfoPageViewModel : HohoemaPageViewModelBase, IPinablePage, ITi
     {
         if (VideoInfoItems != null)
         {
-            foreach (var item in VideoInfoItems)
-            {
-                item.Dispose();
-            }
             VideoInfoItems.Clear();
         }
         base.OnNavigatedFrom(parameters);

@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.Niconico.Series;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Niconico.Video.Series;
@@ -23,7 +24,11 @@ using System.Threading.Tasks;
 
 namespace Hohoema.ViewModels.Pages.Niconico.Series;
 
-public sealed class SeriesPageViewModel : HohoemaListingPageViewModelBase<VideoListItemControlViewModel>, INavigationAware, ITitleUpdatablePage, IPinablePage
+public sealed class SeriesPageViewModel 
+    : VideoListingPageViewModelBase<VideoListItemControlViewModel>
+    , INavigationAware
+    , ITitleUpdatablePage
+    , IPinablePage
 {
     public HohoemaPin GetPin()
     {
@@ -43,6 +48,7 @@ public sealed class SeriesPageViewModel : HohoemaListingPageViewModelBase<VideoL
 
 
     public SeriesPageViewModel(
+        IMessenger messenger,
         ILoggerFactory loggerFactory,
         SeriesProvider seriesRepository,
         VideoPlayWithQueueCommand videoPlayWithQueueCommand,
@@ -50,7 +56,7 @@ public sealed class SeriesPageViewModel : HohoemaListingPageViewModelBase<VideoL
         SelectionModeToggleCommand selectionModeToggleCommand,
         PlaylistPlayAllCommand playlistPlayAllCommand
         )
-        : base(loggerFactory.CreateLogger<SeriesPageViewModel>())
+        : base(messenger, loggerFactory.CreateLogger<SeriesPageViewModel>(), disposeItemVM: false)
     {
         _seriesProvider = seriesRepository;
         VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
@@ -109,7 +115,7 @@ public sealed class SeriesPageViewModel : HohoemaListingPageViewModelBase<VideoL
     }
 
 
-    public ReadOnlyReactivePropertySlim<PlaylistToken> CurrentPlaylistToken { get; }
+    public ReadOnlyReactivePropertySlim<PlaylistToken?> CurrentPlaylistToken { get; }
 
 
     public override async Task OnNavigatedToAsync(INavigationParameters parameters)
@@ -201,22 +207,18 @@ public class SeriesVideosIncrementalSource : IIncrementalSource<VideoListItemCon
 
         return _allItems.Skip(pageIndex * pageSize).Take(pageSize).Cast<Models.Niconico.Series.SeriesVideoItem>().Select((item, i) =>
         {
-            var itemVM = new VideoListItemControlViewModel(item.VideoId, item.Title, item.ThumbnailUrl, item.Length, item.PostedAt)
+            return new VideoListItemControlViewModel(item.VideoId, item.Title, item.ThumbnailUrl, item.Length, item.PostedAt)
             {
-                PlaylistItemToken = new PlaylistItemToken(_seriesVideoPlaylist, _selectedSortOption, item)
+                PlaylistItemToken = new PlaylistItemToken(_seriesVideoPlaylist, _selectedSortOption, item),
+                ViewCount = item.ViewCount,
+                CommentCount = item.CommentCount,
+                MylistCount = item.MylistCount,
+                ProviderId = item.ProviderId,
+                ProviderType = item.ProviderType,
+                ProviderName = item.ProviderName,
+                IsSensitiveContent = item.RequireSensitiveMasking,
+                IsDeleted = item.IsDeleted,
             };
-
-            itemVM.ViewCount = item.ViewCount;
-            itemVM.CommentCount = item.CommentCount;
-            itemVM.MylistCount = item.MylistCount;
-
-            itemVM.ProviderId = item.ProviderId;
-            itemVM.ProviderType = item.ProviderType;
-            itemVM.ProviderName = item.ProviderName;
-            itemVM.IsSensitiveContent = item.RequireSensitiveMasking;
-            itemVM.IsDeleted = item.IsDeleted;
-
-            return itemVM;
         })
         .ToArray() // Note: IncrementalLoadingSourceが複数回呼び出すためFreezeしたい
         ;

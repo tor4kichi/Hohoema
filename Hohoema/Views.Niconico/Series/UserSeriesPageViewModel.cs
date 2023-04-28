@@ -20,7 +20,10 @@ using System.Threading.Tasks;
 
 namespace Hohoema.ViewModels.Pages.Niconico.Series;
 
-public partial class UserSeriesPageViewModel : HohoemaPageViewModelBase, ITitleUpdatablePage, IPinablePage
+public partial class UserSeriesPageViewModel 
+    : HohoemaPageViewModelBase
+    , ITitleUpdatablePage
+    , IPinablePage
 {
     public HohoemaPin GetPin()
     {
