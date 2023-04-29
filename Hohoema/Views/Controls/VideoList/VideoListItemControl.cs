@@ -1,14 +1,26 @@
 ﻿#nullable enable
+using CommunityToolkit.Mvvm.DependencyInjection;
+using Hohoema.Models.Application;
 using Hohoema.Models.VideoCache;
+using Hohoema.Services;
+using Hohoema.ViewModels.VideoListPage;
+using Hohoema.Views.UINavigation;
+using Microsoft.Toolkit.Uwp.UI;
+using Microsoft.Toolkit.Uwp.UI.Animations;
 using System;
+using System.Diagnostics;
+using System.Windows.Input;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace Hohoema.Views.Controls.VideoList;
 
 public sealed class VideoListItemControl : ContentControl
 {
+    private static ApplicationLayoutManager? _layoutManager;
+    private static AppearanceSettings? _appearanceSettings;
     public VideoListItemControl()
     {
         DefaultStyleKey = typeof(VideoListItemControl);
@@ -16,22 +28,94 @@ public sealed class VideoListItemControl : ContentControl
 
     private Image? _templateChildImage;
 
+    UIElement _buttonActionLayout;
+    private SelectorItem _listViewItem;
+
+    VideoListItemControlViewModel __itemVM;
+    VideoListItemControlViewModel _itemVM
+    {
+        get => __itemVM ??= (DataContext as VideoListItemControlViewModel)!;
+    }
+
     protected override void OnApplyTemplate()
     {
         base.OnApplyTemplate();
 
         (GetTemplateChild("HiddenVideoOnceRevealButton") as Button)!.Click += HiddenVideoOnceRevealButton_Click;
         (GetTemplateChild("ExitRevealButton") as Button)!.Click += ExitRevealButton_Click;
+        _templateChildImage = GetTemplateChild("ImagePart") as Image;
 
+        _layoutManager ??= Ioc.Default.GetRequiredService<ApplicationLayoutManager>();
+        _appearanceSettings ??= Ioc.Default.GetRequiredService<AppearanceSettings>();
+        _buttonActionLayout = (GetTemplateChild("ButtonActionsLayout") as UIElement)!;
 
-#if !DEBUG
-        if (UIViewSettings.GetForCurrentView()?.UserInteractionMode == UserInteractionMode.Touch)
-#endif
+        if (_layoutManager.IsMouseInteractionDefault
+            && _appearanceSettings.IsVideoListItemMiddleClickToAddQueueEnabled
+            )
         {
-            (GetTemplateChild("MobileSupportActionsLayout") as UIElement)!.Visibility = Visibility.Visible;
+            this.PointerPressed += (s, e) =>
+            {
+                var pointProps = e.GetCurrentPoint(null).Properties;
+                if (pointProps.IsMiddleButtonPressed)
+                {
+                    _itemVM.ToggleWatchAfter(_itemVM);
+                }
+            };
         }
 
-        _templateChildImage = GetTemplateChild("ImagePart") as Image;
+        if (_appearanceSettings.IsVideoListItemAdditionalUIEnabled)
+        {
+            (GetTemplateChild("PlayButton") as Button)!.Click += (s, e) =>
+            {
+                _itemVM.PlayVideoCommand.Execute(_itemVM);
+            };
+
+            (GetTemplateChild("AddToQueueButton") as Button)!.Click += (s, e) =>
+            {
+                (_itemVM.ToggleWatchAfterCommand as ICommand)!.Execute(_itemVM);
+            };
+
+            if (_layoutManager.IsMouseInteraction)
+            {
+                this.PointerEntered += (s, e) =>
+                {
+                    _buttonActionLayout.Visibility = Visibility.Visible;
+                };
+                this.PointerExited += (s, e) =>
+                {
+                    _buttonActionLayout.Visibility = Visibility.Collapsed;
+                };                
+            }
+            else if (_layoutManager.IsTouchInteraction)
+            {
+                _buttonActionLayout.Visibility = Visibility.Visible;
+            }            
+        }
+
+        if (_layoutManager.IsControllerInteraction)
+        {
+            _listViewItem = this.FindAscendantOrSelf<SelectorItem>()!;
+
+            UINavigationButtonEventHandler OnUINavigationPressed = (s, e) =>
+            {
+                if (_listViewItem!.FocusState is not FocusState.Unfocused)
+                {
+                    if (e == UINavigationButtons.Context1)
+                    {
+                        (_itemVM.ToggleWatchAfterCommand as ICommand)!.Execute(_itemVM);
+                    }
+                }
+            };
+
+            Loaded += (s, e) =>
+            {
+                UINavigationManager.Pressed += OnUINavigationPressed;
+            };
+            Unloaded += (s, e) =>
+            {
+                UINavigationManager.Pressed -= OnUINavigationPressed;
+            };
+        }
     }
 
 
@@ -369,7 +453,7 @@ public sealed class VideoListItemControl : ContentControl
     // Using a DependencyProperty as the backing store for CacheStatus.  This enables animation, styling, binding, etc...
     public static readonly DependencyProperty CacheStatusProperty =
         DependencyProperty.Register("CacheStatus", typeof(VideoCacheStatus?), typeof(VideoListItemControl), new PropertyMetadata(null, OnCacheStatusPropertyChanged));
-
+    
     private static void OnCacheStatusPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         var _this = (d as VideoListItemControl)!;

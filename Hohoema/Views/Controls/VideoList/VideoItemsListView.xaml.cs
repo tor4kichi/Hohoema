@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -32,7 +33,7 @@ public sealed partial class VideoItemsListView : UserControl
 
     static VideoItemsListView()
     {
-        _AppearanceSettings = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<AppearanceSettings>();
+        _AppearanceSettings = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<AppearanceSettings>();
     }
 
     private AppearanceSettings AppearanceSettings => _AppearanceSettings;
@@ -222,6 +223,39 @@ public sealed partial class VideoItemsListView : UserControl
         
         // Context Flyout
         ItemsList.ContextRequested += ItemsList_ContextRequested;
+
+        if (_AppearanceSettings.IsVideoListItemDoubleClickOrDoubleTapToPlayEnabled)
+        {
+            // センタークリック操作のためにItemClickは有効化しておきたい
+            ItemsList.IsItemClickEnabled = true;
+            ItemsList.IsDoubleTapEnabled = true;
+            ItemsList.DoubleTapped += ItemsList_DoubleTapped;
+            ItemsList.ItemClick -= ItemsList_ItemClick;
+        }
+        else
+        {
+            ItemsList.IsItemClickEnabled = true;
+            ItemsList.IsDoubleTapEnabled = false;
+            ItemsList.ItemClick += ItemsList_ItemClick;
+        }
+    }
+
+    private void ItemsList_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+    {
+        if (e.OriginalSource is FrameworkElement fe
+            && ItemCommand.CanExecute(fe.DataContext))
+        {
+            ItemCommand.Execute(fe.DataContext);
+            e.Handled = true;
+        }        
+    }
+
+    private void ItemsList_ItemClick(object sender, ItemClickEventArgs e)
+    {
+        if (ItemCommand.CanExecute(e.ClickedItem))
+        {
+            ItemCommand.Execute(e.ClickedItem);            
+        }
     }
 
     private void VideoItemsListView_Unloaded(object sender, RoutedEventArgs e)
@@ -233,6 +267,10 @@ public sealed partial class VideoItemsListView : UserControl
 
         // Context Flyout
         ItemsList.ContextRequested -= ItemsList_ContextRequested;
+
+        // ItemClick
+        ItemsList.DoubleTapped -= ItemsList_DoubleTapped;
+        ItemsList.ItemClick -= ItemsList_ItemClick;
     }
 
     #region Selection
@@ -373,7 +411,7 @@ public sealed partial class VideoItemsListView : UserControl
 
     #region Context Flyout
 
-    static Dictionary<DataTemplate, FlyoutBase> _cache = new ();
+    static FlyoutShowOptions _flyoutShowOption = new FlyoutShowOptions() { Placement = FlyoutPlacementMode.Bottom };
     private void ItemsList_ContextRequested(UIElement sender, ContextRequestedEventArgs args)
     {
         var list = sender as ListViewBase;
@@ -410,11 +448,13 @@ public sealed partial class VideoItemsListView : UserControl
 
         if (args.TryGetPosition(container, out var pt))
         {
-            itemFlyout.ShowAt(container, new FlyoutShowOptions() { Position = pt});
+            _flyoutShowOption.Position = pt;
+            itemFlyout.ShowAt(container, _flyoutShowOption);
         }
         else
         {
-            itemFlyout.ShowAt(container);
+            _flyoutShowOption.Position = null;
+            itemFlyout.ShowAt(container, _flyoutShowOption);
         }
         args.Handled = true;
     }

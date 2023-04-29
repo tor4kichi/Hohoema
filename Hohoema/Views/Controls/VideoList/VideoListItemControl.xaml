@@ -19,16 +19,13 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="local:VideoListItemControl">
-          <Grid x:Name="UserControlRoot">
-
+          <Grid x:Name="UserControlRoot" Background="Transparent" IsHitTestVisible="True">
             <StackPanel x:Name="CacheStatusLayout" HorizontalAlignment="Right" VerticalAlignment="Top" Visibility="Collapsed">
               <SymbolIcon x:Name="CacheIcon" Symbol="Download" Height="32" Width="32" />
             </StackPanel>
-
             <Grid x:Name="QueueIndexLayout" Opacity="0.0" HorizontalAlignment="Right">
               <Border Width="4" Background="{ThemeResource SystemAccentColor}" Opacity="0.5" />
             </Grid>
-
             <uwpControls:DockPanel Margin="4 0 0 0"
                            x:Name="ContentLayout"
                            >
@@ -37,12 +34,7 @@
                         Stretch="Uniform"
                         VerticalAlignment="Center"
                          Height="100"
-                    >
-                </Image>
-
-
-
-
+                    />
                 <Border HorizontalAlignment="Right" 
                         VerticalAlignment="Bottom"
                         CornerRadius="4 0 0 0"
@@ -54,8 +46,7 @@
                   <TextBlock Text="{TemplateBinding ImageSubText}" 
                                Padding="4 0 3 3" 
                                TextWrapping="Wrap" VerticalAlignment="Center" 
-                               FontSize="13"
-                               
+                               FontSize="13"                               
                                />
                 </Border>
               </Grid>
@@ -87,8 +78,6 @@
                              />
 
                   </StackPanel>
-
-
                   <StackPanel x:Name="CountInfoLayout" uwpControls:DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="8">
                     <StackPanel.Resources>
                       <Style TargetType="TextBlock">
@@ -119,19 +108,32 @@
                        VerticalAlignment="Center"
                        x:Name="LabelTextBlock"
                        />
-
                 </uwpControls:DockPanel>
-
-                <StackPanel x:Name="MobileSupportActionsLayout"  Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Stretch" Visibility="Collapsed"                             
+                <StackPanel x:Name="ButtonActionsLayout"  Orientation="Horizontal" 
+                            HorizontalAlignment="Right" VerticalAlignment="Stretch" 
+                            Visibility="Collapsed"                             
+                            Spacing="8"
                             >
 
-
-
-                  <Button Flyout="{StaticResource VideoListItemFlyout}" VerticalAlignment="Stretch" Width="80" Background="Transparent" Opacity="0.6" BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" BorderThickness="0 0 0 0">
+                  <Button x:Name="PlayButton" VerticalAlignment="Stretch" Width="40" 
+                          BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"                          
+                          BorderThickness="0 0 0 0"                          
+                          >
+                    <SymbolIcon Symbol="Play" />
+                  </Button>
+                  <Button x:Name="AddToQueueButton" VerticalAlignment="Stretch" Width="40" 
+                          BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                          BorderThickness="0 0 0 0"                          
+                          >
+                    <SymbolIcon Symbol="Add" />
+                  </Button>
+                  <Button Flyout="{StaticResource VideoListItemFlyout}" VerticalAlignment="Stretch" Width="40" 
+                          BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" 
+                          BorderThickness="0 0 0 0"
+                          >
                     <SymbolIcon Symbol="More" />
                   </Button>
                 </StackPanel>
-
               </Grid>
             </uwpControls:DockPanel>
 

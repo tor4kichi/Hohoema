@@ -24,12 +24,58 @@ public sealed class ApplicationLayoutManager : ObservableObject
         private set { SetProperty(ref _appLayout, value); }
     }
 
+
+
+    private static ApplicationInteractionMode GetDefaultInteractionMode()
+    {
+        if (DeviceInfo.Idiom == DeviceIdiom.Desktop)
+        {
+            return ApplicationInteractionMode.Mouse;
+        }
+        else if (DeviceInfo.Idiom == DeviceIdiom.Phone || DeviceInfo.Idiom == DeviceIdiom.Tablet)
+        {
+            return ApplicationInteractionMode.Touch;
+        }
+        else if (DeviceInfo.Idiom == DeviceIdiom.TV || DeviceTypeHelper.IsXbox)
+        {
+            return ApplicationInteractionMode.Controller;
+        }
+        else
+        {
+            return ApplicationInteractionMode.Touch;
+        }
+    }
+
+
+    public ApplicationInteractionMode DefaultInteractionMode { get; } = GetDefaultInteractionMode();
+
+    public bool IsMouseInteractionDefault => DefaultInteractionMode == ApplicationInteractionMode.Mouse;
+    public bool IsTouchInteractionDefault => DefaultInteractionMode == ApplicationInteractionMode.Touch;
+    public bool IsControllerInteractionDefault => DefaultInteractionMode == ApplicationInteractionMode.Controller;
+
+
+
     private ApplicationInteractionMode _InteractionMode;
     public ApplicationInteractionMode InteractionMode
     {
         get { return _InteractionMode; }
-        private set { SetProperty(ref _InteractionMode, value); }
+        private set 
+        {
+            if (SetProperty(ref _InteractionMode, value))
+            {
+                OnPropertyChanging(nameof(IsMouseInteraction));
+                OnPropertyChanged(nameof(IsMouseInteraction));
+                OnPropertyChanging(nameof(IsTouchInteraction));
+                OnPropertyChanged(nameof(IsTouchInteraction));
+                OnPropertyChanging(nameof(IsControllerInteraction));
+                OnPropertyChanged(nameof(IsControllerInteraction));
+            }
+        }
     }
+
+    public bool IsMouseInteraction => _InteractionMode == ApplicationInteractionMode.Mouse;
+    public bool IsTouchInteraction => _InteractionMode == ApplicationInteractionMode.Touch;
+    public bool IsControllerInteraction => _InteractionMode == ApplicationInteractionMode.Controller;
 
     private NavigationViewDisplayMode _navigationViewDisplayMode;
     public NavigationViewDisplayMode NavigationViewDisplayMode
@@ -74,7 +120,6 @@ public sealed class ApplicationLayoutManager : ObservableObject
     public ApplicationLayoutManager(AppearanceSettings appearanceSettings)
     {
         _appearanceSettings = appearanceSettings;
-
         new[]
         {
             _appearanceSettings.ObserveProperty(x => x.OverrideInteractionMode).ToUnit(),
@@ -96,27 +141,16 @@ public sealed class ApplicationLayoutManager : ObservableObject
 
     ApplicationInteractionMode GetInteractionMode()
     {
-        ApplicationInteractionMode intaractionMode = ApplicationInteractionMode.Touch;
+        ApplicationInteractionMode interactionMode = ApplicationInteractionMode.Touch;
         if (_appearanceSettings.OverrideInteractionMode.HasValue)
         {
-            intaractionMode = _appearanceSettings.OverrideInteractionMode.Value;
+            interactionMode = _appearanceSettings.OverrideInteractionMode.Value;
         }
         else
         {
-            if (DeviceInfo.Idiom == DeviceIdiom.Desktop)
-            {
-                intaractionMode = ApplicationInteractionMode.Mouse;
-            }
-            else if (DeviceInfo.Idiom == DeviceIdiom.Phone || DeviceInfo.Idiom == DeviceIdiom.Tablet)
-            {
-                intaractionMode = ApplicationInteractionMode.Touch;
-            }
-            else if (DeviceInfo.Idiom == DeviceIdiom.TV || DeviceTypeHelper.IsXbox)
-            {
-                intaractionMode = ApplicationInteractionMode.Controller;
-            }
+            interactionMode = DefaultInteractionMode;
         }
-        return intaractionMode;
+        return interactionMode;
     }
 
     ApplicationLayout GetAppLayout(ApplicationInteractionMode intaractionMode)

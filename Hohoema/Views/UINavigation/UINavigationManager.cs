@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading;
 using Windows.Gaming.Input;
+using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 
@@ -109,6 +110,7 @@ public class UINavigationManager : IDisposable
 
     bool _IsDisposed;
 
+    private readonly DispatcherQueue _dispatcherQueue;
 
     public static bool InitialEnabling = true;
 
@@ -130,7 +132,9 @@ public class UINavigationManager : IDisposable
         UINavigationController.UINavigationControllerAdded += UINavigationController_UINavigationControllerAdded;
         UINavigationController.UINavigationControllerRemoved += UINavigationController_UINavigationControllerRemoved;
 
-        IsEnabled = InitialEnabling;        
+        IsEnabled = InitialEnabling;
+
+        _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
     }
 
     private bool _IsEnabled;
@@ -154,7 +158,6 @@ public class UINavigationManager : IDisposable
             }
         }
     }
-
 
     public static void OnSuspeding()
     {
@@ -268,7 +271,10 @@ public class UINavigationManager : IDisposable
                                 if (time > __HoldDetectTime)
                                 {
                                     _ProcessedHoldingButtons |= target;
-                                    Holding?.Invoke(this, target);
+                                    _dispatcherQueue.TryEnqueue(() =>
+                                    {
+                                        Holding?.Invoke(this, target);
+                                    });
                                 }
 
                                 Debug.WriteLine($"Holding {target} @{time.TotalSeconds:F1}s");
@@ -283,7 +289,10 @@ public class UINavigationManager : IDisposable
 
                     if (released != UINavigationButtons.None)
                     {
-                        Pressed?.Invoke(this, released);
+                        _dispatcherQueue.TryEnqueue(() => 
+                        {
+                            Pressed?.Invoke(this, released);
+                        });
                     }
 
                     // トリガー検出用に前フレームの入力情報を保存
