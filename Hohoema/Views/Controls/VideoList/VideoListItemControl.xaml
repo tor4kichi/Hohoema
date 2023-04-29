@@ -43,7 +43,7 @@
                     <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
                   </Border.Background>
 
-                  <TextBlock Text="{TemplateBinding ImageSubText}" 
+                  <TextBlock Text="{TemplateBinding Length}" 
                                Padding="4 0 3 3" 
                                TextWrapping="Wrap" VerticalAlignment="Center" 
                                FontSize="13"                               
@@ -113,6 +113,7 @@
                             HorizontalAlignment="Right" VerticalAlignment="Stretch" 
                             Visibility="Collapsed"                             
                             Spacing="8"
+                            Margin="0 0 8 0"
                             >
 
                   <Button x:Name="PlayButton" VerticalAlignment="Stretch" Width="40" 
@@ -287,7 +288,7 @@
                     <Setter Target="HiddenVideoOwnerLayout.IsHitTestVisible"
                     Value="True" />
 
-                    <Setter Target="ContentLayout.Opacity" Value="0.3" />
+                    <Setter Target="ContentLayout.Opacity" Value="0.0" />
                   </VisualState.Setters>
                 </VisualState>
               </VisualStateGroup>

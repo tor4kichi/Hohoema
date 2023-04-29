@@ -100,7 +100,11 @@ public sealed class VideoListItemControl : ContentControl
             {
                 if (_listViewItem!.FocusState is not FocusState.Unfocused)
                 {
-                    if (e == UINavigationButtons.Context1)
+                    if (e == UINavigationButtons.Accept)
+                    {
+                        (_itemVM.PlayVideoCommand as ICommand)!.Execute(_itemVM);
+                    }
+                    else if (e == UINavigationButtons.Context1)
                     {
                         (_itemVM.ToggleWatchAfterCommand as ICommand)!.Execute(_itemVM);
                     }
@@ -402,22 +406,6 @@ public sealed class VideoListItemControl : ContentControl
             }
         }
     }
-
-
-
-    public string ImageSubText
-    {
-        get { return (string)GetValue(ImageSubTextProperty); }
-        set { SetValue(ImageSubTextProperty, value); }
-    }
-
-    // Using a DependencyProperty as the backing store for ImageSubText.  This enables animation, styling, binding, etc...
-    public static readonly DependencyProperty ImageSubTextProperty =
-        DependencyProperty.Register("ImageSubText", typeof(string), typeof(VideoListItemControl), new PropertyMetadata(null));
-
-
-
-
 
     public bool IsQueueItem
     {

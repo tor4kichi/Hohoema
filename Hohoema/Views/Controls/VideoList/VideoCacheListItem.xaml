@@ -62,12 +62,29 @@
                   <ContentPresenter x:Name="MyContentPresenter" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" />
 
 
-                  <StackPanel x:Name="MobileSupportActionsLayout"  Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Stretch" Visibility="Collapsed"                             
+                  <StackPanel x:Name="ButtonActionsLayout"  Orientation="Horizontal" 
+                            HorizontalAlignment="Right" VerticalAlignment="Stretch" 
+                            Visibility="Collapsed"                             
+                            Spacing="8"
+                            Margin="0 0 8 0"
                             >
 
-                    
-                    
-                    <Button Flyout="{StaticResource VideoListItemFlyout}" VerticalAlignment="Stretch" Width="80" Background="Transparent" Opacity="0.6" BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" BorderThickness="0 0 0 0">
+                    <Button x:Name="PlayButton" VerticalAlignment="Stretch" Width="40" 
+                          BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"                          
+                          BorderThickness="0 0 0 0"                          
+                          >
+                      <SymbolIcon Symbol="Play" />
+                    </Button>
+                    <Button x:Name="AddToQueueButton" VerticalAlignment="Stretch" Width="40" 
+                          BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                          BorderThickness="0 0 0 0"                          
+                          >
+                      <SymbolIcon Symbol="Add" />
+                    </Button>
+                    <Button Flyout="{StaticResource VideoListItemFlyout}" VerticalAlignment="Stretch" Width="40" 
+                          BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" 
+                          BorderThickness="0 0 0 0"
+                          >
                       <SymbolIcon Symbol="More" />
                     </Button>
                   </StackPanel>

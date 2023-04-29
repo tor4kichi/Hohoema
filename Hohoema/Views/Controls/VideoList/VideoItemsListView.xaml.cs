@@ -6,6 +6,7 @@ using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Mylist.LoginUser;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Playlist;
+using Hohoema.Services;
 using Hohoema.Services.LocalMylist;
 using Hohoema.Services.Niconico;
 using Hohoema.ViewModels.Niconico.Video;
@@ -175,6 +176,7 @@ public sealed partial class VideoItemsListView : UserControl
     }
 
     private readonly QueuePlaylist _queuePlaylist;
+    private readonly ApplicationLayoutManager _layoutManager;
     private readonly VideoItemsSelectionContext _selectionContext;
     private readonly NiconicoSession _niconicoSession;
     private readonly LocalMylistManager _localPlaylistManager;
@@ -194,19 +196,20 @@ public sealed partial class VideoItemsListView : UserControl
         this.InitializeComponent();
 
         // Selection
-        _selectionContext = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<VideoItemsSelectionContext>();
-        _niconicoSession = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<NiconicoSession>();
-        _localPlaylistManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<LocalMylistManager>();
-        _mylistManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<LoginUserOwnedMylistManager>();
-        _queuePlaylist = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<QueuePlaylist>();
+        _selectionContext = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<VideoItemsSelectionContext>();
+        _niconicoSession = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<NiconicoSession>();
+        _localPlaylistManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<LocalMylistManager>();
+        _mylistManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<LoginUserOwnedMylistManager>();
+        _queuePlaylist = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<QueuePlaylist>();
+        _layoutManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<ApplicationLayoutManager>();
 
-        _addQueueCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<QueueAddItemCommand>();
-        _removeQueueCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<QueueRemoveItemCommand>();
-        _addMylistCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<MylistAddItemCommand>();
+        _addQueueCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<QueueAddItemCommand>();
+        _removeQueueCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<QueueRemoveItemCommand>();
+        _addMylistCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<MylistAddItemCommand>();
         _localMylistAddCommand = new LocalPlaylistAddItemCommand();
-        _removeWatchHistoryCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<WatchHistoryRemoveItemCommand>();
-        _copyMylistItemCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<MylistCopyItemCommand>();
-        _moveMylistItemCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<MylistMoveItemCommand>();
+        _removeWatchHistoryCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<WatchHistoryRemoveItemCommand>();
+        _copyMylistItemCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<MylistCopyItemCommand>();
+        _moveMylistItemCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<MylistMoveItemCommand>();
 
         Loaded += VideoItemsListView_Loaded;
         Unloaded += VideoItemsListView_Unloaded;
@@ -224,7 +227,9 @@ public sealed partial class VideoItemsListView : UserControl
         // Context Flyout
         ItemsList.ContextRequested += ItemsList_ContextRequested;
 
-        if (_AppearanceSettings.IsVideoListItemDoubleClickOrDoubleTapToPlayEnabled)
+        if ((_layoutManager.IsMouseInteractionDefault || _layoutManager.IsTouchInteractionDefault)
+            && _AppearanceSettings.IsVideoListItemDoubleClickOrDoubleTapToPlayEnabled
+            )
         {
             // センタークリック操作のためにItemClickは有効化しておきたい
             ItemsList.IsItemClickEnabled = true;
