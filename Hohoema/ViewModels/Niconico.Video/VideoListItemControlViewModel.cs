@@ -27,7 +27,7 @@ public interface ISourcePlaylistPresenter
     PlaylistId GetPlaylistId();
 }
 
-public class VideoItemViewModel 
+public partial class VideoItemViewModel 
     : ObservableObject
     , IVideoContent
     , IPlaylistItemPlayable
@@ -41,13 +41,13 @@ public class VideoItemViewModel
 
     static VideoItemViewModel()
     {
-        _messenger = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<IMessenger>();
-        _queuePlaylist = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<QueuePlaylist>();
-        _cacheManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<VideoCacheManager>();
-        _scheduler = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<IScheduler>();
-        _videoWatchedRepository = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<VideoWatchedRepository>();
-        _addWatchAfterCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<QueueAddItemCommand>();
-        _removeWatchAfterCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<QueueRemoveItemCommand>();
+        _messenger = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<IMessenger>();
+        _queuePlaylist = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<QueuePlaylist>();
+        _cacheManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<VideoCacheManager>();
+        _scheduler = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<IScheduler>();
+        _videoWatchedRepository = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<VideoWatchedRepository>();
+        _addWatchAfterCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<QueueAddItemCommand>();
+        _removeWatchAfterCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<QueueRemoveItemCommand>();
     }
 
 
@@ -165,20 +165,25 @@ public class VideoItemViewModel
     private static readonly QueueRemoveItemCommand _removeWatchAfterCommand;
     public QueueRemoveItemCommand RemoveWatchAfterCommand => _removeWatchAfterCommand;
 
+    private static readonly RelayCommand<IVideoContent> _playVideoCommand = new ((IVideoContent? video) => 
+    {
+        _messenger.Send(VideoPlayRequestMessage.PlayVideo(video!.VideoId));
+    });
 
-    private RelayCommand<object> _toggleWatchAfterCommand;
-    public RelayCommand<object> ToggleWatchAfterCommand => _toggleWatchAfterCommand
-        ??= new RelayCommand<object>(parameter => 
+    public RelayCommand<IVideoContent> PlayVideoCommand => _playVideoCommand;
+
+    [RelayCommand]
+    public void ToggleWatchAfter(object parameter)
+    {
+        if (IsQueueItem)
         {
-            if (IsQueueItem)
-            {
-                (_removeWatchAfterCommand as ICommand).Execute(parameter);
-            }
-            else
-            {
-                (_addWatchAfterCommand as ICommand).Execute(parameter);
-            }
-        });
+            (_removeWatchAfterCommand as ICommand).Execute(parameter);
+        }
+        else
+        {
+            (_addWatchAfterCommand as ICommand).Execute(parameter);
+        }
+    }
 
 
     private bool _IsQueueItem;

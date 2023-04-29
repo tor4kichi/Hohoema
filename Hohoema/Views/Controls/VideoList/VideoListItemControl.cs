@@ -1,23 +1,125 @@
 ﻿#nullable enable
+using CommunityToolkit.Mvvm.DependencyInjection;
+using Hohoema.Models.Application;
 using Hohoema.Models.VideoCache;
+using Hohoema.Services;
+using Hohoema.ViewModels.VideoListPage;
+using Hohoema.Views.UINavigation;
+using Microsoft.Toolkit.Uwp.UI;
+using Microsoft.Toolkit.Uwp.UI.Animations;
+using System;
+using System.Diagnostics;
+using System.Windows.Input;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Controls.Primitives;
+using Windows.UI.Xaml.Media.Imaging;
 
 namespace Hohoema.Views.Controls.VideoList;
 
 public sealed class VideoListItemControl : ContentControl
 {
+    private static ApplicationLayoutManager? _layoutManager;
+    private static AppearanceSettings? _appearanceSettings;
     public VideoListItemControl()
     {
         DefaultStyleKey = typeof(VideoListItemControl);
+    }
+
+    private Image? _templateChildImage;
+
+    UIElement _buttonActionLayout;
+    private SelectorItem _listViewItem;
+
+    VideoListItemControlViewModel __itemVM;
+    VideoListItemControlViewModel _itemVM
+    {
+        get => __itemVM ??= (DataContext as VideoListItemControlViewModel)!;
     }
 
     protected override void OnApplyTemplate()
     {
         base.OnApplyTemplate();
 
-        (GetTemplateChild("HiddenVideoOnceRevealButton") as Button).Click += HiddenVideoOnceRevealButton_Click;
-        (GetTemplateChild("ExitRevealButton") as Button).Click += ExitRevealButton_Click;
+        (GetTemplateChild("HiddenVideoOnceRevealButton") as Button)!.Click += HiddenVideoOnceRevealButton_Click;
+        (GetTemplateChild("ExitRevealButton") as Button)!.Click += ExitRevealButton_Click;
+        _templateChildImage = GetTemplateChild("ImagePart") as Image;
+
+        _layoutManager ??= Ioc.Default.GetRequiredService<ApplicationLayoutManager>();
+        _appearanceSettings ??= Ioc.Default.GetRequiredService<AppearanceSettings>();
+        _buttonActionLayout = (GetTemplateChild("ButtonActionsLayout") as UIElement)!;
+
+        if (_layoutManager.IsMouseInteractionDefault
+            && _appearanceSettings.IsVideoListItemMiddleClickToAddQueueEnabled
+            )
+        {
+            this.PointerPressed += (s, e) =>
+            {
+                var pointProps = e.GetCurrentPoint(null).Properties;
+                if (pointProps.IsMiddleButtonPressed)
+                {
+                    _itemVM.ToggleWatchAfter(_itemVM);
+                }
+            };
+        }
+
+        if (_appearanceSettings.IsVideoListItemAdditionalUIEnabled)
+        {
+            (GetTemplateChild("PlayButton") as Button)!.Click += (s, e) =>
+            {
+                _itemVM.PlayVideoCommand.Execute(_itemVM);
+            };
+
+            (GetTemplateChild("AddToQueueButton") as Button)!.Click += (s, e) =>
+            {
+                (_itemVM.ToggleWatchAfterCommand as ICommand)!.Execute(_itemVM);
+            };
+
+            if (_layoutManager.IsMouseInteraction)
+            {
+                this.PointerEntered += (s, e) =>
+                {
+                    _buttonActionLayout.Visibility = Visibility.Visible;
+                };
+                this.PointerExited += (s, e) =>
+                {
+                    _buttonActionLayout.Visibility = Visibility.Collapsed;
+                };                
+            }
+            else if (_layoutManager.IsTouchInteraction)
+            {
+                _buttonActionLayout.Visibility = Visibility.Visible;
+            }            
+        }
+
+        if (_layoutManager.IsControllerInteraction)
+        {
+            _listViewItem = this.FindAscendantOrSelf<SelectorItem>()!;
+
+            UINavigationButtonEventHandler OnUINavigationPressed = (s, e) =>
+            {
+                if (_listViewItem!.FocusState is not FocusState.Unfocused)
+                {
+                    if (e == UINavigationButtons.Accept)
+                    {
+                        (_itemVM.PlayVideoCommand as ICommand)!.Execute(_itemVM);
+                    }
+                    else if (e == UINavigationButtons.Context1)
+                    {
+                        (_itemVM.ToggleWatchAfterCommand as ICommand)!.Execute(_itemVM);
+                    }
+                }
+            };
+
+            Loaded += (s, e) =>
+            {
+                UINavigationManager.Pressed += OnUINavigationPressed;
+            };
+            Unloaded += (s, e) =>
+            {
+                UINavigationManager.Pressed -= OnUINavigationPressed;
+            };
+        }
     }
 
 
@@ -89,21 +191,6 @@ public sealed class VideoListItemControl : ContentControl
     #endregion
 
 
-
-
-    public object ImageSource
-    {
-        get { return GetValue(ImageSourceProperty); }
-        set { SetValue(ImageSourceProperty, value); }
-    }
-
-    // Using a DependencyProperty as the backing store for ThumbnailUrl.  This enables animation, styling, binding, etc...
-    public static readonly DependencyProperty ImageSourceProperty =
-        DependencyProperty.Register("ImageSource", typeof(object), typeof(VideoListItemControl), new PropertyMetadata(null));
-
-
-
-
     public string Length
     {
         get { return (string)GetValue(LengthProperty); }
@@ -115,31 +202,6 @@ public sealed class VideoListItemControl : ContentControl
         DependencyProperty.Register("Length", typeof(string), typeof(VideoListItemControl), new PropertyMetadata(null));
 
 
-
-
-    public bool IsQueueItem
-    {
-        get { return (bool)GetValue(IsQueueItemProperty); }
-        set { SetValue(IsQueueItemProperty, value); }
-    }
-
-    // Using a DependencyProperty as the backing store for IsQueueItem.  This enables animation, styling, binding, etc...
-    public static readonly DependencyProperty IsQueueItemProperty =
-        DependencyProperty.Register("IsQueueItem", typeof(bool), typeof(VideoListItemControl), new PropertyMetadata(false));
-
-
-
-
-
-    public VideoCacheStatus? CacheStatus
-    {
-        get { return (VideoCacheStatus?)GetValue(CacheStatusProperty); }
-        set { SetValue(CacheStatusProperty, value); }
-    }
-
-    // Using a DependencyProperty as the backing store for CacheStatus.  This enables animation, styling, binding, etc...
-    public static readonly DependencyProperty CacheStatusProperty =
-        DependencyProperty.Register("CacheStatus", typeof(VideoCacheStatus?), typeof(VideoListItemControl), new PropertyMetadata(null));
 
 
 
@@ -316,5 +378,95 @@ public sealed class VideoListItemControl : ContentControl
     public static readonly DependencyProperty IsRequirePaymentProperty =
         DependencyProperty.Register("IsRequirePayment", typeof(Visibility), typeof(VideoListItemControl), new PropertyMetadata(Visibility.Collapsed));
 
+    public object ImageSource
+    {
+        get { return GetValue(ImageSourceProperty); }
+        set { SetValue(ImageSourceProperty, value); }
+    }
 
+    // Using a DependencyProperty as the backing store for ThumbnailUrl.  This enables animation, styling, binding, etc...
+    public static readonly DependencyProperty ImageSourceProperty =
+        DependencyProperty.Register("ImageSource", typeof(object), typeof(VideoListItemControl), new PropertyMetadata(null, OnImageSourceChanged));
+
+    private static void OnImageSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (((VideoListItemControl)d)._templateChildImage is not null and var templatedChildImage)
+        {
+            if (e.NewValue is string strUrl && !string.IsNullOrEmpty(strUrl))
+            {
+                templatedChildImage.Source = new BitmapImage(new Uri(strUrl));
+            }
+            else if (e.NewValue is BitmapImage image)
+            {
+                templatedChildImage.Source = image;
+            }
+            else
+            {
+                templatedChildImage.Source = null;
+            }
+        }
+    }
+
+    public bool IsQueueItem
+    {
+        get { return (bool)GetValue(IsQueueItemProperty); }
+        set { SetValue(IsQueueItemProperty, value); }
+    }
+
+    // Using a DependencyProperty as the backing store for IsQueueItem.  This enables animation, styling, binding, etc...
+    public static readonly DependencyProperty IsQueueItemProperty =
+        DependencyProperty.Register("IsQueueItem", typeof(bool), typeof(VideoListItemControl), new PropertyMetadata(false, OnIsQueueItemPropertyChanged));
+
+    private static void OnIsQueueItemPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        var _this = (d as VideoListItemControl)!;
+        if ((bool)e.NewValue)
+        {
+            VisualStateManager.GoToState(_this, "QueuedItemState", false);
+        }
+        else
+        {
+            VisualStateManager.GoToState(_this, "NotQueuedItemState", false);
+        }
+    }
+
+
+
+    public VideoCacheStatus? CacheStatus
+    {
+        get { return (VideoCacheStatus?)GetValue(CacheStatusProperty); }
+        set { SetValue(CacheStatusProperty, value); }
+    }
+
+    // Using a DependencyProperty as the backing store for CacheStatus.  This enables animation, styling, binding, etc...
+    public static readonly DependencyProperty CacheStatusProperty =
+        DependencyProperty.Register("CacheStatus", typeof(VideoCacheStatus?), typeof(VideoListItemControl), new PropertyMetadata(null, OnCacheStatusPropertyChanged));
+    
+    private static void OnCacheStatusPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        var _this = (d as VideoListItemControl)!;
+
+        var status = (VideoCacheStatus?)e.NewValue;
+        switch (status)
+        {
+            case VideoCacheStatus.Pending:
+                VisualStateManager.GoToState(_this, "CacheStatusPendingState", false);
+                break;
+            case VideoCacheStatus.Downloading:
+                VisualStateManager.GoToState(_this, "CacheStatusDownloadingState", false);
+                break;
+            case VideoCacheStatus.DownloadPaused:
+                VisualStateManager.GoToState(_this, "CacheStatusDownloadPausedState", false);
+                break;
+            case VideoCacheStatus.Completed:
+                VisualStateManager.GoToState(_this, "CacheStatusCompletedState", false);
+                break;
+            case VideoCacheStatus.Failed:
+                VisualStateManager.GoToState(_this, "CacheStatusFailedState", false);
+                break;
+            default:
+                VisualStateManager.GoToState(_this, "CacheStatusNormalState", false);
+                break;
+        }
+    }
 }

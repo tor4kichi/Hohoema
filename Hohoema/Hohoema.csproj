@@ -234,6 +234,7 @@
     <Compile Include="Views.Hohoema\Subscription\EditSubscriptionGroupDialog.xaml.cs">
       <DependentUpon>EditSubscriptionGroupDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Controls\VideoList\VideoCacheListItem.cs" />
     <Compile Include="Views\Converters\SizeToRectConverter.cs" />
     <Compile Include="Views\TemplateSelector\ListItemContainerStyleSelector.cs" />
     <Compile Include="Views\UINavigation\UINavigationManager.cs" />
@@ -520,8 +521,7 @@
     <Compile Include="Views\Controls\LiteInAppNotification\LiteInAppNotification.cs" />
     <Compile Include="Views\Controls\TransientContainer\TransientContainer.cs" />
     <Compile Include="Views\Controls\TransientContainer\TransientContainer.Properties.cs" />
-    <Compile Include="Views\Controls\VideoList\VideoListItemControl\VideoListItemControl.cs" />
-    <Compile Include="Views\Controls\VideoList\VideoListItem\VideoListItem.cs" />
+    <Compile Include="Views\Controls\VideoList\VideoListItemControl.cs" />
     <Compile Include="Views\Converters\CacheStateToColorBrushConverter.cs" />
     <Compile Include="Views\Converters\DateTimetoStringConverter.cs" />
     <Compile Include="Views\Converters\EnumToNumberConverter.cs" />
@@ -916,6 +916,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Controls\VideoList\VideoCacheListItem.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\Mylist\MylistCardView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -1088,11 +1092,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Views\Controls\VideoList\VideoListItemControl\VideoListItemControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\Controls\VideoList\VideoListItem\VideoListItem.xaml">
+    <Page Include="Views\Controls\VideoList\VideoListItemControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

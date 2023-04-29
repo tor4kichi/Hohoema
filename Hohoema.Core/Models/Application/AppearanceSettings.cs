@@ -13,7 +13,6 @@ namespace Hohoema.Models.Application;
 
 public class AppearanceSettings : FlagsRepositoryBase
 {
-    
     public AppearanceSettings(ILocalizeService localizeService)
     {
         _locale = Read(localizeService.GetDefaultLocale(), nameof(Locale));
@@ -45,8 +44,6 @@ public class AppearanceSettings : FlagsRepositoryBase
     }
 
     private string _locale;
-
-    
     public string Locale
     {
         get => _locale;
@@ -54,17 +51,13 @@ public class AppearanceSettings : FlagsRepositoryBase
     }
 
     private HohoemaPageType _firstAppearPageType;
-
-    
     public HohoemaPageType FirstAppearPageType
     {
         get => _firstAppearPageType;
         set => SetProperty(ref _firstAppearPageType, value);
     }
 
-    private ApplicationInteractionMode? _OverrideInteractionMode;
-
-    
+    private ApplicationInteractionMode? _OverrideInteractionMode;    
     public ApplicationInteractionMode? OverrideInteractionMode
     {
         get => _OverrideInteractionMode;
@@ -73,8 +66,6 @@ public class AppearanceSettings : FlagsRepositoryBase
 
     // Themeは他で利用してるためかシリアライズエラーが発生するのでApplicationThemeとしている
     private ElementTheme _Theme;
-
-    
     public ElementTheme ApplicationTheme
     {
         get => _Theme;
@@ -107,8 +98,6 @@ public class AppearanceSettings : FlagsRepositoryBase
 
 
     private NavigationViewPaneDisplayMode _menuPaneDisplayMode;
-
-    
     public NavigationViewPaneDisplayMode MenuPaneDisplayMode
     {
         get => _menuPaneDisplayMode;
@@ -159,8 +148,6 @@ public class AppearanceSettings : FlagsRepositoryBase
 
 
     private PlayerDisplayView _PlayerDisplayView;
-
-    
     public PlayerDisplayView PlayerDisplayView
     {
         get => _PlayerDisplayView;
@@ -168,8 +155,6 @@ public class AppearanceSettings : FlagsRepositoryBase
     }
 
     private bool _IsSecondaryViewPrefferedCompactOverlay;
-
-    
     public bool IsSecondaryViewPrefferedCompactOverlay
     {
         get => _IsSecondaryViewPrefferedCompactOverlay;
@@ -184,8 +169,6 @@ public class AppearanceSettings : FlagsRepositoryBase
     }
 
     private Point? _SecondaryViewLastWindowPosition;
-
-    
     public Point? SecondaryViewLastWindowPosition
     {
         get => _SecondaryViewLastWindowPosition;
@@ -193,12 +176,28 @@ public class AppearanceSettings : FlagsRepositoryBase
     }
 
     private Size? _SecondaryViewLastWindowSize;
-
-    
     public Size? SecondaryViewLastWindowSize
     {
         get => _SecondaryViewLastWindowSize;
         set => SetProperty(ref _SecondaryViewLastWindowSize, value);
+    }
+
+    public bool IsVideoListItemDoubleClickOrDoubleTapToPlayEnabled
+    {
+        get => Read(false);
+        set => Save(value);
+    }
+
+    public bool IsVideoListItemAdditionalUIEnabled
+    {
+        get => Read(true);
+        set => Save(value);
+    }
+
+    public bool IsVideoListItemMiddleClickToAddQueueEnabled
+    {
+        get => Read(true);
+        set => Save(value);
     }
 }
 

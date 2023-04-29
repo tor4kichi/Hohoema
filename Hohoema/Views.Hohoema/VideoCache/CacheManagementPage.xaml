@@ -8,7 +8,6 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
-    xmlns:mvvm="using:Prism.Mvvm"
     xmlns:mybehavior="using:Hohoema.Views.Behaviors"
     xmlns:controls="using:Hohoema.Views.Controls"
     xmlns:videoListControls="using:Hohoema.Views.Controls.VideoList"
@@ -129,7 +128,7 @@
       <videolistPage:VideoItemsListView.ItemTemplate>
         <DataTemplate>
           <Grid>
-            <videoList:VideoListItem   
+            <videoList:VideoCacheListItem   
               ImageSource="{Binding ThumbnailUrl}"
               ImageSubText="{Binding Length, Converter={StaticResource TimeToMovieLengthConverter}}"
               IsQueueItem="{Binding IsQueueItem}"
@@ -183,7 +182,7 @@
                 
 
               </Grid>
-            </videoList:VideoListItem>
+            </videoList:VideoCacheListItem>
           </Grid>
         </DataTemplate>
       </videolistPage:VideoItemsListView.ItemTemplate>

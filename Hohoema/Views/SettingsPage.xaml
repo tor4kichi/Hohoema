@@ -201,6 +201,22 @@
                   </ComboBox.ItemTemplate>
                 </ComboBox>
               </Grid>
+
+              <Grid x:Name="IsVideoListItemAdditionalUIEnabledSettingLayout" Visibility="Collapsed">
+                <TextBlock Text="{i18nExt:Localize Key=IsVideoListItemAdditionalUIEnabled}" uwpControls:DockPanel.Dock="Left" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                <ToggleSwitch IsOn="{x:Bind _vm.AppearanceSettings.IsVideoListItemAdditionalUIEnabled, Mode=TwoWay}" HorizontalAlignment="Right" />
+              </Grid>
+
+              <Grid x:Name="IsVideoListItemDoubleClickOrDoubleTapToPlayEnabledSettingLayout" Visibility="Collapsed">
+                <TextBlock Text="{i18nExt:Localize Key=IsVideoListItemDoubleClickOrDoubleTapToPlayEnabled}" uwpControls:DockPanel.Dock="Left" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                <ToggleSwitch IsOn="{x:Bind _vm.AppearanceSettings.IsVideoListItemDoubleClickOrDoubleTapToPlayEnabled, Mode=TwoWay}" HorizontalAlignment="Right" />
+              </Grid>
+
+              <Grid x:Name="IsVideoListItemMiddleClickToAddQueueEnabledSettingLayout" Visibility="Collapsed">
+                <TextBlock Text="{i18nExt:Localize Key=IsVideoListItemMiddleClickToAddQueueEnabled}" uwpControls:DockPanel.Dock="Left" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                <ToggleSwitch IsOn="{x:Bind _vm.AppearanceSettings.IsVideoListItemMiddleClickToAddQueueEnabled, Mode=TwoWay}" HorizontalAlignment="Right" />
+              </Grid>
+              
             </StackPanel>
           </StackPanel>
           <!-- NG設定 -->
@@ -500,7 +516,28 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsStateTriggers:UserInteractionModeTrigger InteractionMode="Touch" />
+            <StateTrigger IsActive="{x:Bind _vm.ApplicationLayoutManager.IsMouseInteractionDefault, Mode=OneWay}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="DefaultFullScreenSwitchLayout.Visibility" Value="Visible" />
+            <Setter Target="IsVideoListItemAdditionalUIEnabledSettingLayout.Visibility" Value="Visible" />
+            <Setter Target="IsVideoListItemMiddleClickToAddQueueEnabledSettingLayout.Visibility" Value="Visible" />
+            <Setter Target="IsVideoListItemDoubleClickOrDoubleTapToPlayEnabledSettingLayout.Visibility" Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{x:Bind _vm.ApplicationLayoutManager.IsTouchInteractionDefault, Mode=OneWay}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="DefaultFullScreenSwitchLayout.Visibility" Value="Visible" />
+            <Setter Target="IsVideoListItemAdditionalUIEnabledSettingLayout.Visibility" Value="Visible" />
+            <Setter Target="IsVideoListItemDoubleClickOrDoubleTapToPlayEnabledSettingLayout.Visibility" Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{x:Bind _vm.ApplicationLayoutManager.IsControllerInteractionDefault, Mode=OneWay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="DefaultFullScreenSwitchLayout.Visibility" Value="Visible" />

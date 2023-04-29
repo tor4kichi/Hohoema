@@ -222,6 +222,9 @@ ReorderSubsciprionSource_MoveNext = Move back
 ReorderSubsciprionSource_MoveToHead = Move to front
 ReorderSubsciprionSource_MoveToTail = Move to the end
 
+SubscNotification_StartAutoUpdate = New videos check started
+SubscNotification_CompleteAutoUpdate = New videos check completed
+SubscNotification_NoNewVideos = No new videos
 Notification_SuccessAddSubscriptionSourceWithLabel = Added "{0}" to subscription.
 Notification_FailedSubscriptionUpdate = Subscription renewal failed
 Notification_SuccessAddToWatchLaterWithAddedCount = New videos {0} added to See later
@@ -331,10 +334,9 @@ ApplicationDiagnosticsReport = App usage report
 EnableCrashReport = Send app error information
 EnableAnalyticsReport = Send application function / page usage status
 
-UseLegacyStylePlayerControlUI = Use the old version of the video player UI
-
-
-
+IsVideoListItemDoubleClickOrDoubleTapToPlayEnabled = Start playback by double-clicking a video list item
+IsVideoListItemAdditionalUIEnabled = Show add action button for video list items
+IsVideoListItemMiddleClickToAddQueueEnabled = Add video list item to queue on center click
 
 
 

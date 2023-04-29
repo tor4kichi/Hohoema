@@ -222,6 +222,9 @@ ReorderSubsciprionSource_MoveNext = 一つ後ろへ移動
 ReorderSubsciprionSource_MoveToHead = 最前へ移動
 ReorderSubsciprionSource_MoveToTail = 最後尾へ移動
 
+SubscNotification_StartAutoUpdate = 新着チェック開始しました
+SubscNotification_CompleteAutoUpdate = 新着チェック完了しました
+SubscNotification_NoNewVideos = 新着動画はありません
 Notification_SuccessAddSubscriptionSourceWithLabel = 「{0}」を新着チェックに追加しました
 Notification_FailedSubscriptionUpdate = 新着動画の更新に失敗しました
 Notification_SuccessAddToWatchLaterWithAddedCount = 新着動画 {0} 件を キュー に追加しました
@@ -331,10 +334,9 @@ ApplicationDiagnosticsReport = アプリの使用状況レポート
 EnableCrashReport = アプリのエラー情報を送信する
 EnableAnalyticsReport = アプリ機能・ページの利用状況を送信する
 
-UseLegacyStylePlayerControlUI = 旧バージョンの動画プレイヤーUIを使う
-
-
-
+IsVideoListItemDoubleClickOrDoubleTapToPlayEnabled = 動画リストアイテムをダブルクリックで再生開始
+IsVideoListItemAdditionalUIEnabled = 動画リストアイテムの追加アクションボタンを表示する
+IsVideoListItemMiddleClickToAddQueueEnabled = 動画リストアイテムをセンタークリックでキューに追加
 
 
 
