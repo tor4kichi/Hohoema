@@ -19,9 +19,9 @@
   <Grid>
     <videolistPage:VideoItemsListView 
       x:Name="VideoItemsListView" 
-      ItemsSource="{x:Bind _vm.Histories, Mode=OneWay}"
+      ItemsSource="{x:Bind _vm.ItemsView}"
       ItemCommand="{x:Bind _vm.VideoPlayWithQueueCommand}" 
-      RefreshCommand="{x:Bind _vm.RefreshCommand}" 
+      RefreshCommand="{x:Bind _vm.ResetListCommand}" 
       >
       <videolistPage:VideoItemsListView.Header>
         <Grid x:Name="HeaderLayout" BorderThickness="0 0 0 1" BorderBrush="{StaticResource HohoemaLightBorderBrush}">
@@ -39,7 +39,7 @@
                 </i:Interaction.Behaviors>
               </AppBarButton>
               <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{x:Bind _vm.SelectionModeToggleCommand}" />
-              <AppBarButton Label="{i18nExt:Localize Key=Refresh}" Icon="Refresh" Command="{x:Bind _vm.RefreshCommand}" x:Name="RefreshButton" VerticalAlignment="Center" />
+              <AppBarButton Label="{i18nExt:Localize Key=Refresh}" Icon="Refresh" Command="{x:Bind _vm.ResetListCommand}" x:Name="RefreshButton" VerticalAlignment="Center" />
             </CommandBar.PrimaryCommands>
             <CommandBar.SecondaryCommands>
               <AppBarButton x:Name="RemoveAllHistoryButton" Label="{i18nExt:Localize Key=WatchHistoryRemoveAll}" Icon="Delete" AllowFocusOnInteraction="True">
@@ -134,12 +134,12 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{x:Bind _vm.NowUpdating.Value, Mode=OneWay}" />
+            <StateTrigger IsActive="{x:Bind _vm.NowLoading, Mode=OneWay}" />
           </VisualState.StateTriggers>
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{Binding Histories.Count}" EqualTo="0" />
+            <StateTrigger IsActive="{x:Bind _vm.HasItem, Mode=OneWay, Converter={StaticResource BoolNegation}}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="EmptyItemsLayout.Opacity" Value="1.0" />

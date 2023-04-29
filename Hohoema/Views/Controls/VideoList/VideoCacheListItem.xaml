@@ -17,7 +17,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="local:VideoCacheListItem">
-          <Grid x:Name="UserControlRoot">
+          <Grid x:Name="UserControlRoot" Background="Transparent" IsHitTestVisible="True">
             <Grid>
               <StackPanel x:Name="CacheStatusLayout" HorizontalAlignment="Right" VerticalAlignment="Top" Visibility="Collapsed">
                 <SymbolIcon x:Name="CacheIcon" Symbol="Download" Height="32" Width="32" />
