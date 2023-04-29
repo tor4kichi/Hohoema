@@ -1,7 +1,9 @@
 ﻿#nullable enable
 using Hohoema.Models.VideoCache;
+using System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media.Imaging;
 
 namespace Hohoema.Views.Controls.VideoList;
 
@@ -12,12 +14,24 @@ public sealed class VideoListItemControl : ContentControl
         DefaultStyleKey = typeof(VideoListItemControl);
     }
 
+    private Image? _templateChildImage;
+
     protected override void OnApplyTemplate()
     {
         base.OnApplyTemplate();
 
-        (GetTemplateChild("HiddenVideoOnceRevealButton") as Button).Click += HiddenVideoOnceRevealButton_Click;
-        (GetTemplateChild("ExitRevealButton") as Button).Click += ExitRevealButton_Click;
+        (GetTemplateChild("HiddenVideoOnceRevealButton") as Button)!.Click += HiddenVideoOnceRevealButton_Click;
+        (GetTemplateChild("ExitRevealButton") as Button)!.Click += ExitRevealButton_Click;
+
+
+#if !DEBUG
+        if (UIViewSettings.GetForCurrentView()?.UserInteractionMode == UserInteractionMode.Touch)
+#endif
+        {
+            (GetTemplateChild("MobileSupportActionsLayout") as UIElement)!.Visibility = Visibility.Visible;
+        }
+
+        _templateChildImage = GetTemplateChild("ImagePart") as Image;
     }
 
 
@@ -89,21 +103,6 @@ public sealed class VideoListItemControl : ContentControl
     #endregion
 
 
-
-
-    public object ImageSource
-    {
-        get { return GetValue(ImageSourceProperty); }
-        set { SetValue(ImageSourceProperty, value); }
-    }
-
-    // Using a DependencyProperty as the backing store for ThumbnailUrl.  This enables animation, styling, binding, etc...
-    public static readonly DependencyProperty ImageSourceProperty =
-        DependencyProperty.Register("ImageSource", typeof(object), typeof(VideoListItemControl), new PropertyMetadata(null));
-
-
-
-
     public string Length
     {
         get { return (string)GetValue(LengthProperty); }
@@ -115,31 +114,6 @@ public sealed class VideoListItemControl : ContentControl
         DependencyProperty.Register("Length", typeof(string), typeof(VideoListItemControl), new PropertyMetadata(null));
 
 
-
-
-    public bool IsQueueItem
-    {
-        get { return (bool)GetValue(IsQueueItemProperty); }
-        set { SetValue(IsQueueItemProperty, value); }
-    }
-
-    // Using a DependencyProperty as the backing store for IsQueueItem.  This enables animation, styling, binding, etc...
-    public static readonly DependencyProperty IsQueueItemProperty =
-        DependencyProperty.Register("IsQueueItem", typeof(bool), typeof(VideoListItemControl), new PropertyMetadata(false));
-
-
-
-
-
-    public VideoCacheStatus? CacheStatus
-    {
-        get { return (VideoCacheStatus?)GetValue(CacheStatusProperty); }
-        set { SetValue(CacheStatusProperty, value); }
-    }
-
-    // Using a DependencyProperty as the backing store for CacheStatus.  This enables animation, styling, binding, etc...
-    public static readonly DependencyProperty CacheStatusProperty =
-        DependencyProperty.Register("CacheStatus", typeof(VideoCacheStatus?), typeof(VideoListItemControl), new PropertyMetadata(null));
 
 
 
@@ -316,5 +290,111 @@ public sealed class VideoListItemControl : ContentControl
     public static readonly DependencyProperty IsRequirePaymentProperty =
         DependencyProperty.Register("IsRequirePayment", typeof(Visibility), typeof(VideoListItemControl), new PropertyMetadata(Visibility.Collapsed));
 
+    public object ImageSource
+    {
+        get { return GetValue(ImageSourceProperty); }
+        set { SetValue(ImageSourceProperty, value); }
+    }
 
+    // Using a DependencyProperty as the backing store for ThumbnailUrl.  This enables animation, styling, binding, etc...
+    public static readonly DependencyProperty ImageSourceProperty =
+        DependencyProperty.Register("ImageSource", typeof(object), typeof(VideoListItemControl), new PropertyMetadata(null, OnImageSourceChanged));
+
+    private static void OnImageSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (((VideoListItemControl)d)._templateChildImage is not null and var templatedChildImage)
+        {
+            if (e.NewValue is string strUrl && !string.IsNullOrEmpty(strUrl))
+            {
+                templatedChildImage.Source = new BitmapImage(new Uri(strUrl));
+            }
+            else if (e.NewValue is BitmapImage image)
+            {
+                templatedChildImage.Source = image;
+            }
+            else
+            {
+                templatedChildImage.Source = null;
+            }
+        }
+    }
+
+
+
+    public string ImageSubText
+    {
+        get { return (string)GetValue(ImageSubTextProperty); }
+        set { SetValue(ImageSubTextProperty, value); }
+    }
+
+    // Using a DependencyProperty as the backing store for ImageSubText.  This enables animation, styling, binding, etc...
+    public static readonly DependencyProperty ImageSubTextProperty =
+        DependencyProperty.Register("ImageSubText", typeof(string), typeof(VideoListItemControl), new PropertyMetadata(null));
+
+
+
+
+
+    public bool IsQueueItem
+    {
+        get { return (bool)GetValue(IsQueueItemProperty); }
+        set { SetValue(IsQueueItemProperty, value); }
+    }
+
+    // Using a DependencyProperty as the backing store for IsQueueItem.  This enables animation, styling, binding, etc...
+    public static readonly DependencyProperty IsQueueItemProperty =
+        DependencyProperty.Register("IsQueueItem", typeof(bool), typeof(VideoListItemControl), new PropertyMetadata(false, OnIsQueueItemPropertyChanged));
+
+    private static void OnIsQueueItemPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        var _this = (d as VideoListItemControl)!;
+        if ((bool)e.NewValue)
+        {
+            VisualStateManager.GoToState(_this, "QueuedItemState", false);
+        }
+        else
+        {
+            VisualStateManager.GoToState(_this, "NotQueuedItemState", false);
+        }
+    }
+
+
+
+    public VideoCacheStatus? CacheStatus
+    {
+        get { return (VideoCacheStatus?)GetValue(CacheStatusProperty); }
+        set { SetValue(CacheStatusProperty, value); }
+    }
+
+    // Using a DependencyProperty as the backing store for CacheStatus.  This enables animation, styling, binding, etc...
+    public static readonly DependencyProperty CacheStatusProperty =
+        DependencyProperty.Register("CacheStatus", typeof(VideoCacheStatus?), typeof(VideoListItemControl), new PropertyMetadata(null, OnCacheStatusPropertyChanged));
+
+    private static void OnCacheStatusPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        var _this = (d as VideoListItemControl)!;
+
+        var status = (VideoCacheStatus?)e.NewValue;
+        switch (status)
+        {
+            case VideoCacheStatus.Pending:
+                VisualStateManager.GoToState(_this, "CacheStatusPendingState", false);
+                break;
+            case VideoCacheStatus.Downloading:
+                VisualStateManager.GoToState(_this, "CacheStatusDownloadingState", false);
+                break;
+            case VideoCacheStatus.DownloadPaused:
+                VisualStateManager.GoToState(_this, "CacheStatusDownloadPausedState", false);
+                break;
+            case VideoCacheStatus.Completed:
+                VisualStateManager.GoToState(_this, "CacheStatusCompletedState", false);
+                break;
+            case VideoCacheStatus.Failed:
+                VisualStateManager.GoToState(_this, "CacheStatusFailedState", false);
+                break;
+            default:
+                VisualStateManager.GoToState(_this, "CacheStatusNormalState", false);
+                break;
+        }
+    }
 }

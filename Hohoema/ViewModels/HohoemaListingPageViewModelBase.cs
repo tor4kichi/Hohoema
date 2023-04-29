@@ -183,7 +183,6 @@ public abstract partial class HohoemaListingPageViewModelBase<ITEM_VM> : Hohoema
                 _logger.ZLogError(e, "failed GenerateIncrementalSource.");
             }
         }
-
        
         return Task.CompletedTask;
     }

@@ -9,11 +9,11 @@ using Windows.UI.Xaml.Media.Imaging;
 namespace Hohoema.Views.Controls.VideoList.VideoListItem;
 
 [TemplatePart(Name = "MyContentPresenter", Type = typeof(ContentPresenter))]
-public sealed partial class VideoListItem : ContentControl
+public sealed partial class VideoCacheListItem : ContentControl
 {
-    public VideoListItem()
+    public VideoCacheListItem()
     {
-        this.DefaultStyleKey = typeof(VideoListItem);
+        this.DefaultStyleKey = typeof(VideoCacheListItem);
     }
 
     private Image _templateChildImage;
@@ -40,11 +40,11 @@ public sealed partial class VideoListItem : ContentControl
 
     // Using a DependencyProperty as the backing store for ThumbnailUrl.  This enables animation, styling, binding, etc...
     public static readonly DependencyProperty ImageSourceProperty =
-        DependencyProperty.Register("ImageSource", typeof(object), typeof(VideoListItem), new PropertyMetadata(null, OnImageSourceChanged));
+        DependencyProperty.Register("ImageSource", typeof(object), typeof(VideoCacheListItem), new PropertyMetadata(null, OnImageSourceChanged));
 
     private static void OnImageSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        if (((VideoListItem)d)._templateChildImage is not null and var templatedChildImage)
+        if (((VideoCacheListItem)d)._templateChildImage is not null and var templatedChildImage)
         {
             if (e.NewValue is string strUrl && !string.IsNullOrEmpty(strUrl))
             {
@@ -71,7 +71,7 @@ public sealed partial class VideoListItem : ContentControl
 
     // Using a DependencyProperty as the backing store for ImageSubText.  This enables animation, styling, binding, etc...
     public static readonly DependencyProperty ImageSubTextProperty =
-        DependencyProperty.Register("ImageSubText", typeof(string), typeof(VideoListItem), new PropertyMetadata(null));
+        DependencyProperty.Register("ImageSubText", typeof(string), typeof(VideoCacheListItem), new PropertyMetadata(null));
 
 
 
@@ -85,11 +85,11 @@ public sealed partial class VideoListItem : ContentControl
 
     // Using a DependencyProperty as the backing store for IsQueueItem.  This enables animation, styling, binding, etc...
     public static readonly DependencyProperty IsQueueItemProperty =
-        DependencyProperty.Register("IsQueueItem", typeof(bool), typeof(VideoListItem), new PropertyMetadata(false, OnIsQueueItemPropertyChanged));
+        DependencyProperty.Register("IsQueueItem", typeof(bool), typeof(VideoCacheListItem), new PropertyMetadata(false, OnIsQueueItemPropertyChanged));
 
     private static void OnIsQueueItemPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        var _this = (VideoListItem)d;
+        var _this = (VideoCacheListItem)d;
         if ((bool)e.NewValue)
         {
             VisualStateManager.GoToState(_this, "QueuedItemState", false);
@@ -110,11 +110,11 @@ public sealed partial class VideoListItem : ContentControl
 
     // Using a DependencyProperty as the backing store for CacheStatus.  This enables animation, styling, binding, etc...
     public static readonly DependencyProperty CacheStatusProperty =
-        DependencyProperty.Register("CacheStatus", typeof(VideoCacheStatus? ), typeof(VideoListItem), new PropertyMetadata(null, OnCacheStatusPropertyChanged));
+        DependencyProperty.Register("CacheStatus", typeof(VideoCacheStatus? ), typeof(VideoCacheListItem), new PropertyMetadata(null, OnCacheStatusPropertyChanged));
 
     private static void OnCacheStatusPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        var _this = (VideoListItem)d;
+        var _this = (VideoCacheListItem)d;
 
         var status = (VideoCacheStatus?)e.NewValue;
         switch (status)

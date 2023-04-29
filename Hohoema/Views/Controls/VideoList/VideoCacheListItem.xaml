@@ -13,10 +13,10 @@
   xmlns:videoCache="using:Hohoema.Models.VideoCache"
   >
 
-  <Style TargetType="local:VideoListItem">
+  <Style TargetType="local:VideoCacheListItem">
     <Setter Property="Template">
       <Setter.Value>
-        <ControlTemplate TargetType="local:VideoListItem">
+        <ControlTemplate TargetType="local:VideoCacheListItem">
           <Grid x:Name="UserControlRoot">
             <Grid>
               <StackPanel x:Name="CacheStatusLayout" HorizontalAlignment="Right" VerticalAlignment="Top" Visibility="Collapsed">
@@ -62,9 +62,11 @@
                   <ContentPresenter x:Name="MyContentPresenter" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" />
 
 
-                  <StackPanel x:Name="MobileSupportActionsLayout"  Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Stretch" Visibility="Collapsed" 
-                            
+                  <StackPanel x:Name="MobileSupportActionsLayout"  Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Stretch" Visibility="Collapsed"                             
                             >
+
+                    
+                    
                     <Button Flyout="{StaticResource VideoListItemFlyout}" VerticalAlignment="Stretch" Width="80" Background="Transparent" Opacity="0.6" BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" BorderThickness="0 0 0 0">
                       <SymbolIcon Symbol="More" />
                     </Button>

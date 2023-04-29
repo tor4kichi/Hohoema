@@ -37,8 +37,8 @@
 
         <ResourceDictionary Source="Views/Controls/TransientContainer/TransientContainer.xaml"/>
         <ResourceDictionary Source="Views/Controls/LiteInAppNotification/LiteInAppNotification.xaml"/>
-        <ResourceDictionary Source="Views/Controls/VideoList/VideoListItem/VideoListItem.xaml"/>
-        <ResourceDictionary Source="Views/Controls/VideoList/VideoListItemControl/VideoListItemControl.xaml"/>
+        <ResourceDictionary Source="Views/Controls/VideoList/VideoCacheListItem.xaml"/>
+        <ResourceDictionary Source="Views/Controls/VideoList/VideoListItemControl.xaml"/>
         <ResourceDictionary Source="Views/Mylist/MylistCardView.xaml"/>
 
         <ResourceDictionary Source="Styles/DefaultStyle.xaml"/>
