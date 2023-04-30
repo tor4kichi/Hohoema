@@ -281,7 +281,7 @@ ApplicationInteractionMode = レイアウトモード
 ApplicationInteractionMode.Controller = コントローラー
 ApplicationInteractionMode.Mouse = マウス
 ApplicationInteractionMode.Touch = タッチ
-DisplayLanguage = 表示言語🌏
+DisplayLanguage = 🌏言語/Language/语言🌏
 FirstOpenPageType = 起動時に表示するページ
 Theme = テーマ
 ElementTheme.Default = システム設定に準じる
@@ -323,7 +323,7 @@ ErrorReportDialog_UserInputTextBoxDesc = エラーが発生した状況を説明
 
 
 UserDataSettings = バックアップ
-BackupUserData = バックアップを書き出す
+BackupUserData = バックアップを保存する
 RestoreUserData = バックアップを読み込む
 BackupSaveComplete = バックアップを保存しました
 BackupSaveFailed = バックアップの保存に失敗しました。\n{0}
@@ -334,11 +334,14 @@ ApplicationDiagnosticsReport = アプリの使用状況レポート
 EnableCrashReport = アプリのエラー情報を送信する
 EnableAnalyticsReport = アプリ機能・ページの利用状況を送信する
 
-IsVideoListItemDoubleClickOrDoubleTapToPlayEnabled = 動画リストアイテムをダブルクリックで再生開始
-IsVideoListItemAdditionalUIEnabled = 動画リストアイテムの追加アクションボタンを表示する
-IsVideoListItemMiddleClickToAddQueueEnabled = 動画リストアイテムをセンタークリックでキューに追加
-
-
+VideoItemListingSettings = 動画リスト設定
+IsVideoListItemDoubleClickOrDoubleTapToPlayEnabled = ダブルクリックで再生開始
+IsVideoListItemAdditionalUIEnabled = 追加アクションボタンを表示する
+IsVideoListItemMiddleClickToAddQueueEnabled = センタークリックでキューに追加
+IsVideoListThumbnailCacheEnabled = サムネイル画像のキャッシュする
+VideoListThumbnailCacheMaxCount = サムネイル画像キャッシュの最大数
+VideoListThumbnailCache_ClearAll = 画像キャッシュを全て削除
+VideoListThumbnailCache_TotalBytes = 画像キャッシュの合計サイズ
 
 
 #### Niconico General ####

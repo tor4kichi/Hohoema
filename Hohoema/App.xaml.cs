@@ -63,6 +63,8 @@ using Windows.UI.Xaml;
 using ZLogger;
 using ValueTaskSupplement;
 using Hohoema.Contracts.Subscriptions;
+using Microsoft.Toolkit.Uwp.UI.Controls;
+using Microsoft.Toolkit.Uwp.UI;
 
 namespace Hohoema;
 
@@ -667,8 +669,11 @@ public sealed partial class App : Application
         // バックグラウンドでのトースト通知ハンドリングを初期化
         await RegisterDebugToastNotificationBackgroundHandling();
 
-
-
+        // サムネイル画像キャッシュの初期化
+        ImageCache.Instance.CacheDuration = TimeSpan.FromDays(30);
+        ImageCache.Instance.MaxMemoryCacheCount = appearanceSettings.VideoListThumbnailCacheMaxCount;
+        ImageCache.Instance.RetryCount = 2;
+        await ImageCache.Instance.InitializeAsync(folderName: "nicovideo_thumb");
 
         /*
         if (args.PreviousExecutionState == ApplicationExecutionState.Terminated
