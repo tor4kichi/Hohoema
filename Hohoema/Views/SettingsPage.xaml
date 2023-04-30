@@ -160,7 +160,7 @@
                           >
                 </ComboBox>
               </Grid>
-              <Grid x:Name="DisplayLanguageLayout" Visibility="Collapsed">
+              <Grid x:Name="DisplayLanguageLayout" >
                 <TextBlock Text="{i18nExt:Localize Key=DisplayLanguage}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
                 <ComboBox ItemsSource="{Binding ElementName=PageRoot, Path=AvairableLocales}" HorizontalAlignment="Right" SelectedItem="{Binding AppearanceSettings.Locale, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
                   <ComboBox.ItemTemplate>
@@ -178,18 +178,11 @@
                 </ComboBox>
               </Grid>
               <Grid>
-                <StackPanel>
-                  <TextBlock Text="{i18nExt:Localize Key=Theme}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
-                </StackPanel>
+                <TextBlock Text="{i18nExt:Localize Key=Theme}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
                 <ComboBox ItemsSource="{Binding ElementName=PageRoot, Path=_elementThemeList}" SelectedItem="{x:Bind _vm.SelectedTheme, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right"
                           ItemTemplate="{StaticResource LocalizedTextItemTemplate}"
                           >
                 </ComboBox>
-              </Grid>
-              <Grid x:Name="DefaultFullScreenSwitchLayout" Visibility="Collapsed">
-                <CheckBox IsChecked="{x:Bind _vm.IsDefaultFullScreen, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right"
-                          Content="{i18nExt:Localize Key=FullScreenWhenAppLaunched_CheckBoxText}"
-                          />
               </Grid>
               <Grid x:Name="AppDisplayModeSettingLayout">
                 <TextBlock Text="{i18nExt:Localize Key=ApplicationInteractionMode}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
@@ -201,6 +194,21 @@
                   </ComboBox.ItemTemplate>
                 </ComboBox>
               </Grid>
+              <Grid x:Name="DefaultFullScreenSwitchLayout" Visibility="Collapsed">
+                <TextBlock Text="{i18nExt:Localize Key=FullScreenWhenAppLaunched_CheckBoxText}" uwpControls:DockPanel.Dock="Left" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                <ToggleSwitch IsOn="{x:Bind _vm.IsDefaultFullScreen, Mode=TwoWay}" HorizontalAlignment="Right" />
+              </Grid>
+
+
+            </StackPanel>
+          </StackPanel>
+
+          <StackPanel x:Name="VideoItemListingSettingsLayout">
+            <uwpControls:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
+              <TextBlock Text="{i18nExt:Localize Key=VideoItemListingSettings}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" uwpControls:DockPanel.Dock="Left" />
+              <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
+            </uwpControls:DockPanel>
+            <StackPanel Style="{StaticResource SettingsMiddleGroupStackPanelStyle}">
 
               <Grid x:Name="IsVideoListItemAdditionalUIEnabledSettingLayout" Visibility="Collapsed">
                 <TextBlock Text="{i18nExt:Localize Key=IsVideoListItemAdditionalUIEnabled}" uwpControls:DockPanel.Dock="Left" Style="{StaticResource SettingsOptionTitleTextBlock}" />
@@ -216,7 +224,25 @@
                 <TextBlock Text="{i18nExt:Localize Key=IsVideoListItemMiddleClickToAddQueueEnabled}" uwpControls:DockPanel.Dock="Left" Style="{StaticResource SettingsOptionTitleTextBlock}" />
                 <ToggleSwitch IsOn="{x:Bind _vm.AppearanceSettings.IsVideoListItemMiddleClickToAddQueueEnabled, Mode=TwoWay}" HorizontalAlignment="Right" />
               </Grid>
-              
+
+              <Grid x:Name="IsVideoListThumbnailCacheEnabledSettingLayout">
+                <TextBlock Text="{i18nExt:Localize Key=IsVideoListThumbnailCacheEnabled}" uwpControls:DockPanel.Dock="Left" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                <ToggleSwitch IsOn="{x:Bind _vm.AppearanceSettings.IsVideoListThumbnailCacheEnabled, Mode=TwoWay}" HorizontalAlignment="Right" />
+              </Grid>
+
+              <Grid x:Name="VideoListThumbnailCacheMaxCountSettingLayout">
+                <TextBlock Text="{i18nExt:Localize Key=VideoListThumbnailCacheMaxCount}" uwpControls:DockPanel.Dock="Left" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                <muxc:NumberBox Text="{x:Bind _vm.AppearanceSettings.VideoListThumbnailCacheMaxCount, Mode=TwoWay}" HorizontalAlignment="Right"                                
+                                Minimum="100"
+                                />
+              </Grid>
+
+              <StackPanel>
+                <Button Content="{i18nExt:Localize Key=VideoListThumbnailCache_ClearAll}" HorizontalAlignment="Right"
+                        Command="{x:Bind _vm.ClearCacheCommand}"
+                        />
+              </StackPanel>
+
             </StackPanel>
           </StackPanel>
           <!-- NG設定 -->
@@ -508,8 +534,6 @@
             <StateTrigger IsActive="{x:Bind _vm.IsDebugModeEnabled, Mode=OneWay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="DisplayLanguageLayout.Visibility"
-                    Value="Visible" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
@@ -519,7 +543,6 @@
             <StateTrigger IsActive="{x:Bind _vm.ApplicationLayoutManager.IsMouseInteractionDefault, Mode=OneWay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="DefaultFullScreenSwitchLayout.Visibility" Value="Visible" />
             <Setter Target="IsVideoListItemAdditionalUIEnabledSettingLayout.Visibility" Value="Visible" />
             <Setter Target="IsVideoListItemMiddleClickToAddQueueEnabledSettingLayout.Visibility" Value="Visible" />
             <Setter Target="IsVideoListItemDoubleClickOrDoubleTapToPlayEnabledSettingLayout.Visibility" Value="Visible" />
@@ -540,7 +563,6 @@
             <StateTrigger IsActive="{x:Bind _vm.ApplicationLayoutManager.IsControllerInteractionDefault, Mode=OneWay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="DefaultFullScreenSwitchLayout.Visibility" Value="Visible" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>

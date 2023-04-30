@@ -199,6 +199,18 @@ public class AppearanceSettings : FlagsRepositoryBase
         get => Read(true);
         set => Save(value);
     }
+
+    public bool IsVideoListThumbnailCacheEnabled
+    {
+        get => Read(true);
+        set => Save(value);
+    }
+
+    public int VideoListThumbnailCacheMaxCount
+    {
+        get => Read(1000);
+        set => Save(value);
+    }
 }
 
 public enum PlayerSizeMode

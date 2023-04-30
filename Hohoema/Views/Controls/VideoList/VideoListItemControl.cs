@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using CommunityToolkit.Mvvm.DependencyInjection;
+using Hohoema.Helpers;
 using Hohoema.Models.Application;
 using Hohoema.Models.VideoCache;
 using Hohoema.Services;
@@ -7,13 +8,17 @@ using Hohoema.ViewModels.VideoListPage;
 using Hohoema.Views.UINavigation;
 using Microsoft.Toolkit.Uwp.UI;
 using Microsoft.Toolkit.Uwp.UI.Animations;
+using Microsoft.Toolkit.Uwp.UI.Controls;
 using System;
 using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Media.Imaging;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Hohoema.Views.Controls.VideoList;
 
@@ -26,7 +31,7 @@ public sealed class VideoListItemControl : ContentControl
         DefaultStyleKey = typeof(VideoListItemControl);
     }
 
-    private Image? _templateChildImage;
+    private ImageEx? _templateChildImage;
 
     UIElement _buttonActionLayout;
     private SelectorItem _listViewItem;
@@ -43,7 +48,7 @@ public sealed class VideoListItemControl : ContentControl
 
         (GetTemplateChild("HiddenVideoOnceRevealButton") as Button)!.Click += HiddenVideoOnceRevealButton_Click;
         (GetTemplateChild("ExitRevealButton") as Button)!.Click += ExitRevealButton_Click;
-        _templateChildImage = GetTemplateChild("ImagePart") as Image;
+        _templateChildImage = GetTemplateChild("ImagePart") as ImageEx;
 
         _layoutManager ??= Ioc.Default.GetRequiredService<ApplicationLayoutManager>();
         _appearanceSettings ??= Ioc.Default.GetRequiredService<AppearanceSettings>();
@@ -390,11 +395,13 @@ public sealed class VideoListItemControl : ContentControl
 
     private static void OnImageSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        if (((VideoListItemControl)d)._templateChildImage is not null and var templatedChildImage)
+        var _this = (d as VideoListItemControl)!;
+        if (_this._templateChildImage is not null and var templatedChildImage)
         {
             if (e.NewValue is string strUrl && !string.IsNullOrEmpty(strUrl))
             {
-                templatedChildImage.Source = new BitmapImage(new Uri(strUrl));
+                templatedChildImage.IsCacheEnabled = _appearanceSettings!.IsVideoListThumbnailCacheEnabled;
+                templatedChildImage.Source = new Uri(strUrl);
             }
             else if (e.NewValue is BitmapImage image)
             {

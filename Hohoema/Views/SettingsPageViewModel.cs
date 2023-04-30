@@ -16,6 +16,7 @@ using Hohoema.Services.VideoCache;
 using I18NPortable;
 using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Uwp.Helpers;
+using Microsoft.Toolkit.Uwp.UI;
 using Microsoft.UI.Xaml.Controls;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
@@ -180,7 +181,17 @@ public sealed partial class SettingsPageViewModel : HohoemaPageViewModelBase
         })
             .AddTo(_CompositeDisposable);
 
+        AppearanceSettings.ObserveProperty(x => x.VideoListThumbnailCacheMaxCount)
+            .Subscribe(x => ImageCache.Instance.MaxMemoryCacheCount = x)
+            .AddTo(_CompositeDisposable);        
     }
+
+    [RelayCommand]
+    async Task ClearCacheAsync()
+    {
+        await ImageCache.Instance.ClearAsync();
+    }
+
 
     public List<NavigationViewPaneDisplayMode> PaneDisplayModeItems { get; } = Enum.GetValues(typeof(NavigationViewPaneDisplayMode)).Cast<NavigationViewPaneDisplayMode>().ToList();
 

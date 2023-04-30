@@ -30,7 +30,7 @@
                            x:Name="ContentLayout"
                            >
               <Grid uwpControls:DockPanel.Dock="Left" Margin="0 0 12 0" Width="132" Height="72">
-                <Image x:Name="ImagePart"
+                <uwpControls:ImageEx x:Name="ImagePart"
                         Stretch="Uniform"
                         VerticalAlignment="Center"
                          Height="100"
