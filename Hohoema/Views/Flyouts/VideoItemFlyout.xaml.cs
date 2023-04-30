@@ -160,7 +160,7 @@ public sealed partial class VideoItemFlyout : MenuFlyout
 
         bool isMultipleSelection = AllowSelection && SelectedVideoItems?.Count >= 2;
 
-        var playlist = Playlist;
+        var playlist = Playlist ?? (content as IPlaylistItemPlayable)?.PlaylistItemToken?.Playlist;
 
         foreach (var menuItem in this.Items)
         {
