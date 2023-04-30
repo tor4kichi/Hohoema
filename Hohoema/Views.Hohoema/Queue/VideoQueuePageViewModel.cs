@@ -1,15 +1,19 @@
 ﻿#nullable enable
 using CommunityToolkit.Mvvm.Messaging;
+using Hohoema.Contracts.Playlist;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Playlist;
 using Hohoema.Services;
+using Hohoema.Services.VideoCache.Events;
 using Hohoema.ViewModels.Niconico.Video.Commands;
 using Hohoema.ViewModels.VideoListPage;
 using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Collections;
+using NiconicoToolkit.Video;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
@@ -18,7 +22,14 @@ using System.Threading.Tasks;
 
 namespace Hohoema.ViewModels.Pages.Hohoema.Queue;
 
-public sealed class VideoQueuePageViewModel : HohoemaListingPageViewModelBase<VideoListItemControlViewModel>, INavigationAware
+public sealed class VideoQueuePageViewModel 
+    : HohoemaListingPageViewModelBase<VideoListItemControlViewModel>
+    , INavigationAware
+    , IRecipient<VideoWatchedMessage>
+    , IRecipient<PlaylistItemAddedMessage>
+    , IRecipient<PlaylistItemRemovedMessage>
+    , IRecipient<ItemIndexUpdatedMessage>
+    , IRecipient<VideoCacheStatusChangedMessage>
 {
     public QueuePlaylist QueuePlaylist { get; }
 
@@ -81,6 +92,11 @@ public sealed class VideoQueuePageViewModel : HohoemaListingPageViewModelBase<Vi
     public QueuePlaylistSortOption[] SortOptionItems { get; } = QueuePlaylist.SortOptions;
 
 
+    protected override (int PageSize, IIncrementalSource<VideoListItemControlViewModel> IncrementalSource) GenerateIncrementalSource()
+    {
+        return (100, new QueuePlaylistIncrementalLoadingSource(QueuePlaylist, SelectedSortOptionItem, _nicoVideoProvider));
+    }
+
     public override void OnNavigatedTo(INavigationParameters parameters)
     {
         base.OnNavigatedTo(parameters);
@@ -114,34 +130,79 @@ public sealed class VideoQueuePageViewModel : HohoemaListingPageViewModelBase<Vi
             .Subscribe(x => _queuePlaylistSetting.LastSelectedSortOptions = x.Serialize())
             .AddTo(_navigationDisposables);
 
-        _messenger.Register<PlaylistItemRemovedMessage, PlaylistId>(this, QueuePlaylist.Id, (r, m) => 
-        {
-            if (ItemsView is null) { return; }
-
-            foreach (var item in m.Value.RemovedItems)
-            {
-                var remove = ItemsView.Cast<IVideoContent>().FirstOrDefault(x => x.VideoId == item.VideoId);
-                ItemsView.Remove(remove);
-            }
-        });
-
-        _messenger.Register<PlaylistItemAddedMessage, PlaylistId>(this, QueuePlaylist.Id, (r, m) =>
-        {
-            ResetList();
-        });
+        _messenger.Register<VideoWatchedMessage>(this);
+        _messenger.Register<PlaylistItemAddedMessage>(this);
+        _messenger.Register<PlaylistItemRemovedMessage>(this);
+        _messenger.Register<ItemIndexUpdatedMessage>(this);
+        _messenger.Register<VideoCacheStatusChangedMessage>(this);
     }
 
     public override void OnNavigatedFrom(INavigationParameters parameters)
     {
-        base.OnNavigatedFrom(parameters);
+        _messenger.Unregister<VideoWatchedMessage>(this);
+        _messenger.Unregister<PlaylistItemRemovedMessage>(this);
+        _messenger.Unregister<PlaylistItemAddedMessage>(this);
+        _messenger.Unregister<ItemIndexUpdatedMessage>(this);
+        _messenger.Unregister<VideoCacheStatusChangedMessage>(this);
 
-        _messenger.Unregister<PlaylistItemRemovedMessage, PlaylistId>(this, QueuePlaylist.Id);
-        _messenger.Unregister<PlaylistItemAddedMessage, PlaylistId>(this, QueuePlaylist.Id);
+        base.OnNavigatedFrom(parameters);
     }
 
-    protected override (int PageSize, IIncrementalSource<VideoListItemControlViewModel> IncrementalSource) GenerateIncrementalSource()
+    static IEnumerable<VideoItemViewModel> ToVideoItemVMEnumerable(IEnumerable items)
     {
-        return (100, new QueuePlaylistIncrementalLoadingSource(QueuePlaylist, SelectedSortOptionItem, _nicoVideoProvider));
+        foreach (var item in items)
+        {
+            if (item is VideoItemViewModel videoItemVM)
+            {
+                yield return videoItemVM;
+            }
+        }
+    }
+
+    void IRecipient<VideoWatchedMessage>.Receive(VideoWatchedMessage message)
+    {
+        foreach (var videoItemVM in ToVideoItemVMEnumerable(ItemsView.SourceCollection))
+        {
+            videoItemVM.OnWatched(message);
+        }
+    }
+
+    void IRecipient<PlaylistItemAddedMessage>.Receive(PlaylistItemAddedMessage message)
+    {
+        foreach (var videoItemVM in ToVideoItemVMEnumerable(ItemsView.SourceCollection))
+        {
+            videoItemVM.OnPlaylistItemAdded(message);
+        }
+    }
+
+    void IRecipient<PlaylistItemRemovedMessage>.Receive(PlaylistItemRemovedMessage message)
+    {
+        HashSet<VideoId> removedIds = message.Value.RemovedItems.Select(x => x.VideoId).ToHashSet();
+
+        foreach (var videoItemVM in ToVideoItemVMEnumerable(ItemsView.SourceCollection))
+        {            
+            if (removedIds.Contains(videoItemVM.VideoId))
+            {
+                videoItemVM.OnPlaylistItemRemoved(message);
+//                ItemsView.Remove(videoItemVM);
+            }
+        }
+    }
+
+    void IRecipient<ItemIndexUpdatedMessage>.Receive(ItemIndexUpdatedMessage message)
+    {
+        foreach (var videoItemVM in ToVideoItemVMEnumerable(ItemsView.SourceCollection))
+        {
+            videoItemVM.OnQueueItemIndexUpdated(message);
+        }
+    }
+
+    void IRecipient<VideoCacheStatusChangedMessage>.Receive(VideoCacheStatusChangedMessage message)
+    {
+        foreach (var videoItemVM in ToVideoItemVMEnumerable(ItemsView.SourceCollection))
+        {
+            videoItemVM.OnCacheStatusChanged(message);
+        }
     }
 }
 

@@ -165,7 +165,6 @@
     <Compile Include="Services\VideoCache\Events\VideoCacheStatusChangedMessage.cs" />
     <Compile Include="Services\VideoCache\Migration\VideoCacheDatabaseMigration_V_0_29_0.cs" />
     <Compile Include="Services\Player\CloseToastNotificationWhenPlayStarted.cs" />
-    <Compile Include="Contracts\Player\VideoPlayedMessage.cs" />
     <Compile Include="Services\Player\Videos\VideoCommentPlayer.cs" />
     <Compile Include="Services\Player\KeepActiveDisplayWhenPlaying.cs" />
     <Compile Include="Services\Player\ObservableMediaPlayer.cs" />

@@ -8,7 +8,7 @@ using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Subscriptions;
 using Hohoema.Services;
 using Hohoema.Services.Niconico;
-using Hohoema.Contracts.Player;
+using Hohoema.Contracts.Playlist;
 using Hohoema.ViewModels.Niconico.Video.Commands;
 using Hohoema.ViewModels.VideoListPage;
 using I18NPortable;
@@ -26,10 +26,18 @@ using Hohoema.Models.Playlist;
 using Windows.System;
 using CommunityToolkit.Diagnostics;
 using Hohoema.Models.PageNavigation;
+using Hohoema.Services.VideoCache.Events;
+using System.Collections;
 
 namespace Hohoema.ViewModels.Pages.Hohoema.Subscription;
 
-public sealed partial class SubscVideoListPageViewModel : HohoemaPageViewModelBase
+public sealed partial class SubscVideoListPageViewModel 
+    : HohoemaPageViewModelBase
+    , IRecipient<VideoWatchedMessage>
+    , IRecipient<PlaylistItemAddedMessage>
+    , IRecipient<PlaylistItemRemovedMessage>
+    , IRecipient<ItemIndexUpdatedMessage>
+    , IRecipient<VideoCacheStatusChangedMessage>
 {
     private readonly IMessenger _messenger;
     private readonly ILocalizeService _localizeService;
@@ -244,6 +252,12 @@ public sealed partial class SubscVideoListPageViewModel : HohoemaPageViewModelBa
                 RefreshHasNewVideos();
             }
         });
+
+        _messenger.Register<VideoWatchedMessage>(this);
+        _messenger.Register<PlaylistItemAddedMessage>(this);
+        _messenger.Register<PlaylistItemRemovedMessage>(this);
+        _messenger.Register<ItemIndexUpdatedMessage>(this);
+        _messenger.Register<VideoCacheStatusChangedMessage>(this);
     }
 
     [ObservableProperty]
@@ -259,8 +273,67 @@ public sealed partial class SubscVideoListPageViewModel : HohoemaPageViewModelBa
     {
         _messenger.Unregister<SubscFeedVideoValueChangedMessage>(this);
         _messenger.Unregister<NewSubscFeedVideoMessage>(this);
-        _messenger.Unregister<SubscriptionCheckedAtChangedMessage>(this);        
+        _messenger.Unregister<SubscriptionCheckedAtChangedMessage>(this);
+
+        _messenger.Unregister<VideoWatchedMessage>(this);
+        _messenger.Unregister<PlaylistItemAddedMessage>(this);
+        _messenger.Unregister<PlaylistItemRemovedMessage>(this);
+        _messenger.Unregister<ItemIndexUpdatedMessage>(this);
+        _messenger.Unregister<VideoCacheStatusChangedMessage>(this);
     }
+
+    IEnumerable<VideoItemViewModel> ToVideoItemVMEnumerable()
+    {
+        foreach (var item in SubscVideosItems.SelectMany(x => x.Items))
+        {
+            if (item is VideoItemViewModel videoItemVM)
+            {
+                yield return videoItemVM;
+            }
+        }
+    }
+
+    void IRecipient<VideoWatchedMessage>.Receive(VideoWatchedMessage message)
+    {
+        foreach (var videoItemVM in ToVideoItemVMEnumerable())
+        {
+            videoItemVM.OnWatched(message);
+        }
+    }
+
+    void IRecipient<PlaylistItemAddedMessage>.Receive(PlaylistItemAddedMessage message)
+    {
+        foreach (var videoItemVM in ToVideoItemVMEnumerable())
+        {
+            videoItemVM.OnPlaylistItemAdded(message);
+        }
+    }
+
+    void IRecipient<PlaylistItemRemovedMessage>.Receive(PlaylistItemRemovedMessage message)
+    {
+        foreach (var videoItemVM in ToVideoItemVMEnumerable())
+        {
+            videoItemVM.OnPlaylistItemRemoved(message);
+        }
+    }
+
+    void IRecipient<ItemIndexUpdatedMessage>.Receive(ItemIndexUpdatedMessage message)
+    {
+        foreach (var videoItemVM in ToVideoItemVMEnumerable())
+        {
+            videoItemVM.OnQueueItemIndexUpdated(message);
+        }
+    }
+
+    void IRecipient<VideoCacheStatusChangedMessage>.Receive(VideoCacheStatusChangedMessage message)
+    {
+        foreach (var videoItemVM in ToVideoItemVMEnumerable())
+        {
+            videoItemVM.OnCacheStatusChanged(message);
+        }
+    }
+
+
 
     private SubscriptionGroupPlaylist CreatePlaylist()
     {        
