@@ -315,6 +315,7 @@ public sealed class Swipe : Behavior<UIElement>
 
     private void ResetManipulationEvent()
     {
+        if (AssociatedObject == null) { return; }
         if (IsEnabled)
         {
             AssociatedObject.ManipulationStarted += AssociatedObject_ManipulationStarted;
