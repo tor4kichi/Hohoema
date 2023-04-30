@@ -1,7 +1,7 @@
 ﻿#nullable enable
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using Hohoema.Contracts.Player;
+using Hohoema.Contracts.Playlist;
 using Hohoema.Models.Niconico.Live;
 using Hohoema.Models.Niconico.NicoRepo;
 using Hohoema.Models.Niconico.NicoRepo.LoginUser;

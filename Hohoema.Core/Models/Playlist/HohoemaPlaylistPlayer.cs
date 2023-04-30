@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
+using Hohoema.Contracts.Playlist;
 using Hohoema.Helpers;
 using Hohoema.Infra;
 using Hohoema.Models.Niconico.Player;
@@ -88,8 +89,7 @@ public abstract class PlaylistPlayer : ObservableObject, IDisposable
     private const int InvalidIndex = -1;
     private readonly PlayerSettings _playerSettings;
     private readonly IScheduler _scheduler;
-
-
+    private readonly IMessenger _messenger;
     private IBufferedPlaylistItemsSource? _bufferedPlaylistItemsSource;
     protected IBufferedPlaylistItemsSource BufferedPlaylistItemsSource
     {
@@ -99,13 +99,16 @@ public abstract class PlaylistPlayer : ObservableObject, IDisposable
 
     private IDisposable _IndexUpdateTimingSubscriber;
     private readonly IDisposable _IsShuffleEnableSubscriber;
-
-    [Obsolete]
-    public PlaylistPlayer(PlayerSettings playerSettings, IScheduler scheduler)
+    
+    public PlaylistPlayer(
+        PlayerSettings playerSettings,
+        IScheduler scheduler,
+        IMessenger messenger
+        )
     {
         _playerSettings = playerSettings;
         _scheduler = scheduler;
-
+        _messenger = messenger;
         _IsShuffleEnableSubscriber = _playerSettings.ObserveProperty(x => x.IsShuffleEnable)
             .Subscribe(enabled =>
             {
@@ -240,17 +243,7 @@ public abstract class PlaylistPlayer : ObservableObject, IDisposable
     public IVideoContent? CurrentPlaylistItem
     {
         get => _currentPlaylistItem;
-        private set
-        {
-            var watchedVideo = _currentPlaylistItem;
-            if (SetProperty(ref _currentPlaylistItem, value))
-            {
-                if (watchedVideo != null)
-                {
-                    
-                }
-            }
-        }
+        private set => SetProperty(ref _currentPlaylistItem, value);
     }
 
     private void OnVideoPlayed(IVideoContent videoWatched, IVideoContent? currentPlaylistItem)
@@ -269,7 +262,7 @@ public abstract class PlaylistPlayer : ObservableObject, IDisposable
             _maxItemsCount = queuePlaylist.TotalCount;
         }
 
-
+        _messenger.Send(new VideoWatchedMessage(videoWatched.VideoId));
     }
 
     protected void Clear()
@@ -453,7 +446,7 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
         MediaPlayerSoundVolumeManager soundVolumeManager,
         RestoreNavigationManager restoreNavigationManager
         )
-        : base(playerSettings, scheduler)
+        : base(playerSettings, scheduler, messenger)
     {
         _messenger = messenger;
         _mediaPlayer = mediaPlayer;

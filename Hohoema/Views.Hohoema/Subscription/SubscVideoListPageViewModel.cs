@@ -8,7 +8,7 @@ using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Subscriptions;
 using Hohoema.Services;
 using Hohoema.Services.Niconico;
-using Hohoema.Contracts.Player;
+using Hohoema.Contracts.Playlist;
 using Hohoema.ViewModels.Niconico.Video.Commands;
 using Hohoema.ViewModels.VideoListPage;
 using I18NPortable;

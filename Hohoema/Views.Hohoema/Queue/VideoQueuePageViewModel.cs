@@ -1,6 +1,6 @@
 ﻿#nullable enable
 using CommunityToolkit.Mvvm.Messaging;
-using Hohoema.Contracts.Player;
+using Hohoema.Contracts.Playlist;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Playlist;
 using Hohoema.Services;

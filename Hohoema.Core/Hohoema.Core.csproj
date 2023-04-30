@@ -124,6 +124,7 @@
   <ItemGroup>
     <Compile Include="Contracts\Navigations\INavigationResult.cs" />
     <Compile Include="Contracts\Navigations\INavigationParameters.cs" />
+    <Compile Include="Contracts\Playlist\VideoPlayedMessage.cs" />
     <Compile Include="Contracts\Services\IDialogService.cs" />
     <Compile Include="Contracts\Services\ILocalizeService.cs" />
     <Compile Include="Contracts\Maintenances\IMaintenance.cs" />
