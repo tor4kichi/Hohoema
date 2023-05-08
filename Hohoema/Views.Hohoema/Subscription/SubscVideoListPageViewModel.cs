@@ -371,24 +371,35 @@ public sealed partial class SubscVideoListPageViewModel
     public void AddToQueueSubscriptionGroupNewVideos()
     {
         int prevVount = _queuePlaylist.Count;
-        foreach (var video in SubscVideosItems.SelectMany(x => x.Items))
-        {
-            _queuePlaylist.Add(video);
-        }
 
-        if (SelectedSubscGroup != null)
+        var candidateItems = SubscVideosItems.SelectMany(x => x.Items).ToArray();
+        if (candidateItems.Any() is false) { return; }
+
+        if (candidateItems.All(_queuePlaylist.Contains))
         {
-            _subscriptionManager.UpdateSubscriptionCheckedAt(SelectedSubscGroup.GroupId);
+            foreach (var video in SubscVideosItems.SelectMany(x => x.Items))
+            {
+                _queuePlaylist.Remove(video);
+            }
+
+            var subCount = prevVount - _queuePlaylist.Count;
+            if (0 < subCount)
+            {
+                _notificationService.ShowLiteInAppNotification("QueueRemoveItem".Translate());
+            }
         }
         else
         {
-            _subscriptionManager.UpdateAllSubscriptionCheckedAt();
-        }
+            foreach (var video in SubscVideosItems.SelectMany(x => x.Items))
+            {
+                _queuePlaylist.Add(video);
+            }
 
-        var subCount = _queuePlaylist.Count - prevVount;
-        if (0 < subCount)
-        {
-            _notificationService.ShowLiteInAppNotification("Notification_SuccessAddToWatchLaterWithAddedCount".Translate(subCount));
+            var subCount = _queuePlaylist.Count - prevVount;
+            if (0 < subCount)
+            {
+                _notificationService.ShowLiteInAppNotification("QueueAddItem".Translate());
+            }
         }
     }
 
@@ -549,15 +560,23 @@ public sealed partial class SubscriptionNewVideosViewModel : ObservableObject, I
     {
         if (Items.Any() is false) { return; }
 
-        int count = Items.Count;
-        foreach (var item in Items)
+        if (Items.All(_queuePlaylist.Contains))
         {
-            _queuePlaylist.Add(item);
+            foreach (var item in Items)
+            {
+                _queuePlaylist.Remove(item);
+            }
         }
+        else
+        {
+            int count = Items.Count;
+            foreach (var item in Items)
+            {
+                _queuePlaylist.Add(item);
+            }
 
-        AllMarkAsChecked();
-
-        _notificationService.ShowLiteInAppNotification("Notification_SuccessAddToWatchLaterWithAddedCount".Translate(count));
+            _notificationService.ShowLiteInAppNotification("QueueAddItem".Translate());
+        }
     }
 
 
