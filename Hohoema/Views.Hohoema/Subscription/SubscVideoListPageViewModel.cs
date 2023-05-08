@@ -436,7 +436,7 @@ public sealed partial class SubscVideoListPageViewModel
             }
             
             // 指定日時以前の動画を全て視聴済みにマークする
-            foreach (var video in _subscriptionManager.GetSubscFeedVideosOlderAt(SelectedSubscGroup.GroupId, checkedAt))
+            foreach (var video in ToVideoItemVMEnumerable().Where(x => x.PostedAt < checkedAt).ToArray())
             {
                 VideoId videoId = video.VideoId;
                 _videoWatchedRepository.MarkWatched(videoId);
