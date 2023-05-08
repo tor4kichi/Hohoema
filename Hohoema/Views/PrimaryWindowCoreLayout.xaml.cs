@@ -155,9 +155,10 @@ public sealed partial class PrimaryWindowCoreLayout : UserControl
         {
             _vm.PrimaryViewPlayerManager.ObserveProperty(x => x.DisplayMode).ToUnit(),
             Observable.FromEventPattern(ContentFrame, "Navigated").ToUnit(),
-            Observable.FromEventPattern(PlayerFrame, "Navigated").Delay(TimeSpan.FromMilliseconds(1000), _scheduler).ToUnit(),
+            Observable.FromEventPattern(PlayerFrame, "Navigated").ToUnit(),
         }
         .Merge()
+        .Delay(TimeSpan.FromMilliseconds(50), _scheduler)
         .Subscribe(_ => ResetTitleBarDraggableArea());
 
         ContentFrame.Navigated += TVModeContentFrame_Navigated;
