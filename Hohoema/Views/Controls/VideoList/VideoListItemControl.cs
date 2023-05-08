@@ -94,7 +94,8 @@ public sealed class VideoListItemControl : ContentControl
             else if (_layoutManager.IsTouchInteraction)
             {
                 _buttonActionLayout.Visibility = Visibility.Visible;
-            }            
+                (GetTemplateChild("LabelTextBlock") as TextBlock)!.Margin = new Thickness(0, 0, 160, 0);
+            }
         }
 
         if (_layoutManager.IsControllerInteraction)
