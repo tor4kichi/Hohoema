@@ -389,15 +389,16 @@
                     <Setter Property="BorderBrush" Value="Transparent" />
                     <Setter Property="Background" Value="Transparent" />
                     <Setter Property="ToolTipService.Placement" Value="Bottom" />
+                    
                   </Style>
                 </StackPanel.Resources>
-                <Button x:Name="FullscreenButton" Command="{x:Bind _vm.PlayerView.ToggleFullScreenCommand}" Background="Transparent" Visibility="Collapsed" MinHeight="32" MinWidth="48" ToolTipService.ToolTip="{i18nExt:Localize Key=FullScreen}">
+                <Button x:Name="FullscreenButton" Command="{x:Bind _vm.PlayerView.ToggleFullScreenCommand}" Visibility="Collapsed" MinHeight="32" MinWidth="48" ToolTipService.ToolTip="{i18nExt:Localize Key=FullScreen}">
                   <iconPack:PackIconMaterial Kind="Fullscreen" />
                 </Button>
-                <Button x:Name="CompactOverlayButton" Command="{x:Bind _vm.PlayerView.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" MinHeight="32" MinWidth="48" ToolTipService.ToolTip="{i18nExt:Localize Key=CompactOverlay}">
+                <Button x:Name="CompactOverlayButton" Command="{x:Bind _vm.PlayerView.ToggleCompactOverlayCommand}" Visibility="Collapsed" MinHeight="32" MinWidth="48" ToolTipService.ToolTip="{i18nExt:Localize Key=CompactOverlay}">
                   <iconPack:PackIconMaterial Kind="OpenInNew" />
                 </Button>
-                <Button x:Name="SmallWindowButton" Command="{x:Bind _vm.PrimaryViewPlayerManager.ToggleFillOrWindowInWindowCommand}" Background="Transparent" Visibility="Collapsed" MinHeight="32" MinWidth="48" ToolTipService.ToolTip="{i18nExt:Localize Key=WindowInWindow}">
+                <Button x:Name="SmallWindowButton" Command="{x:Bind _vm.PrimaryViewPlayerManager.ToggleFillOrWindowInWindowCommand}" Visibility="Collapsed" MinHeight="32" MinWidth="48" ToolTipService.ToolTip="{i18nExt:Localize Key=WindowInWindow}">
                   <iconPack:PackIconMaterial Kind="ArrowBottomRight" />
                 </Button>
               </StackPanel>
@@ -1239,7 +1240,6 @@
             <Setter Target="PlayerTopDraggableArea_FillWindow.Margin" Value="80 0 48 0" />
           </VisualState.Setters>
         </VisualState>
-        
       </VisualStateGroup>
       <!-- コンパクトオーバーレイ切り替えボタンの表示・非表示 -->
       <VisualStateGroup>
@@ -1269,6 +1269,33 @@
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
+
+      <!-- タッチ操作時にウィンドウ操作関係のボタンを押しやすくする -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.InteractionMode}" EqualTo="Touch" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="TitleBarWindowActionsPanel.Spacing" Value="12" />
+            <Setter Target="TitleBarWindowActionsPanel.Height" Value="48" />
+            <Setter Target="FullscreenButton.MinWidth" Value="48" />
+            <Setter Target="FullscreenButton.MinHeight" Value="48" />
+            <Setter Target="FullscreenButton.BorderBrush" Value="{ThemeResource ButtonPointerOverBackgroundThemeBrush}" />
+            <Setter Target="CompactOverlayButton.MinWidth" Value="48" />
+            <Setter Target="CompactOverlayButton.MinHeight" Value="48" />
+            <Setter Target="CompactOverlayButton.BorderBrush" Value="{ThemeResource ButtonPointerOverBackgroundThemeBrush}" />
+            <Setter Target="SmallWindowButton.MinWidth" Value="48" />
+            <Setter Target="SmallWindowButton.MinHeight" Value="48" />
+            <Setter Target="SmallWindowButton.BorderBrush" Value="{ThemeResource ButtonPointerOverBackgroundThemeBrush}" />
+
+            <Setter Target="CloseButton.BorderBrush" Value="{ThemeResource ButtonPointerOverBackgroundThemeBrush}" />
+
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      
+      
       <!-- Xboxで表示している場合、UI表示切り替え後のフォーカス設定を切り替える -->
       <VisualStateGroup>
         <VisualState>
