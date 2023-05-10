@@ -15,15 +15,15 @@ public enum HohoemaPageType
     Search,
     SearchSummary,
 
-    [Obsolete]
+    
     SearchResultCommunity,
-    [Obsolete]
+    
     SearchResultTag,
-    [Obsolete]
+    
     SearchResultKeyword,
-    [Obsolete]
+    
     SearchResultMylist,
-    [Obsolete]
+    
     SearchResultLive,
 
     FeedGroupManage,

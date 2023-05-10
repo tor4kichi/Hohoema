@@ -160,10 +160,10 @@ public abstract class PlaylistPlayer : ObservableObject, IDisposable
 
     public bool IsShuffleAndRepeatAvailable => !IsUnlimitedPlaylistSource;
 
-    [Obsolete]
+    
     public bool IsShuffleModeRequested => _playerSettings.IsShuffleEnable;
 
-    [Obsolete]
+    
     public bool IsShuffleModeEnabled => IsShuffleAndRepeatAvailable && IsShuffleModeRequested;
 
     public IObservable<IBufferedPlaylistItemsSource> GetBufferedItems()
@@ -344,7 +344,7 @@ public abstract class PlaylistPlayer : ObservableObject, IDisposable
         return _shuffledIndexies[index];
     }
 
-    [Obsolete]
+    
     public IObservable<bool> GetCanGoNextOrPreviewObservable()
     {
         return Observable.Merge(
@@ -436,7 +436,7 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
     private readonly SystemMediaTransportControls _smtc;
     private readonly DispatcherQueue _dispatcherQueue;
 
-    [Obsolete]
+    
     public HohoemaPlaylistPlayer(
         IScheduler scheduler,
         IMessenger messenger,
@@ -554,7 +554,7 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
         return qualityEntity?.IsAvailable == true;
     }
 
-    [Obsolete]
+    
     public async Task ChangeQualityAsync(NicoVideoQuality quality)
     {
         if (CurrentPlaylistItem == null) { return; }
@@ -621,7 +621,7 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
         StopStateSavingTimer();
     }
 
-    [Obsolete]
+    
     public async Task ReopenAsync(TimeSpan? position = null)
     {
         if (CurrentPlaylistItem != null)
@@ -651,7 +651,7 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
         return true;
     }
 
-    [Obsolete]
+    
     public async Task<bool> PlayAsync(IPlaylist playlist, IPlaylistSortOption sortOption)
     {
         Guard.IsNotNull(playlist, nameof(playlist));
@@ -683,7 +683,7 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
         });
     }
 
-    [Obsolete]
+    
     public async Task<bool> PlayAsync(ISortablePlaylist playlist, IPlaylistSortOption sortOption, IVideoContent item, TimeSpan? startPosition = null)
     {
         Guard.IsNotNull(playlist, nameof(playlist));
@@ -726,7 +726,7 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
 
     }
 
-    [Obsolete]
+    
     protected override async Task PlayVideoOnSamePlaylistAsync_Internal(IVideoContent item, TimeSpan? startPosition = null)
     {
         Guard.IsNotNull(item, nameof(item));
@@ -747,7 +747,7 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
         }
     }
 
-    [Obsolete]
+    
     private async Task<bool> UpdatePlayingMediaAsync(IVideoContent item, TimeSpan? startPosition)
     {
         Guard.IsNotNull(item, nameof(item));
