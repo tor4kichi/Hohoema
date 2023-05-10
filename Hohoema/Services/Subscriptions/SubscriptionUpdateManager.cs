@@ -215,7 +215,7 @@ public sealed partial class SubscriptionUpdateManager
         if (checkedAt < _nextUpdateAt)
         {            
             return;
-        }
+        }        
 
         List<SubscriptionFeedUpdateResult> updateResultItems = new();
         using (_logger.BeginScope("Subscription Update"))
@@ -289,7 +289,8 @@ public sealed partial class SubscriptionUpdateManager
                 _notificationService.ShowLiteInAppNotification("SubscNotification_CompleteAutoUpdate".Translate());
             }
 
-            if (updateResultItems.Any() is false)
+            // 購読アイテムがあり、かつ新着アイテムが無い場合の通知
+            if (updateResultItems.Count != 0 && updateResultItems.Any(x => x.NewVideos.Any()) is false)
             {
                 _notificationService.ShowLiteInAppNotification("SubscNotification_NoNewVideos".Translate());
                 return;
