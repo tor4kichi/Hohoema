@@ -1259,6 +1259,12 @@ public sealed partial class SubscriptionGroupMenuItemViewModel : NavigateAwareMe
     private int _newVideoCount;
 
     [RelayCommand]
+    void MarkAsCheckedAll()
+    {
+        _subscriptionManager.UpdateSubscriptionCheckedAt(GroupId);
+    }
+
+    [RelayCommand]
     async Task PlayNewVideos()
     {
         var video = _subscriptionManager.GetSubscFeedVideosNewerAt(GroupId, limit: 1).FirstOrDefault();
