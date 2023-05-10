@@ -396,6 +396,11 @@
         <Setter Property="Margin" Value="2 0" />
       </Style>
 
+      <!-- Note: SplitViewのBorderThicknessがデフォで 0,0,1,0 のため右側に無駄な隙間ができる -->
+      <Style TargetType="SplitView">
+        <Setter Property="BorderThickness" Value="0" />
+      </Style>
+      
     </ResourceDictionary>
   </Application.Resources>
 
