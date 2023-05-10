@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Player;
 using Hohoema.Models.Playlist;
+using Hohoema.ViewModels.Navigation.Commands;
 using Microsoft.Toolkit.Uwp;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
@@ -23,19 +24,19 @@ public class PlaylistSidePaneContentViewModel : SidePaneContentViewModelBase
         MediaPlayer mediaPlayer,
         HohoemaPlaylistPlayer hohoemaPlaylistPlayer,
         PlayerSettings playerSettings,
-        PageManager pageManager,
         NicoVideoProvider nicoVideoProvider,
         IScheduler scheduler,
-        IMessenger messenger
+        IMessenger messenger,
+        OpenPageCommand openPageCommand
         )
     {
         MediaPlayer = mediaPlayer;
         _hohoemaPlaylistPlayer = hohoemaPlaylistPlayer;
-        _playerSettings = playerSettings;
-        PageManager = pageManager;
+        _playerSettings = playerSettings;        
         _nicoVideoProvider = nicoVideoProvider;
         _scheduler = scheduler;
         _messenger = messenger;
+        OpenPageCommand = openPageCommand;
         CurrentPlaylist = _hohoemaPlaylistPlayer.ObserveProperty(x => x.CurrentPlaylist)
             .ToReadOnlyReactiveProperty(eventScheduler: _scheduler)
             .AddTo(_CompositeDisposable);
@@ -126,7 +127,7 @@ public class PlaylistSidePaneContentViewModel : SidePaneContentViewModelBase
         set { SetProperty(ref _currentItems, value); }
     }
     public MediaPlayer MediaPlayer { get; }
-    public PageManager PageManager { get; }
+    public OpenPageCommand OpenPageCommand { get; }
 
     public ReactiveProperty<bool> IsShuffleEnabled { get; }
     public ReadOnlyReactiveProperty<bool> IsShuffleAvailable { get; }

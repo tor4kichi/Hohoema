@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Follow.LoginUser;
 using Hohoema.Models.Niconico.Video;
@@ -68,8 +69,8 @@ public sealed partial class UserInfoFlyout : Microsoft.UI.Xaml.Controls.CommandB
         UserIconImage.Source = new BitmapImage(uri);
     }
 
-    FollowContext<IUser> _UserFollowContext;
-    public FollowContext<IUser> UserFollowContext 
+    FollowContext<IUser>? _UserFollowContext;
+    public FollowContext<IUser>? UserFollowContext 
     {
         get => _UserFollowContext;
         set
@@ -85,15 +86,15 @@ public sealed partial class UserInfoFlyout : Microsoft.UI.Xaml.Controls.CommandB
         }
     }
 
-    private readonly PageManager _pageManager;
+    private readonly IMessenger _messenger;
     private readonly VideoFilteringSettings _filterSettings;
 
     UserInfoFlyout()
     {
         this.InitializeComponent();
 
-        _pageManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<PageManager>();
-        _filterSettings = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<VideoFilteringSettings>();
+        _messenger  = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<IMessenger>();
+        _filterSettings = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<VideoFilteringSettings>();
     }
 
 
@@ -101,7 +102,7 @@ public sealed partial class UserInfoFlyout : Microsoft.UI.Xaml.Controls.CommandB
     {
         if (UserId is not null and UserId userId)
         {
-            _pageManager.OpenPageWithId(Models.PageNavigation.HohoemaPageType.UserVideo, userId);
+            _ = _messenger.OpenPageWithIdAsync(Models.PageNavigation.HohoemaPageType.UserVideo, userId);
         }
     }
 
@@ -109,7 +110,7 @@ public sealed partial class UserInfoFlyout : Microsoft.UI.Xaml.Controls.CommandB
     {
         if (UserId is not null and UserId userId)
         {
-            _pageManager.OpenPageWithId(Models.PageNavigation.HohoemaPageType.UserMylist, userId);
+            _ =  _messenger.OpenPageWithIdAsync(Models.PageNavigation.HohoemaPageType.UserMylist, userId);
         }
     }
 
@@ -117,7 +118,7 @@ public sealed partial class UserInfoFlyout : Microsoft.UI.Xaml.Controls.CommandB
     {
         if (UserId is not null and UserId userId)
         {
-            _pageManager.OpenPageWithId(Models.PageNavigation.HohoemaPageType.UserSeries, userId);
+            _ = _messenger.OpenPageWithIdAsync(Models.PageNavigation.HohoemaPageType.UserSeries, userId);
         }
     }
 

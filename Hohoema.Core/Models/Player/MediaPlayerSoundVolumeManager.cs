@@ -11,7 +11,7 @@ namespace Hohoema.Models.Player;
 
 public class MediaPlayerSoundVolumeManager : ObservableObject
 {
-    [Obsolete]
+    
     public MediaPlayerSoundVolumeManager(
         PlayerSettings playerSettings,
         MediaPlayer mediaPlayer
@@ -45,7 +45,7 @@ public class MediaPlayerSoundVolumeManager : ObservableObject
     private readonly MediaPlayer _mediaPlayer;
     private double _Volume;
 
-    [Obsolete]
+    
     public double Volume
     {
         get => _Volume;
@@ -67,7 +67,7 @@ public class MediaPlayerSoundVolumeManager : ObservableObject
 
     private bool _isLoudnessCorrectionEnabled;
 
-    [Obsolete]
+    
     public bool IsLoudnessCorrectionEnabled
     {
         get => _isLoudnessCorrectionEnabled;

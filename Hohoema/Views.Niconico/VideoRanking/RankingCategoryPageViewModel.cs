@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Niconico.Video.Ranking;
@@ -86,7 +87,7 @@ public static class RankingCategoryPageNavigationConstants
 }
 
 public sealed partial class RankingCategoryPageViewModel 
-    : HohoemaListingPageViewModelBase<RankedVideoListItemControlViewModel>,        
+    : VideoListingPageViewModelBase<RankedVideoListItemControlViewModel>,        
     IPinablePage,
     ITitleUpdatablePage
 {
@@ -145,7 +146,6 @@ public sealed partial class RankingCategoryPageViewModel
     public ReactivePropertySlim<bool> IsFailedRefreshRanking { get; }
     public ReactivePropertySlim<bool> CanChangeRankingParameter { get; }
     public ApplicationLayoutManager ApplicationLayoutManager { get; }
-    public PageManager PageManager { get; }
     public NicoVideoProvider NicoVideoProvider { get; }
     public VideoRankingSettings RankingSettings { get; }
     public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
@@ -159,10 +159,10 @@ public sealed partial class RankingCategoryPageViewModel
 
     MemoryCache _rankingMemoryCache;
     public RankingCategoryPageViewModel(
+        IMessenger messenger,
         ILoggerFactory loggerFactory,
         ApplicationLayoutManager applicationLayoutManager,
         NiconicoSession niconicoSession,
-        PageManager pageManager,
         NicoVideoProvider nicoVideoProvider,
         RankingProvider rankingProvider,
         VideoRankingSettings rankingSettings,
@@ -171,11 +171,10 @@ public sealed partial class RankingCategoryPageViewModel
         VideoPlayWithQueueCommand videoPlayWithQueueCommand,
         SelectionModeToggleCommand selectionModeToggleCommand
         )
-        : base(loggerFactory.CreateLogger<RankingCategoryPageViewModel>())
+        : base(messenger, loggerFactory.CreateLogger<RankingCategoryPageViewModel>(), disposeItemVM: false)
     {
         ApplicationLayoutManager = applicationLayoutManager;
         _niconicoSession = niconicoSession;
-        PageManager = pageManager;
         NicoVideoProvider = nicoVideoProvider;
         RankingProvider = rankingProvider;
         RankingSettings = rankingSettings;
@@ -387,21 +386,17 @@ public sealed partial class RankingCategoryPageViewModel
     protected override (int, IIncrementalSource<RankedVideoListItemControlViewModel>) GenerateIncrementalSource()
     {
         IsFailedRefreshRanking.Value = false;
-
-        var categoryInfo = RankingGenre;
-
-        IIncrementalSource<RankedVideoListItemControlViewModel> source = null;
         try
         {
             if (IsRssRankingSource is false)
             {
-                source = new Nvapi_CategoryRankingLoadingSource(RankingGenre, SelectedRankingTag.Value?.Tag, SelectedRankingTerm.Value ?? RankingTerm.Hour, _niconicoSession, NicoVideoProvider, _videoFilteringSettings, _rankingMemoryCache);
+                var source = new Nvapi_CategoryRankingLoadingSource(RankingGenre, SelectedRankingTag.Value?.Tag, SelectedRankingTerm.Value ?? RankingTerm.Hour, _niconicoSession, NicoVideoProvider, _videoFilteringSettings, _rankingMemoryCache);
                 CanChangeRankingParameter.Value = true;
                 return (Nvapi_CategoryRankingLoadingSource.OneTimeLoadCount, source);
             }
             else
             {                    
-                source = new Rss_CategoryRankingLoadingSource(RankingGenre, SelectedRankingTag.Value?.Tag, SelectedRankingTerm.Value ?? RankingTerm.Hour, _niconicoSession, NicoVideoProvider, _videoFilteringSettings, _rankingMemoryCache);
+                var source = new Rss_CategoryRankingLoadingSource(RankingGenre, SelectedRankingTag.Value?.Tag, SelectedRankingTerm.Value ?? RankingTerm.Hour, _niconicoSession, NicoVideoProvider, _videoFilteringSettings, _rankingMemoryCache);
                 CanChangeRankingParameter.Value = true;
                 return (Rss_CategoryRankingLoadingSource.OneTimeLoadCount, source);
             }
@@ -496,13 +491,12 @@ public class Rss_CategoryRankingLoadingSource : IIncrementalSource<RankedVideoLi
         {
             var videoId = item.GetVideoId();
             var itemData = item.GetMoreData();
-            var vm = new RankedVideoListItemControlViewModel((uint)(head + offset + 1), videoId, item.GetRankTrimmingTitle(), itemData.ThumbnailUrl, itemData.Length, itemData.PostedAt);
-
-            vm.CommentCount = itemData.CommentCount;
-            vm.ViewCount = itemData.WatchCount;
-            vm.MylistCount = itemData.MylistCount;
-
-            return vm;
+            return  new RankedVideoListItemControlViewModel((uint)(head + offset + 1), videoId, item.GetRankTrimmingTitle(), itemData.ThumbnailUrl, itemData.Length, itemData.PostedAt)
+            {
+                CommentCount = itemData.CommentCount,
+                ViewCount = itemData.WatchCount,
+                MylistCount = itemData.MylistCount,
+            };
         })
         .ToArray()// Note: IncrementalLoadingSourceが複数回呼び出すためFreezeしたい
         ;
@@ -538,7 +532,7 @@ public class Nvapi_CategoryRankingLoadingSource : IIncrementalSource<RankedVideo
         _options = new RankingOptions(genre, term, tag);
     }
 
-    public const int OneTimeLoadCount = 100;
+    public const int OneTimeLoadCount = 25;
 
     private async ValueTask<List<NvapiVideoItem>> GetCachedRankingAsync(int page, CancellationToken ct)
     {

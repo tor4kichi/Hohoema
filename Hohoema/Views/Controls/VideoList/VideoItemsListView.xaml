@@ -99,9 +99,8 @@
               ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
               uwpExtension:ScrollViewerExtensions.VerticalScrollBarMargin="0 0 0 0"
               xmlns:myExtensions="using:Hohoema.Views.Extensions"
-              IsItemClickEnabled="True"
               Padding="{x:Bind ItemsPanelPadding, Mode=OneWay}"
-                Style="{StaticResource FixedHeaderListViewStyle}"
+              Style="{StaticResource FixedHeaderListViewStyle}"
               >
         <ListView.Transitions>
           <TransitionCollection>
@@ -117,10 +116,12 @@
           <behaviors:StickyHeaderBehavior />
           -->
           
+          <!-- DoubleClick とSingleClickの切替対応のためコードビハインドで対応してる
           <core:EventTriggerBehavior EventName="ItemClick">
             <core:InvokeCommandAction Command="{x:Bind ItemCommand, Mode=OneWay}"
                                     InputConverter="{StaticResource ItemClickEventArgsConverter}" />
           </core:EventTriggerBehavior>
+          -->
         </i:Interaction.Behaviors>
         <ListView.ItemContainerTransitions>
           <TransitionCollection>

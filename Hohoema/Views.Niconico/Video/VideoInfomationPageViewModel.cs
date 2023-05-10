@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using AngleSharp.Html.Parser;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Helpers;
 using Hohoema.Models.Application;
 using Hohoema.Models.LocalMylist;
@@ -19,10 +20,12 @@ using Hohoema.Models.Subscriptions;
 using Hohoema.Services;
 using Hohoema.Services.LocalMylist;
 using Hohoema.Services.Niconico;
+using Hohoema.ViewModels.Navigation.Commands;
 using Hohoema.ViewModels.Niconico.Follow;
 using Hohoema.ViewModels.Niconico.Likes;
 using Hohoema.ViewModels.Niconico.Share;
 using Hohoema.ViewModels.Niconico.Video.Commands;
+using Hohoema.ViewModels.Pages.VideoListPage.Commands;
 using Hohoema.ViewModels.Subscriptions;
 using Hohoema.ViewModels.VideoCache.Commands;
 using Hohoema.ViewModels.VideoListPage;
@@ -66,6 +69,7 @@ public class VideoInfomationPageViewModel : HohoemaPageViewModelBase, IPinablePa
     }
 
     public VideoInfomationPageViewModel(
+        IMessenger messenger,
         ILoggerFactory loggerFactory, 
         ApplicationLayoutManager applicationLayoutManager,
         AppearanceSettings appearanceSettings,
@@ -76,8 +80,10 @@ public class VideoInfomationPageViewModel : HohoemaPageViewModelBase, IPinablePa
         LoginUserMylistProvider loginUserMylistProvider,
         SubscriptionManager subscriptionManager,
         NicoVideoSessionProvider nicoVideo,
-        PageManager pageManager,
-        Services.NotificationService notificationService,            
+        Services.NotificationService notificationService,
+        OpenPageCommand openPageCommand,
+        OpenContentOwnerPageCommand openContentOwnerPageCommand,
+        OpenVideoListPageCommand openVideoListPageCommand,
         VideoPlayWithQueueCommand videoPlayWithQueueCommand,
         MylistAddItemCommand addMylistCommand,
         LocalPlaylistAddItemCommand localPlaylistAddItemCommand,
@@ -93,6 +99,7 @@ public class VideoInfomationPageViewModel : HohoemaPageViewModelBase, IPinablePa
         )
     {
         _logger = loggerFactory.CreateLogger<VideoInfomationPageViewModel>();
+        _messenger = messenger;
         ApplicationLayoutManager = applicationLayoutManager;
         AppearanceSettings = appearanceSettings;
         NgSettings = ngSettings;
@@ -101,9 +108,11 @@ public class VideoInfomationPageViewModel : HohoemaPageViewModelBase, IPinablePa
         NicoVideoProvider = nicoVideoProvider;
         LoginUserMylistProvider = loginUserMylistProvider;
         SubscriptionManager = subscriptionManager;
-        NicoVideo = nicoVideo;
-        PageManager = pageManager;
-        NotificationService = notificationService;            
+        NicoVideo = nicoVideo;        
+        NotificationService = notificationService;
+        OpenPageCommand = openPageCommand;
+        OpenContentOwnerPageCommand = openContentOwnerPageCommand;
+        OpenVideoListPageCommand = openVideoListPageCommand;
         VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
         AddMylistCommand = addMylistCommand;
         LocalPlaylistAddItemCommand = localPlaylistAddItemCommand;
@@ -214,7 +223,7 @@ public class VideoInfomationPageViewModel : HohoemaPageViewModelBase, IPinablePa
             return _OpenFilterSettingPageCommand
                 ?? (_OpenFilterSettingPageCommand = new RelayCommand(() =>
                 {
-                    PageManager.OpenPage(HohoemaPageType.Settings);
+                    _ = _messenger.OpenPageAsync(HohoemaPageType.Settings);
                 }
                 ));
         }
@@ -231,7 +240,7 @@ public class VideoInfomationPageViewModel : HohoemaPageViewModelBase, IPinablePa
                 {
                     if (VideoInfo.Owner.UserType == OwnerType.User)
                     {
-                        PageManager.OpenPageWithId(HohoemaPageType.UserInfo, VideoInfo.Owner.OwnerId);
+                        _ = _messenger.OpenPageWithIdAsync(HohoemaPageType.UserInfo, VideoInfo.Owner.OwnerId);
                     }
                 }
                 , () => VideoInfo?.Owner.UserType == OwnerType.User
@@ -250,11 +259,11 @@ public class VideoInfomationPageViewModel : HohoemaPageViewModelBase, IPinablePa
                 {
                     if (VideoInfo.Owner.UserType == OwnerType.User)
                     {
-                        PageManager.OpenPageWithId(HohoemaPageType.UserVideo, VideoInfo.Owner.OwnerId);
+                        _ = _messenger.OpenPageWithIdAsync(HohoemaPageType.UserVideo, VideoInfo.Owner.OwnerId);
                     }
                     else if (VideoDetails.IsChannelOwnedVideo)
                     {
-                        PageManager.OpenPageWithId(HohoemaPageType.ChannelVideo, VideoInfo.Owner.OwnerId);
+                        _ = _messenger.OpenPageWithIdAsync(HohoemaPageType.ChannelVideo, VideoInfo.Owner.OwnerId);
                     }
                 }
                 ));
@@ -299,12 +308,12 @@ public class VideoInfomationPageViewModel : HohoemaPageViewModelBase, IPinablePa
             return _ScriptNotifyCommand
                 ?? (_ScriptNotifyCommand = new RelayCommand<object>(async (parameter) =>
                 {
-                    Uri url = parameter as Uri ?? (parameter as HyperlinkItem)?.Url;
+                    Uri? url = parameter as Uri ?? (parameter as HyperlinkItem)?.Url;
                     if (url != null)
                     {
                         System.Diagnostics.Debug.WriteLine($"script notified: {url}");
 
-                        if (false == PageManager.OpenPage(url))
+                        if (!await _messenger.OpenUriAsync(url))
                         {
                             await Launcher.LaunchUriAsync(url);
                         }
@@ -359,7 +368,7 @@ public class VideoInfomationPageViewModel : HohoemaPageViewModelBase, IPinablePa
                 {
                     if (this.VideoInfo?.Owner?.UserType == OwnerType.User)
                     {
-                        PageManager.OpenPageWithId(HohoemaPageType.UserSeries, this.VideoInfo.Owner.OwnerId);
+                        _ = _messenger.OpenPageWithIdAsync(HohoemaPageType.UserSeries, this.VideoInfo.Owner.OwnerId);
                     }
                 }));
         }
@@ -376,7 +385,7 @@ public class VideoInfomationPageViewModel : HohoemaPageViewModelBase, IPinablePa
                 {
                     if (this.VideoDetails.Series != null)
                     {
-                        PageManager.OpenPageWithId(HohoemaPageType.Series, this.VideoDetails.Series.Id.ToString());
+                        _ = _messenger.OpenPageWithIdAsync(HohoemaPageType.Series, this.VideoDetails.Series.Id.ToString());
                     }
                 }));
         }
@@ -402,6 +411,9 @@ public class VideoInfomationPageViewModel : HohoemaPageViewModelBase, IPinablePa
 
 
     public Services.NotificationService NotificationService { get; }
+    public OpenPageCommand OpenPageCommand { get; }
+    public OpenContentOwnerPageCommand OpenContentOwnerPageCommand { get; }
+    public OpenVideoListPageCommand OpenVideoListPageCommand { get; }
 
     private readonly ILogger<VideoInfomationPageViewModel> _logger;
 
@@ -413,7 +425,6 @@ public class VideoInfomationPageViewModel : HohoemaPageViewModelBase, IPinablePa
     public NicoVideoProvider NicoVideoProvider { get; }
     public LoginUserMylistProvider LoginUserMylistProvider { get; }
     public SubscriptionManager SubscriptionManager { get; }
-    public PageManager PageManager { get; }
     public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
     public MylistAddItemCommand AddMylistCommand { get; }
     public LocalPlaylistAddItemCommand LocalPlaylistAddItemCommand { get; }
@@ -524,18 +535,14 @@ public class VideoInfomationPageViewModel : HohoemaPageViewModelBase, IPinablePa
         _IsInitializedRelatedVideos = false;
         
         FollowContext = FollowContext<IUser>.Default;
-
-        RelatedVideos?.ForEach(x => x.Dispose());
-
+      
         if (NextSeriesVideo != null)
         {
-            Array.ForEach(NextSeriesVideo, x => x.Dispose());
             NextSeriesVideo = null;
         }
 
         if (PrevSeriesVideo != null)
         {
-            Array.ForEach(PrevSeriesVideo, x => x.Dispose());
             PrevSeriesVideo = null;
         }
 
@@ -574,6 +581,8 @@ public class VideoInfomationPageViewModel : HohoemaPageViewModelBase, IPinablePa
 
     bool _IsInitializedRelatedVideos = false;
     public AppearanceSettings AppearanceSettings { get; }
+
+    private readonly IMessenger _messenger;
     private readonly RecommendProvider _recommendProvider;
     private readonly UserFollowProvider _userFollowProvider;
     private readonly ChannelFollowProvider _channelFollowProvider;
@@ -606,10 +615,6 @@ public class VideoInfomationPageViewModel : HohoemaPageViewModelBase, IPinablePa
 
                 if (_navigationCancellationToken.IsCancellationRequested)
                 {
-                    foreach (var item in items)
-                    {
-                        item.Dispose();
-                    }
                     return;
                 }
 

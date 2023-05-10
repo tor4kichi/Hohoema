@@ -31,10 +31,14 @@ using LiveSort = NiconicoToolkit.Search.Live.Sort;
 using LiveProvider = NiconicoToolkit.Search.Live.Provider;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Diagnostics;
+using CommunityToolkit.Mvvm.Messaging;
 
 namespace Hohoema.ViewModels.Pages.Niconico.Search;
 
-public sealed partial class SearchResultLivePageViewModel : HohoemaListingPageViewModelBase<LiveInfoListItemViewModel>, IPinablePage, ITitleUpdatablePage
+public sealed partial class SearchResultLivePageViewModel 
+    : HohoemaListingPageViewModelBase<LiveInfoListItemViewModel>
+    , IPinablePage
+    , ITitleUpdatablePage
 {
     HohoemaPin IPinablePage.GetPin()
     {
@@ -53,21 +57,21 @@ public sealed partial class SearchResultLivePageViewModel : HohoemaListingPageVi
     }
 
     public SearchResultLivePageViewModel(
+        IMessenger messenger,
         ILoggerFactory loggerFactory,
         ApplicationLayoutManager applicationLayoutManager,
         NiconicoSession niconicoSession,
-        SearchProvider searchProvider,
-        PageManager pageManager,
+        SearchProvider searchProvider,        
         SearchHistoryRepository searchHistoryRepository,
         NicoLiveCacheRepository nicoLiveCacheRepository,
         OpenLiveContentCommand openLiveContentCommand
         )
         : base(loggerFactory.CreateLogger<SearchResultLivePageViewModel>())
     {
+        _messenger = messenger;
         ApplicationLayoutManager = applicationLayoutManager;
         NiconicoSession = niconicoSession;
         SearchProvider = searchProvider;
-        PageManager = pageManager;
         _searchHistoryRepository = searchHistoryRepository;
         _nicoLiveCacheRepository = nicoLiveCacheRepository;
         OpenLiveContentCommand = openLiveContentCommand;
@@ -98,6 +102,12 @@ public sealed partial class SearchResultLivePageViewModel : HohoemaListingPageVi
     public ReactiveProperty<LiveSort> SelectedSort { get; private set; }
     public ReactiveProperty<LiveProvider> SelectedProvider { get; private set; }
 
+    public ApplicationLayoutManager ApplicationLayoutManager { get; }
+    public NiconicoSession NiconicoSession { get; }
+    public SearchProvider SearchProvider { get; }
+    public OpenLiveContentCommand OpenLiveContentCommand { get; }
+
+    private readonly IMessenger _messenger;
     private readonly SearchHistoryRepository _searchHistoryRepository;
     private readonly NicoLiveCacheRepository _nicoLiveCacheRepository;
 
@@ -114,25 +124,21 @@ public sealed partial class SearchResultLivePageViewModel : HohoemaListingPageVi
 
 
     private RelayCommand _ShowSearchHistoryCommand;
-		public RelayCommand ShowSearchHistoryCommand
+    public RelayCommand ShowSearchHistoryCommand
 		{
 			get
 			{
 				return _ShowSearchHistoryCommand
 					?? (_ShowSearchHistoryCommand = new RelayCommand(() =>
 					{
-						PageManager.OpenPage(HohoemaPageType.Search);
+                        _ = _messenger.OpenPageAsync(HohoemaPageType.Search);
 					}));
 			}
 		}
 
-    public ApplicationLayoutManager ApplicationLayoutManager { get; }
-    public NiconicoSession NiconicoSession { get; }
-    public SearchProvider SearchProvider { get; }
-    public PageManager PageManager { get; }
-    public OpenLiveContentCommand OpenLiveContentCommand { get; }
-
     #endregion
+
+    private TimeshiftReservationsResponse? _reservation;
 
     public override async Task OnNavigatedToAsync(INavigationParameters parameters)
     {
@@ -147,10 +153,11 @@ public sealed partial class SearchResultLivePageViewModel : HohoemaListingPageVi
         _NowNavigatingTo = true;
         try
         {
-            if (NiconicoSession.IsLoggedIn)
-            {
-                _reservation = await NiconicoSession.ToolkitContext.Timeshift.GetTimeshiftReservationsDetailAsync();
-            }
+            _reservation = NiconicoSession.IsLoggedIn ? await NiconicoSession.ToolkitContext.Timeshift.GetTimeshiftReservationsAsync() : null;
+        }
+        catch
+        {
+            _reservation = null;
         }
         finally
         {
@@ -192,9 +199,7 @@ public sealed partial class SearchResultLivePageViewModel : HohoemaListingPageVi
             _nicoLiveCacheRepository)
             );
 	}
-
-    private TimeshiftReservationsDetailResponse _reservation;
-
+    
 
     [RelayCommand]
     public void SearchOptionsUpdated()
@@ -212,7 +217,7 @@ public class LiveSearchSource : IIncrementalSource<LiveInfoListItemViewModel>
         NiconicoToolkit.Search.Live.Status status,
         NiconicoToolkit.Search.Live.Sort sort,
         NiconicoToolkit.Search.Live.Provider provider,
-        TimeshiftReservationsDetailResponse? reservation,
+        TimeshiftReservationsResponse? reservationRes,
         SearchProvider searchProvider,
         NiconicoSession niconicoSession,
         NicoLiveCacheRepository nicoLiveCacheRepository
@@ -222,14 +227,14 @@ public class LiveSearchSource : IIncrementalSource<LiveInfoListItemViewModel>
         Status = status;
         Sort = sort;
         Provider = provider;
-        _reservation = reservation;
+        _reservationRes = reservationRes;
         SearchProvider = searchProvider;
         NiconicoSession = niconicoSession;
         _nicoLiveCacheRepository = nicoLiveCacheRepository;
     }
 
     private HashSet<string> SearchedVideoIdsHash = new HashSet<string>();
-    private TimeshiftReservationsDetailResponse? _reservation;
+    private TimeshiftReservationsResponse? _reservationRes;
 
     private readonly NicoLiveCacheRepository _nicoLiveCacheRepository;
 
@@ -270,13 +275,15 @@ public class LiveSearchSource : IIncrementalSource<LiveInfoListItemViewModel>
                 var liveInfoVM = new LiveInfoListItemViewModel(item.ProgramId);
                 liveInfoVM.Setup(item);
 
-                if (_reservation?.IsSuccess ?? false)
+                if (_reservationRes?.Reservations?.Items is { } reservations
+                    && reservations.FirstOrDefault(reservation => item.ProgramId == reservation.ProgramId) is { }  reservation
+                    )
                 {
-                    var reserve = _reservation?.Data?.Items.FirstOrDefault(reservation => item.ProgramId == reservation.LiveId);
-                    if (reserve != null)
-                    {
-                        liveInfoVM.SetReservation(reserve);
-                    }
+                    liveInfoVM.SetReservation(reservation);
+                }
+                else
+                {
+                    liveInfoVM.SetReservation(null);
                 }
 
                 items.Add(liveInfoVM);

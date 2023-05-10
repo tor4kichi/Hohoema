@@ -215,7 +215,7 @@ public sealed partial class SubscriptionUpdateManager
         if (checkedAt < _nextUpdateAt)
         {            
             return;
-        }
+        }        
 
         List<SubscriptionFeedUpdateResult> updateResultItems = new();
         using (_logger.BeginScope("Subscription Update"))
@@ -260,7 +260,7 @@ public sealed partial class SubscriptionUpdateManager
                         {
                             throw;
                         }
-                        catch (Exception ex) when (InternetConnection.IsInternet() is false)
+                        catch (Exception ex) when (InternetConnection.IsInternet())
                         {
                             // インターネット接続はあるけど何かしらで失敗した場合は
                             // API不通を想定して強制的に自動更新をOFFにする
@@ -289,7 +289,8 @@ public sealed partial class SubscriptionUpdateManager
                 _notificationService.ShowLiteInAppNotification("SubscNotification_CompleteAutoUpdate".Translate());
             }
 
-            if (updateResultItems.Any() is false)
+            // 購読アイテムがあり、かつ新着アイテムが無い場合の通知
+            if (updateResultItems.Count != 0 && updateResultItems.Any(x => x.NewVideos.Any()) is false)
             {
                 _notificationService.ShowLiteInAppNotification("SubscNotification_NoNewVideos".Translate());
                 return;
@@ -378,17 +379,17 @@ public sealed partial class SubscriptionUpdateManager
                     try
                     {
                         ObjectId groupId = new ObjectId(groupIdViewList);
-                        await _messenger.SendNavigationRequestAsync(HohoemaPageType.SubscVideoList, new NavigationParameters(("SubscGroupId", groupId.ToString())));
+                        await _messenger.OpenPageAsync(HohoemaPageType.SubscVideoList, new NavigationParameters(("SubscGroupId", groupId.ToString())));
                     }
                     catch
                     {
                         // 購読グループが既に消されていた場合など                            
-                        await _messenger.SendNavigationRequestAsync(HohoemaPageType.SubscVideoList);
+                        await _messenger.OpenPageAsync(HohoemaPageType.SubscVideoList);
                     }
                 }
                 else
                 {
-                    await _messenger.SendNavigationRequestAsync(HohoemaPageType.SubscVideoList);
+                    await _messenger.OpenPageAsync(HohoemaPageType.SubscVideoList);
                 }
                 break;
         }

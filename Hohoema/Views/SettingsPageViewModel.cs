@@ -16,6 +16,7 @@ using Hohoema.Services.VideoCache;
 using I18NPortable;
 using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Uwp.Helpers;
+using Microsoft.Toolkit.Uwp.UI;
 using Microsoft.UI.Xaml.Controls;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
@@ -54,8 +55,7 @@ public sealed partial class SettingsPageViewModel : HohoemaPageViewModelBase
     private readonly VideoCacheFolderManager _videoCacheFolderManager;
     private readonly VideoFilteringSettings _videoFilteringRepository;
     private readonly BackupManager _backupManager;
-    private readonly CommentFilteringFacade _commentFiltering;
-    private readonly PageManager _pageManager;
+    private readonly CommentFilteringFacade _commentFiltering;    
     private readonly INotificationService _notificationService;
     private readonly PlayerSettings PlayerSettings;
     private readonly VideoRankingSettings RankingSettings;
@@ -68,8 +68,7 @@ public sealed partial class SettingsPageViewModel : HohoemaPageViewModelBase
     public SettingsPageViewModel(
         IMessenger messenger,
         ILoggerFactory loggerFactory,
-        IDialogService dialogService,
-        PageManager pageManager,
+        IDialogService dialogService,        
         INotificationService toastService,
         PlayerSettings playerSettings,
         VideoRankingSettings rankingSettings,
@@ -83,7 +82,6 @@ public sealed partial class SettingsPageViewModel : HohoemaPageViewModelBase
         )
     {
         _messenger = messenger;
-        _pageManager = pageManager;
         _notificationService = toastService;
         RankingSettings = rankingSettings;
         _HohoemaDialogService = dialogService;
@@ -183,7 +181,17 @@ public sealed partial class SettingsPageViewModel : HohoemaPageViewModelBase
         })
             .AddTo(_CompositeDisposable);
 
+        AppearanceSettings.ObserveProperty(x => x.VideoListThumbnailCacheMaxCount)
+            .Subscribe(x => ImageCache.Instance.MaxMemoryCacheCount = x)
+            .AddTo(_CompositeDisposable);        
     }
+
+    [RelayCommand]
+    async Task ClearCacheAsync()
+    {
+        await ImageCache.Instance.ClearAsync();
+    }
+
 
     public List<NavigationViewPaneDisplayMode> PaneDisplayModeItems { get; } = Enum.GetValues(typeof(NavigationViewPaneDisplayMode)).Cast<NavigationViewPaneDisplayMode>().ToList();
 
@@ -330,9 +338,9 @@ public sealed partial class SettingsPageViewModel : HohoemaPageViewModelBase
 
 
     [RelayCommand]
-    void OpenUserPage(VideoOwnerIdFilteringEntry entry)
+    async Task OpenUserPage(VideoOwnerIdFilteringEntry entry)
     {
-        _pageManager.OpenPageWithId(HohoemaPageType.UserInfo, entry.UserId);
+        await _messenger.OpenPageWithIdAsync(HohoemaPageType.UserInfo, entry.UserId);
     }
 
 

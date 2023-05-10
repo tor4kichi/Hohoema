@@ -124,6 +124,7 @@
   <ItemGroup>
     <Compile Include="Contracts\Navigations\INavigationResult.cs" />
     <Compile Include="Contracts\Navigations\INavigationParameters.cs" />
+    <Compile Include="Contracts\Playlist\VideoPlayedMessage.cs" />
     <Compile Include="Contracts\Services\IDialogService.cs" />
     <Compile Include="Contracts\Services\ILocalizeService.cs" />
     <Compile Include="Contracts\Maintenances\IMaintenance.cs" />
@@ -375,7 +376,7 @@
       <Version>2.7.2</Version>
     </PackageReference>
     <PackageReference Include="NiconicoToolkit">
-      <Version>0.4.2</Version>
+      <Version>0.4.6</Version>
     </PackageReference>
     <PackageReference Include="ReactiveProperty">
       <Version>7.12.0</Version>

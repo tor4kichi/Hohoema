@@ -6,7 +6,7 @@ using Hohoema.Models.Application;
 using Hohoema.Models.Niconico.Live;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Playlist;
-using Hohoema.Contracts.Player;
+using Hohoema.Contracts.Playlist;
 using Hohoema.Services.Playlist;
 using Microsoft.Toolkit.Diagnostics;
 using Microsoft.Toolkit.Uwp.Helpers;
@@ -17,6 +17,7 @@ using System;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using Hohoema.Contracts.Player;
 
 namespace Hohoema.Services.Player;
 
@@ -258,15 +259,6 @@ public sealed class VideoPlayRequestBridgeToPlayer
         }
 
         await sourcePlayerView.ShowAsync();
-
-        if (_appearanceSettings.PlayerDisplayView == PlayerDisplayView.PrimaryView
-            && _applicationLayoutManager.InteractionMode == ApplicationInteractionMode.Touch
-            && await sourcePlayerView.IsWindowFilledScreenAsync()
-            && await sourcePlayerView.GetDisplayModeAsync() == PlayerDisplayMode.FillWindow
-            )
-        {
-            await sourcePlayerView.TrySetDisplayModeAsync(PlayerDisplayMode.FullScreen);
-        }
 
         _titleUpdater = sourcePlayerView.PlaylistPlayer.ObserveProperty(x => x.CurrentPlaylistItem)
             .Subscribe(async playlistItem =>

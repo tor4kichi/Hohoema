@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.Niconico.Search;
 using Hohoema.Models.PageNavigation;
 
@@ -6,13 +7,11 @@ namespace Hohoema.ViewModels.Navigation.Commands;
 
 public sealed class SearchCommand : CommandBase
 {
-    private readonly PageManager _pageManager;
-    private readonly SearchHistoryRepository _searchHistoryRepository;
+    private readonly IMessenger _messenger;
 
-    public SearchCommand(PageManager pageManager, SearchHistoryRepository searchHistoryRepository)
+    public SearchCommand(IMessenger messenger)         
     {
-        _pageManager = pageManager;
-        _searchHistoryRepository = searchHistoryRepository;
+        _messenger = messenger;
     }
 
     protected override bool CanExecute(object parameter)
@@ -24,10 +23,7 @@ public sealed class SearchCommand : CommandBase
     {
         if (parameter is string text)
         {
-//                var searched = _searchHistoryRepository.LastSearchedTarget(text);
-//                SearchTarget searchType = searched ?? SearchTarget.Keyword;
-
-            _pageManager.Search(SearchTarget.Keyword, text);
+            _ = _messenger.OpenSearchPageAsync(SearchTarget.Keyword, text);
         }
     }
 }

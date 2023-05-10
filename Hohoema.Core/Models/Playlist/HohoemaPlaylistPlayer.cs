@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
+using Hohoema.Contracts.Playlist;
 using Hohoema.Helpers;
 using Hohoema.Infra;
 using Hohoema.Models.Niconico.Player;
@@ -88,8 +89,7 @@ public abstract class PlaylistPlayer : ObservableObject, IDisposable
     private const int InvalidIndex = -1;
     private readonly PlayerSettings _playerSettings;
     private readonly IScheduler _scheduler;
-
-
+    private readonly IMessenger _messenger;
     private IBufferedPlaylistItemsSource? _bufferedPlaylistItemsSource;
     protected IBufferedPlaylistItemsSource BufferedPlaylistItemsSource
     {
@@ -99,13 +99,16 @@ public abstract class PlaylistPlayer : ObservableObject, IDisposable
 
     private IDisposable _IndexUpdateTimingSubscriber;
     private readonly IDisposable _IsShuffleEnableSubscriber;
-
-    [Obsolete]
-    public PlaylistPlayer(PlayerSettings playerSettings, IScheduler scheduler)
+    
+    public PlaylistPlayer(
+        PlayerSettings playerSettings,
+        IScheduler scheduler,
+        IMessenger messenger
+        )
     {
         _playerSettings = playerSettings;
         _scheduler = scheduler;
-
+        _messenger = messenger;
         _IsShuffleEnableSubscriber = _playerSettings.ObserveProperty(x => x.IsShuffleEnable)
             .Subscribe(enabled =>
             {
@@ -157,10 +160,10 @@ public abstract class PlaylistPlayer : ObservableObject, IDisposable
 
     public bool IsShuffleAndRepeatAvailable => !IsUnlimitedPlaylistSource;
 
-    [Obsolete]
+    
     public bool IsShuffleModeRequested => _playerSettings.IsShuffleEnable;
 
-    [Obsolete]
+    
     public bool IsShuffleModeEnabled => IsShuffleAndRepeatAvailable && IsShuffleModeRequested;
 
     public IObservable<IBufferedPlaylistItemsSource> GetBufferedItems()
@@ -240,17 +243,7 @@ public abstract class PlaylistPlayer : ObservableObject, IDisposable
     public IVideoContent? CurrentPlaylistItem
     {
         get => _currentPlaylistItem;
-        private set
-        {
-            var watchedVideo = _currentPlaylistItem;
-            if (SetProperty(ref _currentPlaylistItem, value))
-            {
-                if (watchedVideo != null)
-                {
-                    
-                }
-            }
-        }
+        private set => SetProperty(ref _currentPlaylistItem, value);
     }
 
     private void OnVideoPlayed(IVideoContent videoWatched, IVideoContent? currentPlaylistItem)
@@ -269,7 +262,7 @@ public abstract class PlaylistPlayer : ObservableObject, IDisposable
             _maxItemsCount = queuePlaylist.TotalCount;
         }
 
-
+        _messenger.Send(new VideoWatchedMessage(videoWatched.VideoId));
     }
 
     protected void Clear()
@@ -351,7 +344,7 @@ public abstract class PlaylistPlayer : ObservableObject, IDisposable
         return _shuffledIndexies[index];
     }
 
-    [Obsolete]
+    
     public IObservable<bool> GetCanGoNextOrPreviewObservable()
     {
         return Observable.Merge(
@@ -443,7 +436,7 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
     private readonly SystemMediaTransportControls _smtc;
     private readonly DispatcherQueue _dispatcherQueue;
 
-    [Obsolete]
+    
     public HohoemaPlaylistPlayer(
         IScheduler scheduler,
         IMessenger messenger,
@@ -453,7 +446,7 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
         MediaPlayerSoundVolumeManager soundVolumeManager,
         RestoreNavigationManager restoreNavigationManager
         )
-        : base(playerSettings, scheduler)
+        : base(playerSettings, scheduler, messenger)
     {
         _messenger = messenger;
         _mediaPlayer = mediaPlayer;
@@ -561,7 +554,7 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
         return qualityEntity?.IsAvailable == true;
     }
 
-    [Obsolete]
+    
     public async Task ChangeQualityAsync(NicoVideoQuality quality)
     {
         if (CurrentPlaylistItem == null) { return; }
@@ -628,7 +621,7 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
         StopStateSavingTimer();
     }
 
-    [Obsolete]
+    
     public async Task ReopenAsync(TimeSpan? position = null)
     {
         if (CurrentPlaylistItem != null)
@@ -658,7 +651,7 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
         return true;
     }
 
-    [Obsolete]
+    
     public async Task<bool> PlayAsync(IPlaylist playlist, IPlaylistSortOption sortOption)
     {
         Guard.IsNotNull(playlist, nameof(playlist));
@@ -690,7 +683,7 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
         });
     }
 
-    [Obsolete]
+    
     public async Task<bool> PlayAsync(ISortablePlaylist playlist, IPlaylistSortOption sortOption, IVideoContent item, TimeSpan? startPosition = null)
     {
         Guard.IsNotNull(playlist, nameof(playlist));
@@ -733,7 +726,7 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
 
     }
 
-    [Obsolete]
+    
     protected override async Task PlayVideoOnSamePlaylistAsync_Internal(IVideoContent item, TimeSpan? startPosition = null)
     {
         Guard.IsNotNull(item, nameof(item));
@@ -754,7 +747,7 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
         }
     }
 
-    [Obsolete]
+    
     private async Task<bool> UpdatePlayingMediaAsync(IVideoContent item, TimeSpan? startPosition)
     {
         Guard.IsNotNull(item, nameof(item));

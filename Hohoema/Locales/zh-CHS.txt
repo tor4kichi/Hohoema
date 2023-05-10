@@ -222,6 +222,9 @@ ReorderSubsciprionSource_MoveNext = 退一
 ReorderSubsciprionSource_MoveToHead = 移到前面
 ReorderSubsciprionSource_MoveToTail = 移动到最后
 
+SubscNotification_StartAutoUpdate = 新到货检查开始
+SubscNotification_CompleteAutoUpdate = 新检查完成
+SubscNotification_NoNewVideos = 没有新视频
 Notification_SuccessAddSubscriptionSourceWithLabel = 向新支票添加“{0}”
 Notification_FailedSubscriptionUpdate = 订阅续订失败
 Notification_SuccessAddToWatchLaterWithAddedCount = 已将新视频{0}添加到“稍后查看”
@@ -278,7 +281,7 @@ ApplicationInteractionMode = 版面模式
 ApplicationInteractionMode.Controller = 控制者
 ApplicationInteractionMode.Mouse = 滑鼠
 ApplicationInteractionMode.Touch = 触碰
-DisplayLanguage = 显示语言🌏
+DisplayLanguage = 🌏言語/Language/语言🌏
 FirstOpenPageType = 启动时显示的页面
 Theme = 主题
 ElementTheme.Default = 根据系统设置
@@ -331,12 +334,14 @@ ApplicationDiagnosticsReport = 应用使用情况报告
 EnableCrashReport = 发送应用错误信息
 EnableAnalyticsReport = 发送应用程序功能/页面使用状态
 
-UseLegacyStylePlayerControlUI = 使用旧版视频播放器用户界面
 
-
-
-
-
+IsVideoListItemDoubleClickOrDoubleTapToPlayEnabled = 双击视频列表项开始播放
+IsVideoListItemAdditionalUIEnabled = 显示视频列表项的添加操作按钮
+IsVideoListItemMiddleClickToAddQueueEnabled = 单击中心将视频列表项添加到队列
+IsVideoListThumbnailCacheEnabled = 缓存缩略图
+VideoListThumbnailCacheMaxCount = 缩略图缓存的最大数量
+VideoListThumbnailCache_ClearAll = 删除所有图像缓存
+VideoListThumbnailCache_TotalBytes = 图片缓存总大小
 
 
 #### Niconico General ####

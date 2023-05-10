@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Contracts.Services.Player;
 using Hohoema.Models.Application;
 using Hohoema.Models.Niconico;
@@ -45,12 +46,13 @@ namespace Hohoema.ViewModels.Player;
 
 public partial class VideoPlayerPageViewModel : HohoemaPageViewModelBase
 	{
-    // TODO: HohoemaViewModelBaseとの依存性を排除（ViewModelBaseとの関係性は維持）
+    private readonly IMessenger _messenger;
     private readonly IScheduler _scheduler;
     private readonly QueuePlaylist _queuePlaylist;
     private readonly HohoemaPlaylistPlayer _hohoemaPlaylistPlayer;        
 
     public VideoPlayerPageViewModel(
+        IMessenger messenger,
         ILoggerFactory loggerFactory,
         IScheduler scheduler,
         IPlayerView playerView,
@@ -65,7 +67,6 @@ public partial class VideoPlayerPageViewModel : HohoemaPageViewModelBase
         ApplicationLayoutManager applicationLayoutManager,
         LocalMylistManager localMylistManager,
         LoginUserOwnedMylistManager userMylistManager,
-        PageManager pageManager,
         QueuePlaylist queuePlaylist,
         HohoemaPlaylistPlayer hohoemaPlaylistPlayer,
         MediaPlayer mediaPlayer,
@@ -107,7 +108,7 @@ public partial class VideoPlayerPageViewModel : HohoemaPageViewModelBase
         LoudnessCorrectionValue = soundVolumeManager.ObserveProperty(x => x.LoudnessCorrectionValue)
             .ToReadOnlyReactiveProperty(eventScheduler: scheduler)
             .AddTo(_CompositeDisposable);
-
+        _messenger = messenger;
         _scheduler = scheduler;
         PlayerView = playerView;
         NiconicoSession = niconicoSession;
@@ -120,7 +121,6 @@ public partial class VideoPlayerPageViewModel : HohoemaPageViewModelBase
         ApplicationLayoutManager = applicationLayoutManager;
         LocalMylistManager = localMylistManager;
         UserMylistManager = userMylistManager;
-        PageManager = pageManager;
         _queuePlaylist = queuePlaylist;
         _hohoemaPlaylistPlayer = hohoemaPlaylistPlayer;
         _NotificationService = notificationService;
@@ -225,7 +225,6 @@ public partial class VideoPlayerPageViewModel : HohoemaPageViewModelBase
     
     public LocalMylistManager LocalMylistManager { get; }
     public LoginUserOwnedMylistManager UserMylistManager { get; }
-    public PageManager PageManager { get; }
     public SecondaryViewPlayerManager PlayerViewManager { get; }
     public AddSubscriptionCommand AddSubscriptionCommand { get; }
     public LocalPlaylistCreateCommand CreateLocalMylistCommand { get; }
@@ -337,7 +336,7 @@ public partial class VideoPlayerPageViewModel : HohoemaPageViewModelBase
             return _OpenVideoInfoCommand
                 ?? (_OpenVideoInfoCommand = new RelayCommand(() =>
                 {                        
-                    PageManager.OpenPageWithId(HohoemaPageType.VideoInfomation, VideoId);
+                    _ = _messenger.OpenPageWithIdAsync(HohoemaPageType.VideoInfomation, VideoId);
                 }
                 ));
         }

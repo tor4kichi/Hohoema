@@ -1,33 +1,34 @@
 ﻿<Page
-    x:Name="PageRoot"
-    x:Class="Hohoema.Views.Pages.Hohoema.VideoCache.CacheManagementPage"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Hohoema.Views"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:i="using:Microsoft.Xaml.Interactivity"
-    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
-    xmlns:mvvm="using:Prism.Mvvm"
-    xmlns:mybehavior="using:Hohoema.Views.Behaviors"
-    xmlns:controls="using:Hohoema.Views.Controls"
-    xmlns:videoListControls="using:Hohoema.Views.Controls.VideoList"
-    xmlns:iconPack="using:MahApps.Metro.IconPacks"
-    xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
-    xmlns:uwpExtensions="using:Microsoft.Toolkit.Uwp.UI"
-    xmlns:actions="using:Hohoema.Views.Actions"
-    xmlns:myExtensions="using:Hohoema.Views.Extensions"
+  x:Name="PageRoot"
+  x:Class="Hohoema.Views.Pages.Hohoema.VideoCache.CacheManagementPage"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:local="using:Hohoema.Views"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:i="using:Microsoft.Xaml.Interactivity"
+  xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+  xmlns:mybehavior="using:Hohoema.Views.Behaviors"
+  xmlns:controls="using:Hohoema.Views.Controls"
+  xmlns:videoListControls="using:Hohoema.Views.Controls.VideoList"
+  xmlns:iconPack="using:MahApps.Metro.IconPacks"
+  xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
+  xmlns:uwpExtensions="using:Microsoft.Toolkit.Uwp.UI"
+  xmlns:actions="using:Hohoema.Views.Actions"
+  xmlns:myExtensions="using:Hohoema.Views.Extensions"
   xmlns:models="using:Hohoema.Models.Application"
   xmlns:videolistPage="using:Hohoema.Views.Controls.VideoList" 
-  xmlns:windowsStateTrigger="using:WindowsStateTriggers" 
-  DataContext="{x:Null}"
-  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" xmlns:videoList="using:Hohoema.Views.Controls.VideoList.VideoListItem" xmlns:cacheModel="using:Hohoema.Models.VideoCache"
+  xmlns:windowsStateTrigger="using:WindowsStateTriggers"   
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" 
+  xmlns:videoList="using:Hohoema.Views.Controls.VideoList.VideoListItem" 
+  xmlns:cacheModel="using:Hohoema.Models.VideoCache" 
+  xmlns:viewModels="using:Hohoema.ViewModels.Pages.Hohoema.VideoCache"
   mc:Ignorable="d"
     >
 
   <Page.Resources>
     <CollectionViewSource x:Key="CacheItemsViewSource"
-                          Source="{Binding Groups}"
+                          Source="{x:Bind _vm.Groups}"
                           IsSourceGrouped="True"
                           ItemsPath="Items"
                           >
@@ -38,9 +39,8 @@
   <Grid>
 
     <videolistPage:VideoItemsListView ItemsSource="{Binding Source={StaticResource CacheItemsViewSource}}"
-                                      ItemCommand="{Binding VideoPlayWithQueueCommand}"
-                                      ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
-                                      RefreshCommand="{Binding ResetListCommand}"
+                                      ItemCommand="{x:Bind _vm.VideoPlayWithQueueCommand}"
+                                      RefreshCommand="{x:Bind _vm.ResetListCommand}"
                                       x:Name="VideoItemsListView"
                                       >
       <videolistPage:VideoItemsListView.Header>
@@ -49,7 +49,7 @@
           <CommandBar DefaultLabelPosition="Right" VerticalContentAlignment="Center">
             <CommandBar.Content>
               <StackPanel>
-                <controls:AppTitleBar Title="{Binding Title}" />
+                <controls:AppTitleBar Title="{x:Bind _vm.Title, Mode=OneWay}" />
                 
                 <TextBlock Text="{i18nExt:Localize Key=CacheFeatureIsAvairableForOnlyNiconicoPremiumMember}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="Red"
                            x:Name="CacheFunctionIsForPremiumMemberOnlyText" 
@@ -64,15 +64,15 @@
                 <StackPanel>
                   <StackPanel Orientation="Horizontal" Spacing="16">
                     <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}">
-                      <Run Text="{i18nExt:Localize Key=CachedStorageSize_Current}" />:<Run Text="{Binding CurrentlyCachedStorageSize.Value, Converter={StaticResource ToKMGTPEZY}}" />B
+                      <Run Text="{i18nExt:Localize Key=CachedStorageSize_Current}" />:<Run Text="{x:Bind _vm. CurrentlyCachedStorageSize.Value, Mode=OneWay, Converter={StaticResource ToKMGTPEZY}}" />B
                     </TextBlock>
-                    <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Visibility="{Binding MaxCacheStorageSize.Value, Converter={StaticResource NotNullToVisibility}}">
-                      <Run Text="{i18nExt:Localize Key=CachedStorageSize_Limit}" />:<Run Text="{Binding MaxCacheStorageSize.Value, Converter={StaticResource ToKMGTPEZY}}" />B
+                    <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Visibility="{x:Bind _vm. MaxCacheStorageSize.Value, Mode=OneWay, Converter={StaticResource NotNullToVisibility}}">
+                      <Run Text="{i18nExt:Localize Key=CachedStorageSize_Limit}" />:<Run Text="{x:Bind _vm. MaxCacheStorageSize.Value, Mode=OneWay, Converter={StaticResource ToKMGTPEZY}}" />B
                     </TextBlock>
                     
                   </StackPanel>
 
-                  <ProgressBar Minimum="0.0" Maximum="1.0" Value="{Binding AvairableStorageSizeNormalized.Value}" Visibility="{Binding MaxCacheStorageSize.Value, Converter={StaticResource NotNullToVisibility}}" 
+                  <ProgressBar Minimum="0.0" Maximum="1.0" Value="{x:Bind _vm.AvairableStorageSizeNormalized.Value, Mode=OneWay}" Visibility="{x:Bind _vm.MaxCacheStorageSize.Value, Mode=OneWay, Converter={StaticResource NotNullToVisibility}}" 
                                Width="200"
                                />
                 </StackPanel>
@@ -80,10 +80,10 @@
 
               <AppBarElementContainer VerticalContentAlignment="Center" HorizontalContentAlignment="Center" IsTabStop="False"> 
                 <uwpcontrols:DockPanel Margin="8 0" MaxWidth="120">
-                  <TextBlock Text="{i18nExt:Localize Key=DownloadOperationRunning}" Visibility="{Binding IsAllowDownload.Value, Converter={StaticResource BooleanToVisibility}}" uwpcontrols:DockPanel.Dock="Left" Margin="0 0 8 0" />
-                  <TextBlock Text="{i18nExt:Localize Key=DownloadOperationStopping}" Visibility="{Binding IsAllowDownload.Value, Converter={StaticResource BooleanToVisibilityInverted}}" uwpcontrols:DockPanel.Dock="Left" Margin="0 0 8 0" />
+                  <TextBlock Text="{i18nExt:Localize Key=DownloadOperationRunning}" Visibility="{x:Bind _vm.IsAllowDownload.Value, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}" uwpcontrols:DockPanel.Dock="Left" Margin="0 0 8 0" />
+                  <TextBlock Text="{i18nExt:Localize Key=DownloadOperationStopping}" Visibility="{x:Bind _vm.IsAllowDownload.Value, Mode=OneWay, Converter={StaticResource BooleanToVisibilityInverted}}" uwpcontrols:DockPanel.Dock="Left" Margin="0 0 8 0" />
 
-                  <ToggleSwitch IsOn="{Binding IsAllowDownload.Value, Mode=TwoWay}" 
+                  <ToggleSwitch IsOn="{x:Bind _vm.IsAllowDownload.Value, Mode=TwoWay}" 
                               Style="{StaticResource ToggleSwitchNoHeader}"
                                 MaxWidth="48"
                                 Width="48"
@@ -100,7 +100,7 @@
                 </i:Interaction.Behaviors>
               </AppBarButton>
 
-              <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
+              <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{x:Bind _vm.SelectionModeToggleCommand}" />
             </CommandBar.PrimaryCommands>
 
             <CommandBar.SecondaryCommands>
@@ -128,30 +128,30 @@
       </videolistPage:VideoItemsListView.Header>
 
       <videolistPage:VideoItemsListView.ItemTemplate>
-        <DataTemplate>
+        <DataTemplate x:DataType="viewModels:CacheVideoViewModel">
           <Grid>
-            <videoList:VideoListItem   
-              ImageSource="{Binding ThumbnailUrl}"
-              ImageSubText="{Binding Length, Converter={StaticResource TimeToMovieLengthConverter}}"
-              IsQueueItem="{Binding IsQueueItem}"
-              CacheStatus="{Binding CacheStatus}"
+            <videoList:VideoCacheListItem   
+              ImageSource="{x:Bind ThumbnailUrl}"
+              ImageSubText="{x:Bind Length, Converter={StaticResource TimeToMovieLengthConverter}}"
+              IsQueueItem="{x:Bind IsQueueItem, Mode=OneWay}"
+              CacheStatus="{x:Bind CacheStatus, Mode=OneWay}"
               >
               <Grid>
                 <StackPanel VerticalAlignment="Center" Spacing="4">
-                  <TextBlock Text="{Binding Label}" FontSize="16"
+                  <TextBlock Text="{x:Bind Label}" FontSize="16"
                        TextWrapping="Wrap"
                        VerticalAlignment="Center" />
 
-                  <StackPanel Orientation="Horizontal" Visibility="{Binding HasCacheProgress}" Spacing="8">
+                  <StackPanel Orientation="Horizontal" Visibility="{x:Bind HasCacheProgress, Mode=OneWay}" Spacing="8">
                     <TextBlock Width="48" HorizontalTextAlignment="Right">
-                      <Run Text="{Binding DownloadProgress, Converter={StaticResource ToUserFriendlySoubleVolume}}" />%
+                      <Run Text="{x:Bind DownloadProgress, Mode=OneWay, Converter={StaticResource ToUserFriendlySoubleVolume}}" />%
                     </TextBlock>
-                    <ProgressBar Width="180" Minimum="0.0" Maximum="1.0" Value="{Binding DownloadProgress}" IsIndeterminate="{Binding IsProgressUnknown}"  />
+                    <ProgressBar Width="180" Minimum="0.0" Maximum="1.0" Value="{x:Bind DownloadProgress, Mode=OneWay}" IsIndeterminate="{x:Bind IsProgressUnknown, Mode=OneWay}"  />
                   </StackPanel>
 
                   <StackPanel Orientation="Horizontal" Spacing="8" Opacity="0.7" HorizontalAlignment="Right">
 
-                    <uwpcontrols:SwitchPresenter Value="{Binding FailedReason, Converter={StaticResource EnumToNumber}}">
+                    <uwpcontrols:SwitchPresenter Value="{x:Bind FailedReason, Mode=OneWay, Converter={StaticResource EnumToNumber}}">
                       <uwpcontrols:CaseCollection >
                         <uwpcontrols:Case >
                           <uwpcontrols:Case.Value>
@@ -160,18 +160,18 @@
                           <Border />
                         </uwpcontrols:Case>
                         <uwpcontrols:Case IsDefault="True">
-                          <TextBlock Text="{Binding FailedReason, Converter={StaticResource LocalizeConverter}}"
+                          <TextBlock Text="{x:Bind FailedReason, Mode=OneWay, Converter={StaticResource LocalizeConverter}}"
                            />
                         </uwpcontrols:Case>
                       </uwpcontrols:CaseCollection>
                     </uwpcontrols:SwitchPresenter>
-                    
-                    
-                    <TextBlock Visibility="{Binding FileSize, Converter={StaticResource NotNullToVisibility}}" MinWidth="48" HorizontalTextAlignment="Center">
-                      <Run Text="{Binding FileSize, Converter={StaticResource ToKMGTPEZY}}" />B
+
+
+                    <TextBlock Visibility="{x:Bind FileSize, Mode=OneWay, Converter={StaticResource NotNullToVisibility}}" MinWidth="48" HorizontalTextAlignment="Center">
+                      <Run Text="{x:Bind FileSize, Mode=OneWay, Converter={StaticResource ToKMGTPEZY}}" />B
                     </TextBlock>
 
-                    <TextBlock Text="{Binding CacheRequestedQuality, Converter={StaticResource LocalizeConverter}}"
+                    <TextBlock Text="{x:Bind CacheRequestedQuality, Mode=OneWay, Converter={StaticResource LocalizeConverter}}"
                            VerticalAlignment="Bottom" 
                                HorizontalTextAlignment="End"
                                MinWidth="80"
@@ -184,7 +184,7 @@
                 
 
               </Grid>
-            </videoList:VideoListItem>
+            </videoList:VideoCacheListItem>
           </Grid>
         </DataTemplate>
       </videolistPage:VideoItemsListView.ItemTemplate>
@@ -193,8 +193,8 @@
       <videolistPage:VideoItemsListView.GroupStyle>
         <GroupStyle HidesIfEmpty="True">
           <GroupStyle.HeaderTemplate>
-            <DataTemplate>
-              <TextBlock Text="{Binding CacheStatus, Converter={StaticResource LocalizeConverter}}" />
+            <DataTemplate x:DataType="viewModels:CacheItemsGroup">
+              <TextBlock Text="{x:Bind CacheStatus, Mode=OneWay, Converter={StaticResource LocalizeConverter}}" />
             </DataTemplate>
           </GroupStyle.HeaderTemplate>
           

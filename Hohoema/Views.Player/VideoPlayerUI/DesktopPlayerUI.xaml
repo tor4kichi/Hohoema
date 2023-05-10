@@ -349,23 +349,7 @@
             <!-- Secondary window TitleBar margin -->
             <Border x:Name="SecondaryWindowTopMarginBorder" Height="32" uwpControls:DockPanel.Dock="Top" Visibility="Collapsed" />
             
-            <!-- タイトルバーに表示する画面関連操作 -->
-            <Grid x:Name="TitleBarWindowControlUI" uwpControls:DockPanel.Dock="Right" VerticalAlignment="Top" Height="32">
-
-
-              <StackPanel x:Name="TitleBarWindowActionsPanel" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0 0 188 0">
-                <Button x:Name="FullscreenButton" Command="{x:Bind _vm.PlayerView.ToggleFullScreenCommand}" Background="Transparent" Visibility="Collapsed" MinHeight="32" MinWidth="48" ToolTipService.ToolTip="{i18nExt:Localize Key=FullScreen}">
-                  <iconPack:PackIconMaterial Kind="Fullscreen" />
-                </Button>
-                <Button x:Name="CompactOverlayButton" Command="{x:Bind _vm.PlayerView.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" MinHeight="32" MinWidth="48" ToolTipService.ToolTip="{i18nExt:Localize Key=CompactOverlay}">
-                  <iconPack:PackIconMaterial Kind="OpenInNew" />
-                </Button>
-                <Button x:Name="SmallWindowButton" Command="{x:Bind _vm.PrimaryViewPlayerManager.ToggleFillOrWindowInWindowCommand}" Background="Transparent" Visibility="Collapsed" MinHeight="32" MinWidth="48" ToolTipService.ToolTip="{i18nExt:Localize Key=WindowInWindow}">
-                  <iconPack:PackIconMaterial Kind="ArrowBottomRight" />
-                </Button>
-              </StackPanel>
-              <Border x:Name="TitleBarWindowSeparator" Background="{ThemeResource AppBarSeparatorForegroundThemeBrush}" Margin="0 6 158 6" Width="1" HorizontalAlignment="Right" Opacity="0.4" />
-            </Grid>
+            
             
             <!-- 左上 -->
             <StackPanel Orientation="Horizontal" uwpControls:DockPanel.Dock="Left">
@@ -374,6 +358,7 @@
                       XYFocusDown="{x:Bind LikeToggleButton}"
                       ToolTipService.ToolTip="{i18nExt:Localize Key=Close}"
                       ToolTipService.Placement="Bottom"
+                      VerticalAlignment="Top"
                             >
                 <SymbolIcon Symbol="Clear" />
               </Button>
@@ -385,11 +370,47 @@
                 </StackPanel>
               </Button>
             </StackPanel>
+
+
+            <!-- タイトルバーに表示する画面関連操作 -->
+            <Grid x:Name="TitleBarWindowControlUI" uwpControls:DockPanel.Dock="Right" VerticalAlignment="Top" Visibility="{x:Bind IsVisibleUI, Converter={StaticResource BooleanToVisibility}}">
+              <StackPanel x:Name="TitleBarWindowActionsPanel" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0 0 188 0" VerticalAlignment="Top" Height="32">
+                <StackPanel.Resources>
+                  <Style TargetType="iconPack:PackIconMaterial">
+                    <Setter Property="RenderTransform">
+                      <Setter.Value>
+                        <ScaleTransform ScaleX="0.7" ScaleY="0.7" />
+                      </Setter.Value>
+                    </Setter>
+                    <Setter Property="RenderTransformOrigin" Value="0.5, 0.5" />
+                    <Setter Property="Opacity" Value="0.7" />
+                  </Style>
+                  <Style TargetType="Button">
+                    <Setter Property="BorderBrush" Value="Transparent" />
+                    <Setter Property="Background" Value="Transparent" />
+                    <Setter Property="ToolTipService.Placement" Value="Bottom" />
+                    
+                  </Style>
+                </StackPanel.Resources>
+                <Button x:Name="FullscreenButton" Command="{x:Bind _vm.PlayerView.ToggleFullScreenCommand}" Visibility="Collapsed" MinHeight="32" MinWidth="48" ToolTipService.ToolTip="{i18nExt:Localize Key=FullScreen}">
+                  <iconPack:PackIconMaterial Kind="Fullscreen" />
+                </Button>
+                <Button x:Name="CompactOverlayButton" Command="{x:Bind _vm.PlayerView.ToggleCompactOverlayCommand}" Visibility="Collapsed" MinHeight="32" MinWidth="48" ToolTipService.ToolTip="{i18nExt:Localize Key=CompactOverlay}">
+                  <iconPack:PackIconMaterial Kind="OpenInNew" />
+                </Button>
+                <Button x:Name="SmallWindowButton" Command="{x:Bind _vm.PrimaryViewPlayerManager.ToggleFillOrWindowInWindowCommand}" Visibility="Collapsed" MinHeight="32" MinWidth="48" ToolTipService.ToolTip="{i18nExt:Localize Key=WindowInWindow}">
+                  <iconPack:PackIconMaterial Kind="ArrowBottomRight" />
+                </Button>
+              </StackPanel>
+              <Border x:Name="TitleBarWindowSeparator" Background="{ThemeResource AppBarSeparatorForegroundThemeBrush}" Margin="0 6 158 6" Width="1" HorizontalAlignment="Right" Opacity="0.4" VerticalAlignment="Top" />
+            </Grid>
+
+
             <!-- 右上 -->                     
-            <Button x:Name="ExitWindonwInWindowViewButton" Command="{x:Bind _vm.PrimaryViewPlayerManager.FillCommand}" Background="Transparent" Visibility="Collapsed" uwpControls:DockPanel.Dock="Right" Margin="0 8 0 0" MinWidth="48" MinHeight="48">
+            <Button x:Name="ExitWindonwInWindowViewButton" Command="{x:Bind _vm.PrimaryViewPlayerManager.ShowWithFillCommand}" Background="Transparent" Visibility="Collapsed" uwpControls:DockPanel.Dock="Top" Margin="0 0 0 0" MinWidth="48" MinHeight="48" HorizontalAlignment="Right">
               <SymbolIcon Symbol="FullScreen" />
             </Button>
-            <Button x:Name="ExitCompactOverlayButton" Command="{x:Bind _vm.PlayerView.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" uwpControls:DockPanel.Dock="Right" Margin="0 8 0 0" MinWidth="48" MinHeight="48">
+            <Button x:Name="ExitCompactOverlayButton" Command="{x:Bind _vm.PlayerView.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" uwpControls:DockPanel.Dock="Top" Margin="0 0 100 0" MinWidth="48" MinHeight="32" HorizontalAlignment="Right">
               <SymbolIcon Symbol="FullScreen" />
             </Button>
 
@@ -823,9 +844,9 @@
       </i:Interaction.Behaviors>
     </Grid>
 
-
-    <Border x:Name="PlayerTopDraggableArea" IsHitTestVisible="True" VerticalAlignment="Top" Height="32" Background="Transparent" Margin="80 0 340 0" />
-
+    <Border x:Name="PlayerTopDraggableArea_Compact" IsHitTestVisible="True" VerticalAlignment="Top" Height="32" Background="Transparent" Margin="48 0 148 0" />
+    <Border x:Name="PlayerTopDraggableArea_FullScreen" IsHitTestVisible="True" VerticalAlignment="Top" Height="32" Background="Transparent" Margin="80 0 340 0" />
+    <Border x:Name="PlayerTopDraggableArea_FillWindow" IsHitTestVisible="True" VerticalAlignment="Top" Height="32" Background="Transparent" Margin="64 0 340 0" />
 
     <VisualStateManager.VisualStateGroups>
 
@@ -1096,14 +1117,11 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding ElementName=IsVisibleUI, Mode=OneWay}" />
+            <StateTrigger IsActive="{x:Bind IsVisibleUI, Mode=OneWay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <!-- 読み取り再生位置スライダーの表示状態 -->
             <Setter Target="ReadOnlySeekBarSlider.Opacity" Value="0.0" />
-            
-            <!-- ウィンドウバーのサイズをUIに合わせて狭める -->
-            <Setter Target="PlayerTopDraggableArea.Margin" Value="48 0 332 0" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
@@ -1160,6 +1178,8 @@
           <VisualState.Setters>
             <Setter Target="OpenPlaylistButton.Visibility" Value="Collapsed" />
             <Setter Target="OpenSettingsPaneButton.Visibility" Value="Collapsed" />
+            <Setter Target="OpenCommentListButton.Visibility" Value="Collapsed" />
+           
             <Setter Target="VolumeControlLayout.Visibility" Value="Collapsed" />
             <Setter Target="VideoProps.Visibility" Value="Collapsed" />
             <Setter Target="CommentCommandEditButton.Visibility" Value="Collapsed" />
@@ -1169,6 +1189,9 @@
             <Setter Target="SeekBarSlider.Visibility" Value="Collapsed" />
             
             <Setter Target="TitleBarWindowControlUI.Visibility" Value="Collapsed" />
+            <Setter Target="CloseButton.MinWidth" Value="48" />
+            <Setter Target="CloseButton.MinHeight" Value="32" />
+            <Setter Target="TitleTextBlock.FontSize" Value="14" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>
@@ -1178,6 +1201,7 @@
           <VisualState.Setters>
             <Setter Target="OpenPlaylistButton.Visibility" Value="Collapsed" />
             <Setter Target="OpenSettingsPaneButton.Visibility" Value="Collapsed" />
+            <Setter Target="OpenCommentListButton.Visibility" Value="Collapsed" />
             <Setter Target="VolumeControlLayout.Visibility" Value="Collapsed" />
             <Setter Target="VideoProps.Visibility" Value="Collapsed" />
             <Setter Target="CommentCommandEditButton.Visibility" Value="Collapsed" />
@@ -1187,6 +1211,9 @@
             <Setter Target="SeekBarSlider.Visibility" Value="Collapsed" />
 
             <Setter Target="TitleBarWindowControlUI.Visibility" Value="Collapsed" />
+            <Setter Target="CloseButton.MinWidth" Value="48" />
+            <Setter Target="CloseButton.MinHeight" Value="32" />
+            <Setter Target="TitleTextBlock.FontSize" Value="14" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
@@ -1195,16 +1222,24 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{Binding CurrentPlayerDisplayView.Value, Mode=OneWay}" EqualTo="SecondaryView" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="TitleBarWindowActionsPanel.Margin" Value="0 0 0 0" />
+            <Setter Target="ExitCompactOverlayButton.Margin" Value="0 16 100 0" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
             <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.InteractionMode}" EqualTo="Touch" />
             <windowsTriggers:EqualsStateTrigger Value="{Binding SidePaneType}" EqualTo="Playlist" />
             <windowsTriggers:EqualsStateTrigger Value="{Binding SidePaneType}" EqualTo="Comment" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="TitleBarWindowActionsPanel.Margin" Value="0 0 0 0" />
-            <Setter Target="TitleBarWindowSeparator.Opacity" Value="0" />
+            <Setter Target="TitleBarWindowActionsPanel.Margin" Value="0 32 0 0" />
+            <Setter Target="PlayerTopDraggableArea_FillWindow.Margin" Value="80 0 48 0" />
           </VisualState.Setters>
         </VisualState>
-        
       </VisualStateGroup>
       <!-- コンパクトオーバーレイ切り替えボタンの表示・非表示 -->
       <VisualStateGroup>
@@ -1234,6 +1269,33 @@
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
+
+      <!-- タッチ操作時にウィンドウ操作関係のボタンを押しやすくする -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.InteractionMode}" EqualTo="Touch" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="TitleBarWindowActionsPanel.Spacing" Value="12" />
+            <Setter Target="TitleBarWindowActionsPanel.Height" Value="48" />
+            <Setter Target="FullscreenButton.MinWidth" Value="48" />
+            <Setter Target="FullscreenButton.MinHeight" Value="48" />
+            <Setter Target="FullscreenButton.BorderBrush" Value="{ThemeResource ButtonPointerOverBackgroundThemeBrush}" />
+            <Setter Target="CompactOverlayButton.MinWidth" Value="48" />
+            <Setter Target="CompactOverlayButton.MinHeight" Value="48" />
+            <Setter Target="CompactOverlayButton.BorderBrush" Value="{ThemeResource ButtonPointerOverBackgroundThemeBrush}" />
+            <Setter Target="SmallWindowButton.MinWidth" Value="48" />
+            <Setter Target="SmallWindowButton.MinHeight" Value="48" />
+            <Setter Target="SmallWindowButton.BorderBrush" Value="{ThemeResource ButtonPointerOverBackgroundThemeBrush}" />
+
+            <Setter Target="CloseButton.BorderBrush" Value="{ThemeResource ButtonPointerOverBackgroundThemeBrush}" />
+
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      
+      
       <!-- Xboxで表示している場合、UI表示切り替え後のフォーカス設定を切り替える -->
       <VisualStateGroup>
         <VisualState>

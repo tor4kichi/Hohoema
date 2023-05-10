@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Follow.LoginUser;
 using Hohoema.Models.Niconico.Search;
@@ -31,8 +32,14 @@ namespace Hohoema.ViewModels.Pages.Niconico.Search;
 
 using TagFollowContext = FollowContext<Models.Niconico.Video.ITag>;
 
-public class SearchResultTagPageViewModel : HohoemaListingPageViewModelBase<VideoListItemControlViewModel>, ITag, IPinablePage, ITitleUpdatablePage
+public class SearchResultTagPageViewModel 
+    : VideoListingPageViewModelBase<VideoListItemControlViewModel>
+    , ITag
+    , IPinablePage
+    , ITitleUpdatablePage
 {
+    string ITag.Tag => SearchOption.Keyword;
+
     HohoemaPin IPinablePage.GetPin()
     {
         return new HohoemaPin()
@@ -49,21 +56,15 @@ public class SearchResultTagPageViewModel : HohoemaListingPageViewModelBase<Vide
     }
 
 
-
     public ApplicationLayoutManager ApplicationLayoutManager { get; }
     public NiconicoSession NiconicoSession { get; }
     public SearchProvider SearchProvider { get; }
-    public SubscriptionManager SubscriptionManager { get; }
-    public PageManager PageManager { get; }
+    public SubscriptionManager SubscriptionManager { get; }    
     public Services.DialogService HohoemaDialogService { get; }
     public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
     public PlaylistPlayAllCommand PlaylistPlayAllCommand { get; }
     public AddTagSearchSubscriptionCommand AddTagSearchSubscriptionCommand { get; }
     public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
-
-
-
-
 
     private SearchVideoPlaylist _SearchVideoPlaylist;
     public SearchVideoPlaylist SearchVideoPlaylist
@@ -83,11 +84,7 @@ public class SearchResultTagPageViewModel : HohoemaListingPageViewModelBase<Vide
 
     private VideoSortOptionViewModel DefaultSortOptionVM => SortOptions.First(x => x.SortOption == SearchVideoPlaylist.DefaultSortOption);
 
-
-    public ReadOnlyReactivePropertySlim<PlaylistToken> CurrentPlaylistToken { get; }
-
-
-
+    public ReadOnlyReactivePropertySlim<PlaylistToken?> CurrentPlaylistToken { get; }
 
     private string _keyword;
     public string Keyword
@@ -116,7 +113,7 @@ public class SearchResultTagPageViewModel : HohoemaListingPageViewModelBase<Vide
                 {
                     if (target.HasValue && target.Value != SearchOption.SearchTarget)
                     {
-                        PageManager.Search(target.Value, SearchOption.Keyword);
+                        _ = _messenger.OpenSearchPageAsync(target.Value, SearchOption.Keyword);
                     }
                 }));
         }
@@ -132,12 +129,12 @@ public class SearchResultTagPageViewModel : HohoemaListingPageViewModelBase<Vide
     }
 
     public SearchResultTagPageViewModel(
+        IMessenger messenger,
         ILoggerFactory loggerFactory,
         ApplicationLayoutManager applicationLayoutManager,
         NiconicoSession niconicoSession,
         TagFollowProvider tagFollowProvider,
         SubscriptionManager subscriptionManager,
-        PageManager pageManager,
         SearchHistoryRepository searchHistoryRepository,
         Services.DialogService dialogService,
         VideoPlayWithQueueCommand videoPlayWithQueueCommand,
@@ -145,11 +142,10 @@ public class SearchResultTagPageViewModel : HohoemaListingPageViewModelBase<Vide
         AddTagSearchSubscriptionCommand addTagSearchSubscriptionCommand,
         SelectionModeToggleCommand selectionModeToggleCommand
         )
-        : base(loggerFactory.CreateLogger<SearchResultTagPageViewModel>())
+        : base(messenger, loggerFactory.CreateLogger<SearchResultTagPageViewModel>(), disposeItemVM: false)
     {        
         _tagFollowProvider = tagFollowProvider;
         SubscriptionManager = subscriptionManager;
-        PageManager = pageManager;
         _searchHistoryRepository = searchHistoryRepository;
         ApplicationLayoutManager = applicationLayoutManager;
         NiconicoSession = niconicoSession;
@@ -177,14 +173,11 @@ public class SearchResultTagPageViewModel : HohoemaListingPageViewModelBase<Vide
     }
 
 
-
-    #region Commands
-
-
-    private RelayCommand _ShowSearchHistoryCommand;
     private readonly TagFollowProvider _tagFollowProvider;
     private readonly SearchHistoryRepository _searchHistoryRepository;
 
+
+    private RelayCommand _ShowSearchHistoryCommand;
     public RelayCommand ShowSearchHistoryCommand
     {
         get
@@ -192,14 +185,10 @@ public class SearchResultTagPageViewModel : HohoemaListingPageViewModelBase<Vide
             return _ShowSearchHistoryCommand
                 ?? (_ShowSearchHistoryCommand = new RelayCommand(() =>
                 {
-                    PageManager.OpenPage(HohoemaPageType.Search);
+                    _ = _messenger.OpenPageAsync(HohoemaPageType.Search);
                 }));
         }
     }
-
-    string ITag.Tag => SearchOption.Keyword;
-
-    #endregion
 
     public override async Task OnNavigatedToAsync(INavigationParameters parameters)
     {

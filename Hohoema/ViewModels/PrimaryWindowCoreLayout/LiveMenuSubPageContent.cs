@@ -13,12 +13,10 @@ public class LiveMenuSubPageContent : MenuItemBase
 {
 
     public LiveMenuSubPageContent(
-        NiconicoSession niconicoSession,
-        PageManager pageManager
+        NiconicoSession niconicoSession
         )
     {
-        NiconicoSession = niconicoSession;
-        PageManager = pageManager;
+        NiconicoSession = niconicoSession;        
         MenuItems = new ObservableCollection<HohoemaListingPageItemBase>();
 
         NiconicoSession.LogIn += (_, __) => ResetItems();
@@ -43,8 +41,6 @@ public class LiveMenuSubPageContent : MenuItemBase
 
 
     public NiconicoSession NiconicoSession { get; }
-    public PageManager PageManager { get; }
-
     public ObservableCollection<HohoemaListingPageItemBase> MenuItems { get; private set; }
 
 }

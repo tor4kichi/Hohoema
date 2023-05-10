@@ -21,6 +21,6 @@ public sealed class LogoutFromNiconicoCommand : CommandBase
 
     protected override async void Execute(object parameter)
     {
-        await NiconicoSession.SignOut();
+        await NiconicoSession.SignOutAsync();
     }
 }

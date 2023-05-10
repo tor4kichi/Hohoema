@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.Niconico;
 using Hohoema.Models.Player.Video;
 using Hohoema.Services.Player;
@@ -15,24 +16,23 @@ namespace Hohoema.ViewModels.Player.PlayerSidePaneContent;
 public sealed class RelatedVideosSidePaneContentViewModel : SidePaneContentViewModelBase, IDisposable
 {
     public RelatedVideosSidePaneContentViewModel(
-        NiconicoSession niconicoSession,
-        PageManager pageManager,
+        IMessenger messenger,
+        NiconicoSession niconicoSession,        
         RelatedVideoContentsAggregator relatedVideoContentsAggregator,
         VideoPlayWithQueueCommand videoPlayWithQueueCommand
        )
     {
+        _messenger = messenger;
         _niconicoSession = niconicoSession;
-        _pageManager = pageManager;
         _relatedVideoContentsAggregator = relatedVideoContentsAggregator;
-        VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
-        OpenMylistCommand = _pageManager.OpenPageCommand;
+        VideoPlayWithQueueCommand = videoPlayWithQueueCommand;        
     }
 
-    private readonly NiconicoSession _niconicoSession;
-    private readonly PageManager _pageManager;
+    private readonly IMessenger _messenger;
+    private readonly NiconicoSession _niconicoSession;    
     private readonly RelatedVideoContentsAggregator _relatedVideoContentsAggregator;
 
-    public RelayCommand<object> OpenMylistCommand { get; }
+    
     public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
 
     public List<VideoListItemControlViewModel> Videos { get; private set; }
@@ -51,28 +51,20 @@ public sealed class RelatedVideosSidePaneContentViewModel : SidePaneContentViewM
 
     public override void Dispose()
     {
-        CurrentVideo?.Dispose();
-        NextVideo?.Dispose();
         base.Dispose();
     }
 
     public void Clear()
     {
-        CurrentVideo?.Dispose();
         CurrentVideo = null;
         OnPropertyChanged(nameof(CurrentVideo));
 
-        NextVideo?.Dispose();
         NextVideo = null;
         OnPropertyChanged(nameof(NextVideo));
 
 
         if (Videos != null)
         {
-            foreach (var item in Videos)
-            {
-                item.Dispose();
-            }
             Videos.Clear();
             OnPropertyChanged(nameof(Videos));
         }
@@ -93,7 +85,6 @@ public sealed class RelatedVideosSidePaneContentViewModel : SidePaneContentViewM
 
                 var result = await _relatedVideoContentsAggregator.GetRelatedContentsAsync(currentVideo);
 
-                CurrentVideo?.Dispose();
                 CurrentVideo = new VideoListItemControlViewModel(currentVideo);
                 OnPropertyChanged(nameof(CurrentVideo));
 
@@ -102,7 +93,6 @@ public sealed class RelatedVideosSidePaneContentViewModel : SidePaneContentViewM
 
                 if (currentVideo.Series?.Video.Next is not null and NvapiVideoItem nextSeriesVideo)
                 {
-                    NextVideo?.Dispose();
                     NextVideo = new VideoListItemControlViewModel(nextSeriesVideo);
                     OnPropertyChanged(nameof(NextVideo));
                 }
@@ -114,4 +104,11 @@ public sealed class RelatedVideosSidePaneContentViewModel : SidePaneContentViewM
             OnPropertyChanged(nameof(NowLoading));
         }
     }
+
+    private RelayCommand<object> _OpenMylistCommand;
+    public RelayCommand<object> OpenMylistCommand =>
+        _OpenMylistCommand ??= new RelayCommand<object>(item => 
+        {
+            //_messenger.OpenPageAsync()
+        });
 }

@@ -60,7 +60,6 @@
       ItemsSource="{Binding Source={StaticResource SubscVideosItemsViewSource}}"
       ItemCommand="{x:Bind _vm.VideoPlayWithQueueCommand}"
       ItemTemplate="{StaticResource SubscVideoListItemTemplate}"
-      ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
       RefreshCommand="{x:Bind _vm.ResetListCommand}"
       x:Name="VideoItemsListView"
      ui:FrameworkElementExtensions.EnableActualSizeBinding="True"          
@@ -87,15 +86,10 @@
                           ToolTipService.ToolTip="{i18nExt:Localize Key=OpenSubscriptionSourceVideoList}">
                     <SymbolIcon Symbol="List" />
                   </Button>
-                  <Button>
-                    <SymbolIcon Symbol="More" />
-                    <Button.Flyout>
-                      <MenuFlyout>
-                        <MenuFlyoutItem Text="{i18nExt:Localize Key=SubscVideos_MarkAsChecked}" 
-                                        Command="{x:Bind AllMarkAsCheckedCommand}"
-                                        />
-                      </MenuFlyout>
-                    </Button.Flyout>
+                  <Button Command="{x:Bind AllMarkAsCheckedCommand}"
+                          ToolTipService.ToolTip="{i18nExt:Localize Key=SubscVideos_MarkAsChecked}"                          
+                          >
+                    <SymbolIcon Symbol="Accept" />
                   </Button>
                 </uwpControls:WrapPanel>
 

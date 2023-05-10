@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.PageNavigation;
 
 namespace Hohoema.ViewModels.Navigation.Commands;
@@ -6,12 +7,12 @@ namespace Hohoema.ViewModels.Navigation.Commands;
 public sealed class OpenPageWithIdCommand : CommandBase
 {
     private readonly HohoemaPageType _hohoemaPage;
-    private readonly PageManager _pageManager;
+    private readonly IMessenger _messenger;
 
-    public OpenPageWithIdCommand(HohoemaPageType hohoemaPage, PageManager pageManager)
+    public OpenPageWithIdCommand(HohoemaPageType hohoemaPage, IMessenger messenger)        
     {
         _hohoemaPage = hohoemaPage;
-        _pageManager = pageManager;
+        _messenger = messenger;
     }
     protected override bool CanExecute(object parameter)
     {
@@ -22,7 +23,7 @@ public sealed class OpenPageWithIdCommand : CommandBase
     {
         if (parameter is string id)
         {
-            _pageManager.OpenPageWithId(_hohoemaPage, id);
+            _ = _messenger.OpenPageWithIdAsync(_hohoemaPage, id);
         }
     }
 }

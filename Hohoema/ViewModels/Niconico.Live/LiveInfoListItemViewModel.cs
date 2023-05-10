@@ -6,6 +6,7 @@ using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Live;
 using Hohoema.Models.Niconico.Live.LoginUser;
 using Hohoema.Services;
+using Hohoema.ViewModels.Navigation.Commands;
 using Hohoema.ViewModels.Niconico.Share;
 using I18NPortable;
 using Microsoft.Extensions.Logging;
@@ -21,58 +22,92 @@ using ZLogger;
 
 namespace Hohoema.ViewModels.Niconico.Live;
 
-public class LiveInfoListItemViewModel : ObservableObject, ILiveContent, ILiveContentProvider
+public partial class LiveInfoListItemViewModel : ObservableObject, ILiveContent, ILiveContentProvider
 {
     private static readonly ILogger<LiveInfoListItemViewModel> _logger;
 
-    public static PageManager PageManager { get; }
     public static OpenLiveContentCommand OpenLiveContentCommand { get; }
     public static OpenShareUICommand OpenShareUICommand { get; }
     public static CopyToClipboardCommand CopyToClipboardCommand { get; }
     public static CopyToClipboardWithShareTextCommand CopyToClipboardWithShareTextCommand { get; }
-
+    public static OpenPageCommand OpenPageCommand { get; }
+    public static OpenContentOwnerPageCommand OpenPageCommanOpenContentOwnerPageCommand { get; }
 
     static LiveInfoListItemViewModel()
     {
-        _logger = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<ILoggerFactory>().CreateLogger<LiveInfoListItemViewModel>();
-        PageManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<PageManager>();
-        OpenLiveContentCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<OpenLiveContentCommand>();
-        OpenShareUICommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<OpenShareUICommand>();
-        CopyToClipboardCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<CopyToClipboardCommand>();
-        CopyToClipboardWithShareTextCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<CopyToClipboardWithShareTextCommand>();
+        _logger = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger<LiveInfoListItemViewModel>();        
+        OpenLiveContentCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<OpenLiveContentCommand>();
+        OpenShareUICommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<OpenShareUICommand>();
+        CopyToClipboardCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<CopyToClipboardCommand>();
+        CopyToClipboardWithShareTextCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<CopyToClipboardWithShareTextCommand>();
+        OpenPageCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<OpenPageCommand>();
+        OpenPageCommanOpenContentOwnerPageCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<OpenContentOwnerPageCommand>();
     }
-
-
-
-
 
 
     public LiveInfoListItemViewModel(string liveId)
     {
         LiveId = liveId;
-        _niconicoSession = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<NiconicoSession>();
+        _niconicoSession = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<NiconicoSession>();
+    }
+
+    public LiveInfoListItemViewModel(Reservation reservation)
+    {
+        LiveId = reservation.ProgramId;
+        _niconicoSession = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<NiconicoSession>();
+
+        ThumbnailUrl = reservation.Thumbnail.Small?.OriginalString ?? reservation.Thumbnail.Large?.OriginalString;
+        CommunityThumbnail = reservation.SocialGroup?.ThumbnailSmall;
+
+        CommunityGlobalId = reservation.SocialGroup.SocialGroupId;
+        CommunityType = reservation.SocialGroup.Type;
+
+        LiveTitle = reservation.Program.Title;
+        ShortDescription = reservation.Program.Description;
+        ViewCounter = (int)reservation.Statistics.Viewers;
+        CommentCount = (int)reservation.Statistics.Comments;
+        StartTime = reservation.Program.Schedule.BeginTime.DateTime;
+        EndTime = reservation.Program.Schedule.EndTime.DateTime;
+        IsTimeshiftEnabled = reservation.IsActive;
+        IsCommunityMemberOnly = reservation.Features.Enabled.Contains(nameof(LiveProgramFeature.MEMBER_ONLY));
+
+        ExpiredAt = reservation.TimeshiftTicket.ExpireTime is { } time ? time.DateTime : null;
+
+        
+        if (StartTime > DateTimeOffset.Now)
+        {
+            // 予約
+            LiveStatus = LiveStatus.Reserved;
+        }
+        else if (EndTime > DateTimeOffset.Now)
+        {
+            LiveStatus = LiveStatus.Onair;
+            Duration = DateTimeOffset.Now - StartTime;
+        }
+        else
+        {
+            LiveStatus = LiveStatus.Past;
+            Duration = EndTime.Value - StartTime;
+        }
     }
 
     private readonly NiconicoSession _niconicoSession;
 
-    public TimeshiftReservationDetailItem Reservation { get; private set; }
-
-
     public LiveId LiveId { get; }
 
-		public string CommunityName { get; protected set; }
-		public string CommunityThumbnail { get; protected set; }
-		public string CommunityGlobalId { get; protected set; }
-		public ProviderType CommunityType { get; protected set; }
+    public string CommunityName { get; protected set; }
+    public string CommunityThumbnail { get; protected set; }
+    public string CommunityGlobalId { get; protected set; }
+    public ProviderType CommunityType { get; protected set; }
 
-		public string LiveTitle { get; protected set; }
+    public string LiveTitle { get; protected set; }
     public string ShortDescription { get; protected set; }
     public int ViewCounter { get; protected set; }
     public int CommentCount { get; protected set; }
     public int TimeshiftCount { get; protected set; }
     public DateTime StartTime { get; protected set; }
-		public bool HasEndTime { get; private set; }
-		public DateTime? EndTime { get; protected set; }
+    public bool HasEndTime { get; private set; }
+    public DateTime? EndTime { get; protected set; }
     public TimeSpan Duration { get; protected set; }
     public LiveStatus LiveStatus { get; protected set; }
     public bool IsOnair => LiveStatus is LiveStatus.Onair;
@@ -80,7 +115,7 @@ public class LiveInfoListItemViewModel : ObservableObject, ILiveContent, ILiveCo
     public bool IsReserved => LiveStatus is LiveStatus.Reserved;
 
     public bool IsTimeshiftEnabled { get; protected set; }
-		public bool IsCommunityMemberOnly { get; protected set; }
+    public bool IsCommunityMemberOnly { get; protected set; }
     public bool IsOfficialContent { get; protected set; }
     public bool IsChannelContent { get; protected set; }
     public bool IsPayRequired { get; protected set; }
@@ -90,7 +125,7 @@ public class LiveInfoListItemViewModel : ObservableObject, ILiveContent, ILiveCo
     public bool IsXbox => DeviceTypeHelper.IsXbox;
 
     public DateTime? ExpiredAt { get; internal set; }
-    public ReservationStatus? ReservationStatus { get; internal set; }
+    public bool? IsActive { get; internal set; }
 
 
     string ILiveContentProvider.ProviderId => CommunityGlobalId;
@@ -103,59 +138,17 @@ public class LiveInfoListItemViewModel : ObservableObject, ILiveContent, ILiveCo
 
     public string Title => LiveTitle;
 
-    public void SetReservation(TimeshiftReservationDetailItem reservationInfo)
+    public Reservation? Reservation { get; private set; }
+    public void SetReservation(Reservation? reservation)
     {
-        Reservation = reservationInfo;
-        ReservationStatus = LiveStatus is LiveStatus.Onair ? null : reservationInfo?.GetReservationStatus();
+        Reservation = reservation;
+        IsActive = LiveStatus is LiveStatus.Onair ? null : Reservation?.IsActive;
+        OnPropertyChanged(nameof(Reservation));
+        OnPropertyChanged(nameof(IsActive));
         DeleteReservationCommand.NotifyCanExecuteChanged();
         AddReservationCommand.NotifyCanExecuteChanged();
     }
-    /*
-    public void Setup(Mntone.Nico2.Live.Recommend.LiveRecommendData liveVideoInfo)
-    {
-        CommunityThumbnail = liveVideoInfo.ThumbnailUrl;
-
-        CommunityGlobalId = liveVideoInfo.DefaultCommunity;
-        CommunityType = liveVideoInfo.ProviderType switch
-        {
-            Mntone.Nico2.Live.CommunityType.Official => ProviderType.Official,
-            Mntone.Nico2.Live.CommunityType.Community => ProviderType.Community,
-            Mntone.Nico2.Live.CommunityType.Channel => ProviderType.Channel,
-            _ => throw new NotSupportedException(),
-        };
-
-        LiveTitle = liveVideoInfo.Title;
-        StartTime = liveVideoInfo.StartTime.LocalDateTime;
-
-        IsTimeshiftEnabled = false;
-
-        ThumbnailUrl = CommunityThumbnail;
-
-        //Description = $"来場者:{ViewCounter} コメ:{CommentCount}";
-
-        switch (liveVideoInfo.CurrentStatus)
-        {
-            case Mntone.Nico2.Live.StatusType.Invalid:
-                break;
-            case Mntone.Nico2.Live.StatusType.OnAir:
-                Duration = DateTime.Now - liveVideoInfo.StartTime;
-                LiveStatus = LiveStatus.Onair;
-                break;
-            case Mntone.Nico2.Live.StatusType.ComingSoon:
-                Duration = TimeSpan.Zero;
-                LiveStatus = LiveStatus.Reserved;
-                break;
-            case Mntone.Nico2.Live.StatusType.Closed:
-                //Duration = liveVideoInfo.end;
-                // 放送中のリコメンドであるためタイムシフトはオススメに表示ｓれない
-                LiveStatus = LiveStatus.Past;
-                throw new NotSupportedException();
-                //break;
-            default:
-                break;
-        }
-    }
-    */
+ 
     public void Setup(LiveSearchPageLiveContentItem item)
     {
         CommunityName = item.ProviderName;
@@ -194,7 +187,7 @@ public class LiveInfoListItemViewModel : ObservableObject, ILiveContent, ILiveCo
         }
         else if (item.LiveStatus is LiveSearchItemStatus.OnAir)
         {
-            Duration = DateTimeOffset.Now - StartTime;                
+            Duration = DateTimeOffset.Now - StartTime;
         }
         else
         {
@@ -280,7 +273,7 @@ public class LiveInfoListItemViewModel : ObservableObject, ILiveContent, ILiveCo
     {
         if (item.Thumbnail is not null and var thumb)
         {
-            ThumbnailUrl =thumb.Screenshot?.Small?.OriginalString
+            ThumbnailUrl = thumb.Screenshot?.Small?.OriginalString
                 ?? thumb.Screenshot?.Large?.OriginalString
                 ?? thumb.Small?.OriginalString
                 ?? thumb.Huge?.S352X198?.OriginalString
@@ -339,131 +332,119 @@ public class LiveInfoListItemViewModel : ObservableObject, ILiveContent, ILiveCo
         }
     }
 
-
-    private RelayCommand _DeleteReservationCommand;
-    public RelayCommand DeleteReservationCommand
+    [RelayCommand(CanExecute = nameof(CanDeleteReservation))]
+    async Task DeleteReservation()
     {
-        get
+        try
         {
-            return _DeleteReservationCommand
-                ?? (_DeleteReservationCommand = new RelayCommand(async () =>
-                {
-                    try
-                    {
-                        var isDeleted = await DeleteReservation(LiveId, LiveTitle);
+            if (await DeleteReservation(LiveId, LiveTitle) is bool isDeleted)
+            {
+                // 予約状態が削除になったことを通知
+                Reservation = null;
+                OnPropertyChanged(nameof(Reservation));
+                IsActive = null;
+                OnPropertyChanged(nameof(IsActive));
 
-                        if (isDeleted)
-                        {
-                            // 予約状態が削除になったことを通知
-                            Reservation = null;
-                            OnPropertyChanged(nameof(Reservation));
-                            ReservationStatus = null;
-                            OnPropertyChanged(nameof(ReservationStatus));
+                AddReservationCommand.NotifyCanExecuteChanged();
+            }
 
-                            AddReservationCommand.NotifyCanExecuteChanged();
-                        }
-
-                        _logger.ZLogInformation("Reservation deletion result: {0}", isDeleted);
-                    }
-                    catch (Exception e)
-                    {
-                        _logger.ZLogError(e, "DeleteReservation failed");
-                    }
-                }
-                , () => Reservation != null
-                ));
+            _logger.ZLogInformation("Reservation deletion result: {0}", isDeleted);
+        }
+        catch (Exception e)
+        {
+            _logger.ZLogError(e, "DeleteReservation failed");
         }
     }
 
+    bool CanDeleteReservation()
+    {
+        return Reservation != null;
+    }
 
     private async Task<bool> DeleteReservation(LiveId liveId, string liveTitle)
     {
         if (string.IsNullOrEmpty(liveId)) { throw new ArgumentException(nameof(liveId)); }
 
-        var niconicoSession = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<NiconicoSession>();
-        var hohoemaDialogService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<DialogService>();
+        var niconicoSession = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<NiconicoSession>();
+        var dialogService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<IDialogService>();
 
-        bool isDeleted = false;
+        if (await niconicoSession.ToolkitContext.Timeshift.GetReservationTokenAsync() is not { } token)
+        {
+            return false;
+        }
 
-        var token = await niconicoSession.ToolkitContext.Timeshift.GetReservationTokenAsync();
-
-        if (token == null) { return isDeleted; }
-
-        if (await hohoemaDialogService.ShowMessageDialog(
-            $"{liveTitle}",
-            "ConfirmDeleteTimeshift".Translate()
-            , "DeleteTimeshift".Translate()
-            , "Cancel".Translate()
+        if (await dialogService.ShowMessageDialog(
+            content: $"{liveTitle}",
+            title: "ConfirmDeleteTimeshift".Translate(),
+            acceptButtonText: "DeleteTimeshift".Translate(),
+            cancelButtonText: "Cancel".Translate()
             )
             )
         {
             await niconicoSession.ToolkitContext.Timeshift.DeleteTimeshiftReservationAsync(liveId, token);
 
-            var deleteAfterReservations = await niconicoSession.ToolkitContext.Timeshift.GetTimeshiftReservationsDetailAsync();
+            var deleteAfterReservations = await niconicoSession.ToolkitContext.Timeshift.GetTimeshiftReservationsAsync();
 
-            isDeleted = !deleteAfterReservations.Data.Items.Any(x => liveId == x.LiveId);
-            if (isDeleted)
+            if (deleteAfterReservations.Reservations.Items.Any(x => liveId == x.ProgramId) is false)
             {
                 // 削除成功
-                var notificationService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Services.NotificationService>();
+                var notificationService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<INotificationService>();
                 notificationService.ShowLiteInAppNotification_Success("InAppNotification_DeletedTimeshift".Translate());
+                return true;
             }
             else
             {
-                // まだ存在するゾイ
-                var notificationService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Services.NotificationService>();
+                // まだ存在する
+                var notificationService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<INotificationService>();
                 notificationService.ShowLiteInAppNotification_Fail("InAppNotification_FailedDeleteTimeshift".Translate());
 
                 _logger.ZLogWarning("タイムシフト削除に失敗しました: {0}", liveId);
+                return false;
             }
         }
-
-        return isDeleted;
-
+        else
+        {
+            return false;
+        }
     }
 
-
-    private RelayCommand _AddReservationCommand;
-    public RelayCommand AddReservationCommand
+    [RelayCommand(CanExecute = nameof(CanAddReservation))]
+    async Task AddReservation()
     {
-        get
+        try
         {
-            return _AddReservationCommand
-                ?? (_AddReservationCommand = new RelayCommand(async () =>
+            var result = await AddReservationAsync(LiveId, LiveTitle);
+            if (result)
+            {
+                var reservationProvider = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<LoginUserLiveReservationProvider>();
+                if (await reservationProvider.GetReservtionsAsync() is { } reservationRes
+                    && reservationRes.Reservations.Items.FirstOrDefault(x => LiveId == x.ProgramId) is { } reservation)
                 {
-                    try
-                    {
-                        var result = await AddReservationAsync(LiveId, LiveTitle);
-                        if (result)
-                        {
-                            var reservationProvider = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<LoginUserLiveReservationProvider>();
-                            var reservations = await reservationProvider.GetReservtionsDetailAsync();
-                            var reservation = reservations.Data.Items.FirstOrDefault(x => LiveId == x.LiveId);
-                            if (reservation != null)
-                            {
-                                SetReservation(reservation);
-                            }
-
-                            OnPropertyChanged(nameof(Reservation));
-                            OnPropertyChanged(nameof(ReservationStatus));
-                        }
-
-                        _logger.ZLogInformation("Reservation registration result: {0}", result);
-                    }
-                    catch (Exception e)
-                    {
-                        _logger.ZLogError(e, "Reservation registration failed.");
-                    }
+                    SetReservation(reservation);
                 }
-                , () => IsTimeshiftEnabled && (StartTime - TimeSpan.FromMinutes(30) > DateTime.Now || _niconicoSession.IsPremiumAccount) &&  Reservation == null
-                ));
+                else
+                {
+                    SetReservation(null);
+                }
+            }
+
+            _logger.ZLogInformation("Reservation registration result: {0}", result);
         }
+        catch (Exception e)
+        {
+            _logger.ZLogError(e, "Reservation registration failed.");
+        }
+    }
+
+    bool CanAddReservation()
+    {
+        return IsTimeshiftEnabled && (StartTime - TimeSpan.FromMinutes(30) > DateTime.Now || _niconicoSession.IsPremiumAccount) && Reservation == null;
     }
 
     private async Task<bool> AddReservationAsync(LiveId liveId, string liveTitle)
     {
-        var niconicoSession = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<NiconicoSession>();
-        var hohoemaDialogService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<DialogService>();
+        var niconicoSession = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<NiconicoSession>();
+        var hohoemaDialogService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<IDialogService>();
         var result = await niconicoSession.ToolkitContext.Timeshift.ReserveTimeshiftAsync(liveId, overwrite: false);
 
         bool isAdded = false;
@@ -486,7 +467,7 @@ public class LiveInfoListItemViewModel : ObservableObject, ILiveContent, ILiveCo
         {
             // 予約できてるはず
             // LiveInfoのタイムシフト周りの情報と共に通知
-            var notificationService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Services.NotificationService>();
+            var notificationService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<INotificationService>();
             notificationService.ShowLiteInAppNotification_Success("InAppNotification_AddedTimeshiftWithTitle".Translate(liveTitle), TimeSpan.FromSeconds(3));
 
             isAdded = true;
@@ -497,12 +478,12 @@ public class LiveInfoListItemViewModel : ObservableObject, ILiveContent, ILiveCo
         }
         else if (result.IsReservationDeuplicated)
         {
-            var notificationService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Services.NotificationService>();
+            var notificationService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<INotificationService>();
             notificationService.ShowLiteInAppNotification_Success("InAppNotification_ExistTimeshift".Translate());
         }
         else if (result.IsReservationExpired)
         {
-            var notificationService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Services.NotificationService>();
+            var notificationService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<INotificationService>();
             notificationService.ShowLiteInAppNotification_Fail("InAppNotification_TimeshiftExpired".Translate());
         }
 

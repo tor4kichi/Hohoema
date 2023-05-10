@@ -12,7 +12,7 @@ public sealed class CommentFliteringRepository
 {
     private sealed class CommentFilteringSettings : FlagsRepositoryBase
     {
-        [Obsolete]
+        
         public CommentFilteringSettings()
         {
             _IsFilteringCommentOwnerIdEnabled = Read<bool>(@default: true, nameof(IsFilteringCommentOwnerIdEnabled));
@@ -24,7 +24,7 @@ public sealed class CommentFliteringRepository
 
         private bool _IsFilteringCommentOwnerIdEnabled;
 
-        [Obsolete]
+        
         public bool IsFilteringCommentOwnerIdEnabled
         {
             get => _IsFilteringCommentOwnerIdEnabled;
@@ -33,7 +33,7 @@ public sealed class CommentFliteringRepository
 
         private bool _IsFilteringCommentTextEnabled;
 
-        [Obsolete]
+        
         public bool IsFilteringCommentTextEnabled
         {
             get => _IsFilteringCommentTextEnabled;
@@ -42,7 +42,7 @@ public sealed class CommentFliteringRepository
 
         private bool _IsFilteringCommandEnabled;
 
-        [Obsolete]
+        
         public bool IsFilteringCommandEnabled
         {
             get => _IsFilteringCommandEnabled;
@@ -51,7 +51,7 @@ public sealed class CommentFliteringRepository
 
         private List<string> _IgnoreCommands;
 
-        [Obsolete]
+        
         public List<string> IgnoreCommands
         {
             get => _IgnoreCommands;
@@ -60,7 +60,7 @@ public sealed class CommentFliteringRepository
 
         private int _NGShareScore;
 
-        [Obsolete]
+        
         public int NGShareScore
         {
             get => _NGShareScore;
@@ -69,7 +69,7 @@ public sealed class CommentFliteringRepository
 
     }
 
-    [Obsolete]
+    
     public CommentFliteringRepository(
         FilteringCommentOwnerIdDBService filteringCommentOwnerIdDBService,
         FilteringCommentTextDBService filteringCommentTextDBService,
@@ -91,7 +91,7 @@ public sealed class CommentFliteringRepository
     private readonly CommentFilteringSettings _commentFilteringSettings;
     private int _shareNGScore;
 
-    [Obsolete]
+    
     public int ShareNGScore
     {
         get => _shareNGScore;
@@ -220,7 +220,7 @@ public sealed class CommentFliteringRepository
     #region Filtering Owner Id
 
 
-    [Obsolete]
+    
     public bool IsFilteringCommentOwnerIdEnabled
     {
         get => _commentFilteringSettings.IsFilteringCommentOwnerIdEnabled;
@@ -309,7 +309,7 @@ public sealed class CommentFliteringRepository
         }
     }
 
-    [Obsolete]
+    
     public bool IsFilteringCommentTextEnabled
     {
         get => _commentFilteringSettings.IsFilteringCommentTextEnabled;
@@ -363,21 +363,21 @@ public sealed class CommentFliteringRepository
         return _filteredCommands?.ToList() ?? new List<string>();
     }
 
-    [Obsolete]
+    
     public void AddFilteredCommand(string command)
     {
         _ = _filteredCommands.Add(command);
         _commentFilteringSettings.IgnoreCommands = _filteredCommands.ToList();
     }
 
-    [Obsolete]
+    
     public void RemoveFilteredCommand(string command)
     {
         _ = _filteredCommands.Remove(command);
         _commentFilteringSettings.IgnoreCommands = _filteredCommands.ToList();
     }
 
-    [Obsolete]
+    
     public void ClearFilteredCommand()
     {
         _filteredCommands.Clear();

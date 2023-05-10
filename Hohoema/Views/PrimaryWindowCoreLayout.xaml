@@ -426,6 +426,10 @@
 
           <muxc:NavigationViewItem.ContextFlyout>
             <MenuFlyout>
+              <MenuFlyoutItem Text="{i18nExt:Localize Key=SubscVideos_AllMarkAsChecked}" 
+                              Icon="Play"
+                              Command="{Binding MarkAsCheckedAllCommand}"
+                              />
               <MenuFlyoutItem Text="{i18nExt:Localize Key=SubscGroup_AllPlayUnwatched}" 
                               Icon="Play"
                               Command="{Binding PlayNewVideosCommand}"
@@ -518,9 +522,9 @@
               Height="{Binding ElementName=PlayerFrame, Path=ActualHeight, Mode=OneWay}"
               Visibility="Collapsed" />
         <muxc:NavigationView x:Name="CoreNavigationView"
-                      MenuItemsSource="{x:Bind _viewModel.MenuItems_Offline}"
+                      MenuItemsSource="{x:Bind _vm.MenuItems_Offline}"
                       MenuItemTemplateSelector="{StaticResource MenuItemTemplateSelector}"
-                      PaneDisplayMode="{x:Bind _viewModel.AppearanceSettings.MenuPaneDisplayMode, Mode=OneWay}"
+                      PaneDisplayMode="{x:Bind _vm.AppearanceSettings.MenuPaneDisplayMode, Mode=OneWay}"
                       ItemInvoked="CoreNavigationView_ItemInvoked"
                       BackRequested="CoreNavigationView_BackRequested"
                       IsSettingsVisible="True"
@@ -542,7 +546,7 @@
 
           <muxc:NavigationView.PaneHeader>
             <Grid >
-              <TextBlock Text="{x:Bind _viewModel.NiconicoSession.ServiceStatus, Mode=OneWay}"
+              <TextBlock Text="{x:Bind _vm.NiconicoSession.ServiceStatus, Mode=OneWay}"
                        x:Name="ServiceStateText" 
                        Margin="8 0"
                        Visibility="Collapsed"
@@ -576,7 +580,7 @@
                             myExtensions:ListViewBase.ItemContextFlyoutCustomObjectToTag="{Binding}">
               <i:Interaction.Behaviors>
                 <core:EventTriggerBehavior EventName="ItemClick">
-                  <core:InvokeCommandAction Command="{Binding PageManager.OpenPageCommand}"
+                  <core:InvokeCommandAction Command="{Binding OpenPageCommand}"
                                                   InputConverter="{StaticResource ItemClickEventArgsConverter}" />
                 </core:EventTriggerBehavior>
               </i:Interaction.Behaviors>
@@ -625,38 +629,38 @@
 
                   <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenSettings"
                                       Text="{i18nExt:Localize Key=HohoemaPageType.Settings}"
-                                      Command="{x:Bind _viewModel.PageManager.OpenPageCommand}"
+                                      Command="{x:Bind _vm.OpenPageCommand}"
                                     CommandParameter="{x:Bind pageNavigation:HohoemaPageType.Settings}"
                                 Visibility="Collapsed"
                                     />
 
                   <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenDebugPage"
                                       Visibility="Collapsed" Text="Open Debug Page"
-                                      Command="{x:Bind _viewModel.OpenDebugPageCommand}" />
+                                      Command="{x:Bind _vm.OpenDebugPageCommand}" />
 
                   <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenFollowPage"
                                       Visibility="Collapsed" Text="{i18nExt:Localize Key=HohoemaPageType.FollowManage}"
-                                      Command="{x:Bind _viewModel.OpenFollowPageCommand}" />
+                                      Command="{x:Bind _vm.OpenFollowPageCommand}" />
 
 
                   <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenAccountInfo"
                                       Visibility="Collapsed" Text="{i18nExt:Localize Key=LogInUserInfo}"
-                                      Command="{x:Bind _viewModel.OpenAccountInfoCommand}" />
+                                      Command="{x:Bind _vm.OpenAccountInfoCommand}" />
 
                   <MenuFlyoutSeparator />
 
                   <MenuFlyoutItem x:Name="MenuFlyoutItem_Logout"
                                       Visibility="Collapsed" Text="{i18nExt:Localize Key=LogOut}"
-                                      Command="{x:Bind _viewModel.LogoutFromNiconicoCommand}" />
+                                      Command="{x:Bind _vm.LogoutFromNiconicoCommand}" />
 
                   <MenuFlyoutItem x:Name="MenuFlyoutItem_Login"
                                       Visibility="Collapsed" Text="{i18nExt:Localize Key=LogIn}"
-                                      Command="{x:Bind _viewModel.NiconicoLoginService.LoginCommand}" />
+                                      Command="{x:Bind _vm.NiconicoLoginService.LoginCommand}" />
 
 
                 </MenuFlyout>
               </Button.Flyout>
-              <uwpControls:SwitchPresenter x:Name="AccountButtonSwitchPresenter" Value="{x:Bind _viewModel.NiconicoSession.IsLoggedIn, Mode=OneWay}">
+              <uwpControls:SwitchPresenter x:Name="AccountButtonSwitchPresenter" Value="{x:Bind _vm.NiconicoSession.IsLoggedIn, Mode=OneWay}">
                 <uwpControls:Case IsDefault="True">
                   <uwpControls:Case.Value>
                     <x:Boolean>False</x:Boolean>
@@ -676,7 +680,7 @@
                   <uwpControls:DockPanel Margin="2 0 0 0"
                                                   x:Name="AccountInfoLayout"
                                                       >
-                    <uwpControls:ImageEx Source="{x:Bind _viewModel.NiconicoSession.UserIconUrl,Mode=OneWay}"
+                    <uwpControls:ImageEx Source="{x:Bind _vm.LoginUserIcon, Mode=OneWay}"
                              uwpControls:DockPanel.Dock="Left"
                              Height="22"
                              Width="22"
@@ -685,7 +689,7 @@
                                               IsTabStop="False"
                                  />
                     <StackPanel Margin="11 0 0 0">
-                      <TextBlock Text="{x:Bind _viewModel.NiconicoSession.UserName, Mode=OneWay}" VerticalAlignment="Center" TextLineBounds="TrimToBaseline" />
+                      <TextBlock Text="{x:Bind _vm.LoginUserName, Mode=OneWay}" VerticalAlignment="Center" TextLineBounds="TrimToBaseline" />
                     </StackPanel>
                   </uwpControls:DockPanel>
                 </uwpControls:Case>
@@ -710,7 +714,7 @@
                   <core:CallMethodAction MethodName="SelectAll" />
                 </core:EventTriggerBehavior>
                 <mybehavior:KeyboardTrigger Key="Enter" x:Name="SearchSubmitWithEnterKeyTrigger" IsEnabled="False">
-                  <core:InvokeCommandAction Command="{x:Bind _viewModel.SearchCommand}" CommandParameter="{x:Bind SearchInputText, Mode=OneWay}" />
+                  <core:InvokeCommandAction Command="{x:Bind _vm.SearchCommand}" CommandParameter="{x:Bind SearchInputText, Mode=OneWay}" />
                 </mybehavior:KeyboardTrigger>
                 <mybehavior:UINavigationTrigger Kind="Cancel" IsRequireFocus="True">
                   <core:ChangePropertyAction PropertyName="IsFocusEngaged" Value="False" />
@@ -743,21 +747,6 @@
                   </NavigationThemeTransition>
                 </TransitionCollection>
               </Frame.ContentTransitions>
-
-              <myextensions:ContextFlyoutExtension.FlyoutTemplateSelector>
-                <templateSelector:HohoemaFlyoutTemplateSelector>
-                  <templateSelector:HohoemaFlyoutTemplateSelector.LiveFlyoutTemplate>
-                    <DataTemplate>
-                      <listItemControls:LiveListItemFlyout />
-                    </DataTemplate>
-                  </templateSelector:HohoemaFlyoutTemplateSelector.LiveFlyoutTemplate>
-                  <templateSelector:HohoemaFlyoutTemplateSelector.SearchHistoryFlyoutTemplate>
-                    <DataTemplate>
-                      <local:SearchHistoryListItemFlyout />
-                    </DataTemplate>
-                  </templateSelector:HohoemaFlyoutTemplateSelector.SearchHistoryFlyoutTemplate>
-                </templateSelector:HohoemaFlyoutTemplateSelector>
-              </myextensions:ContextFlyoutExtension.FlyoutTemplateSelector>
             </Frame>
           </muxc:NavigationView.Content>
         </muxc:NavigationView>
@@ -821,9 +810,9 @@
 
           <Button.Flyout>
             <MenuFlyout Placement="Bottom">
-              <MenuFlyoutItem Text="ログファイルを表示" Command="{x:Bind _viewModel.OpenDebugLogFileCommand}" />
+              <MenuFlyoutItem Text="ログファイルを表示" Command="{x:Bind _vm.OpenDebugLogFileCommand}" />
               <MenuFlyoutSeparator />
-              <MenuFlyoutItem Text="アプリを再起動" Command="{x:Bind _viewModel.RequestApplicationRestartCommand}" />
+              <MenuFlyoutItem Text="アプリを再起動" Command="{x:Bind _vm.RequestApplicationRestartCommand}" />
             </MenuFlyout>
           </Button.Flyout>
         </Button>
@@ -977,7 +966,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.TV}" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.TV}" />
           </VisualState.StateTriggers>
           <VisualState.Storyboard>
             <Storyboard>
@@ -1011,7 +1000,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger EqualTo="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" Value="{x:Bind models:ApplicationLayout.TV}" />
+            <windowsTriggers:EqualsStateTrigger EqualTo="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" Value="{x:Bind models:ApplicationLayout.TV}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="CoreNavigationView.IsBackButtonVisible" Value="Collapsed" />
@@ -1026,7 +1015,7 @@
         <VisualState>
           <VisualState.StateTriggers>
             <windowsTriggers:EqualsStateTrigger Value="{x:Bind CoreNavigationView.PaneDisplayMode, Mode=OneWay}" EqualTo="{x:Bind muxc:NavigationViewPaneDisplayMode.Top}" />
-            <windowsTriggers:NotEqualStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" NotEqualTo="{x:Bind models:ApplicationLayout.TV}" />
+            <windowsTriggers:NotEqualStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" NotEqualTo="{x:Bind models:ApplicationLayout.TV}" />
           </VisualState.StateTriggers>
         </VisualState>
         <VisualState>
@@ -1064,9 +1053,9 @@
         <!-- プレイヤーを画面全体表示 -->
         <VisualState x:Name="VS_PlayerFill">
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" EqualTo="{x:Bind servicesPlayer:PlayerDisplayMode.CompactOverlay}" />
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" EqualTo="{x:Bind servicesPlayer:PlayerDisplayMode.FullScreen}" />
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" EqualTo="{x:Bind servicesPlayer:PlayerDisplayMode.FillWindow}" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" EqualTo="{x:Bind servicesPlayer:PlayerDisplayMode.CompactOverlay}" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" EqualTo="{x:Bind servicesPlayer:PlayerDisplayMode.FullScreen}" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" EqualTo="{x:Bind servicesPlayer:PlayerDisplayMode.FillWindow}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PlayerLayout.Visibility" Value="Visible" />
@@ -1083,8 +1072,8 @@
         <VisualState x:Name="VS_PlayerWIW_TV">
           <VisualState.StateTriggers>
             <windowsTriggers:CompositeStateTrigger Operator="And">
-              <windowsTriggers:EqualsStateTrigger EqualTo="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" Value="{x:Bind models:ApplicationLayout.TV}" />
-              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" EqualTo="{x:Bind servicesPlayer:PlayerDisplayMode.WindowInWindow}" />
+              <windowsTriggers:EqualsStateTrigger EqualTo="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" Value="{x:Bind models:ApplicationLayout.TV}" />
+              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" EqualTo="{x:Bind servicesPlayer:PlayerDisplayMode.WindowInWindow}" />
             </windowsTriggers:CompositeStateTrigger>
           </VisualState.StateTriggers>
           <VisualState.Setters>
@@ -1101,8 +1090,8 @@
         <VisualState x:Name="VS_PlayerWIW_Desktop">
           <VisualState.StateTriggers>
             <windowsTriggers:CompositeStateTrigger Operator="And">
-              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Desktop}" />
-              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" EqualTo="{x:Bind servicesPlayer:PlayerDisplayMode.WindowInWindow}" />
+              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Desktop}" />
+              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" EqualTo="{x:Bind servicesPlayer:PlayerDisplayMode.WindowInWindow}" />
             </windowsTriggers:CompositeStateTrigger>
           </VisualState.StateTriggers>
           <VisualState.Setters>
@@ -1118,8 +1107,8 @@
         <VisualState x:Name="VS_PlayerWIW_Tablet">
           <VisualState.StateTriggers>
             <windowsTriggers:CompositeStateTrigger Operator="And">
-              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Tablet}" />
-              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" EqualTo="{x:Bind servicesPlayer:PlayerDisplayMode.WindowInWindow}" />
+              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Tablet}" />
+              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" EqualTo="{x:Bind servicesPlayer:PlayerDisplayMode.WindowInWindow}" />
             </windowsTriggers:CompositeStateTrigger>
           </VisualState.StateTriggers>
           <VisualState.Setters>
@@ -1137,8 +1126,8 @@
         <VisualState x:Name="VS_PlayerWIW_Mobile">
           <VisualState.StateTriggers>
             <windowsTriggers:CompositeStateTrigger Operator="And">
-              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Mobile}" />
-              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" EqualTo="{x:Bind servicesPlayer:PlayerDisplayMode.WindowInWindow}" />
+              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Mobile}" />
+              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" EqualTo="{x:Bind servicesPlayer:PlayerDisplayMode.WindowInWindow}" />
             </windowsTriggers:CompositeStateTrigger>
           </VisualState.StateTriggers>
           <VisualState.Setters>
@@ -1154,7 +1143,7 @@
         <!-- TV -->
         <VisualState x:Name="VS_TV">
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.TV}" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.TV}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
           </VisualState.Setters>
@@ -1162,7 +1151,7 @@
         <!-- Desktop -->
         <VisualState x:Name="VS_Desktop">
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Desktop}" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Desktop}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
           </VisualState.Setters>
@@ -1170,7 +1159,7 @@
         <!-- Tablet -->
         <VisualState x:Name="VS_Tablet">
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Tablet}" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Tablet}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
           </VisualState.Setters>
@@ -1178,7 +1167,7 @@
         <!-- Mobile -->
         <VisualState x:Name="VS_Mobile">
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Mobile}" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Mobile}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
           </VisualState.Setters>
@@ -1194,7 +1183,7 @@
           <VisualState.StateTriggers>
             <windowsTriggers:CompositeStateTrigger Operator="And">
               <StateTrigger IsActive="{x:Bind _isFocusMenu.Value, Mode=OneWay}" />
-              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.TV}" />
+              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.TV}" />
             </windowsTriggers:CompositeStateTrigger>
           </VisualState.StateTriggers>
           <VisualState.Setters>
@@ -1210,7 +1199,7 @@
         <!-- TV -->
         <VisualState x:Name="VS_TopMenu_TV">
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.TV}" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.TV}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
           </VisualState.Setters>
@@ -1225,7 +1214,7 @@
         <!-- Desktop -->
         <VisualState x:Name="VS_TopMenu_Mouse">
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Desktop}" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Desktop}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="CoreNavigationView.OpenPaneLength" Value="{StaticResource SideMenuPaneLength}" />
@@ -1234,7 +1223,7 @@
         <!-- Table -->
         <VisualState x:Name="VS_TopMenu_Tablet">
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Tablet}" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Tablet}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="CoreNavigationView.OpenPaneLength" Value="{StaticResource SideMenuPaneLength}" />
@@ -1243,7 +1232,7 @@
         <!-- Mobile -->
         <VisualState x:Name="VS_TopMenu_Mobile">
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Mobile}" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Mobile}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="CoreNavigationView.OpenPaneLength" Value="{StaticResource SideMenuPaneLength}" />
@@ -1254,7 +1243,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.TV}" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.TV}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
           </VisualState.Setters>
@@ -1270,7 +1259,7 @@
         <VisualState>
           <VisualState.StateTriggers>
             <windowsTriggers:CompositeStateTrigger Operator="And">
-              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Mobile}" />
+              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Mobile}" />
               <windowsTriggers:FullScreenModeTrigger />
             </windowsTriggers:CompositeStateTrigger>
           </VisualState.StateTriggers>
@@ -1279,7 +1268,7 @@
         <VisualState>
           <VisualState.StateTriggers>
             <windowsTriggers:CompositeStateTrigger Operator="And">
-              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Mobile}" />
+              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Mobile}" />
               <windowsTriggers:OrientationStateTrigger Orientation="Landscape" />
             </windowsTriggers:CompositeStateTrigger>
           </VisualState.StateTriggers>
@@ -1293,7 +1282,7 @@
         <VisualState>
           <VisualState.StateTriggers>
             <windowsTriggers:CompositeStateTrigger Operator="And">
-              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Mobile}" />
+              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Mobile}" />
               <windowsTriggers:OrientationStateTrigger Orientation="Portrait" />
             </windowsTriggers:CompositeStateTrigger>
           </VisualState.StateTriggers>
@@ -1308,7 +1297,7 @@
       <VisualStateGroup>
         <VisualState x:Name="OfflineState">
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.NiconicoSession.ServiceStatus, Mode=OneWay}" EqualTo="{x:Bind models:HohoemaAppServiceLevel.Offline}" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.NiconicoSession.ServiceStatus, Mode=OneWay}" EqualTo="{x:Bind models:HohoemaAppServiceLevel.Offline}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="MenuFlyoutItem_Login.Visibility" Value="Visible" />
@@ -1316,7 +1305,7 @@
         </VisualState>
         <VisualState x:Name="ServiceUnavailableState">
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.NiconicoSession.ServiceStatus, Mode=OneWay}" EqualTo="{x:Bind models:HohoemaAppServiceLevel.ServiceUnavailable}" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.NiconicoSession.ServiceStatus, Mode=OneWay}" EqualTo="{x:Bind models:HohoemaAppServiceLevel.ServiceUnavailable}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="MenuFlyoutItem_Login.Visibility" Value="Visible" />
@@ -1324,7 +1313,7 @@
         </VisualState>
         <VisualState x:Name="WithoutLoggedInState">
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.NiconicoSession.ServiceStatus, Mode=OneWay}" EqualTo="{x:Bind models:HohoemaAppServiceLevel.WithoutLoggedIn}" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.NiconicoSession.ServiceStatus, Mode=OneWay}" EqualTo="{x:Bind models:HohoemaAppServiceLevel.WithoutLoggedIn}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ServiceStateText.Visibility" Value="Collapsed" />
@@ -1333,14 +1322,14 @@
         </VisualState>
         <VisualState x:Name="LoggedInState">
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.NiconicoSession.ServiceStatus, Mode=OneWay}" EqualTo="{x:Bind models:HohoemaAppServiceLevel.LoggedIn}" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.NiconicoSession.ServiceStatus, Mode=OneWay}" EqualTo="{x:Bind models:HohoemaAppServiceLevel.LoggedIn}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ServiceStateText.Visibility" Value="Collapsed" />
             <Setter Target="MenuFlyoutItem_OpenAccountInfo.Visibility" Value="Visible" />
             <Setter Target="MenuFlyoutItem_OpenFollowPage.Visibility" Value="Visible" />
             <Setter Target="MenuFlyoutItem_Logout.Visibility" Value="Visible" />
-            <Setter Target="CoreNavigationView.MenuItemsSource" Value="{x:Bind _viewModel.MenuItems_LoggedIn}" />
+            <Setter Target="CoreNavigationView.MenuItemsSource" Value="{x:Bind _vm.MenuItems_LoggedIn}" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>

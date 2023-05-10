@@ -222,6 +222,9 @@ ReorderSubsciprionSource_MoveNext = 一つ後ろへ移動
 ReorderSubsciprionSource_MoveToHead = 最前へ移動
 ReorderSubsciprionSource_MoveToTail = 最後尾へ移動
 
+SubscNotification_StartAutoUpdate = 新着チェック開始しました
+SubscNotification_CompleteAutoUpdate = 新着チェック完了しました
+SubscNotification_NoNewVideos = 新着動画はありません
 Notification_SuccessAddSubscriptionSourceWithLabel = 「{0}」を新着チェックに追加しました
 Notification_FailedSubscriptionUpdate = 新着動画の更新に失敗しました
 Notification_SuccessAddToWatchLaterWithAddedCount = 新着動画 {0} 件を キュー に追加しました
@@ -278,7 +281,7 @@ ApplicationInteractionMode = レイアウトモード
 ApplicationInteractionMode.Controller = コントローラー
 ApplicationInteractionMode.Mouse = マウス
 ApplicationInteractionMode.Touch = タッチ
-DisplayLanguage = 表示言語🌏
+DisplayLanguage = 🌏言語/Language/语言🌏
 FirstOpenPageType = 起動時に表示するページ
 Theme = テーマ
 ElementTheme.Default = システム設定に準じる
@@ -320,7 +323,7 @@ ErrorReportDialog_UserInputTextBoxDesc = エラーが発生した状況を説明
 
 
 UserDataSettings = バックアップ
-BackupUserData = バックアップを書き出す
+BackupUserData = バックアップを保存する
 RestoreUserData = バックアップを読み込む
 BackupSaveComplete = バックアップを保存しました
 BackupSaveFailed = バックアップの保存に失敗しました。\n{0}
@@ -331,12 +334,14 @@ ApplicationDiagnosticsReport = アプリの使用状況レポート
 EnableCrashReport = アプリのエラー情報を送信する
 EnableAnalyticsReport = アプリ機能・ページの利用状況を送信する
 
-UseLegacyStylePlayerControlUI = 旧バージョンの動画プレイヤーUIを使う
-
-
-
-
-
+VideoItemListingSettings = 動画リスト設定
+IsVideoListItemDoubleClickOrDoubleTapToPlayEnabled = ダブルクリックで再生開始
+IsVideoListItemAdditionalUIEnabled = 追加アクションボタンを表示する
+IsVideoListItemMiddleClickToAddQueueEnabled = センタークリックでキューに追加
+IsVideoListThumbnailCacheEnabled = サムネイル画像のキャッシュする
+VideoListThumbnailCacheMaxCount = サムネイル画像キャッシュの最大数
+VideoListThumbnailCache_ClearAll = 画像キャッシュを全て削除
+VideoListThumbnailCache_TotalBytes = 画像キャッシュの合計サイズ
 
 
 #### Niconico General ####

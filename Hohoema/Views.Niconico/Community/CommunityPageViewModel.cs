@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.Application;
 using Hohoema.Models.Niconico.Community;
 using Hohoema.Models.Niconico.Follow.LoginUser;
@@ -28,7 +29,7 @@ using CommunityFollowContext = FollowContext<ICommunity>;
 
 
 public class CommunityPageViewModel : HohoemaPageViewModelBase, IPinablePage, ITitleUpdatablePage
-	{
+{
     HohoemaPin IPinablePage.GetPin()
     {
         return new HohoemaPin()
@@ -46,26 +47,27 @@ public class CommunityPageViewModel : HohoemaPageViewModelBase, IPinablePage, IT
 
 
     public ApplicationLayoutManager ApplicationLayoutManager { get; }
-    public PageManager PageManager { get; }
     public NiconicoSession NiconicoSession { get; }
     public CommunityProvider CommunityProvider { get; }
+
+    private readonly IMessenger _messenger;
     private readonly AppearanceSettings _appearanceSettings;
     private readonly CommunityFollowProvider _communityFollowProvider;
 
 
 
     public CommunityPageViewModel(
+        IMessenger messenger,
         ApplicationLayoutManager applicationLayoutManager,
         AppearanceSettings appearanceSettings,
-        PageManager pageManager,
         NiconicoSession niconicoSession,
         CommunityFollowProvider communityFollowProvider,
         CommunityProvider communityProvider
         )
     {
+        _messenger = messenger;
         ApplicationLayoutManager = applicationLayoutManager;
         _appearanceSettings = appearanceSettings;
-        PageManager = pageManager;
         NiconicoSession = niconicoSession;
         _communityFollowProvider = communityFollowProvider;
         CommunityProvider = communityProvider;
@@ -81,55 +83,55 @@ public class CommunityPageViewModel : HohoemaPageViewModelBase, IPinablePage, IT
 
     public CommunityId? CommunityId { get; private set; }
 
-		public CommunityInfoData CommunityInfo { get; private set; }
+    public CommunityInfoData CommunityInfo { get; private set; }
 
 
-		public string CommunityName => CommunityInfo?.Name;
+    public string CommunityName => CommunityInfo?.Name;
 
-		public string CommunityDescription => CommunityInfo?.Description;
+    public string CommunityDescription => CommunityInfo?.Description;
 
-		public bool IsPublic => CommunityInfo?.IsPublic ?? false;
+    public bool IsPublic => CommunityInfo?.IsPublic ?? false;
 
-		public int CommunityLevel => CommunityInfo?.Level ?? 0;
+    public int CommunityLevel => CommunityInfo?.Level ?? 0;
 
-		public string ThumbnailUrl => CommunityInfo?.ThumbnailNonSsl?.OriginalString;
-
-
-
-		public string CanNotFollowReason { get; private set; }
-
-		//		public bool IsJoinAutoAccept => CommunityDetail?.Option.IsJoinAutoAccept ?? false;
-		//		public bool IsJoinWithoutPrivacyInfo => CommunityDetail?.Option.IsJoinWithoutPrivacyInfo ?? false;
-		//		public bool IsCanLiveOnlyPrivilege => CommunityDetail?.Option.IsCanLiveOnlyPrivilege ?? false;
-		//		public bool IsCanAcceptJoinOnlyPrivilege => CommunityDetail?.Option.IsCanAcceptJoinOnlyPrivilege ?? false;
-		//		public bool IsCanSubmitVideoOnlyPrivilege => CommunityDetail?.Option.IsCanSubmitVideoOnlyPrivilege ?? false;
-
-		// プロフィールHTMLの表示
-		public Uri ProfileHtmlFileUri { get; set; }
-
-		// オーナーユーザー
-		public UserInfoViewModel OwnerUserInfo { get; private set; }
-
-		// タグ
-		public List<NicoVideoTag> Tags { get; private set; }
-		
-		// 生放送予定の表示
-		public List<CommunityLiveInfoViewModel> FutureLiveList { get; private set; }
-
-		// 生放送予定の表示
-		public List<CommunityLiveInfoViewModel> RecentLiveList { get; private set; }
+    public string ThumbnailUrl => CommunityInfo?.ThumbnailNonSsl?.OriginalString;
 
 
-		// コミュニティのお知らせ
-		public List<CommunityNewsViewModel> NewsList { get; private set; }
 
-		public bool HasNews { get; private set; }
+    public string CanNotFollowReason { get; private set; }
 
-		// 生放送
-		//public List<CurrentLiveInfoViewModel> CurrentLiveInfoList { get; private set; }
+    //		public bool IsJoinAutoAccept => CommunityDetail?.Option.IsJoinAutoAccept ?? false;
+    //		public bool IsJoinWithoutPrivacyInfo => CommunityDetail?.Option.IsJoinWithoutPrivacyInfo ?? false;
+    //		public bool IsCanLiveOnlyPrivilege => CommunityDetail?.Option.IsCanLiveOnlyPrivilege ?? false;
+    //		public bool IsCanAcceptJoinOnlyPrivilege => CommunityDetail?.Option.IsCanAcceptJoinOnlyPrivilege ?? false;
+    //		public bool IsCanSubmitVideoOnlyPrivilege => CommunityDetail?.Option.IsCanSubmitVideoOnlyPrivilege ?? false;
 
-		// 動画
-		public List<CommunityVideoInfoViewModel> CommunityVideoSamples { get; private set; }
+    // プロフィールHTMLの表示
+    public Uri ProfileHtmlFileUri { get; set; }
+
+    // オーナーユーザー
+    public UserInfoViewModel OwnerUserInfo { get; private set; }
+
+    // タグ
+    public List<NicoVideoTag> Tags { get; private set; }
+
+    // 生放送予定の表示
+    public List<CommunityLiveInfoViewModel> FutureLiveList { get; private set; }
+
+    // 生放送予定の表示
+    public List<CommunityLiveInfoViewModel> RecentLiveList { get; private set; }
+
+
+    // コミュニティのお知らせ
+    public List<CommunityNewsViewModel> NewsList { get; private set; }
+
+    public bool HasNews { get; private set; }
+
+    // 生放送
+    //public List<CurrentLiveInfoViewModel> CurrentLiveInfoList { get; private set; }
+
+    // 動画
+    public List<CommunityVideoInfoViewModel> CommunityVideoSamples { get; private set; }
 
 
     private bool _IsOwnedCommunity;
@@ -141,19 +143,19 @@ public class CommunityPageViewModel : HohoemaPageViewModelBase, IPinablePage, IT
 
     public bool HasCurrentLiveInfo { get; private set; }
 
-		private bool _NowLoading;
-		public bool NowLoading
-		{
-			get { return _NowLoading; }
-			set { SetProperty(ref _NowLoading, value); }
-		}
+    private bool _NowLoading;
+    public bool NowLoading
+    {
+        get { return _NowLoading; }
+        set { SetProperty(ref _NowLoading, value); }
+    }
 
-		private bool _IsFailed;
-		public bool IsFailed
-		{
-			get { return _IsFailed; }
-			set { SetProperty(ref _IsFailed, value); }
-		}
+    private bool _IsFailed;
+    public bool IsFailed
+    {
+        get { return _IsFailed; }
+        set { SetProperty(ref _IsFailed, value); }
+    }
 
     // Follow
     private CommunityFollowContext _followContext = CommunityFollowContext.Default;
@@ -336,55 +338,57 @@ public class CommunityPageViewModel : HohoemaPageViewModelBase, IPinablePage, IT
     }
 
     private RelayCommand _OpenCommunityVideoListPageCommand;
-		public RelayCommand OpenCommunityVideoListPageCommand
-		{
-			get
-			{
-				return _OpenCommunityVideoListPageCommand
-					?? (_OpenCommunityVideoListPageCommand = new RelayCommand(() =>
-					{
-						PageManager.OpenPageWithId(HohoemaPageType.CommunityVideo, CommunityId);
-					}));
-			}
-		}
+    public RelayCommand OpenCommunityVideoListPageCommand
+    {
+        get
+        {
+            return _OpenCommunityVideoListPageCommand
+                ?? (_OpenCommunityVideoListPageCommand = new RelayCommand(() =>
+                {
+                    _ = _messenger.OpenPageWithIdAsync(HohoemaPageType.CommunityVideo, CommunityId!.ToString());
+                },
+                () => CommunityId != null
+                ));
+        }
+    }
 
-		private RelayCommand<Uri> _ScriptNotifyCommand;
+    private RelayCommand<Uri> _ScriptNotifyCommand;
     public RelayCommand<Uri> ScriptNotifyCommand
-		{
-			get
-			{
-				return _ScriptNotifyCommand
-					?? (_ScriptNotifyCommand = new RelayCommand<Uri>((parameter) =>
-					{
-						System.Diagnostics.Debug.WriteLine($"script notified: {parameter}");
+    {
+        get
+        {
+            return _ScriptNotifyCommand
+                ?? (_ScriptNotifyCommand = new RelayCommand<Uri>((parameter) =>
+                {
+                    System.Diagnostics.Debug.WriteLine($"script notified: {parameter}");
 
-						PageManager.OpenPage(parameter);
-					}));
-			}
-		}
+                    _ = _messenger.OpenUriAsync(parameter);
+                }));
+        }
+    }
 
     private void UpdateCanNotFollowReason()
-		{
-			if (FollowContext.IsFollowing)
-			{
-				CanNotFollowReason = null;
-			}
-			else
-			{
-				if (!CommunityInfo.IsPublic)
-				{
-					CanNotFollowReason = "参加には承認が必要";
-				}
-				//else if (CommunityInfo.OptionFlagDetails.CommunityPrivUserAuth == "1")
-				//{
-				//	CanNotFollowReason = "参加には個人情報公開が必要";
-				//}
-				else
-				{
-					CanNotFollowReason = null;
-				}
-			}
+    {
+        if (FollowContext.IsFollowing)
+        {
+            CanNotFollowReason = null;
+        }
+        else
+        {
+            if (!CommunityInfo.IsPublic)
+            {
+                CanNotFollowReason = "参加には承認が必要";
+            }
+            //else if (CommunityInfo.OptionFlagDetails.CommunityPrivUserAuth == "1")
+            //{
+            //	CanNotFollowReason = "参加には個人情報公開が必要";
+            //}
+            else
+            {
+                CanNotFollowReason = null;
+            }
+        }
 
-			OnPropertyChanged(nameof(CanNotFollowReason));
-		}
+        OnPropertyChanged(nameof(CanNotFollowReason));
+    }
 }

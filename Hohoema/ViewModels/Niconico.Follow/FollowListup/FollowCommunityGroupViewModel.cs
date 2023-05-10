@@ -13,12 +13,9 @@ public sealed class FollowCommunityGroupViewModel : FollowGroupViewModel<ICommun
     IRecipient<CommunityFollowRemovedMessage>,
     IDisposable
 {
-    private readonly IMessenger _messenger;
-
-    public FollowCommunityGroupViewModel(CommunityFollowProvider followProvider, uint loginUserId, PageManager pageManager, IMessenger messenger) 
-        : base(FollowItemType.Community, followProvider, new FollowCommunityIncrementalSource(followProvider, loginUserId), pageManager)
+    public FollowCommunityGroupViewModel(CommunityFollowProvider followProvider, uint loginUserId, IMessenger messenger) 
+        : base(FollowItemType.Community, followProvider, new FollowCommunityIncrementalSource(followProvider, loginUserId), messenger)
     {
-        _messenger = messenger;
         _messenger.RegisterAll(this);
     }
 
@@ -42,6 +39,6 @@ public sealed class FollowCommunityGroupViewModel : FollowGroupViewModel<ICommun
     public override RelayCommand<ICommunity> OpenPageCommand =>
         _OpenPageCommand ??= new RelayCommand<ICommunity>(item => 
         {
-//                _pageManager.OpenPageWithId(Models.PageNavigation.HohoemaPageType.Community, item.Id);
+//                await _messenger.OpenPageWithIdAsync(Models.PageNavigation.HohoemaPageType.Community, item.Id);
         });
 }

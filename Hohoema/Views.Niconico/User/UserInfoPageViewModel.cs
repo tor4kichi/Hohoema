@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Infra;
 using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Follow.LoginUser;
@@ -12,6 +13,7 @@ using Hohoema.Models.Subscriptions;
 using Hohoema.Services;
 using Hohoema.Services.Niconico;
 using Hohoema.Services.Playlist;
+using Hohoema.ViewModels.Navigation.Commands;
 using Hohoema.ViewModels.Niconico.Follow;
 using Hohoema.ViewModels.Niconico.Share;
 using Hohoema.ViewModels.Niconico.Video.Commands;
@@ -61,6 +63,7 @@ public class UserInfoPageViewModel : HohoemaPageViewModelBase, IPinablePage, ITi
     }
 
     public UserInfoPageViewModel(
+        IMessenger messenger,
         ApplicationLayoutManager applicationLayoutManager,
         UserProvider userProvider,
         UserFollowProvider userFollowProvider,
@@ -68,21 +71,24 @@ public class UserInfoPageViewModel : HohoemaPageViewModelBase, IPinablePage, ITi
         NiconicoSession niconicoSession,
         SubscriptionManager subscriptionManager,
         LoginUserOwnedMylistManager userMylistManager,
-        PageManager pageManager,
         MylistResolver mylistRepository,
         VideoPlayWithQueueCommand videoPlayWithQueueCommand,
         AddSubscriptionCommand addSubscriptionCommand,
+        OpenVideoListPageCommand openVideoListPageCommand,
+        OpenPageCommand openPageCommand,
         OpenLinkCommand openLinkCommand
         )
     {
         NiconicoSession = niconicoSession;
         SubscriptionManager = subscriptionManager;
         UserMylistManager = userMylistManager;
-        PageManager = pageManager;
+        OpenVideoListPageCommand = openVideoListPageCommand;
+        OpenPageCommand = openPageCommand;
         _mylistRepository = mylistRepository;
         VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
         AddSubscriptionCommand = addSubscriptionCommand;
         OpenLinkCommand = openLinkCommand;
+        _messenger = messenger;
         ApplicationLayoutManager = applicationLayoutManager;
         UserProvider = userProvider;
         _userFollowProvider = userFollowProvider;
@@ -91,17 +97,6 @@ public class UserInfoPageViewModel : HohoemaPageViewModelBase, IPinablePage, ITi
         HasOwnerVideo = true;
 
         VideoInfoItems = new ObservableCollection<VideoListItemControlViewModel>();
-
-        OpenUserVideoPageCommand = VideoInfoItems.ObserveProperty(x => x.Count)
-            .Select(x => x > 0)
-            .ToReactiveCommand()
-            .AddTo(_CompositeDisposable);
-
-        OpenUserVideoPageCommand.Subscribe(x =>
-        {
-            PageManager.OpenPageWithId(HohoemaPageType.UserVideo, UserId);
-        })
-        .AddTo(_CompositeDisposable);
 
         IsNGVideoOwner = new ReactiveProperty<bool>(false, ReactivePropertyMode.DistinctUntilChanged);
 
@@ -123,11 +118,11 @@ public class UserInfoPageViewModel : HohoemaPageViewModelBase, IPinablePage, ITi
         });
     }
 
-    public ReactiveCommand OpenUserVideoPageCommand { get; private set; }
     public NiconicoSession NiconicoSession { get; }
     public SubscriptionManager SubscriptionManager { get; }
     public LoginUserOwnedMylistManager UserMylistManager { get; }
-    public PageManager PageManager { get; }
+    public OpenVideoListPageCommand OpenVideoListPageCommand { get; }
+    public OpenPageCommand OpenPageCommand { get; }    
     public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
     public AddSubscriptionCommand AddSubscriptionCommand { get; }
     public OpenLinkCommand OpenLinkCommand { get; }
@@ -143,7 +138,7 @@ public class UserInfoPageViewModel : HohoemaPageViewModelBase, IPinablePage, ITi
             return _OpenUserMylistPageCommand
                 ?? (_OpenUserMylistPageCommand = new RelayCommand(() =>
                 {
-                    PageManager.OpenPageWithId(HohoemaPageType.UserMylist, UserId);
+                    _ = _messenger.OpenPageWithIdAsync(HohoemaPageType.UserMylist, UserId!);
                 }));
         }
     }
@@ -156,7 +151,7 @@ public class UserInfoPageViewModel : HohoemaPageViewModelBase, IPinablePage, ITi
             return _OpenUserSeriesPageCommand
                 ?? (_OpenUserSeriesPageCommand = new RelayCommand(() =>
                 {
-                    PageManager.OpenPageWithId(HohoemaPageType.UserSeries, UserId);
+                    _ = _messenger.OpenPageWithIdAsync(HohoemaPageType.UserSeries, UserId!);
                 }));
         }
     }
@@ -279,7 +274,7 @@ public class UserInfoPageViewModel : HohoemaPageViewModelBase, IPinablePage, ITi
 
     public ReactiveProperty<bool> IsNGVideoOwner { get; private set; }
 
-
+    private readonly IMessenger _messenger;
     private readonly UserFollowProvider _userFollowProvider;
     private readonly MylistResolver _mylistRepository;
 
@@ -296,10 +291,6 @@ public class UserInfoPageViewModel : HohoemaPageViewModelBase, IPinablePage, ITi
     {
         if (VideoInfoItems != null)
         {
-            foreach (var item in VideoInfoItems)
-            {
-                item.Dispose();
-            }
             VideoInfoItems.Clear();
         }
         base.OnNavigatedFrom(parameters);

@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Contracts.ViewModels;
 using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Video;
@@ -8,66 +9,51 @@ using Hohoema.Services.Niconico;
 using Hohoema.ViewModels.Niconico.Video.Commands;
 using Hohoema.ViewModels.VideoListPage;
 using Microsoft.Extensions.Logging;
+using Microsoft.Toolkit.Collections;
 using NiconicoToolkit.Video;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using ZLogger;
 
 namespace Hohoema.ViewModels.Pages.Niconico.Activity;
 
-public class WatchHistoryPageViewModel : HohoemaPageViewModelBase
+public class WatchHistoryPageViewModel 
+    : VideoListingPageViewModelBase<HistoryVideoListItemControlViewModel>
 {
     public WatchHistoryPageViewModel(
-    ILoggerFactory loggerFactory,
-    ApplicationLayoutManager applicationLayoutManager,
-    NiconicoSession niconicoSession,
-    WatchHistoryManager watchHistoryManager,
-    PageManager pageManager,
-    VideoPlayWithQueueCommand videoPlayWithQueueCommand,
-    WatchHistoryRemoveAllCommand watchHistoryRemoveAllCommand,
-    SelectionModeToggleCommand selectionModeToggleCommand
-    )
+        IMessenger messenger,
+        ILoggerFactory loggerFactory,
+        ApplicationLayoutManager applicationLayoutManager,        
+        WatchHistoryManager watchHistoryManager,    
+        VideoPlayWithQueueCommand videoPlayWithQueueCommand,
+        WatchHistoryRemoveAllCommand watchHistoryRemoveAllCommand,
+        SelectionModeToggleCommand selectionModeToggleCommand
+        )
+        : base(messenger, loggerFactory.CreateLogger<WatchHistoryPageViewModel>(), disposeItemVM: false)
     {
-        _logger = loggerFactory.CreateLogger<WatchHistoryPageViewModel>();
         ApplicationLayoutManager = applicationLayoutManager;
-        _niconicoSession = niconicoSession;
-        _watchHistoryManager = watchHistoryManager;
-        PageManager = pageManager;
+        _watchHistoryManager = watchHistoryManager;        
         VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
         WatchHistoryRemoveAllCommand = watchHistoryRemoveAllCommand;
         SelectionModeToggleCommand = selectionModeToggleCommand;
-        Histories = new ObservableCollection<HistoryVideoListItemControlViewModel>();
-
-        NowUpdating = new ReactivePropertySlim<bool>(false)
-            .AddTo(_CompositeDisposable);
+      
     }
 
-    private readonly NiconicoSession _niconicoSession;
     private readonly WatchHistoryManager _watchHistoryManager;
-    private readonly ILogger<WatchHistoryPageViewModel> _logger;
-
     public ApplicationLayoutManager ApplicationLayoutManager { get; }
-    public PageManager PageManager { get; }
     public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
     public WatchHistoryRemoveAllCommand WatchHistoryRemoveAllCommand { get; }
     public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
-    public ObservableCollection<HistoryVideoListItemControlViewModel> Histories { get; }
-
-    public ReactivePropertySlim<bool> NowUpdating { get; }
-
 
     public override void OnNavigatedTo(INavigationParameters parameters)
     {
-        if (RefreshCommand.CanExecute(null))
-        {
-            RefreshCommand.Execute(null);
-        }
-
-
         Observable.FromEventPattern<WatchHistoryRemovedEventArgs>(
             h => _watchHistoryManager.WatchHistoryRemoved += h,
             h => _watchHistoryManager.WatchHistoryRemoved -= h
@@ -75,10 +61,10 @@ public class WatchHistoryPageViewModel : HohoemaPageViewModelBase
             .Subscribe(e =>
             {
                 var args = e.EventArgs;
-                var removedItem = Histories.FirstOrDefault(x => x.VideoId == args.VideoId);
+                var removedItem = ItemsView.Cast<HistoryVideoListItemControlViewModel>().FirstOrDefault(x => x.VideoId == args.VideoId);
                 if (removedItem != null)
                 {
-                    Histories.Remove(removedItem);
+                    ItemsView.Remove(removedItem);
                 }
             })
             .AddTo(_CompositeDisposable);
@@ -89,7 +75,7 @@ public class WatchHistoryPageViewModel : HohoemaPageViewModelBase
             )
             .Subscribe(_ =>
             {
-                Histories.Clear();
+                ItemsView!.Clear();
             })
             .AddTo(_CompositeDisposable);
 
@@ -98,73 +84,13 @@ public class WatchHistoryPageViewModel : HohoemaPageViewModelBase
 
     public override void OnNavigatedFrom(INavigationParameters parameters)
     {
-        foreach (var history in Histories)
-        {
-            history.Dispose();
-        }
-
-        Histories.Clear();
-
         base.OnNavigatedFrom(parameters);
     }
 
-    private RelayCommand _RefreshCommand;
-    public RelayCommand RefreshCommand => _RefreshCommand
-        ??= new RelayCommand(async () =>
-        {
-            Histories.Clear();
-
-            NowUpdating.Value = true;
-            try
-            {
-                var items = await _watchHistoryManager.GetWatchHistoryItemsAsync();
-
-                foreach (var x in items)
-                {
-                    try
-                    {
-                        var vm = new HistoryVideoListItemControlViewModel(
-                            (x.LastViewedAt ?? DateTimeOffset.Now).DateTime,
-                            (uint)(x.Views ?? 0),
-                            x.Video.Id,
-                            x.Video.Title,
-                            x.Video.Thumbnail.ListingUrl.OriginalString,
-                            TimeSpan.FromSeconds(x.Video.Duration),
-                            x.Video.RegisteredAt.DateTime
-                            );
-
-                        vm.ProviderId = x.Video.Owner.Id;
-                        vm.ProviderType = x.Video.Owner.OwnerType switch
-                        {
-                            NiconicoToolkit.Video.OwnerType.User => OwnerType.User,
-                            NiconicoToolkit.Video.OwnerType.Channel => OwnerType.Channel,
-                            _ => OwnerType.Hidden
-                        };
-                        vm.ProviderName = x.Video.Owner.Name;
-
-                        vm.CommentCount = x.Video.Count.Comment;
-                        vm.ViewCount = x.Video.Count.View;
-                        vm.MylistCount = x.Video.Count.Mylist;
-
-                        Histories.Add(vm);
-                    }
-                    catch (Exception e)
-                    {
-                        _logger.ZLogErrorWithPayload(e, x, "History item process error.");
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                _logger.ZLogError(e, "History refresh failed.");
-            }
-            finally
-            {
-                NowUpdating.Value = false;
-            }
-        }
-        , () => _niconicoSession.IsLoggedIn
-        );
+    protected override (int PageSize, Microsoft.Toolkit.Collections.IIncrementalSource<HistoryVideoListItemControlViewModel> IncrementalSource) GenerateIncrementalSource()
+    {
+        return (25, new HistoryVideoListItemIncrementalLoadingSource(_watchHistoryManager));
+    }    
 }
 
 
@@ -180,5 +106,42 @@ public class HistoryVideoListItemControlViewModel : VideoListItemControlViewMode
     {
         LastWatchedAt = lastWatchedAt;
         UserViewCount = viewCount;
+    }
+}
+
+public class HistoryVideoListItemIncrementalLoadingSource : IIncrementalSource<HistoryVideoListItemControlViewModel>
+{
+    private readonly WatchHistoryManager _watchHistoryManager;
+
+    public HistoryVideoListItemIncrementalLoadingSource(WatchHistoryManager watchHistoryManager)
+    {
+        _watchHistoryManager = watchHistoryManager;
+    }
+
+    public async Task<IEnumerable<HistoryVideoListItemControlViewModel>> GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken = default)
+    {
+        var res = await _watchHistoryManager.GetWatchHistoryItemsAsync(pageIndex, pageSize);
+        return res.Select(x => new HistoryVideoListItemControlViewModel(
+            (x.LastViewedAt ?? DateTimeOffset.Now).DateTime,
+            (uint)(x.Views ?? 0),
+            x.Video.Id,
+            x.Video.Title,
+            x.Video.Thumbnail.ListingUrl.OriginalString,
+            TimeSpan.FromSeconds(x.Video.Duration),
+            x.Video.RegisteredAt.DateTime
+            )
+        {
+            ProviderId = x.Video.Owner.Id,
+            ProviderType = x.Video.Owner.OwnerType switch
+            {
+                NiconicoToolkit.Video.OwnerType.User => OwnerType.User,
+                NiconicoToolkit.Video.OwnerType.Channel => OwnerType.Channel,
+                _ => OwnerType.Hidden
+            },
+            ProviderName = x.Video.Owner.Name,
+            CommentCount = x.Video.Count.Comment,
+            ViewCount = x.Video.Count.View,
+            MylistCount = x.Video.Count.Mylist,
+        });
     }
 }

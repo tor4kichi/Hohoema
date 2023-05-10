@@ -61,13 +61,12 @@ public sealed class TimeshiftPageViewModel : HohoemaListingPageViewModelBase<Liv
                 {
                     try
                     {
-                        var reservations = await LoginUserLiveReservationProvider.GetReservtionsDetailAsync();
-
-                        var dateOutReservations = reservations.Data.Items.Where(x => x.IsOutDated).ToList();
+                        var reservations = await LoginUserLiveReservationProvider.GetReservtionsAsync();
+                        var dateOutReservations = reservations.Reservations.Items.Where(x => x.IsActive is false).ToList();
 
                         if (dateOutReservations.Count == 0) { return; }
 
-                        var reservationTitlesText = string.Join("\r", dateOutReservations.Select(x => x.Title));
+                        var reservationTitlesText = string.Join("\r", dateOutReservations.Select(x => x.Program.Title));
                         var acceptDeletion = await DialogService.ShowMessageDialog(
                             "DeleteReservationConfirmText".Translate() + "\r\r" + reservationTitlesText,
                             "DeleteOutdatedReservationConfirm_Title".Translate(),
@@ -85,7 +84,7 @@ public sealed class TimeshiftPageViewModel : HohoemaListingPageViewModelBase<Liv
                                 int cnt = 0;
                                 foreach (var reservation in dateOutReservations)
                                 {
-                                    await LoginUserLiveReservationProvider.DeleteReservationAsync(reservation.LiveId);
+                                    await LoginUserLiveReservationProvider.DeleteReservationAsync(reservation.ProgramId);
 
                                     await Task.Delay(TimeSpan.FromSeconds(1));
 
@@ -157,13 +156,10 @@ public class TimeshiftIncrementalCollectionSource : IIncrementalSource<LiveInfoL
     public LoginUserLiveReservationProvider LiveReservationProvider { get; }
     public NicoLiveProvider NicoLiveProvider { get; }
 
-    TimeshiftReservationsDetailResponse _Reservations;
     TimeshiftReservationsResponse _TimeshiftList;
-
-
     async Task<IEnumerable<LiveInfoListItemViewModel>> IIncrementalSource<LiveInfoListItemViewModel>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct)
     {
-        _Reservations ??= await LiveReservationProvider.GetReservtionsDetailAsync();
+        _TimeshiftList ??= await LiveReservationProvider.GetReservtionsAsync();
 
         ct.ThrowIfCancellationRequested();
 
@@ -171,17 +167,10 @@ public class TimeshiftIncrementalCollectionSource : IIncrementalSource<LiveInfoL
         // 既に存在する場合はスキップ
         var head = pageIndex * pageSize;
         List<LiveInfoListItemViewModel> items = new ();
-        foreach (var item in _Reservations.Data.Items.Skip(head).Take(pageSize))
+        foreach (var item in _TimeshiftList.Reservations.Items.Skip(head).Take(pageSize))
         {
-            var liveData = await NicoLiveProvider.GetLiveInfoAsync(item.LiveId);
-            //var tsItem = _TimeshiftList.Data.Items.FirstOrDefault(y => y.Id == item.LiveIdWithoutPrefix);
-
-            var liveInfoVM = new LiveInfoListItemViewModel(item.LiveId);
-            liveInfoVM.ExpiredAt = item.ExpiredAt?.LocalDateTime;
-            liveInfoVM.Setup(liveData.Data);
-
-            liveInfoVM.SetReservation(item);
-
+            var liveInfoVM = new LiveInfoListItemViewModel(item);
+            
             items.Add(liveInfoVM);
 
             ct.ThrowIfCancellationRequested();

@@ -21,7 +21,7 @@ public struct CacheRequestRejectedEventArgs
 }
 
 
-[Obsolete]
+
 public class CacheSaveFolder
 {
     public CacheSaveFolder(VideoCacheSettings_Legacy cacheSettings)

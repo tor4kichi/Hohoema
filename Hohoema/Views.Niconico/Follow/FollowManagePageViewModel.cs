@@ -3,37 +3,34 @@ using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Follow.LoginUser;
 using Hohoema.Services;
+using Hohoema.Services.Navigations;
 using Hohoema.ViewModels.Niconico.Follow;
 using Reactive.Bindings;
+using System;
 
 namespace Hohoema.ViewModels.Pages.Niconico.Follow;
 
 public class FollowManagePageViewModel : HohoemaPageViewModelBase
-	{
- 	public FollowManagePageViewModel(
-        ApplicationLayoutManager applicationLayoutManager,
-        PageManager pageManager,
-        NiconicoSession niconicoSession,
-        IMessenger messenger,
-        UserFollowProvider userFollowProvider,
-        TagFollowProvider tagFollowProvider,
-        MylistFollowProvider mylistFollowProvider,
-        ChannelFollowProvider channelFollowProvider,
-        CommunityFollowProvider communityFollowProvider
-        )
-		{
+{
+    public FollowManagePageViewModel(
+       ApplicationLayoutManager applicationLayoutManager,       
+       NiconicoSession niconicoSession,
+       IMessenger messenger,
+       UserFollowProvider userFollowProvider,
+       TagFollowProvider tagFollowProvider,
+       MylistFollowProvider mylistFollowProvider,
+       ChannelFollowProvider channelFollowProvider,
+       CommunityFollowProvider communityFollowProvider
+       )
+    {
         ApplicationLayoutManager = applicationLayoutManager;
-        PageManager = pageManager;
         NiconicoSession = niconicoSession;
-
-        _FollowGroups_AvoidListViewMemoryLeak = new object[]
-        {
-            new FollowUserGroupViewModel(userFollowProvider, pageManager, messenger),
-            new FollowTagGroupViewModel(tagFollowProvider, pageManager, messenger),
-            new FolloMylistGroupViewModel(mylistFollowProvider, pageManager, messenger),
-            new FollowChannelGroupViewModel(channelFollowProvider, pageManager, messenger),
-            new FollowCommunityGroupViewModel(communityFollowProvider, NiconicoSession.UserId, pageManager, messenger),
-        };
+        _messenger = messenger;
+        _userFollowProvider = userFollowProvider;
+        _tagFollowProvider = tagFollowProvider;
+        _mylistFollowProvider = mylistFollowProvider;
+        _channelFollowProvider = channelFollowProvider;
+        _communityFollowProvider = communityFollowProvider;
     }
 
 
@@ -42,15 +39,28 @@ public class FollowManagePageViewModel : HohoemaPageViewModelBase
 
 
     public ApplicationLayoutManager ApplicationLayoutManager { get; }
-    public PageManager PageManager { get; }
     public NiconicoSession NiconicoSession { get; }
 
     object[] _FollowGroups_AvoidListViewMemoryLeak;
-    public object[] FollowGroups { get; private set; }
+    private readonly IMessenger _messenger;
+    private readonly UserFollowProvider _userFollowProvider;
+    private readonly TagFollowProvider _tagFollowProvider;
+    private readonly MylistFollowProvider _mylistFollowProvider;
+    private readonly ChannelFollowProvider _channelFollowProvider;
+    private readonly CommunityFollowProvider _communityFollowProvider;
+
+    public object[]? FollowGroups { get; private set; }
 
     public override void OnNavigatingTo(INavigationParameters parameters)
     {
-        FollowGroups = _FollowGroups_AvoidListViewMemoryLeak;
+        FollowGroups = new object[]
+        {
+            new FollowUserGroupViewModel(_userFollowProvider, _messenger),
+            new FollowTagGroupViewModel(_tagFollowProvider, _messenger),
+            new FolloMylistGroupViewModel(_mylistFollowProvider, _messenger),
+            new FollowChannelGroupViewModel(_channelFollowProvider, _messenger),
+            new FollowCommunityGroupViewModel(_communityFollowProvider, NiconicoSession.UserId ?? 0, _messenger),
+        }; ;
         OnPropertyChanged(nameof(FollowGroups));
 
         base.OnNavigatingTo(parameters);
@@ -58,6 +68,11 @@ public class FollowManagePageViewModel : HohoemaPageViewModelBase
 
     public override void OnNavigatedFrom(INavigationParameters parameters)
     {
+        foreach (var group in FollowGroups!)
+        {
+            (group as IDisposable)?.Dispose();
+        }
+
         FollowGroups = null;
         OnPropertyChanged(nameof(FollowGroups));
 

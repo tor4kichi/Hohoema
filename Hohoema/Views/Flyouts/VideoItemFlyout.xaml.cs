@@ -71,13 +71,13 @@ public sealed partial class VideoItemFlyout : MenuFlyout
 
 
     public static QueuePlaylist QueuePlaylist { get; }
-    public static PageManager PageManager { get; }
     public static LoginUserOwnedMylistManager UserMylistManager { get; }
     public static LocalMylistManager LocalMylistManager { get; }
     public static SubscriptionManager SubscriptionManager { get; }
     public static VideoCacheManager VideoCacheManager { get; }
     public static VideoItemsSelectionContext VideoItemsSelectionContext { get; }
     public static VideoFilteringSettings VideoFilteringSettings { get; }
+    public static OpenPageCommand OpenPageCommand { get; }
 
     private static readonly IMessenger _messenger;
 
@@ -94,22 +94,22 @@ public sealed partial class VideoItemFlyout : MenuFlyout
 
     static VideoItemFlyout()
     {
-        QueuePlaylist = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<QueuePlaylist>();
-        _messenger = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<IMessenger>();
-        CreateMylistCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<MylistCreateCommand>();
-        CreateLocalMylistCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<LocalPlaylistCreateCommand>();
-        PageManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<PageManager>();
-        UserMylistManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<LoginUserOwnedMylistManager>();
-        LocalMylistManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<LocalMylistManager>();
-        SubscriptionManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<SubscriptionManager>();
-        VideoCacheManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<VideoCacheManager>();
-        VideoItemsSelectionContext = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<VideoItemsSelectionContext>();
-        VideoFilteringSettings = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<VideoFilteringSettings>();
+        QueuePlaylist = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<QueuePlaylist>();
+        _messenger = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<IMessenger>();
+        CreateMylistCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<MylistCreateCommand>();
+        CreateLocalMylistCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<LocalPlaylistCreateCommand>();
+        UserMylistManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<LoginUserOwnedMylistManager>();
+        LocalMylistManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<LocalMylistManager>();
+        SubscriptionManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<SubscriptionManager>();
+        VideoCacheManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<VideoCacheManager>();
+        VideoItemsSelectionContext = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<VideoItemsSelectionContext>();
+        VideoFilteringSettings = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<VideoFilteringSettings>();
 
-        OpenLinkCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<OpenLinkCommand>();
-        CopyToClipboardCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<CopyToClipboardCommand>();
-        CopyToClipboardWithShareTextCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<CopyToClipboardWithShareTextCommand>();
-        OpenShareUICommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<OpenShareUICommand>();
+        OpenPageCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<OpenPageCommand>();
+        OpenLinkCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<OpenLinkCommand>();
+        CopyToClipboardCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<CopyToClipboardCommand>();
+        CopyToClipboardWithShareTextCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<CopyToClipboardWithShareTextCommand>();
+        OpenShareUICommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<OpenShareUICommand>();
     }
 
 
@@ -119,30 +119,30 @@ public sealed partial class VideoItemFlyout : MenuFlyout
 
         SelectedVideoItems = new List<IVideoContent>();
 
-        RemoveWatchHisotryItem.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<WatchHistoryRemoveItemCommand>();
-        AddWatchAfter.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<QueueAddItemCommand>();
-        RemoveWatchAfter.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<QueueRemoveItemCommand>();
+        RemoveWatchHisotryItem.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<WatchHistoryRemoveItemCommand>();
+        AddWatchAfter.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<QueueAddItemCommand>();
+        RemoveWatchAfter.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<QueueRemoveItemCommand>();
         PlaylistPlayFromHere.Command = new PlaylistPlayFromHereCommand(_messenger);
 
-        OpenVideoInfoPage.Command = PageManager.OpenPageCommand;
-        OpenOwnerMylistsPage.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<OpenVideoOwnerMylistListCommand>();
-        OpenOwnerVideosPage.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<OpenVideoOwnerVideoListCommand>();
-        OpenOwnerSeriesPage.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<OpenVideoOwnerSeriesListCommand>(); 
+        OpenVideoInfoPage.Command = OpenPageCommand;
+        OpenOwnerMylistsPage.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<OpenVideoOwnerMylistListCommand>();
+        OpenOwnerVideosPage.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<OpenVideoOwnerVideoListCommand>();
+        OpenOwnerSeriesPage.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<OpenVideoOwnerSeriesListCommand>(); 
         Share.Command = OpenShareUICommand;
         CopyVideoId.Command = CopyToClipboardCommand;
         CopyVideoLink.Command = CopyToClipboardCommand;
         CopyShareText.Command = CopyToClipboardWithShareTextCommand;
 
-        LocalMylistItem.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<LocalPlaylistAddItemCommand>();
-        AddToMylistItem.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<MylistAddItemCommand>();
+        LocalMylistItem.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<LocalPlaylistAddItemCommand>();
+        AddToMylistItem.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<MylistAddItemCommand>();
 
-        AddSusbcriptionItem.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<AddSubscriptionCommand>();
+        AddSusbcriptionItem.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<AddSubscriptionCommand>();
 
-        CacheRequest.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<CacheAddRequestCommand>();
-        DeleteCacheRequest.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<CacheDeleteRequestCommand>();
+        CacheRequest.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<CacheAddRequestCommand>();
+        DeleteCacheRequest.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<CacheDeleteRequestCommand>();
 
-        AddNgUser.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<HiddenVideoOwnerAddCommand>();
-        RemoveNgUser.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<HiddenVideoOwnerRemoveCommand>();
+        AddNgUser.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<HiddenVideoOwnerAddCommand>();
+        RemoveNgUser.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<HiddenVideoOwnerRemoveCommand>();
 
         Opening += VideoItemFlyout_Opening;
     }
@@ -160,8 +160,19 @@ public sealed partial class VideoItemFlyout : MenuFlyout
 
         bool isMultipleSelection = AllowSelection && SelectedVideoItems?.Count >= 2;
 
-        var playlist = Playlist;
+        var playlist = Playlist ?? (content as IPlaylistItemPlayable)?.PlaylistItemToken?.Playlist;
 
+        foreach (var menuItem in this.Items)
+        {
+            menuItem.DataContext = dataContext;
+            if (menuItem is MenuFlyoutSubItem subItem)
+            {
+                foreach (var subMenuItem in subItem.Items)
+                {
+                    subMenuItem.DataContext = dataContext;
+                }
+            }
+        }
 
         // 視聴履歴
         RemoveWatchHisotryItem.Visibility = (content is IWatchHistory).ToVisibility();
@@ -340,7 +351,7 @@ public sealed partial class VideoItemFlyout : MenuFlyout
         {
             foreach (var quality in Enum.GetValues(typeof(NicoVideoQuality)).Cast<NicoVideoQuality>().Where(x => x != NicoVideoQuality.Unknown))
             {
-                var command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<CacheAddRequestCommand>();
+                var command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<CacheAddRequestCommand>();
                 command.VideoQuality = quality;
                 var cacheRequestMenuItem = new MenuFlyoutItem() 
                 {

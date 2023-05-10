@@ -23,14 +23,13 @@ using ZLogger;
 
 namespace Hohoema.Services.Player;
 
-public sealed class PrimaryViewPlayerManager : ObservableObject, IPlayerView
+public sealed partial class PrimaryViewPlayerManager : ObservableObject, IPlayerView
 {
-    INavigationService _navigationService;
+    INavigationService? _navigationService;
     private readonly DispatcherQueue _dispatcherQueue;
     private readonly ApplicationView _view;
     private readonly ILogger _logger;
     private readonly IScheduler _scheduler;
-//       private readonly Lazy<INavigationService> _navigationServiceLazy;
     private readonly RestoreNavigationManager _restoreNavigationManager;
     PlayerDisplayMode _prevDisplayMode;
 
@@ -47,7 +46,6 @@ public sealed class PrimaryViewPlayerManager : ObservableObject, IPlayerView
         _view = ApplicationView.GetForCurrentView();
         _logger = loggerFactory.CreateLogger<PrimaryViewPlayerManager>();
         _scheduler = scheduler;
-        //_navigationServiceLazy = navigationServiceLazy;
         _restoreNavigationManager = restoreNavigationManager;
         PlaylistPlayer = hohoemaPlaylistPlayer;
         _navigationService = null;
@@ -55,7 +53,6 @@ public sealed class PrimaryViewPlayerManager : ObservableObject, IPlayerView
         this.ObserveProperty(x => x.DisplayMode, isPushCurrentValueAtFirst: false)
             .Subscribe(x => 
             {
-                SetDisplayMode(_prevDisplayMode, x);
                 _prevDisplayMode = x;
                 IsFullScreen = x == PlayerDisplayMode.FullScreen;
                 IsCompactOverlay = x == PlayerDisplayMode.CompactOverlay;
@@ -104,7 +101,7 @@ public sealed class PrimaryViewPlayerManager : ObservableObject, IPlayerView
         _view.Title = title;
     }
 
-    public string LastNavigatedPageName { get; private set; }
+    public string LastNavigatedPageName { get; private set; } = string.Empty;
 
     public async Task ShowAsync()
     {
@@ -112,7 +109,25 @@ public sealed class PrimaryViewPlayerManager : ObservableObject, IPlayerView
         {
             if (DisplayMode == PlayerDisplayMode.Close)
             {
-                DisplayMode = PlayerDisplayMode.FillWindow;
+                if (_view.IsFullScreenMode)
+                {
+                    DisplayMode = PlayerDisplayMode.FullScreen;
+                }
+                else if (_view.ViewMode == ApplicationViewMode.CompactOverlay)
+                {
+                    DisplayMode = PlayerDisplayMode.CompactOverlay;
+                }
+                else
+                {
+                    if (_lastDisplayMode == PlayerDisplayMode.WindowInWindow)
+                    {
+                        DisplayMode = PlayerDisplayMode.WindowInWindow;
+                    }
+                    else
+                    {
+                        DisplayMode = PlayerDisplayMode.FillWindow;
+                    }                        
+                }                
             }
 
             await ApplicationViewSwitcher.TryShowAsStandaloneAsync(_view.Id, ViewSizePreference.Default);
@@ -127,11 +142,8 @@ public sealed class PrimaryViewPlayerManager : ObservableObject, IPlayerView
         await _dispatcherQueue.EnqueueAsync(async () =>
         {
             using var _ = await _navigationLock.LockAsync();
-            
-            if (_navigationService == null)
-            {
-                _navigationService = App.Current.Container.Resolve<INavigationService>("PrimaryPlayerNavigationService");
-            }
+
+            _navigationService ??= App.Current.Container.Resolve<INavigationService>("PrimaryPlayerNavigationService");
 
             try
             {
@@ -166,10 +178,6 @@ public sealed class PrimaryViewPlayerManager : ObservableObject, IPlayerView
             }
             
         });
-
-        await Task.Delay(50);
-
-        using (await _navigationLock.LockAsync()) { }
     }
 
 
@@ -177,15 +185,24 @@ public sealed class PrimaryViewPlayerManager : ObservableObject, IPlayerView
     public PlayerDisplayMode DisplayMode
     {
         get { return _DisplayMode; }
-        set { SetProperty(ref _DisplayMode, value); }
+        private set { SetProperty(ref _DisplayMode, value); }
     }
 
+    PlayerDisplayMode _lastDisplayMode;
+
+    [RelayCommand]
     public async Task CloseAsync()
     {
         if (DisplayMode == PlayerDisplayMode.Close) { return; }
 
+        _lastDisplayMode = DisplayMode;
+        if (_view.ViewMode == ApplicationViewMode.CompactOverlay)
+        {
+            await _view.TryEnterViewModeAsync(ApplicationViewMode.Default);
+        }
+
         await PlaylistPlayer.ClearAsync();
-        LastNavigatedPageName = null;
+        LastNavigatedPageName = string.Empty;
         DisplayMode = PlayerDisplayMode.Close;
         IsFullScreen = false;
         IsCompactOverlay = false;
@@ -193,113 +210,69 @@ public sealed class PrimaryViewPlayerManager : ObservableObject, IPlayerView
         _restoreNavigationManager.ClearCurrentPlayerEntry();
     }
 
+    [RelayCommand]
     public async Task ClearVideoPlayerAsync()
     {
         await PlaylistPlayer.ClearAsync();
     }
 
-    public void ShowWithFill()
+    [RelayCommand]
+    public async Task ShowWithFillAsync()
     {
+        if (_view.ViewMode == ApplicationViewMode.CompactOverlay)
+        {
+            await _view.TryEnterViewModeAsync(ApplicationViewMode.Default);
+        }        
+
         DisplayMode = PlayerDisplayMode.FillWindow;
     }
-
-    public void ShowWithWindowInWindow()
+    
+    [RelayCommand]
+    public async Task ShowWithWindowInWindowAsync()
     {
+        if (_view.ViewMode == ApplicationViewMode.CompactOverlay)
+        {
+            await _view.TryEnterViewModeAsync(ApplicationViewMode.Default);
+        }
+
+        if (_view.IsFullScreenMode
+            && ApplicationView.PreferredLaunchWindowingMode != ApplicationViewWindowingMode.FullScreen
+            )
+        {
+            _view.ExitFullScreenMode();
+        }
+
         DisplayMode = PlayerDisplayMode.WindowInWindow;
     }
 
-    public void ShowWithFullScreen()
-    {
-        DisplayMode = PlayerDisplayMode.FullScreen;
-    }
-
-    public void ShowWithCompactOverlay()
-    {
-        DisplayMode = PlayerDisplayMode.CompactOverlay;
-    }
-
-    void SetDisplayMode(PlayerDisplayMode old, PlayerDisplayMode mode)
-    {
-        var currentMode = old;
-        switch (mode)
-        {
-            case PlayerDisplayMode.Close:
-                SetClose(currentMode);
-                break;
-            case PlayerDisplayMode.FillWindow:
-                SetFill(currentMode);
-                break;
-            case PlayerDisplayMode.WindowInWindow:
-                SetWindowInWindow(currentMode);
-                break;
-            case PlayerDisplayMode.FullScreen:
-                SetFullScreen(currentMode);
-                break;
-            case PlayerDisplayMode.CompactOverlay:
-                SetCompactOverlay(currentMode);
-                break;
-            default:
-                break;
-        }
-    }
-
-    void SetClose(PlayerDisplayMode currentMode)
-    {
-        if (_view.ViewMode == ApplicationViewMode.CompactOverlay)
-        {
-            _ = _view.TryEnterViewModeAsync(ApplicationViewMode.Default);
-        }
-
-        /*
-        if (_view.IsFullScreenMode 
-            && ApplicationView.PreferredLaunchWindowingMode != ApplicationViewWindowingMode.FullScreen)
-        {
-            _view.ExitFullScreenMode();
-        } 
-        */
-
-        _navigationService.NavigateAsync(nameof(BlankPage));
-    }
-
-    void SetFill(PlayerDisplayMode currentMode)
-    {
-        if (_view.ViewMode == ApplicationViewMode.CompactOverlay)
-        {
-            _ = _view.TryEnterViewModeAsync(ApplicationViewMode.Default);
-        }
-
-        if (_view.IsFullScreenMode
-            && ApplicationView.PreferredLaunchWindowingMode != ApplicationViewWindowingMode.FullScreen
-            )
-        {
-            _view.ExitFullScreenMode();
-        }
-    }
-
-    void SetWindowInWindow(PlayerDisplayMode currentMode)
-    {
-        if (_view.ViewMode == ApplicationViewMode.CompactOverlay)
-        {
-            _ = _view.TryEnterViewModeAsync(ApplicationViewMode.Default);
-        }
-
-        if (_view.IsFullScreenMode
-            && ApplicationView.PreferredLaunchWindowingMode != ApplicationViewWindowingMode.FullScreen
-            )
-        {
-            _view.ExitFullScreenMode();
-        }
-    }
-
-    void SetFullScreen(PlayerDisplayMode currentMode)
+    [RelayCommand]
+    public Task ShowWithFullScreenAsync()
     {
         if (!_view.IsFullScreenMode)
         {
             _view.TryEnterFullScreenMode();
         }
+
+        DisplayMode = PlayerDisplayMode.FullScreen;
+
+        return Task.CompletedTask;
     }
 
-    void SetCompactOverlay(PlayerDisplayMode currentMode)
+    [RelayCommand]
+    public Task ExistFullScreenAsync()
+    {
+        if (_view.IsFullScreenMode)
+        {
+            _view.ExitFullScreenMode();
+        }
+
+        DisplayMode = PlayerDisplayMode.FillWindow;
+
+        return Task.CompletedTask;
+    }
+
+    [RelayCommand]
+    public async Task ShowWithCompactOverlayAsync()
     {
         if (_view.IsViewModeSupported(ApplicationViewMode.CompactOverlay))
         {
@@ -307,88 +280,114 @@ public sealed class PrimaryViewPlayerManager : ObservableObject, IPlayerView
             {
                 var opt = ViewModePreferences.CreateDefault(ApplicationViewMode.CompactOverlay);
                 opt.CustomSize = new Windows.Foundation.Size(500, 280);
-                _ = _view.TryEnterViewModeAsync(ApplicationViewMode.CompactOverlay, opt);
+                await _view.TryEnterViewModeAsync(ApplicationViewMode.CompactOverlay, opt);
             }
             else
             {
-                _ = _view.TryEnterViewModeAsync(ApplicationViewMode.Default);
+                await _view.TryEnterViewModeAsync(ApplicationViewMode.Default);
             }
         }
+
+        DisplayMode = PlayerDisplayMode.CompactOverlay;
+    }
+
+    [RelayCommand]
+    public async Task ExitCompactOverlayAsync()
+    {
+        if (_view.IsViewModeSupported(ApplicationViewMode.CompactOverlay))
+        {
+            if (_view.ViewMode == ApplicationViewMode.CompactOverlay)
+            {
+                await _view.TryEnterViewModeAsync(ApplicationViewMode.Default);
+            }
+        }
+
+        DisplayMode = PlayerDisplayMode.FillWindow;
+    }
+
+    //[RelayCommand]
+    public async Task SetCloseAsync()
+    {
+        if (_view.ViewMode == ApplicationViewMode.CompactOverlay)
+        {
+            await _view.TryEnterViewModeAsync(ApplicationViewMode.Default);
+        }
+
+        DisplayMode = PlayerDisplayMode.Close;
+
+        _navigationService?.NavigateAsync(nameof(BlankPage));
     }
 
 
-    RelayCommand _closeCommand;
-    public RelayCommand CloseCommand => _closeCommand 
-        ?? (_closeCommand = new RelayCommand(async () => await CloseAsync()));
-
-    RelayCommand _WindowInWindowCommand;
-    public RelayCommand WindowInWindowCommand => _WindowInWindowCommand
-        ?? (_WindowInWindowCommand = new RelayCommand(ShowWithWindowInWindow));
-
-    RelayCommand _FillCommand;
-    public RelayCommand FillCommand => _FillCommand
-        ?? (_FillCommand = new RelayCommand(ShowWithFill));
-
-
-    RelayCommand _ToggleFillOrWindowInWindowCommand;
-    public RelayCommand ToggleFillOrWindowInWindowCommand => _ToggleFillOrWindowInWindowCommand
-        ?? (_ToggleFillOrWindowInWindowCommand = new RelayCommand(() =>
+    [RelayCommand]
+    async Task ToggleFillOrWindowInWindow()
+    {
+        if (DisplayMode == PlayerDisplayMode.WindowInWindow)
         {
-            if (DisplayMode == PlayerDisplayMode.WindowInWindow)
-            {
-                ShowWithFill();
-            }
-            else 
-            {
-                ShowWithWindowInWindow();
-            }
-        }));
+            await ShowWithFillAsync();
+        }
+        else
+        {
+            await ShowWithWindowInWindowAsync();
+        }
+    }
 
     ICommand IPlayerView.ToggleFullScreenCommand => ToggleFullScreenCommand;
 
-    private RelayCommand _ToggleFullScreenCommand;
-    public RelayCommand ToggleFullScreenCommand =>
-        _ToggleFullScreenCommand ?? (_ToggleFullScreenCommand = new RelayCommand(ExecuteToggleFullScreenCommand));
-
-    void ExecuteToggleFullScreenCommand()
+    [RelayCommand]
+    async Task ToggleFullScreen()
     {
         if (DisplayMode == PlayerDisplayMode.Close) { return; }
 
         if (DisplayMode == PlayerDisplayMode.FullScreen)
-        {                
-            ShowWithFill();
+        {
+            await ExistFullScreenAsync();
         }
         else
         {
-            ShowWithFullScreen();
+            await ShowWithFullScreenAsync();
         }
     }
 
     ICommand IPlayerView.ToggleCompactOverlayCommand => ToggleCompactOverlayCommand;
 
-    private RelayCommand _ToggleCompactOverlayCommand;
-    public RelayCommand ToggleCompactOverlayCommand =>
-        _ToggleCompactOverlayCommand ??= new RelayCommand(ExecuteToggleCompactOverlayCommand);
-
-    void ExecuteToggleCompactOverlayCommand()
+    [RelayCommand]
+    async Task ToggleCompactOverlay()
     {
         if (DisplayMode == PlayerDisplayMode.Close) { return; }
 
         if (DisplayMode == PlayerDisplayMode.CompactOverlay)
         {
-            ShowWithFill();
+            await ExitCompactOverlayAsync();
         }
         else
         {
-            ShowWithCompactOverlay();
+            await ShowWithCompactOverlayAsync();
         }
     }
 
-    public Task<bool> TrySetDisplayModeAsync(PlayerDisplayMode mode)
+    public async Task<bool> TrySetDisplayModeAsync(PlayerDisplayMode mode)
     {
-        SetDisplayMode(DisplayMode, mode);
+        switch (mode)
+        {
+            case PlayerDisplayMode.Close:
+                await SetCloseAsync();
+                break;
+            case PlayerDisplayMode.FillWindow:
+                await ShowWithFillAsync();
+                break;
+            case PlayerDisplayMode.FullScreen:
+                await ShowWithFullScreenAsync();
+                break;
+            case PlayerDisplayMode.WindowInWindow:
+                await ShowWithWindowInWindowAsync();
+                break;
+            case PlayerDisplayMode.CompactOverlay:
+                await ShowWithCompactOverlayAsync();
+                break;
+        }
 
-        return Task.FromResult(true);
+        return true;
     }
 
     public Task<PlayerDisplayMode> GetDisplayModeAsync()

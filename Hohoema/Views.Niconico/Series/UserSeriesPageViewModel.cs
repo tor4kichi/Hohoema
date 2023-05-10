@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.Niconico.User;
 using Hohoema.Models.Niconico.Video.Series;
 using Hohoema.Models.PageNavigation;
@@ -20,7 +21,10 @@ using System.Threading.Tasks;
 
 namespace Hohoema.ViewModels.Pages.Niconico.Series;
 
-public partial class UserSeriesPageViewModel : HohoemaPageViewModelBase, ITitleUpdatablePage, IPinablePage
+public partial class UserSeriesPageViewModel 
+    : HohoemaPageViewModelBase
+    , ITitleUpdatablePage
+    , IPinablePage
 {
     public HohoemaPin GetPin()
     {
@@ -41,23 +45,23 @@ public partial class UserSeriesPageViewModel : HohoemaPageViewModelBase, ITitleU
 
 
     public UserSeriesPageViewModel(
+        IMessenger messenger,
         SeriesProvider seriesRepository,
-        UserProvider userProvider,
-        PageManager pageManager,
+        UserProvider userProvider,        
         AddSubscriptionCommand addSubscriptionCommand,
         PlaylistPlayAllCommand playlistPlayAllCommand
         )
     {
+        _messenger = messenger;
         _seriesProvider = seriesRepository;
         _userProvider = userProvider;
-        _pageManager = pageManager;
         AddSubscriptionCommand = addSubscriptionCommand;
         PlaylistPlayAllCommand = playlistPlayAllCommand;
     }
 
+    private readonly IMessenger _messenger;
     private readonly SeriesProvider _seriesProvider;
     private readonly UserProvider _userProvider;
-    private readonly PageManager _pageManager;
 
 
     private List<UserSeriesItemViewModel> _userSeriesList;
@@ -82,20 +86,21 @@ public partial class UserSeriesPageViewModel : HohoemaPageViewModelBase, ITitleU
         set { SetProperty(ref _nowUpdating, value); }
     }
 
-
-    private RelayCommand<UserSeriesItemViewModel> _OpenSeriesVideoPageCommand;
-    public RelayCommand<UserSeriesItemViewModel> OpenSeriesVideoPageCommand =>
-        _OpenSeriesVideoPageCommand ?? (_OpenSeriesVideoPageCommand = new RelayCommand<UserSeriesItemViewModel>(ExecuteOpenSeriesVideoPageCommand));
-
     public AddSubscriptionCommand AddSubscriptionCommand { get; }
     public PlaylistPlayAllCommand PlaylistPlayAllCommand { get; }
 
     [ObservableProperty]
     private IPlaylist _playlist;
 
+
+
+    private RelayCommand<UserSeriesItemViewModel> _OpenSeriesVideoPageCommand;
+    public RelayCommand<UserSeriesItemViewModel> OpenSeriesVideoPageCommand =>
+        _OpenSeriesVideoPageCommand ?? (_OpenSeriesVideoPageCommand = new RelayCommand<UserSeriesItemViewModel>(ExecuteOpenSeriesVideoPageCommand));
+
     void ExecuteOpenSeriesVideoPageCommand(UserSeriesItemViewModel parameter)
     {
-        _pageManager.OpenPage(HohoemaPageType.Series, $"id={parameter.Id}");
+        _ = _messenger.OpenPageWithIdAsync(HohoemaPageType.Series, parameter.Id);
     }
 
     public override async Task OnNavigatedToAsync(INavigationParameters parameters)

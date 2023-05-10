@@ -165,19 +165,19 @@ public sealed class VideoCacheManager : IDisposable
 
 
 
-    [Obsolete]
+    
     public long? MaxCacheStorageSize => _videoCacheSettings.MaxVideoCacheStorageSize;
 
-    [Obsolete]
+    
     public NicoVideoQuality DefaultCacheQuality => _videoCacheSettings.DefaultCacheQuality;
 
-    [Obsolete]
+    
     public long UpdateCurrentryTotalCachedSize()
     {
         return _videoCacheSettings.CachedStorageSize = _videoCacheItemRepository.SumVideoCacheSize();
     }
 
-    [Obsolete]
+    
     internal bool CheckStorageCapacityLimitReached()
     {
         long storageSize = _videoCacheSettings.CachedStorageSize = _videoCacheItemRepository.SumVideoCacheSize();
@@ -460,7 +460,7 @@ public sealed class VideoCacheManager : IDisposable
         return CancelCacheRequestAsync_Internal(videoId, VideoCacheCancelReason.User);
     }
 
-    [Obsolete]
+    
     private async Task<bool> CancelCacheRequestAsync_Internal(VideoId videoId, VideoCacheCancelReason reason)
     {
         using (await _updateLock.LockAsync())
@@ -583,7 +583,7 @@ public sealed class VideoCacheManager : IDisposable
             : null;
     }
 
-    [Obsolete]
+    
     public async ValueTask<PrepareNextVideoCacheDownloadingResult> PrepareNextCacheDownloadingTaskAsync()
     {
         using (await _updateLock.LockAsync())
@@ -670,7 +670,7 @@ public sealed class VideoCacheManager : IDisposable
         }
     }
 
-    [Obsolete]
+    
     internal async ValueTask<VideoCacheDownloadOperationCreationResult> CreateDownloadOperationAsync(VideoCacheItem item)
     {
         if (item.IsCompleted)

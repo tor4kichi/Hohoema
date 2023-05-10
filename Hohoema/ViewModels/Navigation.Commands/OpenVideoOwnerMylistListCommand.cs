@@ -1,19 +1,20 @@
 ﻿#nullable enable
+using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.Niconico.Video;
 
 namespace Hohoema.ViewModels.Navigation.Commands;
 
 public sealed class OpenVideoOwnerMylistListCommand : CommandBase
 {
-    private readonly PageManager _pageManager;
+    private readonly IMessenger _messenger;
     private readonly NicoVideoProvider _nicoVideoProvider;
 
     public OpenVideoOwnerMylistListCommand(
-        PageManager pageManager,
+        IMessenger messenger,
         NicoVideoProvider nicoVideoProvider
         )
     {
-        _pageManager = pageManager;
+        _messenger = messenger;
         _nicoVideoProvider = nicoVideoProvider;
     }
 
@@ -28,7 +29,7 @@ public sealed class OpenVideoOwnerMylistListCommand : CommandBase
         {
             if (parameter is IVideoContentProvider provider && provider.ProviderType is NiconicoToolkit.Video.OwnerType.User && provider.ProviderId is not null)
             {
-                _pageManager.OpenPageWithId(Models.PageNavigation.HohoemaPageType.UserMylist, provider.ProviderId);
+                await _messenger.OpenPageWithIdAsync(Models.PageNavigation.HohoemaPageType.UserMylist, provider.ProviderId);
                 return;
             }
         }
@@ -39,7 +40,7 @@ public sealed class OpenVideoOwnerMylistListCommand : CommandBase
             var video = await _nicoVideoProvider.GetCachedVideoInfoAsync(content.VideoId);
             if (video.ProviderType is NiconicoToolkit.Video.OwnerType.User)
             {
-                _pageManager.OpenPageWithId(Models.PageNavigation.HohoemaPageType.UserMylist, video.ProviderId);
+                await _messenger.OpenPageWithIdAsync(Models.PageNavigation.HohoemaPageType.UserMylist, video.ProviderId);
             }
         }
     }

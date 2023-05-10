@@ -106,7 +106,14 @@ public sealed class LocalMylistRepository
 
         public int CountPlaylisItems(string playlistId)
         {
-            return _collection.Count(x => x.PlaylistId == playlistId);
+            try
+            {
+                return _collection.Count(x => x.PlaylistId == playlistId);
+            }
+            catch
+            {
+                return 0;
+            }
         }
 
 

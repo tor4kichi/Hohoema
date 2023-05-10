@@ -122,12 +122,13 @@ public abstract partial class HohoemaListingPageViewModelBase<ITEM_VM> : Hohoema
 
     private readonly DispatcherQueue _dispatcherQueue;
     protected readonly ILogger _logger;
+    private readonly bool _disposeItemVM;
 
-
-    public HohoemaListingPageViewModelBase(ILogger logger)
+    public HohoemaListingPageViewModelBase(ILogger logger, bool disposeItemVM = true)
     {        
         _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
         _logger = logger;
+        _disposeItemVM = disposeItemVM;
     }
 
 
@@ -135,7 +136,7 @@ public abstract partial class HohoemaListingPageViewModelBase<ITEM_VM> : Hohoema
     {
         if (ItemsView?.Source is IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM> oldItems)
         {
-            DisposeItemsView(ItemsView);
+            DisposeItemsView(ItemsView);            
             ItemsView.Source = new List<ITEM_VM>();
             ItemsView.Clear();
             ItemsView = null;
@@ -182,7 +183,6 @@ public abstract partial class HohoemaListingPageViewModelBase<ITEM_VM> : Hohoema
                 _logger.ZLogError(e, "failed GenerateIncrementalSource.");
             }
         }
-
        
         return Task.CompletedTask;
     }
@@ -196,9 +196,12 @@ public abstract partial class HohoemaListingPageViewModelBase<ITEM_VM> : Hohoema
     {
         if (acv == null) { return; }
 
-        foreach (var item in acv)
+        if (_disposeItemVM)
         {
-            (item as IDisposable)?.Dispose();
+            foreach (var item in acv)
+            {
+                (item as IDisposable)?.Dispose();
+            }
         }
 
         (acv?.Source as IDisposable)?.Dispose();

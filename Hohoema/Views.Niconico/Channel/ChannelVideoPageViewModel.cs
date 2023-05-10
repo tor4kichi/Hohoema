@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Channel;
 using Hohoema.Models.Niconico.Follow.LoginUser;
@@ -37,7 +38,10 @@ public sealed class ChannelInfo : IChannel
 
 }
 
-public sealed class ChannelVideoPageViewModel : HohoemaListingPageViewModelBase<ChannelVideoListItemViewModel>, IPinablePage, ITitleUpdatablePage
+public sealed class ChannelVideoPageViewModel 
+    : VideoListingPageViewModelBase<ChannelVideoListItemViewModel>
+    , IPinablePage
+    , ITitleUpdatablePage
 {
     HohoemaPin IPinablePage.GetPin()
     {
@@ -54,25 +58,35 @@ public sealed class ChannelVideoPageViewModel : HohoemaListingPageViewModelBase<
         return this.ObserveProperty(x => x.ChannelName);
     }
 
+
+    public ApplicationLayoutManager ApplicationLayoutManager { get; }
+    public NiconicoSession NiconicoSession { get; }
+    public ChannelProvider ChannelProvider { get; }
+    public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
+    public PlaylistPlayAllCommand PlaylistPlayAllCommand { get; }
+    public OpenLinkCommand OpenLinkCommand { get; }
+    public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
+    private readonly ChannelFollowProvider _channelFollowProvider;
+
+
     public ChannelVideoPageViewModel(
+        IMessenger messenger,
         ILoggerFactory loggerFactory,
         ApplicationLayoutManager applicationLayoutManager,
         NiconicoSession niconicoSession,
         ChannelProvider channelProvider,
         ChannelFollowProvider channelFollowProvider,
-        PageManager pageManager,
         VideoPlayWithQueueCommand videoPlayWithQueueCommand,
         PlaylistPlayAllCommand playlistPlayAllCommand,
         OpenLinkCommand openLinkCommand,
         SelectionModeToggleCommand selectionModeToggleCommand
         )
-        : base(loggerFactory.CreateLogger<ChannelVideoPageViewModel>())
+        : base(messenger, loggerFactory.CreateLogger<ChannelVideoPageViewModel>(), disposeItemVM: false)
     {
         ApplicationLayoutManager = applicationLayoutManager;
         NiconicoSession = niconicoSession;
         ChannelProvider = channelProvider;
         _channelFollowProvider = channelFollowProvider;
-        PageManager = pageManager;
         VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
         PlaylistPlayAllCommand = playlistPlayAllCommand;
         OpenLinkCommand = openLinkCommand;
@@ -163,7 +177,7 @@ public sealed class ChannelVideoPageViewModel : HohoemaListingPageViewModelBase<
         set { SetProperty(ref _selectedSortOption, value); }
     }
 
-    public ReadOnlyReactivePropertySlim<PlaylistToken> CurrentPlaylistToken { get; }
+    public ReadOnlyReactivePropertySlim<PlaylistToken?> CurrentPlaylistToken { get; }
 
 
     public override async Task OnNavigatedToAsync(INavigationParameters parameters)
@@ -247,8 +261,6 @@ public sealed class ChannelVideoPageViewModel : HohoemaListingPageViewModelBase<
 
 
     private RelayCommand _ShowWithBrowserCommand;
-    private readonly ChannelFollowProvider _channelFollowProvider;
-
     public RelayCommand ShowWithBrowserCommand
     {
         get
@@ -261,14 +273,6 @@ public sealed class ChannelVideoPageViewModel : HohoemaListingPageViewModelBase<
         }
     }
 
-    public ApplicationLayoutManager ApplicationLayoutManager { get; }
-    public NiconicoSession NiconicoSession { get; }
-    public ChannelProvider ChannelProvider { get; }
-    public PageManager PageManager { get; }
-    public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
-    public PlaylistPlayAllCommand PlaylistPlayAllCommand { get; }
-    public OpenLinkCommand OpenLinkCommand { get; }
-    public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
 }
 
 public sealed class ChannelVideoListItemViewModel : VideoListItemControlViewModel
@@ -333,7 +337,10 @@ public class ChannelVideoLoadingSource : IIncrementalSource<ChannelVideoListItem
 
             var channelVideo = new ChannelVideoListItemViewModel(video.ItemId, video.Title, video.ThumbnailUrl, video.Length, video.PostedAt)
             {
-                PlaylistItemToken = new PlaylistItemToken(_channelVideoPlaylist, _sortOption, new ChannelVideoContent(video, ChannelId))
+                PlaylistItemToken = new PlaylistItemToken(_channelVideoPlaylist, _sortOption, new ChannelVideoContent(video, ChannelId)),
+                ViewCount = video.ViewCount,
+                CommentCount = video.CommentCount,
+                MylistCount = video.MylistCount,
             };
 
             if (video.IsRequirePayment)
@@ -348,9 +355,6 @@ public class ChannelVideoLoadingSource : IIncrementalSource<ChannelVideoListItem
             {
                 channelVideo.Permission = NiconicoToolkit.Video.VideoPermission.MemberUnlimitedAccess;
             }
-            channelVideo.ViewCount = video.ViewCount;
-            channelVideo.CommentCount = video.CommentCount;
-            channelVideo.MylistCount = video.MylistCount;
 
             yield return channelVideo;
         }

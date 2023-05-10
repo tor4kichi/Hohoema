@@ -63,6 +63,8 @@ using Windows.UI.Xaml;
 using ZLogger;
 using ValueTaskSupplement;
 using Hohoema.Contracts.Subscriptions;
+using Microsoft.Toolkit.Uwp.UI.Controls;
+using Microsoft.Toolkit.Uwp.UI;
 
 namespace Hohoema;
 
@@ -346,7 +348,7 @@ public sealed partial class App : Application
             AppearanceSettings appearanceSettings = c.Resolve<AppearanceSettings>();
             return appearanceSettings.PlayerDisplayView == PlayerDisplayView.PrimaryView
                 ? c.Resolve<PrimaryViewPlayerManager>()
-                : c.Resolve<AppWindowSecondaryViewPlayerManager>();
+                : c.Resolve<AppWindowSecondaryViewPlayerManager>(args: new object[] { (IPlayerView)Container.Resolve<AppWindowSecondaryViewPlayerManager>() });
         });
 
         // MediaPlayerを各ウィンドウごとに一つずつ作るように
@@ -356,7 +358,6 @@ public sealed partial class App : Application
         container.Register<HohoemaPlaylistPlayer>(reuse: Reuse.Singleton);
 
         // Service
-        container.Register<PageManager>(reuse: Reuse.Singleton);
         container.Register<PrimaryViewPlayerManager>(reuse: Reuse.Singleton);
         container.Register<SecondaryViewPlayerManager>(reuse: Reuse.Singleton);
         container.Register<AppWindowSecondaryViewPlayerManager>(reuse: Reuse.Singleton);
@@ -668,8 +669,11 @@ public sealed partial class App : Application
         // バックグラウンドでのトースト通知ハンドリングを初期化
         await RegisterDebugToastNotificationBackgroundHandling();
 
-
-
+        // サムネイル画像キャッシュの初期化
+        ImageCache.Instance.CacheDuration = TimeSpan.FromDays(30);
+        ImageCache.Instance.MaxMemoryCacheCount = appearanceSettings.VideoListThumbnailCacheMaxCount;
+        ImageCache.Instance.RetryCount = 2;
+        await ImageCache.Instance.InitializeAsync(folderName: "nicovideo_thumb");
 
         /*
         if (args.PreviousExecutionState == ApplicationExecutionState.Terminated
@@ -682,7 +686,6 @@ public sealed partial class App : Application
         }
         else
         {
-            var pageManager = Container.Resolve<Services.PageManager>();
 
 
 #if false
@@ -876,9 +879,9 @@ public sealed partial class App : Application
         }
 
 #if !DEBUG
-        var navigationService = Container.Resolve<PageManager>();
+        var messenger = Container.Resolve<IMessenger>();
         var settings = Container.Resolve<AppearanceSettings>();
-        navigationService.OpenPage(settings.FirstAppearPageType);
+        await messenger.OpenPageAsync(settings.FirstAppearPageType);
 #endif
 
 #if false

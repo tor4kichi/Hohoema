@@ -1,4 +1,7 @@
 ﻿#nullable enable
+using CommunityToolkit.Mvvm.DependencyInjection;
+using Hohoema.Models.Application;
+using Microsoft.Toolkit.Uwp.UI;
 using System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -11,6 +14,7 @@ namespace Hohoema.Views.Mylist;
 
 public sealed class MylistCardView : Control
 {
+    static AppearanceSettings? _appearanceSettings;
     public MylistCardView()
     {
         this.DefaultStyleKey = typeof(MylistCardView);
@@ -52,11 +56,34 @@ public sealed class MylistCardView : Control
     public static readonly DependencyProperty ImageUrlProperty =
         DependencyProperty.Register("ImageUrl", typeof(Uri), typeof(MylistCardView), new PropertyMetadata(null, OnImageUrlPropertyChanged));
 
-    private static void OnImageUrlPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    private static async void OnImageUrlPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         if (((MylistCardView)d)._templateImageBrush is not null and var templatedChildImage)
         {
-            templatedChildImage.ImageSource = e.NewValue is Uri url ? new BitmapImage(url) : null;
+            Uri uri;
+            if (e.NewValue is string str)
+            {
+                uri = new Uri(str);
+            }            
+            else if (e.NewValue is Uri r)
+            {
+                uri = r;
+            }
+            else
+            {
+                return;
+            }
+
+            _appearanceSettings ??= Ioc.Default.GetRequiredService<AppearanceSettings>();
+            if (_appearanceSettings.IsVideoListThumbnailCacheEnabled)
+            {
+                templatedChildImage.ImageSource = await ImageCache.Instance.GetFromCacheAsync(uri);
+            }
+            else
+            {
+                templatedChildImage.ImageSource = new BitmapImage(uri);
+            }
+
         }
     }
 

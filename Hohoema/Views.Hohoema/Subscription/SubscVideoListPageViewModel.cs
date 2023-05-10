@@ -8,7 +8,7 @@ using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Subscriptions;
 using Hohoema.Services;
 using Hohoema.Services.Niconico;
-using Hohoema.Contracts.Player;
+using Hohoema.Contracts.Playlist;
 using Hohoema.ViewModels.Niconico.Video.Commands;
 using Hohoema.ViewModels.VideoListPage;
 using I18NPortable;
@@ -26,15 +26,22 @@ using Hohoema.Models.Playlist;
 using Windows.System;
 using CommunityToolkit.Diagnostics;
 using Hohoema.Models.PageNavigation;
+using Hohoema.Services.VideoCache.Events;
+using System.Collections;
 
 namespace Hohoema.ViewModels.Pages.Hohoema.Subscription;
 
-public sealed partial class SubscVideoListPageViewModel : HohoemaPageViewModelBase
+public sealed partial class SubscVideoListPageViewModel 
+    : HohoemaPageViewModelBase
+    , IRecipient<VideoWatchedMessage>
+    , IRecipient<PlaylistItemAddedMessage>
+    , IRecipient<PlaylistItemRemovedMessage>
+    , IRecipient<ItemIndexUpdatedMessage>
+    , IRecipient<VideoCacheStatusChangedMessage>
 {
     private readonly IMessenger _messenger;
     private readonly ILocalizeService _localizeService;
     private readonly INotificationService _notificationService;
-    private readonly PageManager _pageManager;
     private readonly SubscriptionManager _subscriptionManager;
     private readonly NicoVideoProvider _nicoVideoProvider;
     private readonly QueuePlaylist _queuePlaylist;
@@ -81,8 +88,7 @@ public sealed partial class SubscVideoListPageViewModel : HohoemaPageViewModelBa
         ILogger logger,
         IMessenger messenger,
         ILocalizeService localizeService,
-        INotificationService notificationService,
-        PageManager pageManager,
+        INotificationService notificationService,        
         SubscriptionManager subscriptionManager,
         NicoVideoProvider nicoVideoProvider,
         QueuePlaylist queuePlaylist,
@@ -95,8 +101,7 @@ public sealed partial class SubscVideoListPageViewModel : HohoemaPageViewModelBa
     {
         _messenger = messenger;
         _localizeService = localizeService;
-        _notificationService = notificationService;
-        _pageManager = pageManager;
+        _notificationService = notificationService;        
         _subscriptionManager = subscriptionManager;
         _nicoVideoProvider = nicoVideoProvider;
         _queuePlaylist = queuePlaylist;
@@ -247,6 +252,12 @@ public sealed partial class SubscVideoListPageViewModel : HohoemaPageViewModelBa
                 RefreshHasNewVideos();
             }
         });
+
+        _messenger.Register<VideoWatchedMessage>(this);
+        _messenger.Register<PlaylistItemAddedMessage>(this);
+        _messenger.Register<PlaylistItemRemovedMessage>(this);
+        _messenger.Register<ItemIndexUpdatedMessage>(this);
+        _messenger.Register<VideoCacheStatusChangedMessage>(this);
     }
 
     [ObservableProperty]
@@ -262,8 +273,67 @@ public sealed partial class SubscVideoListPageViewModel : HohoemaPageViewModelBa
     {
         _messenger.Unregister<SubscFeedVideoValueChangedMessage>(this);
         _messenger.Unregister<NewSubscFeedVideoMessage>(this);
-        _messenger.Unregister<SubscriptionCheckedAtChangedMessage>(this);        
+        _messenger.Unregister<SubscriptionCheckedAtChangedMessage>(this);
+
+        _messenger.Unregister<VideoWatchedMessage>(this);
+        _messenger.Unregister<PlaylistItemAddedMessage>(this);
+        _messenger.Unregister<PlaylistItemRemovedMessage>(this);
+        _messenger.Unregister<ItemIndexUpdatedMessage>(this);
+        _messenger.Unregister<VideoCacheStatusChangedMessage>(this);
     }
+
+    IEnumerable<VideoItemViewModel> ToVideoItemVMEnumerable()
+    {
+        foreach (var item in SubscVideosItems.SelectMany(x => x.Items))
+        {
+            if (item is VideoItemViewModel videoItemVM)
+            {
+                yield return videoItemVM;
+            }
+        }
+    }
+
+    void IRecipient<VideoWatchedMessage>.Receive(VideoWatchedMessage message)
+    {
+        foreach (var videoItemVM in ToVideoItemVMEnumerable())
+        {
+            videoItemVM.OnWatched(message);
+        }
+    }
+
+    void IRecipient<PlaylistItemAddedMessage>.Receive(PlaylistItemAddedMessage message)
+    {
+        foreach (var videoItemVM in ToVideoItemVMEnumerable())
+        {
+            videoItemVM.OnPlaylistItemAdded(message);
+        }
+    }
+
+    void IRecipient<PlaylistItemRemovedMessage>.Receive(PlaylistItemRemovedMessage message)
+    {
+        foreach (var videoItemVM in ToVideoItemVMEnumerable())
+        {
+            videoItemVM.OnPlaylistItemRemoved(message);
+        }
+    }
+
+    void IRecipient<ItemIndexUpdatedMessage>.Receive(ItemIndexUpdatedMessage message)
+    {
+        foreach (var videoItemVM in ToVideoItemVMEnumerable())
+        {
+            videoItemVM.OnQueueItemIndexUpdated(message);
+        }
+    }
+
+    void IRecipient<VideoCacheStatusChangedMessage>.Receive(VideoCacheStatusChangedMessage message)
+    {
+        foreach (var videoItemVM in ToVideoItemVMEnumerable())
+        {
+            videoItemVM.OnCacheStatusChanged(message);
+        }
+    }
+
+
 
     private SubscriptionGroupPlaylist CreatePlaylist()
     {        
@@ -274,7 +344,7 @@ public sealed partial class SubscVideoListPageViewModel : HohoemaPageViewModelBa
     [RelayCommand]
     public void OpenSubscManagementPage()
     {
-        _pageManager.OpenPage(Models.PageNavigation.HohoemaPageType.SubscriptionManagement);
+        _ = _messenger.OpenPageAsync(Models.PageNavigation.HohoemaPageType.SubscriptionManagement);
     }
 
 
@@ -301,24 +371,35 @@ public sealed partial class SubscVideoListPageViewModel : HohoemaPageViewModelBa
     public void AddToQueueSubscriptionGroupNewVideos()
     {
         int prevVount = _queuePlaylist.Count;
-        foreach (var video in SubscVideosItems.SelectMany(x => x.Items))
-        {
-            _queuePlaylist.Add(video);
-        }
 
-        if (SelectedSubscGroup != null)
+        var candidateItems = SubscVideosItems.SelectMany(x => x.Items).ToArray();
+        if (candidateItems.Any() is false) { return; }
+
+        if (candidateItems.All(_queuePlaylist.Contains))
         {
-            _subscriptionManager.UpdateSubscriptionCheckedAt(SelectedSubscGroup.GroupId);
+            foreach (var video in SubscVideosItems.SelectMany(x => x.Items))
+            {
+                _queuePlaylist.Remove(video);
+            }
+
+            var subCount = prevVount - _queuePlaylist.Count;
+            if (0 < subCount)
+            {
+                _notificationService.ShowLiteInAppNotification("QueueRemoveItem".Translate());
+            }
         }
         else
         {
-            _subscriptionManager.UpdateAllSubscriptionCheckedAt();
-        }
+            foreach (var video in SubscVideosItems.SelectMany(x => x.Items))
+            {
+                _queuePlaylist.Add(video);
+            }
 
-        var subCount = _queuePlaylist.Count - prevVount;
-        if (0 < subCount)
-        {
-            _notificationService.ShowLiteInAppNotification("Notification_SuccessAddToWatchLaterWithAddedCount".Translate(subCount));
+            var subCount = _queuePlaylist.Count - prevVount;
+            if (0 < subCount)
+            {
+                _notificationService.ShowLiteInAppNotification("QueueAddItem".Translate());
+            }
         }
     }
 
@@ -366,7 +447,7 @@ public sealed partial class SubscVideoListPageViewModel : HohoemaPageViewModelBa
             }
             
             // 指定日時以前の動画を全て視聴済みにマークする
-            foreach (var video in _subscriptionManager.GetSubscFeedVideosOlderAt(SelectedSubscGroup.GroupId, checkedAt))
+            foreach (var video in ToVideoItemVMEnumerable().Where(x => x.PostedAt < checkedAt).ToArray())
             {
                 VideoId videoId = video.VideoId;
                 _videoWatchedRepository.MarkWatched(videoId);
@@ -471,7 +552,7 @@ public sealed partial class SubscriptionNewVideosViewModel : ObservableObject, I
             _ => throw new NotImplementedException(),
         };
 
-        await _messenger.SendNavigationRequestAsync(pageType, new NavigationParameters(param));
+        await _messenger.OpenPageAsync(pageType, new NavigationParameters(param));
     }
 
     [RelayCommand(CanExecute = nameof(HasNewVideos))]
@@ -479,15 +560,23 @@ public sealed partial class SubscriptionNewVideosViewModel : ObservableObject, I
     {
         if (Items.Any() is false) { return; }
 
-        int count = Items.Count;
-        foreach (var item in Items)
+        if (Items.All(_queuePlaylist.Contains))
         {
-            _queuePlaylist.Add(item);
+            foreach (var item in Items)
+            {
+                _queuePlaylist.Remove(item);
+            }
         }
+        else
+        {
+            int count = Items.Count;
+            foreach (var item in Items)
+            {
+                _queuePlaylist.Add(item);
+            }
 
-        AllMarkAsChecked();
-
-        _notificationService.ShowLiteInAppNotification("Notification_SuccessAddToWatchLaterWithAddedCount".Translate(count));
+            _notificationService.ShowLiteInAppNotification("QueueAddItem".Translate());
+        }
     }
 
 

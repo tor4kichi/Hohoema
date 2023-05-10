@@ -30,11 +30,6 @@ public sealed class LoginUserLiveReservationProvider : ProviderBase
     }
 
 
-    public Task<TimeshiftReservationsDetailResponse> GetReservtionsDetailAsync()
-    {
-        return _niconicoSession.ToolkitContext.Timeshift.GetTimeshiftReservationsDetailAsync();
-    }
-
     private async Task<ReservationToken> GetReservationTokenAsync(bool forceRefresh = false)
     {
         _token ??= await _niconicoSession.ToolkitContext.Timeshift.GetReservationTokenAsync();
