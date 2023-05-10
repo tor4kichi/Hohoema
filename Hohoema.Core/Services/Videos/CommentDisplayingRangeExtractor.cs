@@ -44,7 +44,7 @@ public sealed class CommentDisplayingRangeExtractor<TComment> where TComment : I
         return Rewind(initialPosition);
     }
 
-    [Obsolete]
+    
     public CommentDisplayingRangeChanged<TComment> UpdateToNextFrame(TimeSpan currentPosition)
     {
         if (_comments == null) { return new CommentDisplayingRangeChanged<TComment>(); }
@@ -74,7 +74,7 @@ public sealed class CommentDisplayingRangeExtractor<TComment> where TComment : I
         return rangeComments;
     }
 
-    [Obsolete]
+    
     public ReadOnlySpan<TComment> Rewind(TimeSpan endPosition)
     {
         if (_comments == null) { return ReadOnlySpan<TComment>.Empty; }
@@ -143,7 +143,7 @@ public sealed class CommentDisplayingRangeExtractor<TComment> where TComment : I
         };
     }
 
-    [Obsolete]
+    
     private TimeSpan GetDisplayRangeStartPosition(TimeSpan currentPosition)
     {
         // ２秒表示時間を伸ばすといい感じに表示できる（邪悪）

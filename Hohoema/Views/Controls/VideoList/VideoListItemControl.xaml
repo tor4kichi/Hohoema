@@ -29,11 +29,11 @@
             <uwpControls:DockPanel Margin="4 0 0 0"
                            x:Name="ContentLayout"
                            >
-              <Grid uwpControls:DockPanel.Dock="Left" Margin="0 0 12 0" Width="132" Height="72">
+              <Grid uwpControls:DockPanel.Dock="Left" Margin="0 0 12 0" Width="146" Height="80">
                 <uwpControls:ImageEx x:Name="ImagePart"
                         Stretch="Uniform"
                         VerticalAlignment="Center"
-                         Height="100"
+                         Height="120"
                     />
                 <Border HorizontalAlignment="Right" 
                         VerticalAlignment="Bottom"
@@ -102,8 +102,7 @@
                     </StackPanel>
                   </StackPanel>
 
-                  <TextBlock Text="{TemplateBinding Title}" 
-                       FontSize="16"
+                  <TextBlock Text="{TemplateBinding Title}"                        
                        TextWrapping="Wrap"
                        VerticalAlignment="Center"
                        x:Name="LabelTextBlock"
@@ -112,7 +111,7 @@
                 <StackPanel x:Name="ButtonActionsLayout"  Orientation="Horizontal" 
                             HorizontalAlignment="Right" VerticalAlignment="Stretch" 
                             Visibility="Collapsed"                             
-                            Spacing="8"
+                            Spacing="12"
                             Margin="0 0 8 0"
                             >
 
@@ -237,8 +236,6 @@
                   </VisualState.StateTriggers>
                   <VisualState.Setters>
                     <Setter Target="QueueIndexLayout.Opacity" Value="1.0" />
-                    <Setter Target="QueueToggleSwipeItemSymbolIconSource.Symbol" Value="Remove" />
-                    <Setter Target="QueueToggleSwipeItem.Text" Value="{i18nExt:Localize Key=QueueRemoveItem}" />
                   </VisualState.Setters>
                 </VisualState>
               </VisualStateGroup>

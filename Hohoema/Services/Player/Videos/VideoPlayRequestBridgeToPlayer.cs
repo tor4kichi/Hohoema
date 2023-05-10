@@ -260,15 +260,6 @@ public sealed class VideoPlayRequestBridgeToPlayer
 
         await sourcePlayerView.ShowAsync();
 
-        if (_appearanceSettings.PlayerDisplayView == PlayerDisplayView.PrimaryView
-            && _applicationLayoutManager.InteractionMode == ApplicationInteractionMode.Touch
-            && await sourcePlayerView.IsWindowFilledScreenAsync()
-            && await sourcePlayerView.GetDisplayModeAsync() == PlayerDisplayMode.FillWindow
-            )
-        {
-            await sourcePlayerView.TrySetDisplayModeAsync(PlayerDisplayMode.FullScreen);
-        }
-
         _titleUpdater = sourcePlayerView.PlaylistPlayer.ObserveProperty(x => x.CurrentPlaylistItem)
             .Subscribe(async playlistItem =>
             {

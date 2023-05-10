@@ -25,7 +25,27 @@ public sealed partial class DesktopPlayerUI : UserControl, IDraggableAreaAware
 {
     UIElement IDraggableAreaAware.GetDraggableArea()
     {
-        return PlayerTopDraggableArea;
+        if (_vm.PlayerView.IsCompactOverlay)
+        {
+            PlayerTopDraggableArea_Compact.IsHitTestVisible = true;
+            PlayerTopDraggableArea_FullScreen.IsHitTestVisible = false;
+            PlayerTopDraggableArea_FillWindow.IsHitTestVisible = false;
+            return PlayerTopDraggableArea_Compact;
+        }
+        else if (_vm.PlayerView.IsFullScreen)
+        {
+            PlayerTopDraggableArea_Compact.IsHitTestVisible = false;
+            PlayerTopDraggableArea_FullScreen.IsHitTestVisible = true;
+            PlayerTopDraggableArea_FillWindow.IsHitTestVisible = false;
+            return PlayerTopDraggableArea_FullScreen;
+        }
+        else
+        {
+            PlayerTopDraggableArea_Compact.IsHitTestVisible = false;
+            PlayerTopDraggableArea_FullScreen.IsHitTestVisible = false;
+            PlayerTopDraggableArea_FillWindow.IsHitTestVisible = true;
+            return PlayerTopDraggableArea_FillWindow;
+        }
     }
 
     private readonly DispatcherQueue _dispatcherQueue;

@@ -18,7 +18,7 @@ public sealed class LisenceSummary
 
     public static async Task<LisenceSummary> LoadAsync(CancellationToken ct = default)
     {        
-        StorageFile file = await StorageFile.GetFileFromPathAsync(Path.Combine(Windows.ApplicationModel.Package.Current.InstalledLocation.Path, "\\Assets\\LibLisencies\\_lisence_summary.json"));
+        StorageFile file = await StorageFile.GetFileFromPathAsync(Path.Combine(Windows.ApplicationModel.Package.Current.InstalledLocation.Path, "Assets\\LibLisencies\\_lisence_summary.json"));
         using (var readStream = await file.OpenStreamForReadAsync())
         {
             ct.ThrowIfCancellationRequested();

@@ -18,7 +18,7 @@ public class PlayerSettings : FlagsRepositoryBase
 {
     public static TimeSpan DefaultCommentDisplayDuration { get; private set; } = TimeSpan.FromSeconds(4);
 
-    [Obsolete]
+    
     public PlayerSettings()
     {
         _DefaultVideoQuality = Read(NicoVideoQuality.Midium, nameof(DefaultVideoQuality));
@@ -69,7 +69,7 @@ public class PlayerSettings : FlagsRepositoryBase
 
     private NicoVideoQuality _DefaultVideoQuality;
 
-    [Obsolete]
+    
     public NicoVideoQuality DefaultVideoQuality
     {
         get => _DefaultVideoQuality;
@@ -79,7 +79,7 @@ public class PlayerSettings : FlagsRepositoryBase
 
     private LiveQualityType _DefaultLiveQuality = LiveQualityType.Normal;
 
-    [Obsolete]
+    
     public LiveQualityType DefaultLiveQuality
     {
         get => _DefaultLiveQuality;
@@ -88,7 +88,7 @@ public class PlayerSettings : FlagsRepositoryBase
 
     private LiveQualityLimitType _LiveQualityLimit;
 
-    [Obsolete]
+    
     public LiveQualityLimitType LiveQualityLimit
     {
         get => _LiveQualityLimit;
@@ -97,7 +97,7 @@ public class PlayerSettings : FlagsRepositoryBase
 
     private bool _LiveWatchWithLowLatency;
 
-    [Obsolete]
+    
     public bool LiveWatchWithLowLatency
     {
         get => _LiveWatchWithLowLatency;
@@ -109,7 +109,7 @@ public class PlayerSettings : FlagsRepositoryBase
 
     private bool _IsMute;
 
-    [Obsolete]
+    
     public bool IsMute
     {
         get => _IsMute;
@@ -119,7 +119,7 @@ public class PlayerSettings : FlagsRepositoryBase
 
     private double _SoundVolume;
 
-    [Obsolete]
+    
     public double SoundVolume
     {
         get => _SoundVolume;
@@ -133,7 +133,7 @@ public class PlayerSettings : FlagsRepositoryBase
 
     private double _SoundVolumeChangeFrequency;
 
-    [Obsolete]
+    
     public double SoundVolumeChangeFrequency
     {
         get => _SoundVolumeChangeFrequency;
@@ -143,7 +143,7 @@ public class PlayerSettings : FlagsRepositoryBase
 
     private bool _IsLoudnessCorrectionEnabled;
 
-    [Obsolete]
+    
     public bool IsLoudnessCorrectionEnabled
     {
         get => _IsLoudnessCorrectionEnabled;
@@ -156,7 +156,7 @@ public class PlayerSettings : FlagsRepositoryBase
 
     private bool _IsShowCommentList_Video;
 
-    [Obsolete]
+    
     public bool IsShowCommentList_Video
     {
         get => _IsShowCommentList_Video;
@@ -165,7 +165,7 @@ public class PlayerSettings : FlagsRepositoryBase
 
     private bool _IsCommentDisplay_Video;
 
-    [Obsolete]
+    
     public bool IsCommentDisplay_Video
     {
         get => _IsCommentDisplay_Video;
@@ -175,7 +175,7 @@ public class PlayerSettings : FlagsRepositoryBase
 
     private bool _IsCommentDisplay_Live;
 
-    [Obsolete]
+    
     public bool IsCommentDisplay_Live
     {
         get => _IsCommentDisplay_Live;
@@ -186,7 +186,7 @@ public class PlayerSettings : FlagsRepositoryBase
 
     private bool _PauseWithCommentWriting;
 
-    [Obsolete]
+    
     public bool PauseWithCommentWriting
     {
         get => _PauseWithCommentWriting;
@@ -196,7 +196,7 @@ public class PlayerSettings : FlagsRepositoryBase
 
     private TimeSpan _CommentDisplayDuration;
 
-    [Obsolete]
+    
     public TimeSpan CommentDisplayDuration
     {
         get => _CommentDisplayDuration;
@@ -207,7 +207,7 @@ public class PlayerSettings : FlagsRepositoryBase
 
     private double _DefaultCommentFontScale;
 
-    [Obsolete]
+    
     public double DefaultCommentFontScale
     {
         get => _DefaultCommentFontScale;
@@ -217,7 +217,7 @@ public class PlayerSettings : FlagsRepositoryBase
 
     private double _CommentOpacity;
 
-    [Obsolete]
+    
     public double CommentOpacity
     {
         get => _CommentOpacity;
@@ -229,7 +229,7 @@ public class PlayerSettings : FlagsRepositoryBase
 
     private bool _IsDefaultCommentWithAnonymous;
 
-    [Obsolete]
+    
     public bool IsDefaultCommentWithAnonymous
     {
         get => _IsDefaultCommentWithAnonymous;
@@ -238,7 +238,7 @@ public class PlayerSettings : FlagsRepositoryBase
 
     private Color _CommentColor;
 
-    [Obsolete]
+    
     public Color CommentColor
     {
         get => _CommentColor;
@@ -249,7 +249,7 @@ public class PlayerSettings : FlagsRepositoryBase
 
     private bool _IsAutoHidePlayerControlUI;
 
-    [Obsolete]
+    
     public bool IsAutoHidePlayerControlUI
     {
         get => _IsAutoHidePlayerControlUI;
@@ -258,7 +258,7 @@ public class PlayerSettings : FlagsRepositoryBase
 
     private TimeSpan _AutoHidePlayerControlUIPreventTime;
 
-    [Obsolete]
+    
     public TimeSpan AutoHidePlayerControlUIPreventTime
     {
         get => _AutoHidePlayerControlUIPreventTime;
@@ -268,7 +268,7 @@ public class PlayerSettings : FlagsRepositoryBase
 
     private bool _IsForceLandscape;
 
-    [Obsolete]
+    
     public bool IsForceLandscape
     {
         get => _IsForceLandscape;
@@ -277,7 +277,7 @@ public class PlayerSettings : FlagsRepositoryBase
 
     private double _PlaybackRate;
 
-    [Obsolete]
+    
     public double PlaybackRate
     {
         get => _PlaybackRate;
@@ -291,7 +291,7 @@ public class PlayerSettings : FlagsRepositoryBase
 
     public bool _NicoScript_DisallowSeek_Enabled;
 
-    [Obsolete]
+    
     public bool NicoScript_DisallowSeek_Enabled
     {
         get => _NicoScript_DisallowSeek_Enabled;
@@ -300,7 +300,7 @@ public class PlayerSettings : FlagsRepositoryBase
 
     public bool _NicoScript_Default_Enabled;
 
-    [Obsolete]
+    
     public bool NicoScript_Default_Enabled
     {
         get => _NicoScript_Default_Enabled;
@@ -309,7 +309,7 @@ public class PlayerSettings : FlagsRepositoryBase
 
     public bool _NicoScript_Jump_Enabled;
 
-    [Obsolete]
+    
     public bool NicoScript_Jump_Enabled
     {
         get => _NicoScript_Jump_Enabled;
@@ -319,7 +319,7 @@ public class PlayerSettings : FlagsRepositoryBase
 
     public bool _NicoScript_DisallowComment_Enabled;
 
-    [Obsolete]
+    
     public bool NicoScript_DisallowComment_Enabled
     {
         get => _NicoScript_DisallowComment_Enabled;
@@ -329,7 +329,7 @@ public class PlayerSettings : FlagsRepositoryBase
 
     public bool _NicoScript_Replace_Enabled;
 
-    [Obsolete]
+    
     public bool NicoScript_Replace_Enabled
     {
         get => _NicoScript_Replace_Enabled;
@@ -344,7 +344,7 @@ public class PlayerSettings : FlagsRepositoryBase
 
     private bool _isCurrentVideoLoopingEnabled;
 
-    [Obsolete]
+    
     public bool IsCurrentVideoLoopingEnabled
     {
         get => _isCurrentVideoLoopingEnabled;
@@ -354,7 +354,7 @@ public class PlayerSettings : FlagsRepositoryBase
 
     private bool _isPlaylistAutoMoveEnabled;
 
-    [Obsolete]
+    
     public bool IsPlaylistAutoMoveEnabled
     {
         get => _isPlaylistAutoMoveEnabled;
@@ -363,7 +363,7 @@ public class PlayerSettings : FlagsRepositoryBase
 
     private bool _isPlaylistLoopingEnabled;
 
-    [Obsolete]
+    
     public bool IsPlaylistLoopingEnabled
     {
         get => _isPlaylistLoopingEnabled;
@@ -372,7 +372,7 @@ public class PlayerSettings : FlagsRepositoryBase
 
     private bool _IsShuffleEnable;
 
-    [Obsolete]
+    
     public bool IsShuffleEnable
     {
         get => _IsShuffleEnable;
@@ -382,7 +382,7 @@ public class PlayerSettings : FlagsRepositoryBase
 
     private bool _IsReverseModeEnable;
 
-    [Obsolete]
+    
     public bool IsReverseModeEnable
     {
         get => _IsReverseModeEnable;
@@ -393,7 +393,7 @@ public class PlayerSettings : FlagsRepositoryBase
 
     private PlaylistEndAction _PlaylistEndAction;
 
-    [Obsolete]
+    
     public PlaylistEndAction PlaylistEndAction
     {
         get => _PlaylistEndAction;
@@ -403,7 +403,7 @@ public class PlayerSettings : FlagsRepositoryBase
 
     private bool _AutoMoveNextVideoOnPlaylistEmpty;
 
-    [Obsolete]
+    
     public bool AutoMoveNextVideoOnPlaylistEmpty
     {
         get => _AutoMoveNextVideoOnPlaylistEmpty;

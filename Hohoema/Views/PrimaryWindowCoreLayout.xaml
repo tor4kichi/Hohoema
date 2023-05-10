@@ -426,6 +426,10 @@
 
           <muxc:NavigationViewItem.ContextFlyout>
             <MenuFlyout>
+              <MenuFlyoutItem Text="{i18nExt:Localize Key=SubscVideos_AllMarkAsChecked}" 
+                              Icon="Play"
+                              Command="{Binding MarkAsCheckedAllCommand}"
+                              />
               <MenuFlyoutItem Text="{i18nExt:Localize Key=SubscGroup_AllPlayUnwatched}" 
                               Icon="Play"
                               Command="{Binding PlayNewVideosCommand}"

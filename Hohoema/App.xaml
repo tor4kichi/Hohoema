@@ -348,9 +348,9 @@
       
       <Style TargetType="ListViewItem" x:Key="VideoListViewItemStyle" BasedOn="{StaticResource ListViewItemExpanded}">
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-        <Setter Property="Height" Value="92" />
+        <Setter Property="MinHeight" Value="92" />
         <Setter Property="Margin" Value="0 0 0 0" />
-        <Setter Property="Padding" Value="0 8 16 8" />
+        <Setter Property="Padding" Value="0 8 8 8" />
         <Setter Property="UseSystemFocusVisuals" Value="True" />
         <Setter Property="BorderThickness" Value="0 0 0 1" />
         <Setter Property="BorderBrush" Value="{StaticResource HohoemaLightBorderColor}" />
@@ -361,7 +361,7 @@
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="Height" Value="92" />
         <Setter Property="Margin" Value="0 0 0 0" />
-        <Setter Property="Padding" Value="0 8 16 8" />
+        <Setter Property="Padding" Value="0 8 0 8" />
         <Setter Property="UseSystemFocusVisuals" Value="True" />
         <Setter Property="BorderThickness" Value="0 0 0 1" />
         <Setter Property="BorderBrush" Value="{StaticResource HohoemaLightBorderColor}" />
@@ -396,6 +396,11 @@
         <Setter Property="Margin" Value="2 0" />
       </Style>
 
+      <!-- Note: SplitViewのBorderThicknessがデフォで 0,0,1,0 のため右側に無駄な隙間ができる -->
+      <Style TargetType="SplitView">
+        <Setter Property="BorderThickness" Value="0" />
+      </Style>
+      
     </ResourceDictionary>
   </Application.Resources>
 
