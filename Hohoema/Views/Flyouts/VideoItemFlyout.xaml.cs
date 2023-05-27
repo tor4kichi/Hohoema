@@ -303,68 +303,77 @@ public sealed partial class VideoItemFlyout : MenuFlyout
             RemoveNgUser.Visibility = Visibility.Collapsed;
         }
 
+        CacheSeparator.Visibility = Visibility.Collapsed;
+        CacheRequestWithQuality.Visibility = Visibility.Collapsed;
+        CacheRequest.Visibility = Visibility.Collapsed;
+        DeleteCacheRequest.Visibility = isMultipleSelection 
+            ? SelectedVideoItems.Any(x => VideoCacheManager.GetVideoCacheStatus(x.VideoId) is not null).ToVisibility()
+            : (VideoCacheManager.GetVideoCacheStatus(content!.VideoId) is not null).ToVisibility()
+            ;
+        DeleteCacheRequest.CommandParameter = dataContext;
+        (DeleteCacheRequest.Command as CommandBase)!.NotifyCanExecuteChanged();
         // キャッシュ
-        var canNewDownloadCache = VideoCacheManager.IsCacheDownloadAuthorized();
-        var canNewDownloadCacheToVisibility = canNewDownloadCache.ToVisibility();
-        if (isMultipleSelection)
-        {
-            // 一つでもキャッシュ済みがあれば削除ボタンを表示
-            // 一つでも未キャッシュがあれば取得ボタンを表示
-            var anyItemsCached = SelectedVideoItems.Any(x => VideoCacheManager.GetVideoCacheStatus(x.VideoId) is not null);
-            var anyItemsNotCached = SelectedVideoItems.Any(x => VideoCacheManager.GetVideoCacheStatus(x.VideoId) is null or VideoCacheStatus.DownloadPaused or VideoCacheStatus.Downloading or VideoCacheStatus.Failed);
+        //var canNewDownloadCache = VideoCacheManager.IsCacheDownloadAuthorized();
+        //var canNewDownloadCacheToVisibility = canNewDownloadCache.ToVisibility();
+        //if (isMultipleSelection)
+        //{
+        //    // 一つでもキャッシュ済みがあれば削除ボタンを表示
+        //    // 一つでも未キャッシュがあれば取得ボタンを表示
+        //    var anyItemsCached = SelectedVideoItems.Any(x => VideoCacheManager.GetVideoCacheStatus(x.VideoId) is not null);
+        //    var anyItemsNotCached = SelectedVideoItems.Any(x => VideoCacheManager.GetVideoCacheStatus(x.VideoId) is null or VideoCacheStatus.DownloadPaused or VideoCacheStatus.Downloading or VideoCacheStatus.Failed);
 
-            var notCachedToVisible = (canNewDownloadCache && anyItemsNotCached).ToVisibility();
-            CacheRequest.Visibility = notCachedToVisible;
-            CacheRequest.CommandParameter = dataContext;
-            (CacheRequest.Command as CommandBase).NotifyCanExecuteChanged();
+        //    var notCachedToVisible = (canNewDownloadCache && anyItemsNotCached).ToVisibility();
+        //    CacheRequest.Visibility = notCachedToVisible;
+        //    CacheRequest.CommandParameter = dataContext;
+        //    (CacheRequest.Command as CommandBase).NotifyCanExecuteChanged();
 
-            CacheRequestWithQuality.Visibility = notCachedToVisible;
-            DeleteCacheRequest.CommandParameter = dataContext;
-            (DeleteCacheRequest.Command as CommandBase).NotifyCanExecuteChanged();
+        //    CacheRequestWithQuality.Visibility = notCachedToVisible;
+        //    DeleteCacheRequest.CommandParameter = dataContext;
+        //    (DeleteCacheRequest.Command as CommandBase).NotifyCanExecuteChanged();
 
-            var cachedToVisible = (anyItemsCached).ToVisibility();
-            DeleteCacheRequest.Visibility = cachedToVisible;
+        //    var cachedToVisible = (anyItemsCached).ToVisibility();
+        //    DeleteCacheRequest.Visibility = cachedToVisible;
 
-            CacheSeparator.Visibility = ((RemoveNgUser.Visibility == Visibility.Visible || AddNgUser.Visibility == Visibility.Visible) && 
-                notCachedToVisible is Visibility.Visible || cachedToVisible is Visibility.Visible).ToVisibility();
-        }
-        else
-        {
-            var itemCached = VideoCacheManager.GetVideoCacheStatus(content.VideoId) is not null;
-            var itemNotCached = VideoCacheManager.GetVideoCacheStatus(content.VideoId) is null or VideoCacheStatus.DownloadPaused or VideoCacheStatus.Downloading or VideoCacheStatus.Failed;
+        //    CacheSeparator.Visibility = ((RemoveNgUser.Visibility == Visibility.Visible || AddNgUser.Visibility == Visibility.Visible) && 
+        //        notCachedToVisible is Visibility.Visible || cachedToVisible is Visibility.Visible).ToVisibility();
+        //}
+        //else
+        //{
+        //    var itemCached = VideoCacheManager.GetVideoCacheStatus(content.VideoId) is not null;
+        //    var itemNotCached = VideoCacheManager.GetVideoCacheStatus(content.VideoId) is null or VideoCacheStatus.DownloadPaused or VideoCacheStatus.Downloading or VideoCacheStatus.Failed;
 
-            var notCachedToVisible = (canNewDownloadCache && itemNotCached).ToVisibility();
-            CacheRequest.Visibility = notCachedToVisible;
-            CacheRequest.CommandParameter = dataContext;
-            CacheRequestWithQuality.Visibility = notCachedToVisible;
-            DeleteCacheRequest.CommandParameter = dataContext;
+        //    var notCachedToVisible = (canNewDownloadCache && itemNotCached).ToVisibility();
+        //    CacheRequest.Visibility = notCachedToVisible;
+        //    CacheRequest.CommandParameter = dataContext;
+        //    CacheRequestWithQuality.Visibility = notCachedToVisible;
+        //    DeleteCacheRequest.CommandParameter = dataContext;
 
-            var cachedToVisible = (itemCached).ToVisibility();
-            DeleteCacheRequest.Visibility = cachedToVisible;
+        //    var cachedToVisible = (itemCached).ToVisibility();
+        //    DeleteCacheRequest.Visibility = cachedToVisible;
 
-            CacheSeparator.Visibility = ((RemoveNgUser.Visibility == Visibility.Visible || AddNgUser.Visibility == Visibility.Visible) && 
-                notCachedToVisible is Visibility.Visible || cachedToVisible is Visibility.Visible).ToVisibility();
-        }
+        //    CacheSeparator.Visibility = ((RemoveNgUser.Visibility == Visibility.Visible || AddNgUser.Visibility == Visibility.Visible) && 
+        //        notCachedToVisible is Visibility.Visible || cachedToVisible is Visibility.Visible).ToVisibility();
+        //}
 
 
-        if (CacheRequestWithQuality.Items.Count == 0)
-        {
-            foreach (var quality in Enum.GetValues(typeof(NicoVideoQuality)).Cast<NicoVideoQuality>().Where(x => x != NicoVideoQuality.Unknown))
-            {
-                var command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<CacheAddRequestCommand>();
-                command.VideoQuality = quality;
-                var cacheRequestMenuItem = new MenuFlyoutItem() 
-                {
-                    Text = quality.Translate(),
-                    Command = command,
-                };
-                CacheRequestWithQuality.Items.Add(cacheRequestMenuItem);
-            }
-        }
+        //if (CacheRequestWithQuality.Items.Count == 0)
+        //{
+        //    foreach (var quality in Enum.GetValues(typeof(NicoVideoQuality)).Cast<NicoVideoQuality>().Where(x => x != NicoVideoQuality.Unknown))
+        //    {
+        //        var command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<CacheAddRequestCommand>();
+        //        command.VideoQuality = quality;
+        //        var cacheRequestMenuItem = new MenuFlyoutItem() 
+        //        {
+        //            Text = quality.Translate(),
+        //            Command = command,
+        //        };
+        //        CacheRequestWithQuality.Items.Add(cacheRequestMenuItem);
+        //    }
+        //}
 
-        foreach (var qualityCacheRequest in CacheRequestWithQuality.Items)
-        {
-            (qualityCacheRequest as MenuFlyoutItem).CommandParameter = dataContext;
-        }
+        //foreach (var qualityCacheRequest in CacheRequestWithQuality.Items)
+        //{
+        //    (qualityCacheRequest as MenuFlyoutItem).CommandParameter = dataContext;
+        //}
     }
 }
