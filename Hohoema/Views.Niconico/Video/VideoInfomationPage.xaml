@@ -391,28 +391,17 @@
         
         
         <!-- 関連動画 -->
-        <Grid>
-          <ListView ItemsSource="{x:Bind _vm.RelatedVideos, Mode=OneWay}"
+        <local1:VideoItemsListView  ItemsSource="{x:Bind _vm.RelatedVideos, Mode=OneWay}"
+                                    ItemCommand="{x:Bind _vm.VideoPlayWithQueueCommand}"
                     ItemTemplate="{StaticResource VideoListItemControlDefaultTemplate}"
-                    IsItemClickEnabled="True"
-                    SelectionMode="None"
-                    SingleSelectionFollowsFocus="False"
-                    ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
                     >
-            <ListView.Header>
-              <StackPanel Spacing="8">
-                <TextBlock Text="{i18nExt:Localize Key=RelatedVideos}"  Style="{StaticResource SubtitleTextBlockStyle}"  />
-                <TextBlock Text="{i18nExt:Localize Key=NoItems_RelatedVideos}" Opacity="0.6" Margin="16" Visibility="{x:Bind _vm.RelatedVideos, Mode=OneWay, Converter={StaticResource EmptyCollectionVisibilityConverter}}" />
-              </StackPanel>
-            </ListView.Header>
-            <i:Interaction.Behaviors>
-              <core:EventTriggerBehavior EventName="ItemClick">
-                <core:InvokeCommandAction Command="{x:Bind _vm.VideoPlayWithQueueCommand}"
-                                                InputConverter="{StaticResource ItemClickEventArgsConverter}" />
-              </core:EventTriggerBehavior>
-            </i:Interaction.Behaviors>
-          </ListView>
-        </Grid>
+          <local1:VideoItemsListView.Header>
+            <StackPanel Spacing="8">
+              <TextBlock Text="{i18nExt:Localize Key=RelatedVideos}"  Style="{StaticResource SubtitleTextBlockStyle}"  />
+              <TextBlock Text="{i18nExt:Localize Key=NoItems_RelatedVideos}" Opacity="0.6" Margin="16" Visibility="{x:Bind _vm.RelatedVideos, Mode=OneWay, Converter={StaticResource EmptyCollectionVisibilityConverter}}" />
+            </StackPanel>
+          </local1:VideoItemsListView.Header>
+        </local1:VideoItemsListView>
       </StackPanel>
     </ScrollViewer>
     
