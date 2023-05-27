@@ -45,7 +45,9 @@
                                       >
       <videolistPage:VideoItemsListView.Header>
 
-        <Grid x:Name="HeaderLayout" BorderThickness="0 0 0 1" BorderBrush="{StaticResource HohoemaLightBorderBrush}">
+        <Grid x:Name="HeaderLayout" BorderThickness="0 0 0 1" BorderBrush="{StaticResource HohoemaLightBorderBrush}"
+              Height="80"                           
+              >
           <CommandBar DefaultLabelPosition="Right" VerticalContentAlignment="Center">
             <CommandBar.Content>
               <StackPanel>
@@ -124,6 +126,18 @@
 
             </CommandBar.SecondaryCommands>
           </CommandBar>
+
+          <HyperlinkButton NavigateUri="https://github.com/tor4kichi/Hohoema/issues/953"                           
+                           VerticalAlignment="Bottom"                           
+                           VerticalContentAlignment="Bottom"                           
+                           >
+            <TextBlock Text="動画再生方式 HLS へ移行したため新規キャッシュ取得を停止しています"
+                       Style="{StaticResource SubtitleTextBlockStyle}"
+                       TextWrapping="Wrap"
+                       >
+              
+            </TextBlock>
+          </HyperlinkButton>
         </Grid>
       </videolistPage:VideoItemsListView.Header>
 

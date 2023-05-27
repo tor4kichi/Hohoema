@@ -81,7 +81,7 @@ public class DmcVideoStreamingSession : VideoStreamingSession, IVideoStreamingDo
                 }
             }
 
-            _dmcSessionResponse = await NiconicoSession.ToolkitContext.Video.VideoWatch.GetDmcSessionResponseAsync(_dmcWatchData, VideoContent, null, hlsMode: false);
+            _dmcSessionResponse = await NiconicoSession.ToolkitContext.Video.VideoWatch.GetDmcSessionResponseAsync(_dmcWatchData, VideoContent, null, hlsMode: true);
 
             if (_dmcSessionResponse == null) { return null; }
 
