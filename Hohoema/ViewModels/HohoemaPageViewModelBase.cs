@@ -13,10 +13,10 @@ public abstract class HohoemaPageViewModelBase : NavigationAwareViewModelBase, I
         _CompositeDisposable = new CompositeDisposable();
     }
     
-    protected CompositeDisposable _CompositeDisposable { get; private set; }
-    protected CompositeDisposable _navigationDisposables { get; private set; }
+    protected CompositeDisposable _CompositeDisposable { get; }
+    protected CompositeDisposable? _navigationDisposables { get; private set; }
 
-    private CancellationTokenSource _navigationCts;
+    private CancellationTokenSource? _navigationCts;
 
     protected CancellationToken NavigationCancellationToken { get; private set; }
 
@@ -44,9 +44,17 @@ public abstract class HohoemaPageViewModelBase : NavigationAwareViewModelBase, I
 
     public override void OnNavigatedFrom(INavigationParameters parameters)
     {
-        _navigationCts?.Cancel();
-        _navigationCts?.Dispose();
-        _navigationDisposables?.Dispose();
+        if (_navigationCts is not null)
+        {
+            _navigationCts.Cancel();
+            _navigationCts.Dispose();
+            _navigationCts = null;
+        }
+        
+        if (_navigationDisposables is not null)
+        {
+            _navigationDisposables.Dispose();
+        }
         _navigationDisposables = new();
     }
 
