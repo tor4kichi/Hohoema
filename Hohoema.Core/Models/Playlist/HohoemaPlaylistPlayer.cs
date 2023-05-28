@@ -509,7 +509,7 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
 
     public PlayingOrchestrateResult CurrentPlayingSession { get; private set; }
 
-    private IDisposable _videoSessionDisposable;
+    private IStreamingSession _videoSessionDisposable;
 
 
 
@@ -566,8 +566,17 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
 
         TimeSpan? currentPosition = GetCurrentPlaybackPosition();
 
-        _videoSessionDisposable?.Dispose();
-        _videoSessionDisposable = null;
+        IStreamingSession videoSession;
+        if (_videoSessionDisposable is not DmcVideoStreamingSession dmcSession)
+        {
+            videoSession = await CurrentPlayingSession.VideoSessionProvider.CreateVideoSessionAsync(quality);
+        }
+        else
+        {
+            dmcSession.StopPlayback();
+            dmcSession.SetQuality(quality);
+            videoSession = dmcSession;            
+        }
 
         NicoVideoQualityEntity quelityEntity = AvailableQualities.First(x => x.Quality == quality);
 
@@ -576,15 +585,14 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
             throw new HohoemaException("unavailable video quality : " + quality);
         }
 
-        IStreamingSession videoSession = await CurrentPlayingSession.VideoSessionProvider.CreateVideoSessionAsync(quality);
+        CurrentQuality = quelityEntity;
 
         _videoSessionDisposable = videoSession;
         await videoSession.StartPlayback(_mediaPlayer, currentPosition ?? TimeSpan.Zero);
 
-        CurrentQuality = quelityEntity;
-
         _playerSettings.DefaultVideoQuality = quality;
         Guard.IsNotNull(_mediaPlayer.PlaybackSession, nameof(_mediaPlayer.PlaybackSession));
+
     }
 
     private void StopPlaybackMedia()

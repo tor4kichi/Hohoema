@@ -1,10 +1,12 @@
 ﻿#nullable enable
+using CommunityToolkit.Diagnostics;
 using Hohoema.Models.Niconico.Video;
 using NiconicoToolkit.Video.Watch;
 using NiconicoToolkit.Video.Watch.Dmc;
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Media.Core;
@@ -29,8 +31,8 @@ public class DmcVideoStreamingSession : VideoStreamingSession, IVideoStreamingDo
 
     public VideoContent VideoContent { get; private set; }
 
-    public override string QualityId { get; }
-    public override NicoVideoQuality Quality { get; }
+    public override string QualityId { get; protected set; }
+    public override NicoVideoQuality Quality { get; protected set; }
 
 
 
@@ -39,9 +41,7 @@ public class DmcVideoStreamingSession : VideoStreamingSession, IVideoStreamingDo
     {
         _dmcWatchData = res;
         _forCacheDownload = forCacheDownload;
-        QualityId = qualityId;
-        Quality = res.ToNicoVideoQuality(qualityId);
-
+        
 #if DEBUG
         Debug.WriteLine($"Id/Bitrate/Resolution/Available");
         foreach (VideoContent q in _dmcWatchData.Media.Delivery.Movie.Videos)
@@ -49,6 +49,25 @@ public class DmcVideoStreamingSession : VideoStreamingSession, IVideoStreamingDo
             Debug.WriteLine($"{q.Id}/{q.Metadata.Bitrate}/{q.IsAvailable}/{q.Metadata.Resolution}");
         }
 #endif
+
+        SetQuality(qualityId);
+    }
+
+    private string GetQualityId(NicoVideoQuality quality)
+    {
+        return _dmcWatchData.Media.Delivery.Movie.Videos.Select(x => (VideoContent: x, Quality: _dmcWatchData.ToNicoVideoQuality(x.Id)))
+            .First(x => x.Quality == quality).VideoContent.Id;
+    }
+
+    public void SetQuality(NicoVideoQuality quality)
+    {
+        SetQuality(GetQualityId(quality));
+    }
+
+    private void SetQuality(string qualityId)
+    {
+        QualityId = qualityId;
+        Quality = _dmcWatchData.ToNicoVideoQuality(qualityId);
 
         VideoContent = _dmcWatchData.Media.Delivery.Movie.Videos.FirstOrDefault(x => x.Id == qualityId);
 
@@ -70,25 +89,29 @@ public class DmcVideoStreamingSession : VideoStreamingSession, IVideoStreamingDo
         try
         {
             // 直前に同一動画を見ていた場合には、動画ページに再アクセスする
-            DmcSessionResponse clearPreviousSession = null;
             if (_dmcSessionResponse != null)
             {
-                if (_dmcSessionResponse.Data.Session.RecipeId.EndsWith(_dmcWatchData.Video.Id))
-                {
-                    clearPreviousSession = _dmcSessionResponse;
-                    _dmcSessionResponse = null;
-                    _dmcWatchData = await NiconicoSession.ToolkitContext.Video.VideoWatch.GetDmcWatchJsonAsync(_dmcWatchData.Client.WatchId, NiconicoSession.IsLoggedIn, _dmcWatchData.Client.WatchTrackId);
-                }
+                // 画質変更時
+                var clearPreviousSession = _dmcSessionResponse;
+                _dmcSessionResponse = null;
+                var res = await NiconicoSession.ToolkitContext.Video.VideoWatch.GetDmcWatchJsonAsync(_dmcWatchData.Client.WatchId, NiconicoSession.IsLoggedIn, _dmcWatchData.Client.WatchTrackId);
+                Guard.IsTrue(res.IsSuccess);
+                _dmcWatchData = res.Data;
+
+                await NiconicoSession.ToolkitContext.Video.VideoWatch.DmcSessionExitHeartbeatAsync(_dmcWatchData, clearPreviousSession);
+
+                bool watchResult = await NiconicoSession.ToolkitContext.Video.VideoWatch.SendOfficialHlsWatchAsync(_dmcWatchData.Client.WatchId, _dmcWatchData.Client.WatchTrackId);
+                Debug.WriteLine($"watchresult: {watchResult}");
+                _dmcSessionResponse = await NiconicoSession.ToolkitContext.Video.VideoWatch.GetDmcSessionResponseAsync(_dmcWatchData, VideoContent, null, hlsMode: true);
+            }
+            else
+            {
+                await NiconicoSession.ToolkitContext.Video.VideoWatch.SendOfficialHlsWatchAsync(_dmcWatchData.Video.Id, _dmcWatchData.Media.Delivery.TrackingId);
+                _dmcSessionResponse = await NiconicoSession.ToolkitContext.Video.VideoWatch.GetDmcSessionResponseAsync(_dmcWatchData, VideoContent, null, hlsMode: true);
             }
 
-            _dmcSessionResponse = await NiconicoSession.ToolkitContext.Video.VideoWatch.GetDmcSessionResponseAsync(_dmcWatchData, VideoContent, null, hlsMode: true);
 
             if (_dmcSessionResponse == null) { return null; }
-
-            if (clearPreviousSession != null)
-            {
-                await NiconicoSession.ToolkitContext.Video.VideoWatch.DmcSessionExitHeartbeatAsync(_dmcWatchData, clearPreviousSession);
-            }
         }
         catch
         {
@@ -141,8 +164,6 @@ public class DmcVideoStreamingSession : VideoStreamingSession, IVideoStreamingDo
             AdaptiveMediaSourceCreationResult amsResult = await AdaptiveMediaSource.CreateFromUriAsync(uri, NiconicoSession.ToolkitContext.HttpClient);
             if (amsResult.Status == AdaptiveMediaSourceCreationStatus.Success)
             {
-                _ = await NiconicoSession.ToolkitContext.Video.VideoWatch.SendOfficialHlsWatchAsync(_dmcWatchData.Video.Id, _dmcWatchData.Media.Delivery.TrackingId);
-
                 return MediaSource.CreateFromAdaptiveMediaSource(amsResult.MediaSource);
             }
         }
