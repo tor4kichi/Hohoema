@@ -138,7 +138,6 @@ public class DmcVideoStreamingSession : VideoStreamingSession, IVideoStreamingDo
             if (_dmcWatchData.Media.DeliveryLegacy != null)
             {
                 throw new NotSupportedException("DmcWatchResponse.Media.DeliveryLegacy not supported");
-                //return MediaSource.CreateFromUri(new Uri(DmcWatchResponse.Video.SmileInfo.Url));
             }
             else
             {
@@ -147,24 +146,21 @@ public class DmcVideoStreamingSession : VideoStreamingSession, IVideoStreamingDo
         }
 
         Uri uri = session?.Data.Session.ContentUri;
-
+        Debug.WriteLine(uri.OriginalString);
         if (session.Data.Session.Protocol.Parameters.HttpParameters.Parameters.HttpOutputDownloadParameters != null)
         {
             return MediaSource.CreateFromUri(uri);
         }
         else if (session.Data.Session.Protocol.Parameters.HttpParameters.Parameters.HlsParameters != null)
         {
-            Protocol.HlsParameters hlsParameters = session.Data.Session.Protocol.Parameters.HttpParameters.Parameters.HlsParameters;
-
-            if (hlsParameters.Encryption?.HlsEncryptionV1?.KeyUri != null)
-            {
-                _ = await NiconicoSession.ToolkitContext.HttpClient.GetStringAsync(new Uri(hlsParameters.Encryption.HlsEncryptionV1.KeyUri));
-            }
-
             AdaptiveMediaSourceCreationResult amsResult = await AdaptiveMediaSource.CreateFromUriAsync(uri, NiconicoSession.ToolkitContext.HttpClient);
             if (amsResult.Status == AdaptiveMediaSourceCreationStatus.Success)
             {
                 return MediaSource.CreateFromAdaptiveMediaSource(amsResult.MediaSource);
+            }
+            else
+            {
+                throw amsResult.ExtendedError;
             }
         }
 
