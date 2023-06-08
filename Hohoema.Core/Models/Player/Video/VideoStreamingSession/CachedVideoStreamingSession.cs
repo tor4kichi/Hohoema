@@ -11,8 +11,8 @@ public class CachedVideoStreamingSession : VideoStreamingSession
 {
     private readonly VideoCacheItem _videoCacheItem;
 
-    public override string QualityId { get; }
-    public override NicoVideoQuality Quality { get; }
+    public override string QualityId { get; protected set; }
+    public override NicoVideoQuality Quality { get; protected set; }
 
     public CachedVideoStreamingSession(VideoCacheItem videoCacheItem, NiconicoSession niconicoSession)
         : base(niconicoSession, null)

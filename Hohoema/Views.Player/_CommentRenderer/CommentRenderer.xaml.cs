@@ -814,12 +814,19 @@ public sealed partial class CommentRenderer : UserControl
         // 表示対象に登録
         var renderComment = MakeCommentUI(comment, frame);
 
-        renderComment.SizeChanged -= RenderComment_SizeChanged;
-        renderComment.SizeChanged += RenderComment_SizeChanged;
         CommentCanvas.Children.Add(renderComment);
         _commentToRenderCommentMap.Add(comment, renderComment);
-                
-        //renderComment.UpdateLayout();
+
+        if (renderComment.TextWidth == 0)
+        {
+            renderComment.SizeChanged -= RenderComment_SizeChanged;
+            renderComment.SizeChanged += RenderComment_SizeChanged;
+        }
+        else
+        {
+            UpdateLayout();
+            ApplyTranslateAnimation(renderComment, in frame);
+        }
     }
 
     private void RenderComment_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -829,6 +836,12 @@ public sealed partial class CommentRenderer : UserControl
         renderComment.SizeChanged -= RenderComment_SizeChanged;
 
         var frame = GetRenderFrameData();
+        ApplyTranslateAnimation(renderComment, in frame);
+    }
+
+    void ApplyTranslateAnimation(CommentUI renderComment, in CommentRenderFrameData frame)
+    {
+        IComment comment = renderComment.Comment!;
         // 初期の縦・横位置を計算
         // 縦位置を計算して表示範囲外の場合はそれぞれの表示縦位置での追加をこのフレーム内で打ち切る
         bool isOutBoundComment = false;

@@ -106,11 +106,6 @@
       <ListView.ItemContainerTransitions>
         <TransitionCollection />
       </ListView.ItemContainerTransitions>
-      <i:Interaction.Behaviors>
-        <core:EventTriggerBehavior EventName="ItemClick">
-          <core:InvokeCommandAction Command="{x:Bind _vm.OpenNicoRepoItemCommand}" InputConverter="{StaticResource ItemClickEventArgsConverter}" />
-        </core:EventTriggerBehavior>
-      </i:Interaction.Behaviors>
       <ListView.Header>
         <Grid BorderThickness="0 0 0 1" BorderBrush="{StaticResource HohoemaLightBorderBrush}">
           <StackPanel x:Name="HeaderLayout">

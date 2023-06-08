@@ -15,8 +15,8 @@ public abstract class VideoStreamingSession : IVideoStreamingSession, IDisposabl
 
 
 
-    public abstract string QualityId { get; }
-    public abstract NicoVideoQuality Quality { get; }
+    public abstract string QualityId { get; protected set; }
+    public abstract NicoVideoQuality Quality { get; protected set; }
     public NiconicoSession NiconicoSession { get; }
 
     private MediaSource _MediaSource;
@@ -161,7 +161,7 @@ public abstract class VideoStreamingSession : IVideoStreamingSession, IDisposabl
     protected virtual void OnStartStreaming() { }
     protected virtual void OnStopStreaming() { }
 
-    public void Dispose()
+    public void StopPlayback()
     {
         OnStopStreaming();
 
@@ -169,15 +169,21 @@ public abstract class VideoStreamingSession : IVideoStreamingSession, IDisposabl
         {
             _PlayingMediaPlayer.Pause();
             _PlayingMediaPlayer.Source = null;
-            _PlayingMediaPlayer = null;
-
-            _MediaSource?.Dispose();
+            _PlayingMediaPlayer = null;            
         }
+
+        _MediaSource?.Dispose();
+        _MediaSource = null;
 
         if (_videoSessionOwnership != null)
         {
             _videoSessionOwnership.ReturnOwnershipRequested -= _videoSessionOwnership_ReturnOwnershipRequested;
             _videoSessionOwnership?.Dispose();
         }
+    }
+
+    public void Dispose()
+    {
+        StopPlayback();
     }
 }
