@@ -2,6 +2,7 @@
 using Hohoema.Models.Player.Comment;
 using Microsoft.Extensions.ObjectPool;
 using Microsoft.Toolkit.Uwp.UI.Animations;
+using NiconicoToolkit.NicoRepo;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections;
@@ -378,6 +379,8 @@ public sealed partial class CommentRenderer : UserControl
     /// </summary>
     private readonly List<CommentUI?> PrevRenderCommentEachLine_Bottom = new List<CommentUI?>();
 
+
+    Timer _commentUpdateTimer;
     private void CommentRenderer_Loaded(object sender, RoutedEventArgs e)
     {
         _disposables = new CompositeDisposable();
@@ -401,11 +404,85 @@ public sealed partial class CommentRenderer : UserControl
 
         Clip = new RectangleGeometry() { Rect = new Rect() { Width = ActualWidth, Height = ActualHeight } };
         _commentBaseScale = null;
-        this.SizeChanged += CommentRenderer_SizeChanged;                
+        this.SizeChanged += CommentRenderer_SizeChanged;
+
+
+        _commentUpdateTimer = new Timer(static (s) =>
+        {
+            (s as CommentRenderer)!.TickCommentRendering();
+        } 
+        , this, TimeSpan.Zero, TimeSpan.FromMilliseconds(25)).AddTo(_disposables);
+    }
+
+
+    bool _isProcessCommentRendering;
+    void TickCommentRendering(CommentRenderFrameData? frame = null)
+    {
+        _dispatcherQueue.TryEnqueue(() =>
+        {
+            if (_isProcessCommentRendering) { return; }
+            _isProcessCommentRendering = true;
+            try
+            {
+                var sender = MediaPlayer.PlaybackSession;
+                if (_nowWindowSizeChanging) { return; }
+
+                var prev = PlaybackState;
+                PlaybackState = sender?.PlaybackState ?? null;
+                frame ??= GetRenderFrameData(withUpdate: true);
+                if (prev != PlaybackState)
+                {
+                    Debug.WriteLine("state changed " + PlaybackState);
+                    ResetScrollCommentsAnimation(frame);
+                }
+
+                TimeSpan currentVpos = CurrentVPos;
+
+                // 表示期間を過ぎたコメントを削除
+                for (int i = 0; i < CommentCanvas.Children.Count; i++)
+                {
+                    var comment = (CommentCanvas.Children[i] as CommentUI)!;
+                    if (comment.EndPosition <= currentVpos)
+                    {
+                        RemoveCommentFromCanvas(comment.Comment!);
+                        --i;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                // 追加待機中のコメントをチェック
+                var now = DateTime.UtcNow;
+                int count = 0;
+                for (int i = 0; i < _pendingRenderComments.Count; i++)
+                {
+                    if (count >= 25) { break; }
+                    count++;
+
+                    var comment = _pendingRenderComments[i];
+                    if (comment.VideoPosition <= (currentVpos + TimeSpan.FromSeconds(1)))
+                    {
+                        _pendingRenderComments.RemoveAt(i);
+                        --i;
+                        AddCommentToCanvas(comment, frame);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+            finally
+            {
+                _isProcessCommentRendering = false;
+            }            
+        });
     }
 
     private void CommentRenderer_Unloaded(object sender, RoutedEventArgs e)
-    {
+    {        
         Window.Current.SizeChanged -= WindowSizeChanged;
         this.SizeChanged -= CommentRenderer_SizeChanged;
 
@@ -470,64 +547,17 @@ public sealed partial class CommentRenderer : UserControl
     {
         _dispatcherQueue.TryEnqueue(() =>
         {
-            if (_nowWindowSizeChanging) { return; }
-
-            var prev = PlaybackState;
-            PlaybackState = sender?.PlaybackState ?? null;
-            if (prev != PlaybackState)
+            var currentVpos = CurrentVPos;
+            var diffTime = (float)(currentVpos - _prevPosition).TotalSeconds;            
+            if (1.0f < diffTime && diffTime <= DefaultDisplayDuration.TotalSeconds)
             {
-                Debug.WriteLine("state changed " + PlaybackState);
+                Debug.WriteLine("seeked! position changed lite");
                 ResetScrollCommentsAnimation(GetRenderFrameData(withUpdate: true));
             }
-
-            TimeSpan currentVpos = CurrentVPos;
-            if (Math.Abs((float)(currentVpos - _prevPosition).TotalSeconds) > 1.0f)
+            else if (Math.Abs(diffTime) > 1.0f)
             {
                 Debug.WriteLine("seeked! position changed");
                 ResetComments();
-            }
-            else
-            {
-                // 表示期間を過ぎたコメントを削除
-                for (int i = 0; i < CommentCanvas.Children.Count; i++)
-                {
-                    var comment = (CommentCanvas.Children[i] as CommentUI)!;
-                    if (comment.EndPosition <= currentVpos)
-                    {
-                        RemoveCommentFromCanvas(comment.Comment!);
-                        --i;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-
-                // 追加待機中のコメントをチェック
-                var now = DateTime.UtcNow;
-                if (_nextTickCommentTiming < now)
-                {
-                    _nextTickCommentTiming = now + TimeSpan.FromMilliseconds(500);
-                    int count = 0;
-                    CommentRenderFrameData frame = GetRenderFrameData(withUpdate: true);
-                    for (int i = 0; i < _pendingRenderComments.Count; i++)
-                    {
-                        if (count >= 25) { break; }
-                        count++;
-
-                        var comment = _pendingRenderComments[i];
-                        if (comment.VideoPosition <= (currentVpos + TimeSpan.FromSeconds(1)))
-                        {
-                            _pendingRenderComments.RemoveAt(i);
-                            --i;
-                            AddCommentToCanvas(comment, frame);
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
-                }
             }
 
             // コメントの再描画完了時間を前回位置として記録する
@@ -536,8 +566,6 @@ public sealed partial class CommentRenderer : UserControl
             _prevPosition = CurrentVPos;
         });
     }
-
-    DateTime _nextTickCommentTiming = DateTime.MinValue;
 
     private MediaPlaybackState? PlaybackState = null;
     private void PlaybackSession_PlaybackStateChanged(MediaPlaybackSession sender, object args)
@@ -722,6 +750,7 @@ public sealed partial class CommentRenderer : UserControl
                     {
                         AddOrPushPending((comment as IComment)!, frame);
                     }
+                    TickCommentRendering();
                     _prevPosition = CurrentVPos;
                 }
             }
@@ -1073,27 +1102,20 @@ public sealed partial class CommentRenderer : UserControl
             || comment.VideoPosition > VideoPosition + VideoPositionOffset
             )
         {
-            if (_pendingRenderComments.Any())
+            int i = 0;
+            bool isAdded = false;
+            foreach (var item in _pendingRenderComments)
             {
-                int i = 0;
-                bool isAdded = false;
-                foreach (var item in _pendingRenderComments)
+                if (item.VideoPosition >= comment.VideoPosition)
                 {
-                    if (item.VideoPosition >= comment.VideoPosition)
-                    {
-                        _pendingRenderComments.Insert(i, comment);
-                        isAdded = true;
-                        break;
-                    }
-                    i++;
+                    _pendingRenderComments.Insert(i, comment);
+                    isAdded = true;
+                    break;
                 }
-
-                if (isAdded is false)
-                {
-                    _pendingRenderComments.Add(comment);
-                }
+                i++;
             }
-            else
+
+            if (isAdded is false)
             {
                 _pendingRenderComments.Add(comment);
             }
