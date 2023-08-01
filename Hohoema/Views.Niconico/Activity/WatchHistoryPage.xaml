@@ -19,7 +19,7 @@
   <Grid>
     <videolistPage:VideoItemsListView 
       x:Name="VideoItemsListView" 
-      ItemsSource="{x:Bind _vm.ItemsView}"
+      ItemsSource="{x:Bind _vm.ItemsView, Mode=OneWay}"
       ItemCommand="{x:Bind _vm.VideoPlayWithQueueCommand}" 
       RefreshCommand="{x:Bind _vm.ResetListCommand}" 
       >
