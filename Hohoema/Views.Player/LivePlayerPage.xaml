@@ -244,7 +244,7 @@
             </Border>
           </Grid>
           <!-- 音量表示 -->
-          <controls:TransientContainer Content="{Binding ObservableMediaPlayer.SoundVolume.Value, Mode=OneWay}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="16">
+          <controls:TransientContainer Content="{Binding ObservableMediaPlayer.SoundVolume.Value, Mode=OneWay}" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0 96 0 0">
             <controls:TransientContainer.Background>
               <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}" />
             </controls:TransientContainer.Background>

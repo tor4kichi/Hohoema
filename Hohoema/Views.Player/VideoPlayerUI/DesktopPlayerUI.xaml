@@ -267,7 +267,7 @@
     <!-- プレイヤー内の通知表示 -->
     <StackPanel>
       <!-- 音量表示 -->
-      <controls:TransientContainer Content="{Binding SoundVolumeManager.Volume, Mode=OneWay}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="16">
+      <controls:TransientContainer Content="{Binding SoundVolumeManager.Volume, Mode=OneWay}" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0 80 0 0">
         <controls:TransientContainer.Background>
           <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}" />
         </controls:TransientContainer.Background>
