@@ -31,7 +31,7 @@ public sealed class LoginUserVideoWatchHistoryProvider : ProviderBase
             throw new HohoemaException("Failed get login user video watch history. Require LogIn.");
         }
 
-        VideoWatchHistory res = await _niconicoSession.ToolkitContext.Activity.VideoWachHistory.GetWatchHistoryAsync(0, 100);
+        VideoWatchHistory res = await _niconicoSession.ToolkitContext.Activity.VideoWachHistory.GetWatchHistoryAsync(page, pageSize);
 
         if (res.Meta.IsSuccess is false) { throw new HohoemaException("Failed get login user video watch history"); }
 

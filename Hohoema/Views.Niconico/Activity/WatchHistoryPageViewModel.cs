@@ -20,6 +20,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.UI.Xaml.Navigation;
 using ZLogger;
 
 namespace Hohoema.ViewModels.Pages.Niconico.Activity;
@@ -85,6 +86,11 @@ public class WatchHistoryPageViewModel
     public override void OnNavigatedFrom(INavigationParameters parameters)
     {
         base.OnNavigatedFrom(parameters);
+    }
+
+    protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode, INavigationParameters parameters)
+    {
+        return base.CheckNeedUpdateOnNavigateTo(mode, parameters);
     }
 
     protected override (int PageSize, Microsoft.Toolkit.Collections.IIncrementalSource<HistoryVideoListItemControlViewModel> IncrementalSource) GenerateIncrementalSource()

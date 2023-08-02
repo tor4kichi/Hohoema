@@ -380,7 +380,7 @@ public sealed partial class CommentRenderer : UserControl
     private readonly List<CommentUI?> PrevRenderCommentEachLine_Bottom = new List<CommentUI?>();
 
 
-    Timer _commentUpdateTimer;
+    DispatcherQueueTimer _commentUpdateTimer;
     private void CommentRenderer_Loaded(object sender, RoutedEventArgs e)
     {
         _disposables = new CompositeDisposable();
@@ -406,79 +406,98 @@ public sealed partial class CommentRenderer : UserControl
         _commentBaseScale = null;
         this.SizeChanged += CommentRenderer_SizeChanged;
 
-
-        _commentUpdateTimer = new Timer(static (s) =>
+        int intervalTimeMS = 10;
+        float intervalTimeMSInverted = 1f / intervalTimeMS;
+        Stopwatch stopwatch = new Stopwatch();
+        int skipCount = 0;
+        _commentUpdateTimer = _dispatcherQueue.CreateTimer();
+        _commentUpdateTimer.Tick += (timer, s) => 
         {
-            (s as CommentRenderer)!.TickCommentRendering();
-        } 
-        , this, TimeSpan.Zero, TimeSpan.FromMilliseconds(25)).AddTo(_disposables);
+            if (skipCount > 0)
+            {
+                skipCount--;
+                Debug.WriteLine($"Skip comment render : remain {skipCount}");
+                return;
+            }
+            
+            stopwatch.Restart();
+            try
+            {
+                TickCommentRendering();
+            }
+            finally
+            {
+                stopwatch.Stop();
+                skipCount = (int)Math.Ceiling(stopwatch.ElapsedMilliseconds * intervalTimeMSInverted);
+            }
+        };
+        _commentUpdateTimer.IsRepeating = true;
+        _commentUpdateTimer.Interval = TimeSpan.FromMilliseconds(intervalTimeMS);
+        _commentUpdateTimer.Start();
     }
 
 
     bool _isProcessCommentRendering;
     void TickCommentRendering(CommentRenderFrameData? frame = null)
     {
-        _dispatcherQueue.TryEnqueue(() =>
+        if (_isProcessCommentRendering) { return; }
+        _isProcessCommentRendering = true;
+        try
         {
-            if (_isProcessCommentRendering) { return; }
-            _isProcessCommentRendering = true;
-            try
+            var sender = MediaPlayer.PlaybackSession;
+            if (_nowWindowSizeChanging) { return; }
+
+            var prev = PlaybackState;
+            PlaybackState = sender?.PlaybackState ?? null;
+            frame ??= GetRenderFrameData(withUpdate: true);
+            if (prev != PlaybackState)
             {
-                var sender = MediaPlayer.PlaybackSession;
-                if (_nowWindowSizeChanging) { return; }
+                Debug.WriteLine("state changed " + PlaybackState);
+                ResetScrollCommentsAnimation(frame);
+            }
 
-                var prev = PlaybackState;
-                PlaybackState = sender?.PlaybackState ?? null;
-                frame ??= GetRenderFrameData(withUpdate: true);
-                if (prev != PlaybackState)
+            TimeSpan currentVpos = CurrentVPos;
+
+            // 表示期間を過ぎたコメントを削除
+            for (int i = 0; i < CommentCanvas.Children.Count; i++)
+            {
+                var comment = (CommentCanvas.Children[i] as CommentUI)!;
+                if (comment.EndPosition <= currentVpos)
                 {
-                    Debug.WriteLine("state changed " + PlaybackState);
-                    ResetScrollCommentsAnimation(frame);
+                    RemoveCommentFromCanvas(comment.Comment!);
+                    --i;
                 }
-
-                TimeSpan currentVpos = CurrentVPos;
-
-                // 表示期間を過ぎたコメントを削除
-                for (int i = 0; i < CommentCanvas.Children.Count; i++)
+                else
                 {
-                    var comment = (CommentCanvas.Children[i] as CommentUI)!;
-                    if (comment.EndPosition <= currentVpos)
-                    {
-                        RemoveCommentFromCanvas(comment.Comment!);
-                        --i;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-
-                // 追加待機中のコメントをチェック
-                var now = DateTime.UtcNow;
-                int count = 0;
-                for (int i = 0; i < _pendingRenderComments.Count; i++)
-                {
-                    if (count >= 25) { break; }
-                    count++;
-
-                    var comment = _pendingRenderComments[i];
-                    if (comment.VideoPosition <= (currentVpos + TimeSpan.FromSeconds(1)))
-                    {
-                        _pendingRenderComments.RemoveAt(i);
-                        --i;
-                        AddCommentToCanvas(comment, frame);
-                    }
-                    else
-                    {
-                        break;
-                    }
+                    break;
                 }
             }
-            finally
+
+            // 追加待機中のコメントをチェック
+            var now = DateTime.UtcNow;
+            int count = 0;
+            for (int i = 0; i < _pendingRenderComments.Count; i++)
             {
-                _isProcessCommentRendering = false;
-            }            
-        });
+                if (count >= 25) { break; }
+                count++;
+
+                var comment = _pendingRenderComments[i];
+                if (comment.VideoPosition <= (currentVpos + TimeSpan.FromSeconds(1)))
+                {
+                    _pendingRenderComments.RemoveAt(i);
+                    --i;
+                    AddCommentToCanvas(comment, frame);
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+        finally
+        {
+            _isProcessCommentRendering = false;
+        }
     }
 
     private void CommentRenderer_Unloaded(object sender, RoutedEventArgs e)
@@ -496,6 +515,7 @@ public sealed partial class CommentRenderer : UserControl
         _disposables?.Dispose();
         _disposables = null;
         _windowResizeTimer.Stop();
+        _commentUpdateTimer.Stop();
         StopScrollCommentAnimation();
         ClearComments();
     }
