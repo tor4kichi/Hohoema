@@ -478,6 +478,7 @@ public class VideoInfomationPageViewModel : HohoemaPageViewModelBase, IPinablePa
             return;
         }
 
+
         try
         {
 
@@ -487,17 +488,6 @@ public class VideoInfomationPageViewModel : HohoemaPageViewModelBase, IPinablePa
             await UpdateVideoDescription();
 
             IsVideoProviderDeleted = string.IsNullOrEmpty(VideoInfo.ProviderName);
-
-            if (NiconicoSession.IsLoggedIn)
-            {
-                var owner = await NicoVideoProvider.ResolveVideoOwnerAsync(videoId.Value);
-                FollowContext = VideoInfo.ProviderType switch
-                {
-                    OwnerType.User => await FollowContext<IUser>.CreateAsync(_userFollowProvider, owner),
-                    OwnerType.Channel => await FollowContext<IChannel>.CreateAsync(_channelFollowProvider, owner),
-                    _ => null
-                };
-            }
 
             UpdateSelfZoning();
 
@@ -509,11 +499,26 @@ public class VideoInfomationPageViewModel : HohoemaPageViewModelBase, IPinablePa
             {
                 LikesContext = new VideoLikesContext(VideoDetails, NiconicoSession.ToolkitContext.Likes, NotificationService);
             }
-        }
-        catch
-        {
-            FollowContext = FollowContext<IUser>.Default;
-            throw;
+
+            if (NiconicoSession.IsLoggedIn)
+            {
+                try
+                {
+                    var owner = await NicoVideoProvider.ResolveVideoOwnerAsync(videoId.Value);
+                    FollowContext = VideoInfo.ProviderType switch
+                    {
+                        OwnerType.User => await FollowContext<IUser>.CreateAsync(_userFollowProvider, owner),
+                        OwnerType.Channel => await FollowContext<IChannel>.CreateAsync(_channelFollowProvider, owner),
+                        _ => FollowContext<IUser>.Default
+                    };
+                }
+                catch (Exception ex)
+                {
+                    FollowContext = FollowContext<IUser>.Default;
+                    _logger.LogError(ex, "FollowContext creation failed.");
+                    throw;
+                }
+            }
         }
         finally
         {
