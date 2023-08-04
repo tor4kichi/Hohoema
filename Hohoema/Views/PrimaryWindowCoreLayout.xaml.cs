@@ -366,28 +366,30 @@ public sealed partial class PrimaryWindowCoreLayout : UserControl
     Task<INavigationResult> ContentFrameNavigationAsync(PageNavigationEventArgs args)
     {
         var pageType = args.PageName;
-        var parameter = args.Paramter;
+        var parameter = args.Paramter ?? new NavigationParameters();
         var behavior = args.Behavior;
 
         return _dispatcherQueue.EnqueueAsync(async () =>
         {
             // メインウィンドウでウィンドウ全体で再生している場合は
             // 強制的に小窓モードに切り替えてページを表示する
-            //if (!PlayerViewManager.IsPlayerSmallWindowModeEnabled
-            //   && PlayerViewManager.IsPlayingWithPrimaryView)
-            //{
-            //    PlayerViewManager.IsPlayerSmallWindowModeEnabled = true;
-            //}
-
-            var prefix = behavior == NavigationStackBehavior.Root ? "/" : String.Empty;
-            var pageName = $"{prefix}{pageType}";
+            // ページナビゲーションより先にプレイヤー表示を更新して
+            // ユーザーに待たせてる感を減らす
+            try
+            {
+                if (_vm.PrimaryViewPlayerManager.DisplayMode is PlayerDisplayMode.FillWindow or PlayerDisplayMode.FullScreen)
+                {
+                    await _vm.PrimaryViewPlayerManager.ShowWithWindowInWindowAsync();
+                }
+            }
+            catch { }
 
             try
             {
-                var result = behavior is NavigationStackBehavior.Push
-                    ? await _contentFrameNavigationService.NavigateAsync(pageName, parameter, infoOverride: _contentFrameDefaultTransitionInfo)
-                    : await _contentFrameNavigationService.NavigateAsync(pageName, parameter, infoOverride: _contentFrameTransitionInfo)
-                    ;
+                var prefix = behavior == NavigationStackBehavior.Root ? "/" : String.Empty;
+                var pageName = $"{prefix}{pageType}";
+                var transitionInfo = behavior is NavigationStackBehavior.Push ? _contentFrameDefaultTransitionInfo : _contentFrameTransitionInfo;
+                var result = await _contentFrameNavigationService.NavigateAsync(pageName, parameter, infoOverride: transitionInfo);
                 if (result.IsSuccess)
                 {
                     if (behavior == NavigationStackBehavior.NotRemember /*|| IsIgnoreRecordPageType(oldPageType)*/)
@@ -407,19 +409,13 @@ public sealed partial class PrimaryWindowCoreLayout : UserControl
                 }
 
                 Debug.WriteLineIf(!result.IsSuccess, result.Exception?.ToString());
-
-                if (_vm.PrimaryViewPlayerManager.DisplayMode is PlayerDisplayMode.FillWindow or PlayerDisplayMode.FullScreen)
-                {
-                    _vm.PrimaryViewPlayerManager.ShowWithWindowInWindowAsync();
-                }
-
                 CoreNavigationView.IsBackEnabled = _contentFrameNavigationService.CanGoBack();
 
                 return result;
             }
             catch (Exception e)
             {
-                _logger.ZLogError(e, "ContentFrame Navigation failed: {0}", pageName);
+                _logger.ZLogError(e, "ContentFrame Navigation failed: {0}", pageType);
                 throw;
             }
         });
