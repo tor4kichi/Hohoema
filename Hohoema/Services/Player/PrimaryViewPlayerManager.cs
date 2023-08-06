@@ -201,12 +201,14 @@ public sealed partial class PrimaryViewPlayerManager : ObservableObject, IPlayer
             await _view.TryEnterViewModeAsync(ApplicationViewMode.Default);
         }
 
-        await PlaylistPlayer.ClearAsync();
-        LastNavigatedPageName = string.Empty;
+        // 先に表示を更新することでユーザーから応答性がよく見える
+        // 特に低スペック端末では処理順による差が顕著に表れます
         DisplayMode = PlayerDisplayMode.Close;
+        LastNavigatedPageName = string.Empty;
         IsFullScreen = false;
         IsCompactOverlay = false;
         _view.Title = string.Empty;
+        await PlaylistPlayer.ClearAsync();
         _restoreNavigationManager.ClearCurrentPlayerEntry();
     }
 
