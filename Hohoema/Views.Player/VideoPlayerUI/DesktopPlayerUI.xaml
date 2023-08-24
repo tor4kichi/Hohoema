@@ -560,10 +560,10 @@
                 <FlyoutBase.AttachedFlyout>
                   <Flyout>
                     <ListView ItemsSource="{x:Bind PlaybackRateList}"
-                                      SelectedItem="{x:Bind _vm.ObservableMediaPlayer.PlaybackRate.Value, Mode=OneWay}"
-                                      SelectionMode="Single"
-                                      IsItemClickEnabled="True"                                                                            
-                                      >
+                              SelectedItem="{x:Bind _vm.ObservableMediaPlayer.PlaybackRate.Value, Mode=OneWay}"
+                              SelectionMode="Single"
+                              IsItemClickEnabled="True"                                      
+                              >
                       <i:Interaction.Behaviors>
                         <core:EventTriggerBehavior EventName="ItemClick">
                           <core:InvokeCommandAction Command="{x:Bind _vm.SetPlaybackRateCommand}"
@@ -571,8 +571,8 @@
                         </core:EventTriggerBehavior>
                       </i:Interaction.Behaviors>
                       <ListView.ItemTemplate>
-                        <DataTemplate>
-                          <TextBlock >x<Run Text="{Binding}" /></TextBlock>
+                        <DataTemplate x:DataType="x:Double">
+                          <TextBlock >x<Run Text="{x:Bind}" /></TextBlock>
                         </DataTemplate>
                       </ListView.ItemTemplate>
                     </ListView>
