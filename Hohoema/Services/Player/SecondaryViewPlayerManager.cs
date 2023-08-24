@@ -5,6 +5,7 @@ using Hohoema.Contracts.Services.Player;
 using Hohoema.Helpers;
 using Hohoema.Models.Niconico;
 using Hohoema.Models.PageNavigation;
+using Hohoema.Models.Player;
 using Hohoema.Models.Playlist;
 using Hohoema.Views.Pages;
 using Microsoft.Toolkit.Uwp;
@@ -43,11 +44,13 @@ public sealed partial class SecondaryViewPlayerManager : ObservableObject, IPlay
 
     public SecondaryViewPlayerManager(
         IScheduler scheduler,
-        RestoreNavigationManager restoreNavigationManager
+        RestoreNavigationManager restoreNavigationManager,
+        PlayerSettings playerSettings
         )
     {
         _scheduler = scheduler;
         _restoreNavigationManager = restoreNavigationManager;
+        _playerSettings = playerSettings;
         MainViewId = ApplicationView.GetApplicationViewIdForWindow(CoreApplication.MainView.CoreWindow);
     }
 
@@ -108,6 +111,7 @@ public sealed partial class SecondaryViewPlayerManager : ObservableObject, IPlay
     public const string secondary_view_size = "secondary_view_size";
     private readonly IScheduler _scheduler;
     private readonly RestoreNavigationManager _restoreNavigationManager;
+    private readonly PlayerSettings _playerSettings;
 
     private async Task CreateSecondaryView()
     {
@@ -292,6 +296,7 @@ public sealed partial class SecondaryViewPlayerManager : ObservableObject, IPlay
             await PlaylistPlayer.ClearAsync();
 
             SecondaryAppView.Title = "Hohoema";
+            _playerSettings.PlaybackRate = 1.0;
 
             await SecondaryViewPlayerNavigationService.NavigateAsync(nameof(BlankPage), _BlankPageNavgationTransitionInfo);
 

@@ -785,6 +785,7 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
             _videoSessionDisposable = videoSession;
             await videoSession.StartPlayback(_mediaPlayer, startPosition ?? TimeSpan.Zero);
 
+            _mediaPlayer.PlaybackSession.PlaybackRate = _playerSettings.PlaybackRate;
             CurrentQuality = AvailableQualities.First(x => x.Quality == videoSession.Quality);
             Guard.IsNotNull(_mediaPlayer.PlaybackSession, nameof(_mediaPlayer.PlaybackSession));
 

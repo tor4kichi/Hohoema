@@ -150,7 +150,7 @@ public class LegacyVideoPlayerPageViewModel : HohoemaPageViewModelBase
         MediaPlayer = mediaPlayer;
         VideoTogglePlayPauseCommand = videoTogglePlayPauseCommand;
         SeekCommand = new MediaPlayerSeekCommand(MediaPlayer);
-        SetPlaybackRateCommand = new MediaPlayerSetPlaybackRateCommand(MediaPlayer);
+        SetPlaybackRateCommand = new MediaPlayerSetPlaybackRateCommand(MediaPlayer, PlayerSettings);
         ToggleMuteCommand = new MediaPlayerToggleMuteCommand(MediaPlayer);
         VolumeUpCommand = new MediaPlayerVolumeUpCommand(SoundVolumeManager);
         VolumeDownCommand = new MediaPlayerVolumeDownCommand(SoundVolumeManager);

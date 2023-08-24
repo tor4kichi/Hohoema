@@ -439,7 +439,7 @@ public class LivePlayerPageViewModel : HohoemaPageViewModelBase
         DisplayingLiveComments = new ReadOnlyObservableCollection<LiveComment>(_DisplayingLiveComments);
 
         SeekCommand = new MediaPlayerSeekCommand(MediaPlayer);
-        SetPlaybackRateCommand = new MediaPlayerSetPlaybackRateCommand(MediaPlayer);
+        SetPlaybackRateCommand = new MediaPlayerSetPlaybackRateCommand(MediaPlayer, PlayerSettings);
         ToggleMuteCommand = new MediaPlayerToggleMuteCommand(MediaPlayer);
         VolumeUpCommand = new MediaPlayerVolumeUpCommand(SoundVolumeManager);
         VolumeDownCommand = new MediaPlayerVolumeDownCommand(SoundVolumeManager);
