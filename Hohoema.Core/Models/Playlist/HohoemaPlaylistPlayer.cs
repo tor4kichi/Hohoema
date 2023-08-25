@@ -456,33 +456,6 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
         _restoreNavigationManager = restoreNavigationManager;
         _smtc = SystemMediaTransportControls.GetForCurrentView();
         _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
-
-        _saveTimer = _dispatcherQueue.CreateTimer();
-        /*
-        _saveTimer.Interval = TimeSpan.FromSeconds(5);
-        _saveTimer.IsRepeating = true;
-        _saveTimer.Tick += (s, _) =>
-        {
-            if (CurrentPlaylistItem == null)
-            {
-                _saveTimer.Stop();
-                return;
-            }
-
-            //if (PrimaryViewPlayerManager.DisplayMode == PrimaryPlayerDisplayMode.Close) { return; }
-            if (_mediaPlayer.PlaybackSession?.PlaybackState is not MediaPlaybackState.Playing) { return; }
-
-            _restoreNavigationManager.SetCurrentPlayerEntry(
-                    new PlayerEntry()
-                    {
-                        ContentId = CurrentPlaylistItem.VideoId,
-                        Position = _mediaPlayer.PlaybackSession.Position,
-                        PlaylistId = CurrentPlaylistId?.Id,
-                        PlaylistOrigin = CurrentPlaylistId?.Origin
-                    });
-        };
-        */
-
     }
 
     public override void Dispose()
@@ -491,19 +464,6 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
 
         _videoSessionDisposable?.Dispose();
     }
-
-    private readonly DispatcherQueueTimer _saveTimer;
-
-    private void StartStateSavingTimer()
-    {
-        _saveTimer.Start();
-    }
-
-    private void StopStateSavingTimer()
-    {
-        _saveTimer.Stop();
-    }
-
 
     public PlaylistId? CurrentPlaylistId => CurrentPlaylist?.PlaylistId;
 
@@ -629,8 +589,6 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
             _smtc.DisplayUpdater.ClearAll();
             _smtc.DisplayUpdater.Update();
         });
-
-        StopStateSavingTimer();
     }
 
     
@@ -822,8 +780,6 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
 
             _smtc.ButtonPressed -= _smtc_ButtonPressed;
             _smtc.ButtonPressed += _smtc_ButtonPressed;
-
-            StartStateSavingTimer();
 
             return true;
         }
