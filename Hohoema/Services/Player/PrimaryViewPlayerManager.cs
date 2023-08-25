@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using DryIoc;
 using Hohoema.Contracts.Services.Player;
 using Hohoema.Models.PageNavigation;
+using Hohoema.Models.Player;
 using Hohoema.Models.Playlist;
 using Hohoema.Views.Pages;
 using Microsoft.Extensions.Logging;
@@ -31,6 +32,7 @@ public sealed partial class PrimaryViewPlayerManager : ObservableObject, IPlayer
     private readonly ILogger _logger;
     private readonly IScheduler _scheduler;
     private readonly RestoreNavigationManager _restoreNavigationManager;
+    private readonly PlayerSettings _playerSettings;
     PlayerDisplayMode _prevDisplayMode;
 
     Helpers.AsyncLock _navigationLock = new Helpers.AsyncLock();
@@ -39,7 +41,8 @@ public sealed partial class PrimaryViewPlayerManager : ObservableObject, IPlayer
         ILoggerFactory loggerFactory,
         IScheduler scheduler,
         RestoreNavigationManager restoreNavigationManager,
-        HohoemaPlaylistPlayer hohoemaPlaylistPlayer
+        HohoemaPlaylistPlayer hohoemaPlaylistPlayer,
+        PlayerSettings playerSettings
         )
     {
         _dispatcherQueue =  DispatcherQueue.GetForCurrentThread();
@@ -48,6 +51,7 @@ public sealed partial class PrimaryViewPlayerManager : ObservableObject, IPlayer
         _scheduler = scheduler;
         _restoreNavigationManager = restoreNavigationManager;
         PlaylistPlayer = hohoemaPlaylistPlayer;
+        _playerSettings = playerSettings;
         _navigationService = null;
 
         this.ObserveProperty(x => x.DisplayMode, isPushCurrentValueAtFirst: false)
@@ -210,6 +214,7 @@ public sealed partial class PrimaryViewPlayerManager : ObservableObject, IPlayer
         _view.Title = string.Empty;
         await PlaylistPlayer.ClearAsync();
         _restoreNavigationManager.ClearCurrentPlayerEntry();
+        _playerSettings.PlaybackRate = 1.0;
     }
 
     [RelayCommand]

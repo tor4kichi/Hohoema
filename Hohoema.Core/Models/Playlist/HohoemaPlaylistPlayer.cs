@@ -458,6 +458,7 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
         _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
 
         _saveTimer = _dispatcherQueue.CreateTimer();
+        /*
         _saveTimer.Interval = TimeSpan.FromSeconds(5);
         _saveTimer.IsRepeating = true;
         _saveTimer.Tick += (s, _) =>
@@ -480,7 +481,7 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
                         PlaylistOrigin = CurrentPlaylistId?.Origin
                     });
         };
-
+        */
 
     }
 
@@ -564,6 +565,7 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
             return;
         }
 
+        double lastPlaybackRate = _mediaPlayer.PlaybackSession.PlaybackRate;
         TimeSpan? currentPosition = GetCurrentPlaybackPosition();
 
         IStreamingSession videoSession;
@@ -587,8 +589,10 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
 
         CurrentQuality = quelityEntity;
 
+        
         _videoSessionDisposable = videoSession;
         await videoSession.StartPlayback(_mediaPlayer, currentPosition ?? TimeSpan.Zero);
+        _mediaPlayer.PlaybackSession.PlaybackRate = lastPlaybackRate;
 
         _playerSettings.DefaultVideoQuality = quality;
         Guard.IsNotNull(_mediaPlayer.PlaybackSession, nameof(_mediaPlayer.PlaybackSession));
@@ -781,6 +785,7 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
             _videoSessionDisposable = videoSession;
             await videoSession.StartPlayback(_mediaPlayer, startPosition ?? TimeSpan.Zero);
 
+            _mediaPlayer.PlaybackSession.PlaybackRate = _playerSettings.PlaybackRate;
             CurrentQuality = AvailableQualities.First(x => x.Quality == videoSession.Quality);
             Guard.IsNotNull(_mediaPlayer.PlaybackSession, nameof(_mediaPlayer.PlaybackSession));
 
@@ -841,20 +846,6 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
             MediaPlaybackState.Paused => MediaPlaybackStatus.Paused,
             _ => throw new NotSupportedException(),
         };
-        /*
-        if (sender.PlaybackState == MediaPlaybackState.Paused)
-        {
-            _smtc.IsPlayEnabled = true;
-            _smtc.IsPauseEnabled = false;
-            _smtc.DisplayUpdater.Update();
-        }
-        else if (sender.PlaybackState == MediaPlaybackState.Playing)
-        {
-            _smtc.IsPlayEnabled = false;
-            _smtc.IsPauseEnabled = true;
-            _smtc.DisplayUpdater.Update();
-        }
-        */
     }
 
     private void _smtc_ButtonPressed(SystemMediaTransportControls sender, SystemMediaTransportControlsButtonPressedEventArgs args)
