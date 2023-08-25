@@ -490,18 +490,21 @@
             </uwpControls:DockPanel>
           </uwpControls:DockPanel>
           <!-- シークバー -->
-          <Grid Margin="0 0 0 12">
+          <Grid Margin="0 0 0 0">
             <TextBlock x:Name="SeekDisabledFromNicoScriptText" Text="{i18nExt:Localize Key=DisableSeekFromNicoScript}" Visibility="Collapsed" VerticalAlignment="Bottom" HorizontalAlignment="Center" Opacity="0.6" />
             <Slider x:Name="SeekBarSlider" Minimum="0.0" Maximum="{x:Bind _vm.VideoInfo.Length, Mode=OneWay, Converter={StaticResource TimeSpanToDoubleConverter}}" Style="{StaticResource VideoProgressBarStyle}" Padding="0 16 0 8" StepFrequency="0.1" LargeChange="30" SmallChange="5" IsThumbToolTipEnabled="True" ThumbToolTipValueConverter="{StaticResource TimeToMovieLengthConverter}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalAlignment="Center" Opacity="0.75" Margin="8 0" />
 
           </Grid>
           <!-- 動画画質 -->
-          <Grid x:Name="VideoProps" Margin="0 0 0 8">
+          <Grid x:Name="VideoProps" Margin="0 0 8 8">
             <!-- 画質と動画プロバイダーオリジン -->
-            <StackPanel HorizontalAlignment="Left" VerticalAlignment="Bottom" Orientation="Horizontal" Margin="8 0 16 0" Spacing="8">
-              <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Visibility="{Binding NowPlayingWithCache, Converter={StaticResource BooleanToVisibility}}">
-                            <Run Text="{x:Bind _vm.CurrentQuality.Quality, Mode=OneWay, Converter={StaticResource LocalizeConverter}}" /></TextBlock>
-              <HyperlinkButton Padding="0" Opacity="0.7">
+            <StackPanel HorizontalAlignment="Left" VerticalAlignment="Bottom" Orientation="Horizontal" Margin="0 0 16 0" Spacing="8">
+              <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Visibility="{Binding NowPlayingWithCache, Converter={StaticResource BooleanToVisibility}}"
+                         VerticalAlignment="Center"
+                         >
+                            <Run Text="{x:Bind _vm.CurrentQuality.Quality, Mode=OneWay, Converter={StaticResource LocalizeConverter}}" />
+              </TextBlock>
+              <HyperlinkButton Opacity="1" Padding="16 8">
                 <TextBlock Visibility="{Binding NowPlayingWithCache, Converter={StaticResource BooleanToVisibilityInverted}}">
                               <Run Text="{x:Bind _vm.CurrentQuality.Quality, Mode=OneWay, Converter={StaticResource LocalizeConverter}}" /></TextBlock>
                 <i:Interaction.Behaviors>
@@ -533,10 +536,11 @@
                   </Flyout>
                 </FlyoutBase.AttachedFlyout>
               </HyperlinkButton>
-              <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Visibility="{x:Bind _vm.NowPlayingWithCache, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}">
-                                                        (<Run Text="{i18nExt:Localize Key=VideoPlayWithCached}" />)</TextBlock>
-              <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Visibility="{x:Bind _vm.NowPlayingWithCache, Mode=OneWay, Converter={StaticResource BooleanToVisibilityInverted}}">
-                                                        (<Run Text="{i18nExt:Localize Key=VideoPlayWithOnline}" />)</TextBlock>
+              <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Visibility="{x:Bind _vm.NowPlayingWithCache, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}"
+                         VerticalAlignment="Center"
+                         >
+                                                        (<Run Text="{i18nExt:Localize Key=VideoPlayWithCached}" />)
+              </TextBlock>
             </StackPanel>
 
             <!-- 動画位置と再生速度倍率 -->
@@ -546,12 +550,12 @@
                   <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="0.65" ScaleY="0.65" />
                 </iconPack:PathIconMaterial.RenderTransform>
               </iconPack:PathIconMaterial>
-              <TextBlock VerticalAlignment="Bottom" IsHitTestVisible="False" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Margin="0 0 0 0">
+              <TextBlock VerticalAlignment="Center" IsHitTestVisible="False" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Margin="0 0 0 0">
                 <Run Text="{x:Bind VideoPosition, Mode=OneWay, Converter={StaticResource TimeToMovieLengthConverter}}" />
                 <Run Text="/" />
                 <Run Text="{x:Bind _vm.VideoInfo.Length, Mode=OneWay, Converter={StaticResource TimeToMovieLengthConverter}}" />
               </TextBlock>
-              <HyperlinkButton Margin="0 0 16 0" VerticalAlignment="Bottom" Opacity="0.7" MinWidth="36" HorizontalAlignment="Right" Padding="0">
+              <HyperlinkButton Padding="16 8" VerticalAlignment="Bottom" Opacity="0.7" MinWidth="36" HorizontalAlignment="Right">
                 <i:Interaction.Behaviors>
                   <core:EventTriggerBehavior EventName="Click">
                     <mybehavior:OpenFlyout />
