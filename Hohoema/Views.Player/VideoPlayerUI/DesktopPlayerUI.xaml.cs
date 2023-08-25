@@ -384,4 +384,10 @@ public sealed partial class DesktopPlayerUI : UserControl, IDraggableAreaAware
     }
 
     
+
+
+    bool IsSamePlaybackRate(double value, double to)
+    {
+        return value == to;
+    }
 }

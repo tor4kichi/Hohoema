@@ -468,6 +468,11 @@ ToastNotification_ExplainVideoForceDeletion = "{0}" was deleted from the NicoNic
 Notification_VideoQualityChanged_Success = Change to {0}
 Notification_VideoQualityChanged_Failed = Failed to change quality
 
+PlaybackRate_WithRate = x{0}
+PlaybackRate_Default = x1.0
+
+
+
 # CommentCommandEditer
 OpenAboutCommentCommand = About commands
 CommentSizeCommandSampleText = A

@@ -468,6 +468,11 @@ ToastNotification_ExplainVideoForceDeletion = 『{0}』 はニコニコ動画サ
 Notification_VideoQualityChanged_Success = {0} に変更
 Notification_VideoQualityChanged_Failed = 画質変更に失敗
 
+PlaybackRate_WithRate = x{0}
+PlaybackRate_Default = 標準
+
+
+
 # CommentCommandEditer
 OpenAboutCommentCommand = コマンドについて
 CommentSizeCommandSampleText = A
