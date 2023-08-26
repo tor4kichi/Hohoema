@@ -18,7 +18,7 @@ public class LocalizeExtension : MarkupExtension
 
     public object Key { get; set; }
 
-    public object[] Parameters { get; set; }
+    public object Param1 { get; set; }
 
     protected override object ProvideValue()
     {
@@ -28,13 +28,13 @@ public class LocalizeExtension : MarkupExtension
         }
         else if (Key is string keyStr)
         {
-            if (Parameters is null)
+            if (Param1 is null)
             {
                 return I18N.Current.Translate(keyStr);
             }
             else
             {
-                return I18N.Current.Translate(keyStr, Parameters);
+                return I18N.Current.Translate(keyStr, Param1);
             }
         }
         else

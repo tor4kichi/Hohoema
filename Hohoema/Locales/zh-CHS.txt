@@ -468,6 +468,11 @@ ToastNotification_ExplainVideoForceDeletion = “ {0}”已被强制删除，因
 Notification_VideoQualityChanged_Success = 改为{0}
 Notification_VideoQualityChanged_Failed = 更改质量失败
 
+PlaybackRate_WithRate = x{0}
+PlaybackRate_Default = x1.0
+
+
+
 # CommentCommandEditer
 OpenAboutCommentCommand = 关于命令
 CommentSizeCommandSampleText = 一

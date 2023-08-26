@@ -1,13 +1,18 @@
 ﻿#nullable enable
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Hohoema.Models.Application;
+using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Player;
 using Hohoema.ViewModels.Player;
 using Hohoema.ViewModels.PrimaryWindowCoreLayout;
+using Hohoema.Views.Converters;
+using Hohoema.Views.Helpers;
+using I18NPortable;
 using Microsoft.Toolkit.Uwp.Helpers;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reactive.Disposables;
 using Windows.Media.Playback;
 using Windows.System;
@@ -251,15 +256,14 @@ public sealed partial class DesktopPlayerUI : UserControl, IDraggableAreaAware
 
     public List<double> PlaybackRateList { get; } = new List<double>
     {
-        2.0,
-        1.75,
-        1.5,
-        1.25,
-        1.0,
-        0.75,
-        0.5,
         0.25,
-        0.05
+        0.5,
+        0.75,
+        1.0,
+        1.25,
+        1.5,
+        1.75,
+        2.0,
     };
 
 
@@ -385,4 +389,33 @@ public sealed partial class DesktopPlayerUI : UserControl, IDraggableAreaAware
     }
 
     
+
+
+    bool IsSamePlaybackRate(double value, double to)
+    {
+        return value == to;
+    }
+
+    bool IsSameQuality(NicoVideoQuality qualityValue, NicoVideoQuality qualityTo)
+    {
+        return qualityValue == qualityTo;
+    }
+
+    Visibility ToAvalirableQualityAsVisibility(IReadOnlyCollection<NicoVideoQualityEntity> qualities, NicoVideoQuality quality)
+    {
+        return qualities is null ? Visibility.Collapsed : qualities.Any(x => x.Quality == quality && x.IsAvailable).ToVisibility();
+    }
+
+    string ToQualityString(IReadOnlyCollection<NicoVideoQualityEntity> qualities, NicoVideoQuality quality)
+    {
+        var conv = new ToKMGTPEZYConverter();
+        if (qualities?.FirstOrDefault(x => x.Quality == quality && x.IsAvailable) is { } qualityEntity)
+        {
+            return $"{quality.Translate()} {conv.Convert(qualityEntity.Bitrate!, typeof(string), null, Language)}bps";
+        }
+        else
+        {
+            return quality.Translate();
+        }
+    }
 }

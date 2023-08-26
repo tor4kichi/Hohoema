@@ -30,7 +30,7 @@
   xmlns:animation="using:Microsoft.Toolkit.Uwp.UI.Animations"
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
   xmlns:myExt="using:Hohoema.Views.Extensions" 
-  xmlns:winui="using:Microsoft.UI.Xaml.Controls" xmlns:ui="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:winui="using:Microsoft.UI.Xaml.Controls" xmlns:ui="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:nico="using:Hohoema.Models.Niconico.Video"
   x:Name="RootLayout"
   mc:Ignorable="d"
     d:DesignHeight="300"
@@ -490,18 +490,21 @@
             </uwpControls:DockPanel>
           </uwpControls:DockPanel>
           <!-- シークバー -->
-          <Grid Margin="0 0 0 12">
+          <Grid Margin="0 0 0 0">
             <TextBlock x:Name="SeekDisabledFromNicoScriptText" Text="{i18nExt:Localize Key=DisableSeekFromNicoScript}" Visibility="Collapsed" VerticalAlignment="Bottom" HorizontalAlignment="Center" Opacity="0.6" />
             <Slider x:Name="SeekBarSlider" Minimum="0.0" Maximum="{x:Bind _vm.VideoInfo.Length, Mode=OneWay, Converter={StaticResource TimeSpanToDoubleConverter}}" Style="{StaticResource VideoProgressBarStyle}" Padding="0 16 0 8" StepFrequency="0.1" LargeChange="30" SmallChange="5" IsThumbToolTipEnabled="True" ThumbToolTipValueConverter="{StaticResource TimeToMovieLengthConverter}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalAlignment="Center" Opacity="0.75" Margin="8 0" />
 
           </Grid>
           <!-- 動画画質 -->
-          <Grid x:Name="VideoProps" Margin="0 0 0 8">
+          <Grid x:Name="VideoProps" Margin="0 0 8 8">
             <!-- 画質と動画プロバイダーオリジン -->
-            <StackPanel HorizontalAlignment="Left" VerticalAlignment="Bottom" Orientation="Horizontal" Margin="8 0 16 0" Spacing="8">
-              <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Visibility="{Binding NowPlayingWithCache, Converter={StaticResource BooleanToVisibility}}">
-                            <Run Text="{x:Bind _vm.CurrentQuality.Quality, Mode=OneWay, Converter={StaticResource LocalizeConverter}}" /></TextBlock>
-              <HyperlinkButton Padding="0" Opacity="0.7">
+            <StackPanel HorizontalAlignment="Left" VerticalAlignment="Bottom" Orientation="Horizontal" Margin="0 0 16 0" Spacing="8">
+              <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Visibility="{Binding NowPlayingWithCache, Converter={StaticResource BooleanToVisibility}}"
+                         VerticalAlignment="Center"
+                         >
+                            <Run Text="{x:Bind _vm.CurrentQuality.Quality, Mode=OneWay, Converter={StaticResource LocalizeConverter}}" />
+              </TextBlock>
+              <HyperlinkButton Opacity="1" Padding="16 8">
                 <TextBlock Visibility="{Binding NowPlayingWithCache, Converter={StaticResource BooleanToVisibilityInverted}}">
                               <Run Text="{x:Bind _vm.CurrentQuality.Quality, Mode=OneWay, Converter={StaticResource LocalizeConverter}}" /></TextBlock>
                 <i:Interaction.Behaviors>
@@ -510,33 +513,51 @@
                   </core:EventTriggerBehavior>
                 </i:Interaction.Behaviors>
                 <FlyoutBase.AttachedFlyout>
-                  <Flyout AllowFocusOnInteraction="True">
-                    <ListView ItemsSource="{x:Bind _vm.AvailableQualities, Mode=OneWay}"
-                              SelectedItem="{x:Bind _vm.CurrentQuality, Mode=OneWay}"
-                              ItemContainerStyleSelector="{StaticResource VideoQualityListItemContainerStyleSelector}"
-                              SelectionMode="Single"
-                              SingleSelectionFollowsFocus="False"
-                              IsItemClickEnabled="True"
-                              uwpui:ListViewExtensions.Command="{x:Bind _vm.ChangeVideoQualityCommand}"
-                                      >
-                      <ListView.ItemTemplate>
-                        <DataTemplate>
-                          <StackPanel Orientation="Horizontal" Spacing="8">
-                            <TextBlock Text="{Binding Quality, Converter={StaticResource LocalizeConverter}}" />
-                            <TextBlock Opacity="0.7">
-                                           <Run Text="{Binding Bitrate, Converter={StaticResource ToKMGTPEZY}}" />bps
-                            </TextBlock>
-                          </StackPanel>
-                        </DataTemplate>
-                      </ListView.ItemTemplate>
-                    </ListView>
-                  </Flyout>
+                  <MenuFlyout Placement="TopEdgeAlignedLeft">
+                    <ToggleMenuFlyoutItem Text="{x:Bind ToQualityString(_vm.AvailableQualities, nico:NicoVideoQuality.SuperHigh), Mode=OneWay}" 
+                                          Command="{x:Bind _vm.ChangeVideoQualityCommand}"
+                                          IsChecked="{x:Bind IsSameQuality(_vm.CurrentQuality.Quality, nico:NicoVideoQuality.SuperHigh), Mode=OneWay}"
+                                          Visibility="{x:Bind ToAvalirableQualityAsVisibility(_vm.AvailableQualities, nico:NicoVideoQuality.SuperHigh), Mode=OneWay}"
+                                          CommandParameter="{x:Bind nico:NicoVideoQuality.SuperHigh}"
+                                          >
+                    </ToggleMenuFlyoutItem>
+
+                    <ToggleMenuFlyoutItem Text="{x:Bind ToQualityString(_vm.AvailableQualities, nico:NicoVideoQuality.High), Mode=OneWay}" 
+                      Command="{x:Bind _vm.ChangeVideoQualityCommand}"
+                      IsChecked="{x:Bind IsSameQuality(_vm.CurrentQuality.Quality, nico:NicoVideoQuality.High), Mode=OneWay}"
+                                          Visibility="{x:Bind ToAvalirableQualityAsVisibility(_vm.AvailableQualities, nico:NicoVideoQuality.High), Mode=OneWay}"
+                                          CommandParameter="{x:Bind nico:NicoVideoQuality.High}"
+                      >
+                    </ToggleMenuFlyoutItem>
+                    <ToggleMenuFlyoutItem Text="{x:Bind ToQualityString(_vm.AvailableQualities, nico:NicoVideoQuality.Midium), Mode=OneWay}" 
+                      Command="{x:Bind _vm.ChangeVideoQualityCommand}"
+                      IsChecked="{x:Bind IsSameQuality(_vm.CurrentQuality.Quality, nico:NicoVideoQuality.Midium), Mode=OneWay}"
+                                          Visibility="{x:Bind ToAvalirableQualityAsVisibility(_vm.AvailableQualities, nico:NicoVideoQuality.Midium), Mode=OneWay}"
+                                          CommandParameter="{x:Bind nico:NicoVideoQuality.Midium}"
+                      >
+                    </ToggleMenuFlyoutItem>
+                    <ToggleMenuFlyoutItem Text="{x:Bind ToQualityString(_vm.AvailableQualities, nico:NicoVideoQuality.Low), Mode=OneWay}" 
+                      Command="{x:Bind _vm.ChangeVideoQualityCommand}"
+                      IsChecked="{x:Bind IsSameQuality(_vm.CurrentQuality.Quality, nico:NicoVideoQuality.Low), Mode=OneWay}"
+                                          Visibility="{x:Bind ToAvalirableQualityAsVisibility(_vm.AvailableQualities, nico:NicoVideoQuality.Low), Mode=OneWay}"
+                                          CommandParameter="{x:Bind nico:NicoVideoQuality.Low}"
+                      >
+                    </ToggleMenuFlyoutItem>
+                    <ToggleMenuFlyoutItem Text="{x:Bind ToQualityString(_vm.AvailableQualities, nico:NicoVideoQuality.Mobile), Mode=OneWay}" 
+                      Command="{x:Bind _vm.ChangeVideoQualityCommand}"
+                      IsChecked="{x:Bind IsSameQuality(_vm.CurrentQuality.Quality, nico:NicoVideoQuality.Mobile), Mode=OneWay}"
+                                          Visibility="{x:Bind ToAvalirableQualityAsVisibility(_vm.AvailableQualities, nico:NicoVideoQuality.Mobile), Mode=OneWay}"
+                                          CommandParameter="{x:Bind nico:NicoVideoQuality.Mobile}"
+                      >
+                    </ToggleMenuFlyoutItem>
+                  </MenuFlyout>
                 </FlyoutBase.AttachedFlyout>
               </HyperlinkButton>
-              <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Visibility="{x:Bind _vm.NowPlayingWithCache, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}">
-                                                        (<Run Text="{i18nExt:Localize Key=VideoPlayWithCached}" />)</TextBlock>
-              <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Visibility="{x:Bind _vm.NowPlayingWithCache, Mode=OneWay, Converter={StaticResource BooleanToVisibilityInverted}}">
-                                                        (<Run Text="{i18nExt:Localize Key=VideoPlayWithOnline}" />)</TextBlock>
+              <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Visibility="{x:Bind _vm.NowPlayingWithCache, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}"
+                         VerticalAlignment="Center"
+                         >
+                                                        (<Run Text="{i18nExt:Localize Key=VideoPlayWithCached}" />)
+              </TextBlock>
             </StackPanel>
 
             <!-- 動画位置と再生速度倍率 -->
@@ -546,37 +567,76 @@
                   <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="0.65" ScaleY="0.65" />
                 </iconPack:PathIconMaterial.RenderTransform>
               </iconPack:PathIconMaterial>
-              <TextBlock VerticalAlignment="Bottom" IsHitTestVisible="False" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Margin="0 0 0 0">
+              <TextBlock VerticalAlignment="Center" IsHitTestVisible="False" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Margin="0 0 0 0">
                 <Run Text="{x:Bind VideoPosition, Mode=OneWay, Converter={StaticResource TimeToMovieLengthConverter}}" />
                 <Run Text="/" />
                 <Run Text="{x:Bind _vm.VideoInfo.Length, Mode=OneWay, Converter={StaticResource TimeToMovieLengthConverter}}" />
               </TextBlock>
-              <HyperlinkButton Margin="0 0 16 0" VerticalAlignment="Bottom" Opacity="0.7" MinWidth="36" HorizontalAlignment="Right" Padding="0">
+              <HyperlinkButton Padding="16 8" VerticalAlignment="Bottom" Opacity="0.7" MinWidth="36" HorizontalAlignment="Right">
                 <i:Interaction.Behaviors>
                   <core:EventTriggerBehavior EventName="Click">
                     <mybehavior:OpenFlyout />
                   </core:EventTriggerBehavior>
                 </i:Interaction.Behaviors>
                 <FlyoutBase.AttachedFlyout>
-                  <Flyout>
-                    <ListView ItemsSource="{x:Bind PlaybackRateList}"
-                                      SelectedItem="{x:Bind _vm.ObservableMediaPlayer.PlaybackRate.Value, Mode=OneWay}"
-                                      SelectionMode="Single"
-                                      IsItemClickEnabled="True"                                                                            
-                                      >
-                      <i:Interaction.Behaviors>
-                        <core:EventTriggerBehavior EventName="ItemClick">
-                          <core:InvokeCommandAction Command="{x:Bind _vm.SetPlaybackRateCommand}"
-                                                            InputConverter="{StaticResource ItemClickEventArgsConverter}" />
-                        </core:EventTriggerBehavior>
-                      </i:Interaction.Behaviors>
-                      <ListView.ItemTemplate>
-                        <DataTemplate>
-                          <TextBlock >x<Run Text="{Binding}" /></TextBlock>
-                        </DataTemplate>
-                      </ListView.ItemTemplate>
-                    </ListView>
-                  </Flyout>
+                  <MenuFlyout Placement="TopEdgeAlignedRight">
+                    <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=PlaybackRate_WithRate, Param1=2.0}" Command="{x:Bind _vm.SetPlaybackRateCommand}"
+                                          IsChecked="{x:Bind IsSamePlaybackRate(_vm.ObservableMediaPlayer.PlaybackRate.Value, 2.0), Mode=OneWay}"
+                                          >
+                      <ToggleMenuFlyoutItem.CommandParameter>
+                        <x:Double>2</x:Double>
+                      </ToggleMenuFlyoutItem.CommandParameter>
+                    </ToggleMenuFlyoutItem>
+                    <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=PlaybackRate_WithRate, Param1=1.75}" Command="{x:Bind _vm.SetPlaybackRateCommand}"
+                      IsChecked="{x:Bind IsSamePlaybackRate(_vm.ObservableMediaPlayer.PlaybackRate.Value, 1.75), Mode=OneWay}"
+                     >
+                      <ToggleMenuFlyoutItem.CommandParameter>
+                        <x:Double>1.75</x:Double>
+                      </ToggleMenuFlyoutItem.CommandParameter>
+                    </ToggleMenuFlyoutItem>
+                    <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=PlaybackRate_WithRate, Param1=1.5}" Command="{x:Bind _vm.SetPlaybackRateCommand}"
+                      IsChecked="{x:Bind IsSamePlaybackRate(_vm.ObservableMediaPlayer.PlaybackRate.Value, 1.5), Mode=OneWay}"
+                      >
+                      <ToggleMenuFlyoutItem.CommandParameter>
+                        <x:Double>1.5</x:Double>
+                      </ToggleMenuFlyoutItem.CommandParameter>
+                    </ToggleMenuFlyoutItem>
+                    <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=PlaybackRate_WithRate, Param1=1.0}" Command="{x:Bind _vm.SetPlaybackRateCommand}"
+                      IsChecked="{x:Bind IsSamePlaybackRate(_vm.ObservableMediaPlayer.PlaybackRate.Value, 1.25), Mode=OneWay}"
+                      >
+                      <ToggleMenuFlyoutItem.CommandParameter>
+                        <x:Double>1.25</x:Double>
+                      </ToggleMenuFlyoutItem.CommandParameter>
+                    </ToggleMenuFlyoutItem>
+                    <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=PlaybackRate_Default}" Command="{x:Bind _vm.SetPlaybackRateCommand}"
+                      IsChecked="{x:Bind IsSamePlaybackRate(_vm.ObservableMediaPlayer.PlaybackRate.Value, 1.0), Mode=OneWay}"
+                      >
+                      <ToggleMenuFlyoutItem.CommandParameter>
+                        <x:Double>1.0</x:Double>
+                      </ToggleMenuFlyoutItem.CommandParameter>
+                    </ToggleMenuFlyoutItem>
+                    <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=PlaybackRate_WithRate, Param1=0.75}" Command="{x:Bind _vm.SetPlaybackRateCommand}"
+                      IsChecked="{x:Bind IsSamePlaybackRate(_vm.ObservableMediaPlayer.PlaybackRate.Value, 0.75), Mode=OneWay}"
+                      >
+                      <ToggleMenuFlyoutItem.CommandParameter>
+                        <x:Double>0.75</x:Double>
+                      </ToggleMenuFlyoutItem.CommandParameter>
+                    </ToggleMenuFlyoutItem>
+                    <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=PlaybackRate_WithRate, Param1=0.5}" Command="{x:Bind _vm.SetPlaybackRateCommand}" 
+                      IsChecked="{x:Bind IsSamePlaybackRate(_vm.ObservableMediaPlayer.PlaybackRate.Value, 0.5), Mode=OneWay}"
+                      >
+                      <ToggleMenuFlyoutItem.CommandParameter>
+                        <x:Double>0.5</x:Double>
+                      </ToggleMenuFlyoutItem.CommandParameter>
+                    </ToggleMenuFlyoutItem>
+                    <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=PlaybackRate_WithRate, Param1=0.25}" Command="{x:Bind _vm.SetPlaybackRateCommand}"
+                      IsChecked="{x:Bind IsSamePlaybackRate(_vm.ObservableMediaPlayer.PlaybackRate.Value, 0.25), Mode=OneWay}"
+                      >
+                      <ToggleMenuFlyoutItem.CommandParameter>
+                        <x:Double>0.25</x:Double>
+                      </ToggleMenuFlyoutItem.CommandParameter>
+                    </ToggleMenuFlyoutItem>
+                  </MenuFlyout>
                 </FlyoutBase.AttachedFlyout>
                 <TextBlock VerticalAlignment="Center">x<Run Text="{x:Bind _vm.ObservableMediaPlayer.PlaybackRate.Value, Mode=OneWay}" /></TextBlock>
               </HyperlinkButton>

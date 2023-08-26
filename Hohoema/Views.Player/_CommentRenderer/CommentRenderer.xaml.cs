@@ -474,7 +474,6 @@ public sealed partial class CommentRenderer : UserControl
             }
 
             // 追加待機中のコメントをチェック
-            var now = DateTime.UtcNow;
             int count = 0;
             for (int i = 0; i < _pendingRenderComments.Count; i++)
             {
