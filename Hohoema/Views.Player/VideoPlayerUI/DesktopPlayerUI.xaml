@@ -580,46 +580,11 @@
                 </i:Interaction.Behaviors>
                 <FlyoutBase.AttachedFlyout>
                   <MenuFlyout Placement="TopEdgeAlignedRight">
-                    <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=PlaybackRate_WithRate, Param1=2.0}" Command="{x:Bind _vm.SetPlaybackRateCommand}"
-                                          IsChecked="{x:Bind IsSamePlaybackRate(_vm.ObservableMediaPlayer.PlaybackRate.Value, 2.0), Mode=OneWay}"
-                                          >
-                      <ToggleMenuFlyoutItem.CommandParameter>
-                        <x:Double>2</x:Double>
-                      </ToggleMenuFlyoutItem.CommandParameter>
-                    </ToggleMenuFlyoutItem>
-                    <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=PlaybackRate_WithRate, Param1=1.75}" Command="{x:Bind _vm.SetPlaybackRateCommand}"
-                      IsChecked="{x:Bind IsSamePlaybackRate(_vm.ObservableMediaPlayer.PlaybackRate.Value, 1.75), Mode=OneWay}"
-                     >
-                      <ToggleMenuFlyoutItem.CommandParameter>
-                        <x:Double>1.75</x:Double>
-                      </ToggleMenuFlyoutItem.CommandParameter>
-                    </ToggleMenuFlyoutItem>
-                    <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=PlaybackRate_WithRate, Param1=1.5}" Command="{x:Bind _vm.SetPlaybackRateCommand}"
-                      IsChecked="{x:Bind IsSamePlaybackRate(_vm.ObservableMediaPlayer.PlaybackRate.Value, 1.5), Mode=OneWay}"
+                    <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=PlaybackRate_WithRate, Param1=0.25}" Command="{x:Bind _vm.SetPlaybackRateCommand}"
+                      IsChecked="{x:Bind IsSamePlaybackRate(_vm.ObservableMediaPlayer.PlaybackRate.Value, 0.25), Mode=OneWay}"
                       >
                       <ToggleMenuFlyoutItem.CommandParameter>
-                        <x:Double>1.5</x:Double>
-                      </ToggleMenuFlyoutItem.CommandParameter>
-                    </ToggleMenuFlyoutItem>
-                    <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=PlaybackRate_WithRate, Param1=1.0}" Command="{x:Bind _vm.SetPlaybackRateCommand}"
-                      IsChecked="{x:Bind IsSamePlaybackRate(_vm.ObservableMediaPlayer.PlaybackRate.Value, 1.25), Mode=OneWay}"
-                      >
-                      <ToggleMenuFlyoutItem.CommandParameter>
-                        <x:Double>1.25</x:Double>
-                      </ToggleMenuFlyoutItem.CommandParameter>
-                    </ToggleMenuFlyoutItem>
-                    <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=PlaybackRate_Default}" Command="{x:Bind _vm.SetPlaybackRateCommand}"
-                      IsChecked="{x:Bind IsSamePlaybackRate(_vm.ObservableMediaPlayer.PlaybackRate.Value, 1.0), Mode=OneWay}"
-                      >
-                      <ToggleMenuFlyoutItem.CommandParameter>
-                        <x:Double>1.0</x:Double>
-                      </ToggleMenuFlyoutItem.CommandParameter>
-                    </ToggleMenuFlyoutItem>
-                    <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=PlaybackRate_WithRate, Param1=0.75}" Command="{x:Bind _vm.SetPlaybackRateCommand}"
-                      IsChecked="{x:Bind IsSamePlaybackRate(_vm.ObservableMediaPlayer.PlaybackRate.Value, 0.75), Mode=OneWay}"
-                      >
-                      <ToggleMenuFlyoutItem.CommandParameter>
-                        <x:Double>0.75</x:Double>
+                        <x:Double>0.25</x:Double>
                       </ToggleMenuFlyoutItem.CommandParameter>
                     </ToggleMenuFlyoutItem>
                     <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=PlaybackRate_WithRate, Param1=0.5}" Command="{x:Bind _vm.SetPlaybackRateCommand}" 
@@ -629,11 +594,46 @@
                         <x:Double>0.5</x:Double>
                       </ToggleMenuFlyoutItem.CommandParameter>
                     </ToggleMenuFlyoutItem>
-                    <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=PlaybackRate_WithRate, Param1=0.25}" Command="{x:Bind _vm.SetPlaybackRateCommand}"
-                      IsChecked="{x:Bind IsSamePlaybackRate(_vm.ObservableMediaPlayer.PlaybackRate.Value, 0.25), Mode=OneWay}"
+                    <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=PlaybackRate_WithRate, Param1=0.75}" Command="{x:Bind _vm.SetPlaybackRateCommand}"
+                      IsChecked="{x:Bind IsSamePlaybackRate(_vm.ObservableMediaPlayer.PlaybackRate.Value, 0.75), Mode=OneWay}"
                       >
                       <ToggleMenuFlyoutItem.CommandParameter>
-                        <x:Double>0.25</x:Double>
+                        <x:Double>0.75</x:Double>
+                      </ToggleMenuFlyoutItem.CommandParameter>
+                    </ToggleMenuFlyoutItem>
+                    <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=PlaybackRate_Default}" Command="{x:Bind _vm.SetPlaybackRateCommand}"
+                      IsChecked="{x:Bind IsSamePlaybackRate(_vm.ObservableMediaPlayer.PlaybackRate.Value, 1.0), Mode=OneWay}"
+                      >
+                      <ToggleMenuFlyoutItem.CommandParameter>
+                        <x:Double>1.0</x:Double>
+                      </ToggleMenuFlyoutItem.CommandParameter>
+                    </ToggleMenuFlyoutItem>
+                    <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=PlaybackRate_WithRate, Param1=1.25}" Command="{x:Bind _vm.SetPlaybackRateCommand}"
+                      IsChecked="{x:Bind IsSamePlaybackRate(_vm.ObservableMediaPlayer.PlaybackRate.Value, 1.25), Mode=OneWay}"
+                      >
+                      <ToggleMenuFlyoutItem.CommandParameter>
+                        <x:Double>1.25</x:Double>
+                      </ToggleMenuFlyoutItem.CommandParameter>
+                    </ToggleMenuFlyoutItem>
+                    <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=PlaybackRate_WithRate, Param1=1.5}" Command="{x:Bind _vm.SetPlaybackRateCommand}"
+                      IsChecked="{x:Bind IsSamePlaybackRate(_vm.ObservableMediaPlayer.PlaybackRate.Value, 1.5), Mode=OneWay}"
+                      >
+                      <ToggleMenuFlyoutItem.CommandParameter>
+                        <x:Double>1.5</x:Double>
+                      </ToggleMenuFlyoutItem.CommandParameter>
+                    </ToggleMenuFlyoutItem>
+                    <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=PlaybackRate_WithRate, Param1=1.75}" Command="{x:Bind _vm.SetPlaybackRateCommand}"
+                      IsChecked="{x:Bind IsSamePlaybackRate(_vm.ObservableMediaPlayer.PlaybackRate.Value, 1.75), Mode=OneWay}"
+                      >      
+                      <ToggleMenuFlyoutItem.CommandParameter>
+                        <x:Double>1.75</x:Double>
+                      </ToggleMenuFlyoutItem.CommandParameter>
+                    </ToggleMenuFlyoutItem>
+                    <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=PlaybackRate_WithRate, Param1=2.0}" Command="{x:Bind _vm.SetPlaybackRateCommand}"
+                                          IsChecked="{x:Bind IsSamePlaybackRate(_vm.ObservableMediaPlayer.PlaybackRate.Value, 2.0), Mode=OneWay}"
+                                          >
+                      <ToggleMenuFlyoutItem.CommandParameter>
+                        <x:Double>2</x:Double>
                       </ToggleMenuFlyoutItem.CommandParameter>
                     </ToggleMenuFlyoutItem>
                   </MenuFlyout>
