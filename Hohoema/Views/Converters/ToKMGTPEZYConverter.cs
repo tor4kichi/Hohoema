@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using Hohoema.Helpers;
 using System;
 using Windows.UI.Xaml.Data;
 
@@ -6,9 +7,6 @@ namespace Hohoema.Views.Converters;
 
 public sealed class ToKMGTPEZYConverter : IValueConverter
 {
-
-    const string KMGTPEZY = "KMGTPEZY";
-
     public object Convert(object value, Type targetType, object parameter, string language)
     {
         double number = 0.0;
@@ -17,31 +15,7 @@ public sealed class ToKMGTPEZYConverter : IValueConverter
             number = Decimal.ToDouble(num);
         }
 
-
-
-        int divCount = -1;
-        while (number >= 1000.0d)
-        {
-            number /= 1000.0d;
-            divCount++;
-        }
-
-        if (divCount >= KMGTPEZY.Length)
-        {
-            throw new NotSupportedException("ヨタより大きい桁数は対応してない");
-        }
-        else if (divCount >= 2 /* G 以上なら */)
-        {
-            return number.ToString("F2") + KMGTPEZY[divCount];
-        }
-        else if (divCount >= 0 /* K 以上なら */)
-        {
-            return number.ToString("F0") + KMGTPEZY[divCount];
-        }
-        else
-        {
-            return number.ToString("F0");
-        }
+        return NumberToKMGTPEZYStringHelper.ToKMGTPEZY(number);
 
         /*
         long longNumber = (long)number;
@@ -71,4 +45,5 @@ public sealed class ToKMGTPEZYConverter : IValueConverter
     {
         throw new NotImplementedException();
     }
+
 }

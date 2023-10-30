@@ -43,7 +43,7 @@ public class CachedVideoSessionProvider : INiconicoVideoSessionProvider
 
     public ImmutableArray<NicoVideoQualityEntity> AvailableQualities { get; }
 
-    public Task<IStreamingSession> CreateVideoSessionAsync(NicoVideoQuality quality)
+    public Task<IStreamingSession> CreateVideoSessionAsync(NicoVideoQualityEntity qualityEntity)
     {
         return Task.FromResult((IStreamingSession)new CachedVideoStreamingSession(_videoCacheItem, _niconicoSession));
     }

@@ -52,6 +52,11 @@ public class DmcVideoStreamingSession : VideoStreamingSession, IVideoStreamingDo
 
         SetQuality(qualityId);
     }
+    
+    public string[] GetAllQualities()
+    {
+        return _dmcWatchData.Media.Delivery.Movie.Videos.Select(x => x.Id).ToArray();
+    }
 
     private string GetQualityId(NicoVideoQuality quality)
     {
@@ -64,7 +69,7 @@ public class DmcVideoStreamingSession : VideoStreamingSession, IVideoStreamingDo
         SetQuality(GetQualityId(quality));
     }
 
-    private void SetQuality(string qualityId)
+    public void SetQuality(string qualityId)
     {
         QualityId = qualityId;
         Quality = _dmcWatchData.ToNicoVideoQuality(qualityId);

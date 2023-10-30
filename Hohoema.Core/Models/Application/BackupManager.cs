@@ -172,7 +172,7 @@ public sealed class BackupManager
 
             PlayerSetting = new PlayerSettingBackupEntry
             {
-                DefaultQuality = _playerSettings.DefaultVideoQuality.ToString(),
+                DefaultQualityId = _playerSettings.DefaultVideoQualityId?.ToString(),
                 DefaultLiveQuality = _playerSettings.DefaultLiveQuality.ToString(),
                 LiveQualityLimit = _playerSettings.LiveQualityLimit.ToString(),
                 LiveWatchWithLowLatency = _playerSettings.LiveWatchWithLowLatency,
@@ -488,10 +488,7 @@ public sealed class BackupManager
 
         PlayerSettingBackupEntry p = backup.PlayerSetting;
 
-        if (Enum.TryParse<NicoVideoQuality>(p.DefaultQuality, out NicoVideoQuality videoQuality))
-        {
-            _playerSettings.DefaultVideoQuality = videoQuality;
-        }
+        _playerSettings.DefaultVideoQualityId = p.DefaultQualityId;
 
         if (Enum.TryParse<LiveQualityType>(p.DefaultLiveQuality, out LiveQualityType liveQuality))
         {
@@ -808,7 +805,7 @@ public sealed class NicoRepoSettingsBackupEntry
 public sealed class PlayerSettingBackupEntry
 {
     [JsonPropertyName("defaultQuality")]
-    public string DefaultQuality { get; set; }
+    public string DefaultQualityId { get; set; }
 
     [JsonPropertyName("defaultLiveQuality")]
     public string DefaultLiveQuality { get; set; }

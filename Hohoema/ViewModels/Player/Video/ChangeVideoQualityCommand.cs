@@ -28,7 +28,6 @@ public sealed class ChangeVideoQualityCommand : CommandBase
     {
         try
         {
-
             if (parameter is NicoVideoQuality quality)
             {
                 if (!_playlistPlayer.CanPlayQuality(quality)) { return; }
@@ -38,8 +37,8 @@ public sealed class ChangeVideoQualityCommand : CommandBase
             }
             else if (parameter is NicoVideoQualityEntity qualityEntity)
             {
-                if (!_playlistPlayer.CanPlayQuality(qualityEntity.Quality)) { return; }
-                await _playlistPlayer.ChangeQualityAsync(qualityEntity.Quality);
+                if (!_playlistPlayer.CanPlayQuality(qualityEntity)) { return; }
+                await _playlistPlayer.ChangeQualityAsync(qualityEntity);
 
                 _notificationService.ShowLiteInAppNotification_Success("Notification_VideoQualityChanged_Success".Translate(qualityEntity.Quality.Translate()));
             }

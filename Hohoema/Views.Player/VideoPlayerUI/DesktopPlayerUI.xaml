@@ -74,8 +74,8 @@
         <i:Interaction.Behaviors>
           <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{x:Bind _vm.AvailableQualities, Mode=OneWay}" CustomObjectToTag="{x:Bind _vm}">
             <mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
-              <DataTemplate>
-                <MenuFlyoutItem IsEnabled="{Binding IsAvailable}" Text="{Binding Quality, Converter={StaticResource LocalizeConverter}}" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.ChangeVideoQualityCommand}" CommandParameter="{Binding}"></MenuFlyoutItem>
+              <DataTemplate x:DataType="nico:NicoVideoQualityEntity">
+                <MenuFlyoutItem IsEnabled="{Binding IsAvailable}" Text="{x:Bind ToString()}" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.ChangeVideoQualityCommand}" CommandParameter="{Binding}" />
               </DataTemplate>
             </mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
           </mybehavior:MenuFlyoutSubItemItemsSetter>
@@ -505,51 +505,26 @@
                             <Run Text="{x:Bind _vm.CurrentQuality.Quality, Mode=OneWay, Converter={StaticResource LocalizeConverter}}" />
               </TextBlock>
               <HyperlinkButton Opacity="1" Padding="16 8">
-                <TextBlock Visibility="{Binding NowPlayingWithCache, Converter={StaticResource BooleanToVisibilityInverted}}">
-                              <Run Text="{x:Bind _vm.CurrentQuality.Quality, Mode=OneWay, Converter={StaticResource LocalizeConverter}}" /></TextBlock>
+                <TextBlock Visibility="{Binding NowPlayingWithCache, Converter={StaticResource BooleanToVisibilityInverted}}"
+                           Text="{x:Bind _vm.CurrentQuality.ToString(), Mode=OneWay}"
+                           />
                 <i:Interaction.Behaviors>
                   <core:EventTriggerBehavior EventName="Click">
                     <mybehavior:OpenFlyout />
                   </core:EventTriggerBehavior>
                 </i:Interaction.Behaviors>
                 <FlyoutBase.AttachedFlyout>
-                  <MenuFlyout Placement="TopEdgeAlignedLeft">
-                    <ToggleMenuFlyoutItem Text="{x:Bind ToQualityString(_vm.AvailableQualities, nico:NicoVideoQuality.SuperHigh), Mode=OneWay}" 
-                                          Command="{x:Bind _vm.ChangeVideoQualityCommand}"
-                                          IsChecked="{x:Bind IsSameQuality(_vm.CurrentQuality.Quality, nico:NicoVideoQuality.SuperHigh), Mode=OneWay}"
-                                          Visibility="{x:Bind ToAvalirableQualityAsVisibility(_vm.AvailableQualities, nico:NicoVideoQuality.SuperHigh), Mode=OneWay}"
-                                          CommandParameter="{x:Bind nico:NicoVideoQuality.SuperHigh}"
-                                          >
-                    </ToggleMenuFlyoutItem>
-
-                    <ToggleMenuFlyoutItem Text="{x:Bind ToQualityString(_vm.AvailableQualities, nico:NicoVideoQuality.High), Mode=OneWay}" 
-                      Command="{x:Bind _vm.ChangeVideoQualityCommand}"
-                      IsChecked="{x:Bind IsSameQuality(_vm.CurrentQuality.Quality, nico:NicoVideoQuality.High), Mode=OneWay}"
-                                          Visibility="{x:Bind ToAvalirableQualityAsVisibility(_vm.AvailableQualities, nico:NicoVideoQuality.High), Mode=OneWay}"
-                                          CommandParameter="{x:Bind nico:NicoVideoQuality.High}"
-                      >
-                    </ToggleMenuFlyoutItem>
-                    <ToggleMenuFlyoutItem Text="{x:Bind ToQualityString(_vm.AvailableQualities, nico:NicoVideoQuality.Midium), Mode=OneWay}" 
-                      Command="{x:Bind _vm.ChangeVideoQualityCommand}"
-                      IsChecked="{x:Bind IsSameQuality(_vm.CurrentQuality.Quality, nico:NicoVideoQuality.Midium), Mode=OneWay}"
-                                          Visibility="{x:Bind ToAvalirableQualityAsVisibility(_vm.AvailableQualities, nico:NicoVideoQuality.Midium), Mode=OneWay}"
-                                          CommandParameter="{x:Bind nico:NicoVideoQuality.Midium}"
-                      >
-                    </ToggleMenuFlyoutItem>
-                    <ToggleMenuFlyoutItem Text="{x:Bind ToQualityString(_vm.AvailableQualities, nico:NicoVideoQuality.Low), Mode=OneWay}" 
-                      Command="{x:Bind _vm.ChangeVideoQualityCommand}"
-                      IsChecked="{x:Bind IsSameQuality(_vm.CurrentQuality.Quality, nico:NicoVideoQuality.Low), Mode=OneWay}"
-                                          Visibility="{x:Bind ToAvalirableQualityAsVisibility(_vm.AvailableQualities, nico:NicoVideoQuality.Low), Mode=OneWay}"
-                                          CommandParameter="{x:Bind nico:NicoVideoQuality.Low}"
-                      >
-                    </ToggleMenuFlyoutItem>
-                    <ToggleMenuFlyoutItem Text="{x:Bind ToQualityString(_vm.AvailableQualities, nico:NicoVideoQuality.Mobile), Mode=OneWay}" 
-                      Command="{x:Bind _vm.ChangeVideoQualityCommand}"
-                      IsChecked="{x:Bind IsSameQuality(_vm.CurrentQuality.Quality, nico:NicoVideoQuality.Mobile), Mode=OneWay}"
-                                          Visibility="{x:Bind ToAvalirableQualityAsVisibility(_vm.AvailableQualities, nico:NicoVideoQuality.Mobile), Mode=OneWay}"
-                                          CommandParameter="{x:Bind nico:NicoVideoQuality.Mobile}"
-                      >
-                    </ToggleMenuFlyoutItem>
+                  <MenuFlyout x:Name="ChangeQualityMenuFlyout" Placement="TopEdgeAlignedLeft" Opened="ChangeQualityMenuFlyout_Opening">
+                    <i:Interaction.Behaviors>
+                      <mybehavior:MenuFlyoutItemsSetter ItemsSource="{x:Bind _vm.AvailableQualities, Mode=OneWay}" CustomObjectToTag="{x:Bind _vm}">
+                        <mybehavior:MenuFlyoutItemsSetter.ItemTemplate>
+                          <DataTemplate x:DataType="nico:NicoVideoQualityEntity">
+                            <!-- コードビハインドで IsChecked を設定してる -->
+                            <ToggleMenuFlyoutItem IsEnabled="{Binding IsAvailable}" Text="{x:Bind ToString()}" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.ChangeVideoQualityCommand}" CommandParameter="{Binding}" />
+                          </DataTemplate>
+                        </mybehavior:MenuFlyoutItemsSetter.ItemTemplate>
+                      </mybehavior:MenuFlyoutItemsSetter>
+                    </i:Interaction.Behaviors>
                   </MenuFlyout>
                 </FlyoutBase.AttachedFlyout>
               </HyperlinkButton>

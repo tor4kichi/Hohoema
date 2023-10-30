@@ -201,16 +201,13 @@ public class PreparePlayVideoResult : INiconicoVideoSessionProvider, INiconicoCo
     /// 動画ストリームの取得します
     /// </summary>
     /// <exception cref="NotSupportedException" />
-    public async Task<IStreamingSession> CreateVideoSessionAsync(NicoVideoQuality quality = NicoVideoQuality.Unknown)
+    public async Task<IStreamingSession> CreateVideoSessionAsync(NicoVideoQualityEntity qualityEntity)
     {
         IStreamingSession streamingSession = null;
         if (_dmcWatchData != null)
         {
             if (_dmcWatchData.Media.Delivery is not null and var delivery)
-            {
-                NicoVideoQualityEntity qualityEntity = AvailableQualities.Where(x => x.IsAvailable).FirstOrDefault(x => x.Quality == quality);
-                qualityEntity ??= AvailableQualities.Where(x => x.IsAvailable).First();
-
+            {                
                 NicoVideoSessionOwnershipManager.VideoSessionOwnership ownership = await _ownershipManager.TryRentVideoSessionOwnershipAsync(_dmcWatchData.Video.Id, !IsForCacheDownload);
                 if (ownership != null)
                 {

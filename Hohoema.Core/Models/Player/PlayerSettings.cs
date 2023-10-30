@@ -21,7 +21,7 @@ public class PlayerSettings : FlagsRepositoryBase
     
     public PlayerSettings()
     {
-        _DefaultVideoQuality = Read(NicoVideoQuality.Midium, nameof(DefaultVideoQuality));
+        _DefaultVideoQualityId = Read(default(string?), nameof(DefaultVideoQualityId));
 
         _DefaultLiveQuality = Read(LiveQualityType.Normal, nameof(DefaultLiveQuality));
         _LiveQualityLimit = Read(LiveQualityLimitType.SuperHigh, nameof(LiveQualityLimit));
@@ -66,14 +66,11 @@ public class PlayerSettings : FlagsRepositoryBase
     }
 
 
-
-    private NicoVideoQuality _DefaultVideoQuality;
-
-    
-    public NicoVideoQuality DefaultVideoQuality
+    private string? _DefaultVideoQualityId;
+    public string? DefaultVideoQualityId
     {
-        get => _DefaultVideoQuality;
-        set => SetProperty(ref _DefaultVideoQuality, value);
+        get => _DefaultVideoQualityId;
+        set => SetProperty(ref _DefaultVideoQualityId, value);
     }
 
 
