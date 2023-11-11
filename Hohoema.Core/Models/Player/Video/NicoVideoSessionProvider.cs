@@ -173,11 +173,23 @@ public class PreparePlayVideoResult : INiconicoVideoSessionProvider, INiconicoCo
         _ownershipManager = ownershipManager;
         _dmcWatchData = dmcWatchData;
         IsSuccess = _dmcWatchData != null;
-        AvailableQualities = _dmcWatchData?.Media.Delivery is not null and var delivery
-            ? delivery.Movie.Videos
-                .Select(x => new NicoVideoQualityEntity(x.IsAvailable, QualityIdToNicoVideoQuality(x.Id), x.Id, (int)x.Metadata.Bitrate, (int)x.Metadata.Resolution.Width, (int)x.Metadata.Resolution.Height))
-                .ToImmutableArray()
-            : throw new NotSupportedException("DmcWatchResponse.Media.DeliveryLegacy not supported");
+
+        if (_dmcWatchData?.Media.Domand is { } domand)
+        {
+            AvailableQualities = domand.Videos
+                    .Select(x => new NicoVideoQualityEntity(x.IsAvailable ?? false, QualityIdToNicoVideoQuality(x.Id), x.Id, x.BitRate, x.Width, x.Height) { Label = x.Label })
+                    .ToImmutableArray();
+        }
+        else if (_dmcWatchData?.Media.Delivery is { } delivery)
+        {
+            AvailableQualities = delivery.Movie.Videos
+                    .Select(x => new NicoVideoQualityEntity(x.IsAvailable, QualityIdToNicoVideoQuality(x.Id), x.Id, (int)x.Metadata.Bitrate, (int)x.Metadata.Resolution.Width, (int)x.Metadata.Resolution.Height) { Label = x.Metadata.Label })
+                    .ToImmutableArray();
+        }        
+        else
+        {
+            throw new NotSupportedException("DmcWatchResponse.Media.DeliveryLegacy not supported");
+        }
     }
 
     public INicoVideoDetails GetVideoDetails()
@@ -201,12 +213,25 @@ public class PreparePlayVideoResult : INiconicoVideoSessionProvider, INiconicoCo
     /// 動画ストリームの取得します
     /// </summary>
     /// <exception cref="NotSupportedException" />
-    public async Task<IStreamingSession> CreateVideoSessionAsync(NicoVideoQualityEntity qualityEntity)
+    public async Task<IStreamingSession?> CreateVideoSessionAsync(NicoVideoQualityEntity qualityEntity)
     {
-        IStreamingSession streamingSession = null;
+        IStreamingSession? streamingSession = null;
         if (_dmcWatchData != null)
         {
-            if (_dmcWatchData.Media.Delivery is not null and var delivery)
+            if (_dmcWatchData.Media.Domand is { } domand)
+            {
+                NicoVideoSessionOwnershipManager.VideoSessionOwnership ownership = await _ownershipManager.TryRentVideoSessionOwnershipAsync(_dmcWatchData.Video.Id, !IsForCacheDownload);
+                if (ownership != null)
+                {
+                    var domandSession = new DomandStreamingSession(_dmcWatchData, domand, _niconicoSession, ownership);
+                    if (qualityEntity != null)
+                    {
+                        domandSession.SetQuality(qualityEntity.Quality);
+                    }
+                    streamingSession = domandSession;
+                }
+            }
+            else if (_dmcWatchData.Media.Delivery is not null and var delivery)
             {                
                 NicoVideoSessionOwnershipManager.VideoSessionOwnership ownership = await _ownershipManager.TryRentVideoSessionOwnershipAsync(_dmcWatchData.Video.Id, !IsForCacheDownload);
                 if (ownership != null)
@@ -631,6 +656,21 @@ public static class DmcWatchSessionExtension
 {
     public static NicoVideoQuality ToNicoVideoQuality(this DmcWatchApiData dmcWatchData, string qualityId)
     {
+        if (dmcWatchData.Media.Domand is { } domand
+            && domand.Videos.FirstOrDefault(x => x.Id == qualityId) is { }  videoQuality
+            )
+        {
+            return videoQuality.QualityLevel switch
+            {
+                0 => NicoVideoQuality.Mobile,
+                1 => NicoVideoQuality.Low,
+                2 => NicoVideoQuality.Midium,
+                3 => NicoVideoQuality.High,
+                4 => NicoVideoQuality.SuperHigh,
+                _ => NicoVideoQuality.Unknown,
+            };
+        }
+
         VideoContent dmcVideoContent = dmcWatchData?.Media.Delivery.Movie.Videos.FirstOrDefault(x => x.Id == qualityId);
         if (dmcVideoContent != null)
         {

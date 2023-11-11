@@ -18,6 +18,7 @@ using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Concurrency;
@@ -747,7 +748,7 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
                 qualityEntity = AvailableQualities.SkipWhile(x => !x.IsAvailable).First();
             }
 
-            IStreamingSession videoSession = await result.VideoSessionProvider.CreateVideoSessionAsync(qualityEntity);
+            IStreamingSession videoSession = await result.VideoSessionProvider.CreateVideoSessionAsync(qualityEntity);            
 
             _videoSessionDisposable = videoSession;
             await videoSession.StartPlayback(_mediaPlayer, startPosition ?? TimeSpan.Zero);

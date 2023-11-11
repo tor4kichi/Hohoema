@@ -198,6 +198,7 @@
     <Compile Include="Models\Niconico\Video\NvapiVideoContent.cs" />
     <Compile Include="Models\Niconico\User\UserVideoPlaylist.cs" />
     <Compile Include="Models\Niconico\User\UserVideoPlaylistSortOption.cs" />
+    <Compile Include="Models\Player\Video\VideoStreamingSession\DomandStreamingSession.cs" />
     <Compile Include="Models\Playlist\BufferedPlaylistItemsSource.cs" />
     <Compile Include="Services\Playlist\PlaylistFactory\SubscriptionGroupPlaylistFactory.cs" />
     <Compile Include="Services\Playlist\PlaylistFactory\SubscriptionPlaylistFactory.cs" />
@@ -377,7 +378,7 @@
       <Version>2.7.2</Version>
     </PackageReference>
     <PackageReference Include="NiconicoToolkit">
-      <Version>0.4.11</Version>
+      <Version>0.5.3</Version>
     </PackageReference>
     <PackageReference Include="ReactiveProperty">
       <Version>7.12.0</Version>

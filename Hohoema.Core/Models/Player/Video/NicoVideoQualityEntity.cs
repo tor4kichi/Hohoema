@@ -21,6 +21,7 @@ public sealed class NicoVideoQualityEntity
         Height = height;
     }
 
+    public string Label { get; init; }
     public bool IsAvailable { get; }
 
     public NicoVideoQuality Quality { get; }
@@ -63,8 +64,8 @@ public sealed class NicoVideoQualityEntity
                 if (_bitrateStringCached.TryGetValue(key, out string cachedToString) is false)
                 {
                     cachedToString = Bitrate.HasValue
-                        ? $"{QualityId.Split('_').Last()} ({NumberToKMGTPEZYStringHelper.ToKMGTPEZY(Bitrate.Value)}bps)"
-                        : $"{QualityId.Split('_').Last()}";
+                        ? $"{Label} ({NumberToKMGTPEZYStringHelper.ToKMGTPEZY(Bitrate.Value)}bps)"
+                        : $"{Label}";
                     _bitrateStringCached.Add(key, cachedToString);
                 }
 
@@ -73,7 +74,7 @@ public sealed class NicoVideoQualityEntity
         }
 
         // 不明な画質末尾文字列に対しては分割してキャッシュ生成       
-        var newKey = (QualityId.Split('_').Last(), Bitrate ?? 0);
+        var newKey = (Label, Bitrate ?? 0);
         var outValue = Bitrate.HasValue 
             ? $"{newKey.Item1} ({NumberToKMGTPEZYStringHelper.ToKMGTPEZY(newKey.Item2)}bps)"
             : newKey.Item1;

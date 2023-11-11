@@ -506,7 +506,7 @@
               </TextBlock>
               <HyperlinkButton Opacity="1" Padding="16 8">
                 <TextBlock Visibility="{Binding NowPlayingWithCache, Converter={StaticResource BooleanToVisibilityInverted}}"
-                           Text="{x:Bind _vm.CurrentQuality.ToString(), Mode=OneWay}"
+                           Text="{x:Bind _vm.CurrentQuality.Label, Mode=OneWay}"
                            />
                 <i:Interaction.Behaviors>
                   <core:EventTriggerBehavior EventName="Click">
