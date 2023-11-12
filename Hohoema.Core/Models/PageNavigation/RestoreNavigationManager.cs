@@ -2,6 +2,7 @@
 
 using Hohoema.Infra;
 using Hohoema.Models.Playlist;
+using NiconicoToolkit.Video;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,14 +32,19 @@ public sealed class RestoreNavigationManager
         _navigationStackRepository.SetCurrentPlayerEntry(entry);
     }
 
-    
+    public void SetCurrentPlayerEntry(VideoId videoId, TimeSpan position, PlaylistItemsSourceOrigin? playlistOrigin, string? playlistId)
+    {
+        _navigationStackRepository.SetCurrentPlayerEntry(new PlayerEntry(videoId, position, playlistOrigin, playlistId));
+    }
+
+
     public void ClearCurrentPlayerEntry()
     {
         _navigationStackRepository.ClearCurrentPlayerEntry();
     }
 
     
-    public PlayerEntry GetCurrentPlayerEntry()
+    public PlayerEntry? GetCurrentPlayerEntry()
     {
         return _navigationStackRepository.GetCurrentPlayerContent();
     }
@@ -49,7 +55,8 @@ public sealed class RestoreNavigationManager
         _navigationStackRepository.SetCurrentNavigationEntry(pageEntry);
     }
 
-    
+
+
     public PageEntry GetCurrentNavigationEntry()
     {
         return _navigationStackRepository.GetCurrentNavigationEntry();
@@ -83,8 +90,6 @@ public sealed class RestoreNavigationManager
         return _navigationStackRepository.GetForwardNavigationEntriesAsync();
     }
 
-
-
     internal class NavigationStackRepository : FlagsRepositoryBase
     {
         
@@ -106,9 +111,9 @@ public sealed class RestoreNavigationManager
         };
 
         
-        public PlayerEntry GetCurrentPlayerContent()
+        public PlayerEntry? GetCurrentPlayerContent()
         {
-            byte[] json = Read<byte[]>(null, CurrentPlayerEntryName);
+            byte[]? json = Read<byte[]?>(null, CurrentPlayerEntryName);
             return json == null ? null : JsonSerializer.Deserialize<PlayerEntry>(json, _options);
         }
 
@@ -171,12 +176,25 @@ public sealed class RestoreNavigationManager
 
 public class PlayerEntry
 {
-    public string ContentId { get; set; }
+    public PlayerEntry() 
+    {
+        ContentId = "";
+    }
+
+    public PlayerEntry(string contentId, TimeSpan position, PlaylistItemsSourceOrigin? playlistOrigin, string? playlistId)
+    {
+        ContentId = contentId;
+        Position = position;
+        PlaylistOrigin = playlistOrigin;
+        PlaylistId = playlistId;
+    }
+
+     public string ContentId { get; set; }
 
     public TimeSpan Position { get; set; }
 
     public PlaylistItemsSourceOrigin? PlaylistOrigin { get; set; }
-    public string PlaylistId { get; set; }
+    public string? PlaylistId { get; set; }
 }
 
 

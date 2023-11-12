@@ -29,53 +29,57 @@ public sealed class VideoTogglePlayPauseCommand : CommandBase
 
     protected override async void Execute(object parameter)
     {
-        var session = _mediaPlayer.PlaybackSession;
-        if (session == null && _playlistPlayer.CurrentPlaylistItem != null)
+        if (_playlistPlayer.CurrentPlaylistItem == null) { return; }
+        
+        if (_mediaPlayer.PlaybackSession is not { } session)
         {
             await _playlistPlayer.ReopenAsync();
-        }
-        else if (_mediaPlayer.Source == null
-            || session.PlaybackState == MediaPlaybackState.None)
-        {
-
-            if (_playlistPlayer.CurrentPlaylistItem == null) { return; }
-
-            var state = _restoreNavigationManager.GetCurrentPlayerEntry();
-            TimeSpan prevPosition = TimeSpan.Zero;
-            if (state.ContentId == _playlistPlayer.CurrentPlaylistItem.VideoId)
-            {
-                prevPosition = state.Position;
-            }
-
-            var isEndReached = session.NaturalDuration - prevPosition < TimeSpan.FromSeconds(1);
-            if (session?.NaturalDuration != TimeSpan.Zero
-                && isEndReached)
-            {
-                prevPosition = TimeSpan.Zero;
-            }
-
-            await _playlistPlayer.ReopenAsync(prevPosition);
         }
         else if (session.PlaybackState == MediaPlaybackState.Playing)
         {
             _mediaPlayer.Pause();
+
+            var currentItem = _playlistPlayer.CurrentPlaylistItem;
+            _restoreNavigationManager.SetCurrentPlayerEntry(
+                currentItem.VideoId,
+                session.Position,
+                _playlistPlayer.CurrentPlaylistId?.Origin,
+                _playlistPlayer.CurrentPlaylistId?.Id
+                );
         }
         else if (session.PlaybackState == MediaPlaybackState.Paused)
         {
-            var state = _restoreNavigationManager.GetCurrentPlayerEntry();
-            TimeSpan prevPosition = TimeSpan.Zero;
-            if (state != null && state.ContentId == _playlistPlayer.CurrentPlaylistItem?.VideoId)
-            {
-                prevPosition = state.Position;
-            }
+            //TimeSpan prevPosition = TimeSpan.Zero;
+            //if (_restoreNavigationManager.GetCurrentPlayerEntry() is { } state
+            //    && state.ContentId == _playlistPlayer.CurrentPlaylistItem?.VideoId)
+            //{
+            //    prevPosition = state.Position;
+            //}
 
-            var isEndReached = session.NaturalDuration - prevPosition < TimeSpan.FromSeconds(1);
-            if (isEndReached)
+            if (session.NaturalDuration - session.Position < TimeSpan.FromSeconds(1))
             {
                 session.Position = TimeSpan.Zero;
             }
 
             _mediaPlayer.Play();
         }
+        else if (_mediaPlayer.Source == null
+            || session.PlaybackState == MediaPlaybackState.None
+            )
+        {
+            TimeSpan prevPosition;
+            if (session.NaturalDuration != TimeSpan.Zero
+                && session.NaturalDuration - prevPosition < TimeSpan.FromSeconds(1))
+            {
+                prevPosition = TimeSpan.Zero;
+            }
+            else if (_restoreNavigationManager.GetCurrentPlayerEntry() is { } state
+                && state?.ContentId == _playlistPlayer.CurrentPlaylistItem.VideoId)
+            {
+                prevPosition = state.Position;
+            }
+
+            await _playlistPlayer.ReopenAsync(prevPosition);
+        }        
     }
 }
