@@ -446,6 +446,7 @@ VideoPlayWithOnline = Online playback
 
 LoudnessCorrectionValueTitle = Volume adjustment for this video
 UseLoudnessCorrection = Reduce the volume difference between videos
+ForceUsingDmcVideoOrigin = Prioritize old video distribution server
 Mute = Mute
 ToggleHideComment = Hide comments
 CommentTextBoxPlacefolder = Comment

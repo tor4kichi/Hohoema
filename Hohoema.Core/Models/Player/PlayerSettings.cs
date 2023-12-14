@@ -408,4 +408,11 @@ public class PlayerSettings : FlagsRepositoryBase
     }
 
     #endregion
+
+
+    public bool ForceUsingDmcVideoOrigin
+    {
+        get => Read(false);
+        set => Save(value);
+    }
 }

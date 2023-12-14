@@ -141,7 +141,7 @@ public class PreparePlayVideoResult : INiconicoVideoSessionProvider, INiconicoCo
 
     private readonly NicoVideoSessionOwnershipManager _ownershipManager;
     private readonly DmcWatchApiData _dmcWatchData;
-
+    private readonly bool _isForceDmc;
     private readonly NiconicoSession _niconicoSession;
 
     private PreparePlayVideoResult(VideoId contentId, NiconicoSession niconicoSession)
@@ -167,14 +167,21 @@ public class PreparePlayVideoResult : INiconicoVideoSessionProvider, INiconicoCo
         _dmcWatchData = dmcWatchData;
     }
 
-    public PreparePlayVideoResult(VideoId contentId, NiconicoSession niconicoSession, NicoVideoSessionOwnershipManager ownershipManager, DmcWatchApiData dmcWatchData)
+    public PreparePlayVideoResult(VideoId contentId, NiconicoSession niconicoSession, NicoVideoSessionOwnershipManager ownershipManager, DmcWatchApiData dmcWatchData, bool isForceDmc)
         : this(contentId, niconicoSession)
     {
         _ownershipManager = ownershipManager;
         _dmcWatchData = dmcWatchData;
+        _isForceDmc = isForceDmc;
         IsSuccess = _dmcWatchData != null;
 
-        if (_dmcWatchData?.Media.Domand is { } domand)
+        if (_isForceDmc && _dmcWatchData?.Media.Delivery is not null)
+        {
+            AvailableQualities = _dmcWatchData.Media.Delivery.Movie.Videos
+                    .Select(x => new NicoVideoQualityEntity(x.IsAvailable, QualityIdToNicoVideoQuality(x.Id), x.Id, (int)x.Metadata.Bitrate, (int)x.Metadata.Resolution.Width, (int)x.Metadata.Resolution.Height) { Label = x.Metadata.Label })
+                    .ToImmutableArray();
+        }
+        else if (_dmcWatchData?.Media.Domand is { } domand)
         {
             AvailableQualities = domand.Videos
                     .Select(x => new NicoVideoQualityEntity(x.IsAvailable ?? false, QualityIdToNicoVideoQuality(x.Id), x.Id, x.BitRate, x.Width, x.Height) { Label = x.Label })
@@ -478,17 +485,20 @@ public class NicoVideoSessionProvider
     public NicoVideoSessionProvider(
         NicoVideoProvider nicoVideoProvider,
         NiconicoSession niconicoSession,
-        NicoVideoSessionOwnershipManager nicoVideoSessionOwnershipManager
+        NicoVideoSessionOwnershipManager nicoVideoSessionOwnershipManager,
+        PlayerSettings playerSettings        
         )
     {
         _nicoVideoProvider = nicoVideoProvider;
         _niconicoSession = niconicoSession;
         _nicoVideoSessionOwnershipManager = nicoVideoSessionOwnershipManager;
+        _playerSettings = playerSettings;
     }
 
     private readonly NicoVideoProvider _nicoVideoProvider;
     private readonly NiconicoSession _niconicoSession;
     private readonly NicoVideoSessionOwnershipManager _nicoVideoSessionOwnershipManager;
+    private readonly PlayerSettings _playerSettings;
 
     public async Task<PreparePlayVideoResult> PreparePlayVideoAsync(VideoId rawVideoId, bool noHistory = false)
     {
@@ -523,8 +533,7 @@ public class NicoVideoSessionProvider
                 }
             }
 
-
-            return new PreparePlayVideoResult(rawVideoId, _niconicoSession, _nicoVideoSessionOwnershipManager, dmcRes.WatchApiResponse.WatchApiData)
+            return new PreparePlayVideoResult(rawVideoId, _niconicoSession, _nicoVideoSessionOwnershipManager, dmcRes.WatchApiResponse.WatchApiData, _playerSettings.ForceUsingDmcVideoOrigin)
             {
                 IsForCacheDownload = noHistory
             };

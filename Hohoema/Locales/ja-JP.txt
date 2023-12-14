@@ -446,6 +446,7 @@ VideoPlayWithOnline = オンライン再生
 
 LoudnessCorrectionValueTitle = この動画の音量調整
 UseLoudnessCorrection = 動画ごとの音量差を減らす
+ForceUsingDmcVideoOrigin = 旧動画配信サーバーを優先する
 Mute = ミュート
 ToggleHideComment = コメント非表示
 CommentTextBoxPlacefolder = コメント
