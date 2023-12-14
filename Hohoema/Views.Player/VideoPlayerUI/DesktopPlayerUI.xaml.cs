@@ -418,4 +418,14 @@ public sealed partial class DesktopPlayerUI : UserControl, IDraggableAreaAware
             return quality.Translate();
         }
     }
+
+    private void ChangeQualityMenuFlyout_Opening(object sender, object e)
+    {
+        var flyout = (MenuFlyout)sender;
+        foreach (var item in flyout.Items.Cast<ToggleMenuFlyoutItem>())
+        {
+            var qualityEntity = (NicoVideoQualityEntity)item.DataContext;
+            item.IsChecked = qualityEntity.QualityId == _vm.CurrentQuality?.QualityId;
+        }
+    }    
 }

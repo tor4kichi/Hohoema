@@ -230,18 +230,15 @@
           <x:Boolean>False</x:Boolean>
         </uwpconv:EmptyCollectionToObjectConverter.NotEmptyValue>
       </uwpconv:EmptyCollectionToObjectConverter>
-      
-      <myconv:TimeSpanToMovieLengthStringValueConverter x:Key="TimeToMovieLengthConverter" />
-    
-      <myconv:ColorToBrushConverter x:Key="ColorToBrush" />
 
+      <myconv:TimeSpanToMovieLengthStringValueConverter x:Key="TimeToMovieLengthConverter" />
+      <myconv:ColorToBrushConverter x:Key="ColorToBrush" />
       <myconv:SoundVolumeConveter x:Key="ToUserFriendlySoubleVolume" />
       <myconv:VideoPositionToTimeConverter x:Key="VPosToTime" />
       <myconv:ToUserFriendlyNumber x:Key="ToUserFriendlyNumber" />
       <myconv:RelationalDateTimeConverter x:Key="ToRelationalTime" />
       <myconv:TransparentColorConverter x:Key="ToTransparentColor" />
       <myconv:SwipeSeekValueToTimeSpan x:Key="SwipeSeekValueToTimeSpan" />
-
       <myconv:DateTimeToStringConverter x:Key="DateTimeToString" />
       <myconv:ExpiredDateTimeToStringConverter x:Key="ExpiredDateTimeToString" />
       <myconv:ToKMGTPEZYConverter x:Key="ToKMGTPEZY" />

@@ -446,6 +446,7 @@ VideoPlayWithOnline = 在线播放
 
 LoudnessCorrectionValueTitle = 调整此视频的音量
 UseLoudnessCorrection = 减少视频之间的音量差异
+ForceUsingDmcVideoOrigin = 优先考虑旧的视频分发服务器
 Mute = 静音
 ToggleHideComment = 隐藏评论
 CommentTextBoxPlacefolder = 留言

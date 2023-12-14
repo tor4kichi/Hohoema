@@ -149,6 +149,16 @@
                           HorizontalContentAlignment="Right"
                           />
           </Grid>
+
+          <Grid>
+            <TextBlock Text="{i18nExt:Localize Key=ForceUsingDmcVideoOrigin}"
+                       Style="{StaticResource SettingsOptionTitleTextBlock}" />
+            <ToggleSwitch IsOn="{x:Bind _vm.PlayerSettings.ForceUsingDmcVideoOrigin, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                          Style="{StaticResource ToggleSwitchNoHeader}"
+                          MinWidth="0"
+                          HorizontalAlignment="Right"
+                          HorizontalContentAlignment="Right" />
+          </Grid>
         </StackPanel>
         <StackPanel Style="{StaticResource SettingsGroupStackPanel}">
           <uwpControls:DockPanel>

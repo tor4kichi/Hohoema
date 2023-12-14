@@ -18,6 +18,7 @@ using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Concurrency;
@@ -515,8 +516,19 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
         return qualityEntity?.IsAvailable == true;
     }
 
-    
+    public bool CanPlayQuality(NicoVideoQualityEntity qualityEntity)
+    {
+        return AvailableQualities.FirstOrDefault(x => x.QualityId == qualityEntity.QualityId)?.IsAvailable ?? false;
+    }
+
     public async Task ChangeQualityAsync(NicoVideoQuality quality)
+    {
+        NicoVideoQualityEntity quelityEntity = AvailableQualities.First(x => x.Quality == quality);
+        await ChangeQualityAsync(quelityEntity);
+    }
+
+
+    public async Task ChangeQualityAsync(NicoVideoQualityEntity qualityEntity)
     {
         if (CurrentPlaylistItem == null) { return; }
 
@@ -531,30 +543,28 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
         IStreamingSession videoSession;
         if (_videoSessionDisposable is not DmcVideoStreamingSession dmcSession)
         {
-            videoSession = await CurrentPlayingSession.VideoSessionProvider.CreateVideoSessionAsync(quality);
+            videoSession = await CurrentPlayingSession.VideoSessionProvider.CreateVideoSessionAsync(qualityEntity);
         }
         else
         {
             dmcSession.StopPlayback();
-            dmcSession.SetQuality(quality);
+            dmcSession.SetQuality(qualityEntity.QualityId);
             videoSession = dmcSession;            
         }
 
-        NicoVideoQualityEntity quelityEntity = AvailableQualities.First(x => x.Quality == quality);
-
-        if (quelityEntity.IsAvailable is false)
+        if (qualityEntity.IsAvailable is false)
         {
-            throw new HohoemaException("unavailable video quality : " + quality);
+            throw new HohoemaException("unavailable video quality : " + qualityEntity.QualityId);
         }
 
-        CurrentQuality = quelityEntity;
+        CurrentQuality = qualityEntity;
 
         
         _videoSessionDisposable = videoSession;
         await videoSession.StartPlayback(_mediaPlayer, currentPosition ?? TimeSpan.Zero);
         _mediaPlayer.PlaybackSession.PlaybackRate = lastPlaybackRate;
 
-        _playerSettings.DefaultVideoQuality = quality;
+        _playerSettings.DefaultVideoQualityId = qualityEntity.QualityId;
         Guard.IsNotNull(_mediaPlayer.PlaybackSession, nameof(_mediaPlayer.PlaybackSession));
 
     }
@@ -732,13 +742,13 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
                 return false;
             }
 
-            NicoVideoQualityEntity qualityEntity = AvailableQualities.FirstOrDefault(x => x.Quality == _playerSettings.DefaultVideoQuality);
+            NicoVideoQualityEntity qualityEntity = AvailableQualities.FirstOrDefault(x => x.QualityId == _playerSettings.DefaultVideoQualityId);
             if (qualityEntity?.IsAvailable is null or false)
             {
                 qualityEntity = AvailableQualities.SkipWhile(x => !x.IsAvailable).First();
             }
 
-            IStreamingSession videoSession = await result.VideoSessionProvider.CreateVideoSessionAsync(qualityEntity.Quality);
+            IStreamingSession videoSession = await result.VideoSessionProvider.CreateVideoSessionAsync(qualityEntity);            
 
             _videoSessionDisposable = videoSession;
             await videoSession.StartPlayback(_mediaPlayer, startPosition ?? TimeSpan.Zero);

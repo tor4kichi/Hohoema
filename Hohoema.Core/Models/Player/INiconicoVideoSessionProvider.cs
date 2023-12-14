@@ -17,7 +17,7 @@ public interface INiconicoVideoSessionProvider
 {
     VideoId ContentId { get; }
     ImmutableArray<NicoVideoQualityEntity> AvailableQualities { get; }
-    Task<IStreamingSession> CreateVideoSessionAsync(NicoVideoQuality quality);
+    Task<IStreamingSession> CreateVideoSessionAsync(NicoVideoQualityEntity quality);
 }
 
 public class Quality

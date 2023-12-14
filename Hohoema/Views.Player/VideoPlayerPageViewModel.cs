@@ -35,6 +35,7 @@ using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
@@ -273,7 +274,7 @@ public partial class VideoPlayerPageViewModel : HohoemaPageViewModelBase
 
 
 
-    private NicoVideoQuality _requestVideoQuality;
+    private NicoVideoQualityEntity _requestVideoQuality;
 
     private NicoVideoQualityEntity _currentQuality;
     public NicoVideoQualityEntity CurrentQuality
@@ -451,8 +452,8 @@ public partial class VideoPlayerPageViewModel : HohoemaPageViewModelBase
 
                         VideoInfo = VideoDetails = result.VideoDetails;
 
-                        _requestVideoQuality = PlayerSettings.DefaultVideoQuality;
                         AvailableQualities = _hohoemaPlaylistPlayer.AvailableQualities;
+                        _requestVideoQuality = AvailableQualities.FirstOrDefault(x => x.QualityId == PlayerSettings.DefaultVideoQualityId) ?? AvailableQualities.First();
                         CurrentQuality = _hohoemaPlaylistPlayer.CurrentQuality;
                         NowPlayingWithCache = _hohoemaPlaylistPlayer.NowPlayingWithCache;
 
