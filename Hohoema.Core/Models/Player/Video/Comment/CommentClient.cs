@@ -56,7 +56,7 @@ public class CommentClient
         foreach (int i in Enumerable.Range(0, 2))
         {
             string postKey = await GetPostKeyWithCacheAsync(mainThread.ForkLabel, ct);
-            ThreadPostResponse res = await _nvCommentApi.PostCommentAsync(threadId, videoId, commands.Split(' '), comment, (int)position.TotalMilliseconds, postKey, ct);
+            ThreadPostResponse res = await _nvCommentApi.PostCommentAsync(_watchApiData.Comment.NvComment.Server, threadId, videoId, commands.Split(' '), comment, (int)position.TotalMilliseconds, postKey, ct);
 
             if (res.IsSuccess)
             {
