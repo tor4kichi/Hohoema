@@ -31,7 +31,7 @@
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
     <AppxPackageDir>D:\tor4k\Documents\Hohoema\Packages\</AppxPackageDir>
     <Use64BitCompiler>True</Use64BitCompiler>
-    <PackageCertificateThumbprint>FF43CE6D87CCD09513BFCE47D41A10B7DC582E02</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>015B2FDB045FEC07E2DE40236A00B5DC31563AE6</PackageCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
