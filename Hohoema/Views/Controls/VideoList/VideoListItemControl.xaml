@@ -33,7 +33,7 @@
                 <uwpControls:ImageEx x:Name="ImagePart"
                         Stretch="Uniform"
                         VerticalAlignment="Center"
-                         Height="120"
+                         Height="120"                                     
                     />
                 <Border HorizontalAlignment="Right" 
                         VerticalAlignment="Bottom"
