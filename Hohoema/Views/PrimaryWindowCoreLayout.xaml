@@ -758,16 +758,6 @@
           uwpUi:VisualExtensions.NormalizedCenterPoint="0.5"
           >
 
-        <animations:Implicit.ShowAnimations>
-          <animations:ScaleAnimation To="1.0" From="0.95" Duration="0:0:0.25"  />
-          <animations:OpacityAnimation To="1.0" Duration="0:0:0.25" />
-        </animations:Implicit.ShowAnimations>
-
-        <animations:Implicit.HideAnimations>
-          <animations:ScaleAnimation To="0.95" Duration="0:0:0.25" />
-          <animations:OpacityAnimation To="0.0" Duration="0:0:0.25" />
-        </animations:Implicit.HideAnimations>
-
         <Frame x:Name="PlayerFrame"
              DataContext="{x:Null}"
              CacheSize="2"
