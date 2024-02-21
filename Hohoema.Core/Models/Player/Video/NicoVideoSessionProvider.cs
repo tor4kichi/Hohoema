@@ -85,7 +85,14 @@ public class DmcVideoDetails : INicoVideoDetails
         {
             try
             {
-                return _dmcWatchRes.Media.Delivery.Movie.Audios[0].Metadata.LoudnessCollection[0].Value;
+                if (_dmcWatchRes.Media.Delivery != null) 
+                {
+                    return _dmcWatchRes.Media.Delivery.Movie.Audios[0].Metadata.LoudnessCollection[0].Value;
+                }
+                else if (_dmcWatchRes.Media.Domand != null)
+                {
+                    return _dmcWatchRes.Media.Domand.Audios.FirstOrDefault(x => x.IsAvailable ?? false)?.LoudnessCollection[0].Value ?? 1;
+                }
             }
             catch { }
 
@@ -515,7 +522,7 @@ public class NicoVideoSessionProvider
             {
                 return new PreparePlayVideoResult(rawVideoId, _niconicoSession, PreparePlayVideoFailedReason.Deleted, dmcRes.WatchApiResponse.WatchApiData);
             }
-            else if (dmcRes.WatchApiResponse.WatchApiData.Media.Delivery == null)
+            else if (dmcRes.WatchApiResponse.WatchApiData.Media.Delivery == null && dmcRes.WatchApiResponse.WatchApiData.Media.Domand == null)
             {
                 Preview preview = dmcRes.WatchApiResponse.WatchApiData.Payment.Preview;
                 if (preview.Premium.IsEnabled)
