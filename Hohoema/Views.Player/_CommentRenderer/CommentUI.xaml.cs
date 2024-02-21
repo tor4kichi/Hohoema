@@ -181,7 +181,7 @@ public sealed partial class CommentUI : UserControl
 
     public float GetPosition(int canvasWidth, TimeSpan currentVPos)
     {
-        return (canvasWidth + TextWidth) * (float)(((float)EndPosition.TotalMilliseconds - (float)currentVPos.TotalMilliseconds) * InverseCommentDisplayDurationInMs) - TextWidth;
+        return (canvasWidth + TextWidth) * ((float)(EndPosition - currentVPos).TotalMilliseconds * InverseCommentDisplayDurationInMs) - TextWidth;
     }
 
     public TimeSpan CalcTextShowRightEdgeTime(int canvasWidth)

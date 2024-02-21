@@ -15,12 +15,6 @@
 
   <Grid Visibility="{x:Bind IsVisible, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}">
 
-    <animations:Explicit.Animations>
-      <animations:AnimationSet x:Name="AnimationSet">
-        <animations:OffsetAnimation x:Name="OffsetAnimation" />
-      </animations:AnimationSet>
-    </animations:Explicit.Animations>
-
     <TextBlock x:Name="BackgroundText"
                Text="{x:Bind CommentText, Mode=OneWay}"
               Foreground="{x:Bind BackTextColor, Mode=OneWay, Converter={StaticResource ColorToBrush}}"
