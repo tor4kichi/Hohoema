@@ -75,17 +75,16 @@ public sealed partial class DesktopPlayerUI : UserControl, IDraggableAreaAware
         DataContext = _vm = Ioc.Default.GetRequiredService<VideoPlayerPageViewModel>();
 
         _positionUpdateTimer = _dispatcherQueue.CreateTimer();
-        _positionUpdateTimer.Interval = TimeSpan.FromMilliseconds(200);
+        _positionUpdateTimer.Interval = TimeSpan.FromMilliseconds(250);
         _positionUpdateTimer.IsRepeating = true;
         _positionUpdateTimer.Tick += (t, s) => 
         {
+            if (NowVideoPositionChanging) { return; }
+
             var playbackSession = _vm.MediaPlayer.PlaybackSession;
             if (playbackSession.PlaybackState == MediaPlaybackState.None) { return; }
-            VideoPosition = playbackSession.Position;
-            if (this.NowVideoPositionChanging is false)
-            {
-                SeekBarSlider.Value = VideoPosition.TotalSeconds;
-            }
+            var time = VideoPosition = playbackSession.Position;
+            SeekBarSlider.Value = time.TotalSeconds;
         };
     }
 
@@ -296,48 +295,34 @@ public sealed partial class DesktopPlayerUI : UserControl, IDraggableAreaAware
         set { SetValue(VideoPositionProperty, value); }
     }
 
-    // Using a DependencyProperty as the backing store for VideoPositionSeconds.  This enables animation, styling, binding, etc...
     public static readonly DependencyProperty VideoPositionProperty =
         DependencyProperty.Register("VideoPosition", typeof(TimeSpan), typeof(DesktopPlayerUI), new PropertyMetadata(TimeSpan.Zero));
 
-
-    
-    void RefrectSliderPositionToPlaybackPosition()
-    {
-        this.NowVideoPositionChanging = true;
-        if (_vm.MediaPlayer.PlaybackSession.PlaybackState is MediaPlaybackState.Playing or MediaPlaybackState.Paused)
-        {
-            _vm.MediaPlayer.PlaybackSession.Position = TimeSpan.FromSeconds(SeekBarSlider.Value);
-        }
-        this.NowVideoPositionChanging = false;
-    }
-
-    double _prevPosition;
+        
     private void SeekBarSlider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
     {
-        if (Math.Abs(_prevPosition - e.NewValue) > 1.0)
+        if (NowVideoPositionChanging) { return; }
+        if (_vm.MediaPlayer.PlaybackSession.PlaybackState is not MediaPlaybackState.Playing and not MediaPlaybackState.Paused) { return; }
+        if (Math.Abs(_vm.MediaPlayer.PlaybackSession.Position.TotalSeconds - e.NewValue) < 1.0) { return; }
+
+        var session = _vm.MediaPlayer.PlaybackSession;
+        NowVideoPositionChanging = true;
+        bool nowPlaying = session.PlaybackState == MediaPlaybackState.Playing;
+        session.SeekCompleted -= PlaybackSession_SeekCompleted;
+        session.SeekCompleted += PlaybackSession_SeekCompleted;        
+        session.Position = TimeSpan.FromSeconds(SeekBarSlider.Value);
+                
+        void PlaybackSession_SeekCompleted(MediaPlaybackSession sender, object args)
         {
-            RefrectSliderPositionToPlaybackPosition();
+            _dispatcherQueue.TryEnqueue(() => 
+            {
+                session.SeekCompleted -= PlaybackSession_SeekCompleted;
+                NowVideoPositionChanging = false;
+            });
         }
-
-        _prevPosition = e.NewValue;
     }
 
-    private void SeekBarSlider_ManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
-    {
-        SeekBarSlider.ManipulationCompleted -= SeekBarSlider_ManipulationCompleted;
-    }
 
-    private void CoreWindow_PointerReleased(CoreWindow sender, PointerEventArgs args)
-    {
-        SeekBarSlider.ManipulationCompleted -= SeekBarSlider_ManipulationCompleted;
-        Window.Current.CoreWindow.PointerReleased -= CoreWindow_PointerReleased;
-
-        NowVideoPositionChanging = false;
-        SeekSwipe.IsEnabled = true;
-
-        RefrectSliderPositionToPlaybackPosition();
-    }
 
     public bool NowVideoPositionChanging
     {
