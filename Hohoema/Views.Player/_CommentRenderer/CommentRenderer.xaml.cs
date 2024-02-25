@@ -33,6 +33,11 @@ sealed class CommentUIObjectPoolPolicy : IPooledObjectPolicy<CommentUI>
     {
         commentUI.Comment = null;
         commentUI.Opacity = 1.0;
+        commentUI.VerticalPosition = 0;
+        commentUI.DisplayMode = CommentDisplayMode.Scrolling;
+        commentUI.VideoPosition = default;
+        commentUI.EndPosition = default;
+        commentUI.CommentText = "";        
         return true;
     }
 }
@@ -427,7 +432,7 @@ public sealed partial class CommentRenderer : UserControl
 
 
     bool _isProcessCommentRendering;
-    private readonly TimeSpan _popRenderCommentFromPendingForwardingTime = TimeSpan.FromSeconds(1);
+    private readonly TimeSpan _popRenderCommentFromPendingForwardingTime = TimeSpan.FromSeconds(0.1);
     void TickCommentRendering(CommentRenderFrameData? frame = null)
     {
         if (_isProcessCommentRendering) 
@@ -453,7 +458,7 @@ public sealed partial class CommentRenderer : UserControl
             else
             {
                 // シークを判定
-                var diffTime = (float)(currentVpos - _prevPosition).TotalSeconds;
+                float diffTime = (float)(currentVpos - _prevPosition).TotalSeconds;
                 if (1.0f < diffTime && diffTime <= DefaultDisplayDuration.TotalSeconds)
                 {
                     Debug.WriteLine("seeked! position changed lite");
@@ -662,7 +667,7 @@ public sealed partial class CommentRenderer : UserControl
         public TimeSpan CurrentVpos { get; set; }// (uint)Math.Floor(VideoPosition.TotalMilliseconds * 0.1);
         public int CanvasWidth { get; set; }// (int)CommentCanvas.ActualWidth;
         public uint CanvasHeight { get; set; } //= (uint)CommentCanvas.ActualHeight;
-        public double HalfCanvasWidth { get; set; } //= canvasWidth / 2;
+        public float HalfCanvasWidth { get; set; } //= canvasWidth / 2;
         public float FontScale { get; set; } //= (float)CommentSizeScale;
         public float TextBGOffset { get; set; }
         public Color CommentDefaultColor { get; set; } //= CommentDefaultColor;
@@ -697,7 +702,7 @@ public sealed partial class CommentRenderer : UserControl
         _frameData.CurrentVpos = VideoPosition + VideoPositionOffset;
         _frameData.CanvasWidth = (int)CommentCanvas.ActualWidth;
         _frameData.CanvasHeight = (uint)CommentCanvas.ActualHeight;
-        _frameData.HalfCanvasWidth = CommentCanvas.ActualWidth * 0.5;
+        _frameData.HalfCanvasWidth = (float)CommentCanvas.ActualWidth * 0.5f;
         _frameData.FontScale = (float)CommentSizeScale;
         _frameData.TextBGOffset = (float)Math.Floor((float)FontSize * TextBGOffsetBias);
         _frameData.Visibility = Visibility;
@@ -874,7 +879,7 @@ public sealed partial class CommentRenderer : UserControl
             // 前に流れているコメントを走査して挿入可能な高さを判定していく
             // 前後のコメントが重複なく流せるかを求める
             int insertPosition = -1;
-            double verticalPos = 8;
+            float verticalPos = 8;
             var currentCommentReachLeftEdgeTime = renderComment.CalcReachLeftEdge(frame.CanvasWidth);
             for (var i = 0; i < PrevRenderCommentEachLine_Stream.Count; i++)
             {
@@ -917,12 +922,9 @@ public sealed partial class CommentRenderer : UserControl
             if (isOutBoundComment is false)
             {
                 // 最初は右端に配置
-                float initialCanvasLeft = renderComment.GetPosition(frame.CanvasWidth, frame.CurrentVpos);
-
                 renderComment.Opacity = 1.0;
                 renderComment.VerticalPosition = verticalPos;
 
-                float posToMovingRatio = initialCanvasLeft / (frame.CanvasWidth + renderComment.TextWidth);
                 TimeSpan displayDuration = (renderComment.EndPosition - frame.CurrentVpos) * frame.PlaybackRateInverse;
                 if (displayDuration > TimeSpan.FromMilliseconds(1))
                 {
@@ -948,7 +950,7 @@ public sealed partial class CommentRenderer : UserControl
             {
                 // 上に位置する場合の縦位置の決定
                 int insertPosition = -1;
-                double verticalPos = 8;
+                float verticalPos = 8;
                 for (var i = 0; i < PrevRenderCommentEachLine_Top.Count; i++)
                 {
                     var prevComment = PrevRenderCommentEachLine_Top[i];
@@ -968,7 +970,7 @@ public sealed partial class CommentRenderer : UserControl
                 if (isOutBoundComment is false)
                 {
                     renderComment.VerticalPosition = verticalPos;
-                    var left = (float)frame.HalfCanvasWidth - renderComment.TextWidth * 0.5f;                    
+                    var left = frame.HalfCanvasWidth - renderComment.TextWidth * 0.5f;                    
                     SetCommentHorizontalPos(renderComment, left);
                     SetCommentVerticalPos(renderComment, renderComment.VerticalPosition);
 
@@ -988,7 +990,7 @@ public sealed partial class CommentRenderer : UserControl
             {
                 // 下に位置する場合の縦位置の決定
                 int insertPosition = -1;
-                double verticalPos = frame.CanvasHeight - renderComment.TextHeight - BottomCommentMargin;
+                float verticalPos = frame.CanvasHeight - renderComment.TextHeight - BottomCommentMargin;
                 for (var i = 0; i < PrevRenderCommentEachLine_Bottom.Count; i++)
                 {
                     var prevComment = PrevRenderCommentEachLine_Bottom[i];
@@ -1026,7 +1028,8 @@ public sealed partial class CommentRenderer : UserControl
             }
             else //if (comment.VAlign == VerticalAlignment.Center)
             {
-                renderComment.Translation = new((float)frame.HalfCanvasWidth - renderComment.TextWidth * 0.5f, frame.CanvasHeight * 0.5f - renderComment.TextHeight * 0.5f, 0);
+                SetCommentHorizontalPos(renderComment, frame.HalfCanvasWidth - renderComment.TextWidth * 0.5f);
+                SetCommentVerticalPos(renderComment, frame.CanvasHeight * 0.5f - renderComment.TextHeight * 0.5f);
             }
 
             // オーナーコメントの場合は優先して表示されるように
