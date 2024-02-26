@@ -74,7 +74,6 @@
                               Label="{i18nExt:Localize Key=Refresh}" 
                               Icon="Refresh"
                               Command="{x:Bind _vm.ResetListCommand}"
-                              IsEnabled="{x:Bind _vm.CanChangeSort, Mode=OneWay}"
                               VerticalAlignment="Center"
                           >
               </AppBarButton>
