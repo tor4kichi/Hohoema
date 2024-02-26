@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
+using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Markup;
@@ -18,7 +19,10 @@ namespace Hohoema.Views.Behaviors;
 [ContentProperty(Name = "Actions")]
 public sealed class UINavigationTrigger : Behavior<FrameworkElement>
 {
-
+    public UINavigationTrigger()
+    {
+        _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
+    }
 
 
     #region Dependency Properties
@@ -111,12 +115,10 @@ public sealed class UINavigationTrigger : Behavior<FrameworkElement>
 
     bool _NowFocusingElement = false;
 
-    CoreDispatcher _UIDispatcher;
+    private readonly DispatcherQueue _dispatcherQueue;
 
     protected override void OnAttached()
     {
-        _UIDispatcher = this.Dispatcher;
-
         this.AssociatedObject.GotFocus += AssociatedObject_GotFocus;
         this.AssociatedObject.LostFocus += AssociatedObject_LostFocus;
 
@@ -124,9 +126,9 @@ public sealed class UINavigationTrigger : Behavior<FrameworkElement>
         UINavigationManager.Holding += Instance_Holding;
     }
 
-    private async void Instance_Holding(UINavigationManager sender, UINavigationButtons button)
+    private void Instance_Holding(UINavigationManager sender, UINavigationButtons button)
     {
-        await _UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+        _dispatcherQueue.TryEnqueue(() =>
         {
             if (Hold && button.HasFlag(Kind))
             {
@@ -147,9 +149,9 @@ public sealed class UINavigationTrigger : Behavior<FrameworkElement>
         base.OnDetaching();
     }
 
-    private async void Instance_Pressed(UINavigationManager sender, UINavigationButtons button)
+    private void Instance_Pressed(UINavigationManager sender, UINavigationButtons button)
     {
-        await _UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+        _dispatcherQueue.TryEnqueue(() =>
         {
             if (!IsEnabled) { return; }
 
@@ -189,8 +191,4 @@ public sealed class UINavigationTrigger : Behavior<FrameworkElement>
     {
         _NowFocusingElement = true;
     }
-
-    
-
-   
 }
