@@ -29,6 +29,7 @@ using Hohoema.ViewModels.Subscriptions;
 using Hohoema.Views.Player;
 using I18NPortable;
 using Microsoft.Extensions.Logging;
+using Microsoft.Toolkit.Uwp;
 using NiconicoToolkit.Video;
 using NiconicoToolkit.Video.Watch;
 using Reactive.Bindings;
@@ -40,6 +41,7 @@ using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Windows.Media.Playback;
+using Windows.System;
 using ZLogger;
 
 namespace Hohoema.ViewModels.Player;
@@ -100,6 +102,7 @@ public partial class VideoPlayerPageViewModel : HohoemaPageViewModelBase
         RelatedVideosSidePaneContentViewModel relatedVideosSidePaneContentViewModel
         )
     {
+        _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
         _logger = loggerFactory.CreateLogger<VideoPlayerPageViewModel>();
         CurrentPlayerDisplayView = appearanceSettings
             .ObserveProperty(x => x.PlayerDisplayView)
@@ -210,6 +213,7 @@ public partial class VideoPlayerPageViewModel : HohoemaPageViewModelBase
 
     }
 
+    private readonly DispatcherQueue _dispatcherQueue;
     private readonly ILogger<VideoPlayerPageViewModel> _logger;
 
     public ReadOnlyReactivePropertySlim<PlayerDisplayView> CurrentPlayerDisplayView { get; }
@@ -395,11 +399,11 @@ public partial class VideoPlayerPageViewModel : HohoemaPageViewModelBase
         base.OnNavigatedTo(parameters);
 
         _hohoemaPlaylistPlayer.ObserveProperty(x => x.CurrentQuality)
-            .Subscribe(quality => _scheduler.Schedule(() => CurrentQuality = quality))
+            .Subscribe(quality => _dispatcherQueue.TryEnqueue(() => CurrentQuality = quality))
             .AddTo(_navigationDisposables);
 
         _hohoemaPlaylistPlayer.ObserveProperty(x => x.CurrentPlaylist)
-            .Subscribe(playlist => _scheduler.Schedule(() => CurrentPlaylist = playlist))
+            .Subscribe(playlist => _dispatcherQueue.TryEnqueue(() => CurrentPlaylist = playlist))
             .AddTo(_navigationDisposables);
 
         _hohoemaPlaylistPlayer.ObserveProperty(x => x.CurrentPlaylistItem)
@@ -407,7 +411,7 @@ public partial class VideoPlayerPageViewModel : HohoemaPageViewModelBase
             {
                 if (item == null) { return; }
 
-                _scheduler.ScheduleAsync(async (s, ct) => 
+                _dispatcherQueue.TryEnqueue(() => 
                 {
                     try
                     {
@@ -436,8 +440,6 @@ public partial class VideoPlayerPageViewModel : HohoemaPageViewModelBase
                     {
                         CommentPlayer.ClearCurrentSession();
 
-                        MediaPlayer.AutoPlay = true;
-
                         VideoId = item.VideoId;
 
                         var result = _hohoemaPlaylistPlayer.CurrentPlayingSession;
@@ -456,9 +458,6 @@ public partial class VideoPlayerPageViewModel : HohoemaPageViewModelBase
                         _requestVideoQuality = AvailableQualities.FirstOrDefault(x => x.QualityId == PlayerSettings.DefaultVideoQualityId) ?? AvailableQualities.First();
                         CurrentQuality = _hohoemaPlaylistPlayer.CurrentQuality;
                         NowPlayingWithCache = _hohoemaPlaylistPlayer.NowPlayingWithCache;
-
-                        // コメントを更新
-                        await CommentPlayer.UpdatePlayingCommentAsync(result.CommentSessionProvider);
 
                         VideoContent = VideoInfo;
                         OnPropertyChanged(nameof(VideoContent));
@@ -482,6 +481,35 @@ public partial class VideoPlayerPageViewModel : HohoemaPageViewModelBase
                         {
                             SetSidePaneViewModel(PlayerSidePaneContentType.Comment);
                         }
+
+                        MediaPlayer.MediaOpened -= MediaPlayer_MediaOpened;
+                        MediaPlayer.MediaFailed -= MediaPlayer_MediaFailed;
+                        MediaPlayer.MediaOpened += MediaPlayer_MediaOpened;
+                        MediaPlayer.MediaFailed += MediaPlayer_MediaFailed;
+                        async void MediaPlayer_MediaOpened(MediaPlayer sender, object args)
+                        {
+                            MediaPlayer.MediaOpened -= MediaPlayer_MediaOpened;
+                            MediaPlayer.MediaFailed -= MediaPlayer_MediaFailed;
+                            // コメントを更新
+                            await _dispatcherQueue.EnqueueAsync(async () =>
+                            {
+                                sender.Pause();
+                                try
+                                {
+                                    await CommentPlayer.UpdatePlayingCommentAsync(result.CommentSessionProvider);
+                                }
+                                finally
+                                {
+                                    sender.Play();
+                                }
+                            });
+                        }
+                        void MediaPlayer_MediaFailed(MediaPlayer sender, MediaPlayerFailedEventArgs args)
+                        {
+                            MediaPlayer.MediaOpened -= MediaPlayer_MediaOpened;
+                            MediaPlayer.MediaFailed -= MediaPlayer_MediaFailed;
+                        }
+
                     }
                     catch (Exception ex)
                     {
@@ -493,9 +521,9 @@ public partial class VideoPlayerPageViewModel : HohoemaPageViewModelBase
 
         App.Current.Resuming += Current_Resuming;
         App.Current.Suspending += Current_Suspending;
-    }
+    }    
 
-    
+
 
     //private void CheckDeleted(VideoIdSearchSingleResponse res)
     //{

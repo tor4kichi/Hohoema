@@ -95,7 +95,7 @@
                 >
           
           <!-- 映像表示 -->
-          <MediaPlayerElement x:Name="MediaPlayerElement" AutoPlay="True">
+          <MediaPlayerElement x:Name="MediaPlayerElement" AutoPlay="False">
             <i:Interaction.Behaviors>
               <mybehavior:MediaPlayerSetter MediaPlayer="{x:Bind _vm.MediaPlayer}" />
               <mybehavior:MediaPlayerElementContentHeightGetter ContentHeight="{x:Bind CommentRederer.Height, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
