@@ -97,6 +97,7 @@ public abstract partial class HohoemaListingPageViewModelBase<ITEM_VM> : Hohoema
     public AdvancedCollectionView? ItemsView { get; private set; }
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanRefresh))]
     private bool _nowLoading;
 
     partial void OnNowLoadingChanged(bool value)
@@ -261,7 +262,9 @@ public abstract partial class HohoemaListingPageViewModelBase<ITEM_VM> : Hohoema
         _logger.ZLogError(e, "failed on incremental loadingItems.");
     }
 
-    [RelayCommand]
+    public bool CanRefresh => !NowLoading;
+
+    [RelayCommand(CanExecute = nameof(CanRefresh))]
     protected void ResetList()
     {
         _dispatcherQueue.TryEnqueue(() =>

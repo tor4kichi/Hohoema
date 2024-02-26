@@ -10,7 +10,7 @@ using Windows.UI.Xaml.Input;
 namespace Hohoema.Views.Behaviors;
 
 class SetFocus : Behavior<Control>, IAction
-	{
+{
     public static readonly DependencyProperty IsEnabledProperty =
        DependencyProperty.Register("IsEnabled"
            , typeof(bool)
@@ -23,7 +23,7 @@ class SetFocus : Behavior<Control>, IAction
         set { SetValue(IsEnabledProperty, value); }
     }
 
-   
+
 
 
     public static readonly DependencyProperty DelayProperty =
@@ -40,17 +40,17 @@ class SetFocus : Behavior<Control>, IAction
     }
 
     public static readonly DependencyProperty TargetObjectProperty =
-			DependencyProperty.Register("TargetObject"
-					, typeof(Control)
-					, typeof(SetFocus)
-					, new PropertyMetadata(null)
-				);
+            DependencyProperty.Register("TargetObject"
+                    , typeof(Control)
+                    , typeof(SetFocus)
+                    , new PropertyMetadata(null)
+                );
 
-		public Control TargetObject
-		{
-			get { return (Control)GetValue(TargetObjectProperty); }
-			set { SetValue(TargetObjectProperty, value); }
-		}
+    public Control TargetObject
+    {
+        get { return (Control)GetValue(TargetObjectProperty); }
+        set { SetValue(TargetObjectProperty, value); }
+    }
 
 
 
@@ -67,7 +67,7 @@ class SetFocus : Behavior<Control>, IAction
     }
 
     public object Execute(object sender, object parameter)
-		{
+    {
         if (!IsEnabled) { return null; }
 
         var target = TargetObject;
@@ -80,7 +80,7 @@ class SetFocus : Behavior<Control>, IAction
 
         if (Delay != TimeSpan.Zero)
         {
-            Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () => 
+            Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
             {
                 await Task.Delay(Delay);
 
@@ -94,7 +94,7 @@ class SetFocus : Behavior<Control>, IAction
         }
 
         return true;
-		}
+    }
 
     private bool Focus()
     {
@@ -102,7 +102,7 @@ class SetFocus : Behavior<Control>, IAction
         {
             return TargetObject.Focus(FocusState.Programmatic);
         }
-        else 
+        else
         {
             return FocusManager.TryMoveFocus(FocusNavigationDirection.None,
                 new FindNextElementOptions() { SearchRoot = AssociatedObject }
@@ -112,13 +112,13 @@ class SetFocus : Behavior<Control>, IAction
 
     protected override void OnAttached()
     {
-        AssociatedObject.Loaded += async (s, e) => 
+        AssociatedObject.Loaded += async (s, e) =>
         {
             await Task.Delay(Delay);
 
             Focus();
         };
-        
+
         base.OnAttached();
     }
 }

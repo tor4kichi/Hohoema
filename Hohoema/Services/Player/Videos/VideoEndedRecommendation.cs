@@ -7,6 +7,7 @@ using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Player;
 using Hohoema.Models.Player.Video;
 using Hohoema.Models.Playlist;
+using NiconicoToolkit.NicoRepo;
 using NiconicoToolkit.Video;
 using NiconicoToolkit.Video.Watch;
 using Reactive.Bindings;
@@ -16,6 +17,7 @@ using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Threading.Tasks;
 using Windows.Media.Playback;
+using Windows.System;
 
 namespace Hohoema.Services.Player;
 
@@ -54,17 +56,15 @@ public sealed class VideoEndedRecommendation : ObservableObject, IDisposable,
         HasRecomend = new ReactiveProperty<bool>(_scheduler);
         
         _messenger.RegisterAll(this);
-    }
 
-    readonly TimeSpan _endedTime = TimeSpan.FromSeconds(-1);
-
-    bool _endedProcessed;
-    private void PlaybackSession_PositionChanged(MediaPlaybackSession sender, object args)
-    {
-        _scheduler.Schedule(async () => 
+        _positionUpdateTimer = DispatcherQueue.GetForCurrentThread().CreateTimer();
+        _positionUpdateTimer.Interval = TimeSpan.FromMilliseconds(250);
+        _positionUpdateTimer.IsRepeating = true;
+        _positionUpdateTimer.Tick += async (t, s) =>
         {
             using var _ = await _lock.LockAsync(default);
 
+            var sender = _mediaPlayer.PlaybackSession;
             if (sender.PlaybackState == MediaPlaybackState.None) { return; }
             if (_playNext) { return; }
             if (_hohoemaPlaylistPlayer.CurrentPlaylistItem == null) { return; }
@@ -73,91 +73,88 @@ public sealed class VideoEndedRecommendation : ObservableObject, IDisposable,
             bool isInsideEndedRange = sender.Position - sender.NaturalDuration > _endedTime;
             bool isStopped = sender.PlaybackState == MediaPlaybackState.Paused;
             IsEnded.Value = isInsideEndedRange && isStopped;
+            
+            if (HasRecomend.Value) { return; }
 
-            try
+            if (!IsEnded.Value || _endedProcessed)
             {
-                if (!IsEnded.Value || _endedProcessed)
+                HasRecomend.Value = HasNextVideo && IsEnded.Value;
+                return;
+            }
+
+            var currentVideoId = _hohoemaPlaylistPlayer.CurrentPlaylistItem.VideoId;
+            // この時点でキューから削除してしまうと、プレイヤー上のプレイリストの現在アイテムがnullになってしまう
+            // 他のアイテムが再生されたり、プレイヤーが閉じられたタイミングで
+            //
+            //_queuePlaylist.Remove(currentVideoId);
+            //_videoWatchedRepository.VideoPlayed(currentVideoId, sender.Position);
+
+            if (_playerSettings.IsPlaylistAutoMoveEnabled && await _hohoemaPlaylistPlayer.CanGoNextAsync())
+            {
+                if (await _hohoemaPlaylistPlayer.GoNextAsync())
                 {
-                    HasRecomend.Value = HasNextVideo && IsEnded.Value;
                     return;
                 }
+            }
 
-                var currentVideoId = _hohoemaPlaylistPlayer.CurrentPlaylistItem.VideoId;
-                // この時点でキューから削除してしまうと、プレイヤー上のプレイリストの現在アイテムがnullになってしまう
-                // 他のアイテムが再生されたり、プレイヤーが閉じられたタイミングで
-                //
-                //_queuePlaylist.Remove(currentVideoId);
-                //_videoWatchedRepository.VideoPlayed(currentVideoId, sender.Position);
+            // _queuePlaylistのアイテム削除後の更新がScheduler上で行われるため、アイテム更新操作が同期的にではなく
+            // sortablePlaylist.TotalCountが実際とズレる可能性があるため、処理完了を待つ
+            await Task.Delay(10);
 
-                if (_playerSettings.IsPlaylistAutoMoveEnabled && await _hohoemaPlaylistPlayer.CanGoNextAsync())
-                {                        
-                    if (await _hohoemaPlaylistPlayer.GoNextAsync())
-                    {
-                        return;
-                    }
-                }
-
-                // _queuePlaylistのアイテム削除後の更新がScheduler上で行われるため、アイテム更新操作が同期的にではなく
-                // sortablePlaylist.TotalCountが実際とズレる可能性があるため、処理完了を待つ
-                await Task.Delay(10);
-
-                if (_playerSettings.IsPlaylistLoopingEnabled 
-                    && _hohoemaPlaylistPlayer.CurrentPlaylist is ISortablePlaylist sortablePlaylist 
-                    && sortablePlaylist.TotalCount > 0
-                    && _hohoemaPlaylistPlayer.CurrentPlaylist is not QueuePlaylist
+            if (_playerSettings.IsPlaylistLoopingEnabled
+                && _hohoemaPlaylistPlayer.CurrentPlaylist is ISortablePlaylist sortablePlaylist
+                && sortablePlaylist.TotalCount > 0
+                && _hohoemaPlaylistPlayer.CurrentPlaylist is not QueuePlaylist
                 )
-                {
-                    if (await _hohoemaPlaylistPlayer.PlayAsync(_hohoemaPlaylistPlayer.CurrentPlaylist, _hohoemaPlaylistPlayer.CurrentPlaylistSortOption))
-                    {
-                        return;
-                    }
-                }
-
-
-                if (_hohoemaPlaylistPlayer.CurrentPlaylistItem == null && _videoRelatedContents?.NextVideo != null)
-                {
-                    _endedProcessed = true;
-                    HasNextVideo = _videoRelatedContents?.NextVideo != null;
-                    NextVideoTitle = _videoRelatedContents?.NextVideo?.Label;
-                    HasRecomend.Value = HasNextVideo && IsEnded.Value;
-                    return;
-                }
-
-                if (_series?.Video.Next is not null and var nextVideo)
-                {
-                    NextVideoTitle = nextVideo.Title;
-                    HasRecomend.Value = true;
-                    HasNextVideo = true;
-
-                    Debug.WriteLine("シリーズ情報から次の動画を提示: " + nextVideo.Title);
-                    return;
-                }
-
-                if (TryPlaylistEndActionPlayerClosed())
-                {
-                    HasRecomend.Value = HasNextVideo && IsEnded.Value;
-                    _endedProcessed = true;
-                    return;
-                }
-
-                if (_currentVideoDetail != null)
-                {
-                    var relatedVideos = await _relatedVideoContentsAggregator.GetRelatedContentsAsync(_currentVideoDetail);
-                    _videoRelatedContents = relatedVideos;
-                    HasNextVideo = _videoRelatedContents.NextVideo != null;
-                    NextVideoTitle = _videoRelatedContents.NextVideo?.Label;
-                    HasRecomend.Value = HasNextVideo && IsEnded.Value;
-
-                    Debug.WriteLine("動画情報から次の動画を提示: " + NextVideoTitle);
-                }
-            }
-            finally
             {
-
+                if (await _hohoemaPlaylistPlayer.PlayAsync(_hohoemaPlaylistPlayer.CurrentPlaylist, _hohoemaPlaylistPlayer.CurrentPlaylistSortOption))
+                {
+                    return;
+                }
             }
-        });
+
+
+            if (_hohoemaPlaylistPlayer.CurrentPlaylistItem == null && _videoRelatedContents?.NextVideo != null)
+            {
+                _endedProcessed = true;
+                HasNextVideo = _videoRelatedContents?.NextVideo != null;
+                NextVideoTitle = _videoRelatedContents?.NextVideo?.Label;
+                HasRecomend.Value = HasNextVideo && IsEnded.Value;
+                return;
+            }
+
+            if (_series?.Video.Next is not null and var nextVideo)
+            {
+                NextVideoTitle = nextVideo.Title;
+                HasRecomend.Value = true;
+                HasNextVideo = true;
+
+                Debug.WriteLine("シリーズ情報から次の動画を提示: " + nextVideo.Title);
+                return;
+            }
+
+            if (TryPlaylistEndActionPlayerClosed())
+            {
+                HasRecomend.Value = HasNextVideo && IsEnded.Value;
+                _endedProcessed = true;
+                return;
+            }
+
+            if (_currentVideoDetail != null)
+            {
+                _videoRelatedContents ??= await _relatedVideoContentsAggregator.GetRelatedContentsAsync(_currentVideoDetail);
+                HasNextVideo = _videoRelatedContents.NextVideo != null;
+                NextVideoTitle = _videoRelatedContents.NextVideo?.Label;
+                HasRecomend.Value = HasNextVideo && IsEnded.Value;
+
+                Debug.WriteLine("動画情報から次の動画を提示: " + NextVideoTitle);
+            }
+        };
     }
 
+    readonly TimeSpan _endedTime = TimeSpan.FromSeconds(-1);
+
+    bool _endedProcessed;
 
     public async void Receive(PlaybackStartedMessage message)
     {
@@ -177,16 +174,14 @@ public sealed class VideoEndedRecommendation : ObservableObject, IDisposable,
         _endedProcessed = false;
         HasRecomend.Value = false;
         _currentVideoDetail = null;
-
-        _mediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
-        _mediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
+        _positionUpdateTimer.Start();
     }
 
     public async void Receive(PlaybackStopedMessage message)
     {
         using var _ = await _lock.LockAsync(default);
 
-        _mediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
+        _positionUpdateTimer.Stop();
 
         var data = message.Value;
         _queuePlaylist.Remove(data.VideoId);
@@ -198,7 +193,7 @@ public sealed class VideoEndedRecommendation : ObservableObject, IDisposable,
     {
         using var _ = await _lock.LockAsync(default);
 
-        _mediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
+        _positionUpdateTimer.Stop();
 
         var data = message.Value;
         _failedVideoId = data.VideoId;
@@ -211,9 +206,8 @@ public sealed class VideoEndedRecommendation : ObservableObject, IDisposable,
         using var _ = await _lock.LockAsync(default);
 
         _messenger.UnregisterAll(this);
-        _mediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
-
         _disposables.Dispose();
+        _positionUpdateTimer.Stop();
     }
 
     bool TryPlaylistEndActionPlayerClosed()
@@ -239,7 +233,7 @@ public sealed class VideoEndedRecommendation : ObservableObject, IDisposable,
     }
 
 
-    VideoRelatedContents _videoRelatedContents;
+    VideoRelatedContents? _videoRelatedContents;
 
     private readonly MediaPlayer _mediaPlayer;
     private readonly IMessenger _messenger;
@@ -251,6 +245,7 @@ public sealed class VideoEndedRecommendation : ObservableObject, IDisposable,
     private readonly AppearanceSettings _appearanceSettings;
     private readonly HohoemaPlaylistPlayer _hohoemaPlaylistPlayer;
     private readonly VideoWatchedRepository _videoWatchedRepository;
+    private readonly DispatcherQueueTimer _positionUpdateTimer;
 
     public ReactiveProperty<bool> IsEnded { get; }
 

@@ -67,7 +67,7 @@
                 </AppBarButton>
 
                 <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{x:Bind _vm.SelectionModeToggleCommand}" />
-                <AppBarButton x:Name="RefreshButton" Label="{i18nExt:Localize Key=Refresh}" Icon="Refresh" Command="{x:Bind _vm.ResetListCommand}" IsEnabled="{x:Bind _vm.CanChangeSort, Mode=OneWay}" VerticalAlignment="Center"></AppBarButton>
+                <AppBarButton x:Name="RefreshButton" Label="{i18nExt:Localize Key=Refresh}" Icon="Refresh" Command="{x:Bind _vm.ResetListCommand}" VerticalAlignment="Center"></AppBarButton>
               </CommandBar.PrimaryCommands>
               <CommandBar.SecondaryCommands>
 

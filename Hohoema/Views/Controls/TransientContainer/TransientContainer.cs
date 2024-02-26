@@ -4,6 +4,7 @@ using Reactive.Bindings.Extensions;
 using System;
 using System.Reactive.Disposables;
 using System.Threading;
+using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
@@ -13,32 +14,7 @@ namespace Hohoema.Views.Controls;
 
 public sealed partial class TransientContainer : Control
 {
-
-
-    public TimeSpan FadeInDuration
-    {
-        get { return (TimeSpan)GetValue(FadeInDurationProperty); }
-        set { SetValue(FadeInDurationProperty, value); }
-    }
-
-    // Using a DependencyProperty as the backing store for FadeInDuration.  This enables animation, styling, binding, etc...
-    public static readonly DependencyProperty FadeInDurationProperty =
-        DependencyProperty.Register("FadeInDuration", typeof(TimeSpan), typeof(TransientContainer), new PropertyMetadata(TimeSpan.FromSeconds(0.1)));
-
-
-
-    public TimeSpan FadeOutDuration
-    {
-        get { return (TimeSpan)GetValue(FadeOutDurationProperty); }
-        set { SetValue(FadeOutDurationProperty, value); }
-    }
-
-    // Using a DependencyProperty as the backing store for FadeOutDuration.  This enables animation, styling, binding, etc...
-    public static readonly DependencyProperty FadeOutDurationProperty =
-        DependencyProperty.Register("FadeOutDuration", typeof(TimeSpan), typeof(TransientContainer), new PropertyMetadata(TimeSpan.FromSeconds(0.1)));
-
-
-
+    private readonly DispatcherQueue _dispactherQueue;
 
     public TransientContainer()
     {
@@ -46,6 +22,8 @@ public sealed partial class TransientContainer : Control
 
         Loaded += TransientContainer_Loaded;
         Unloaded += TransientContainer_Unloaded;
+
+        _dispactherQueue = DispatcherQueue.GetForCurrentThread();
     }
 
     protected override void OnApplyTemplate()
@@ -61,20 +39,19 @@ public sealed partial class TransientContainer : Control
                    .Start(_container);
     }
 
-    CompositeDisposable _CompositeDisposable;
+    CompositeDisposable? _CompositeDisposable;
     [System.Diagnostics.CodeAnalysis.SuppressMessage("IDisposableAnalyzers.Correctness", "IDISP006:Implement IDisposable.", Justification = "<保留中>")]
-    CancellationTokenSource _AnimationCts;
+    CancellationTokenSource? _AnimationCts;
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("IDisposableAnalyzers.Correctness", "IDISP004:Don't ignore created IDisposable.", Justification = "<保留中>")]
     private void TransientContainer_Loaded(object sender, RoutedEventArgs e)
     {
-        _CompositeDisposable = new CompositeDisposable();
-        
+        _CompositeDisposable = new CompositeDisposable();        
        
         this.ObserveDependencyProperty(IsAutoHideEnabledProperty)
             .Subscribe(__ =>
             {
-                _ = Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => 
+                _dispactherQueue.TryEnqueue(() => 
                 {
                     ResetAnimation();
                 });
@@ -84,7 +61,7 @@ public sealed partial class TransientContainer : Control
         this.ObserveDependencyProperty(ContentProperty)
             .Subscribe(__ =>
             {
-                _ = Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                _dispactherQueue.TryEnqueue(() =>
                 {
                     ResetAnimation();
                 });
@@ -95,7 +72,7 @@ public sealed partial class TransientContainer : Control
     }
 
     object _AnimationCtsLock = new object();
-    private FrameworkElement _container;
+    private FrameworkElement? _container;
 
     private void TransientContainer_Unloaded(object sender, RoutedEventArgs e)
     {
@@ -152,4 +129,26 @@ public sealed partial class TransientContainer : Control
             ab.StartAsync(_container, ct);
         }
     }
+
+
+    public TimeSpan FadeInDuration
+    {
+        get { return (TimeSpan)GetValue(FadeInDurationProperty); }
+        set { SetValue(FadeInDurationProperty, value); }
+    }
+
+    public static readonly DependencyProperty FadeInDurationProperty =
+        DependencyProperty.Register("FadeInDuration", typeof(TimeSpan), typeof(TransientContainer), new PropertyMetadata(TimeSpan.FromSeconds(0.1)));
+
+
+
+    public TimeSpan FadeOutDuration
+    {
+        get { return (TimeSpan)GetValue(FadeOutDurationProperty); }
+        set { SetValue(FadeOutDurationProperty, value); }
+    }
+
+    public static readonly DependencyProperty FadeOutDurationProperty =
+        DependencyProperty.Register("FadeOutDuration", typeof(TimeSpan), typeof(TransientContainer), new PropertyMetadata(TimeSpan.FromSeconds(0.1)));
+
 }

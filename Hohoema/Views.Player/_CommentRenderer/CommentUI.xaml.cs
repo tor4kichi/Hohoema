@@ -12,10 +12,8 @@ namespace Hohoema.Views.Player;
 
 public sealed partial class CommentUI : UserControl
 {
-    private float _TextHeight;
-    public float TextHeight => _TextHeight;
-    private float _TextWidth;
-    public float TextWidth => _TextWidth;
+    public float TextHeight { get; private set; }
+    public float TextWidth { get; private set; }
 
 
     public TimeSpan VideoPosition { get; set; }
@@ -125,8 +123,8 @@ public sealed partial class CommentUI : UserControl
 
     private void CommentUI_SizeChanged(object sender, SizeChangedEventArgs e)
     {
-        _TextHeight = (float)DesiredSize.Height;
-        _TextWidth = (float)DesiredSize.Width;
+        TextHeight = (float)DesiredSize.Height;
+        TextWidth = (float)DesiredSize.Width;
         _MoveCommentWidthTimeInVPos = null;
     }
 
@@ -181,7 +179,7 @@ public sealed partial class CommentUI : UserControl
 
     public float GetPosition(int canvasWidth, TimeSpan currentVPos)
     {
-        return (canvasWidth + TextWidth) * (float)(((float)EndPosition.TotalMilliseconds - (float)currentVPos.TotalMilliseconds) * InverseCommentDisplayDurationInMs) - TextWidth;
+        return (canvasWidth + TextWidth) * ((float)(EndPosition - currentVPos).TotalMilliseconds * InverseCommentDisplayDurationInMs) - TextWidth;
     }
 
     public TimeSpan CalcTextShowRightEdgeTime(int canvasWidth)

@@ -9,6 +9,7 @@ using Hohoema.Views.Converters;
 using Hohoema.Views.Helpers;
 using I18NPortable;
 using Microsoft.Toolkit.Uwp.Helpers;
+using NiconicoToolkit.NicoRepo;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
@@ -72,7 +73,34 @@ public sealed partial class DesktopPlayerUI : UserControl, IDraggableAreaAware
         Unloaded += DesktopPlayerUI_Unloaded;
 
         DataContext = _vm = Ioc.Default.GetRequiredService<VideoPlayerPageViewModel>();
+
+        _positionUpdateTimer = _dispatcherQueue.CreateTimer();
+        _positionUpdateTimer.Interval = TimeSpan.FromMilliseconds(250);
+        _positionUpdateTimer.IsRepeating = true;
+        _positionUpdateTimer.Tick += (t, s) => 
+        {
+            if (NowVideoPositionChanging || _nowSeekBarUpdating) { return; }
+
+            var playbackSession = _vm.MediaPlayer.PlaybackSession;
+            if (playbackSession.PlaybackState == MediaPlaybackState.None) { return; }
+
+            // ユーザー操作ではないスライダー値の変更時はシーク処理を行わないようにしたい
+            _nowSeekBarUpdating = true;
+            try
+            {
+                var time = VideoPosition = playbackSession.Position;
+                SeekBarSlider.Value = time.TotalSeconds;                
+            }
+            finally
+            {
+                _nowSeekBarUpdating = false;
+            }
+        };
     }
+
+    private bool _nowSeekBarUpdating;
+
+    DispatcherQueueTimer _positionUpdateTimer;
 
     private readonly VideoPlayerPageViewModel _vm;
 
@@ -93,7 +121,6 @@ public sealed partial class DesktopPlayerUI : UserControl, IDraggableAreaAware
     private void DesktopPlayerUI_Loaded(object sender, RoutedEventArgs e)
     {
         _vm.MediaPlayer.VolumeChanged += OnMediaPlayerVolumeChanged;
-        _vm.MediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
 
         SeekBarSlider.ValueChanged += SeekBarSlider_ValueChanged;
 
@@ -104,17 +131,19 @@ public sealed partial class DesktopPlayerUI : UserControl, IDraggableAreaAware
             {
                 ThemeChanged(theme);
             }).AddTo(_compositeDisposable);
+
+        _positionUpdateTimer.Start();
     }
 
     private void DesktopPlayerUI_Unloaded(object sender, RoutedEventArgs e)
     {
+        _positionUpdateTimer.Stop();
         _vm.MediaPlayer.VolumeChanged -= OnMediaPlayerVolumeChanged;
-        _vm.MediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
 
         SeekBarSlider.ValueChanged -= SeekBarSlider_ValueChanged;
         SeekBarSlider.Value = 0.0;
 
-        _compositeDisposable?.Dispose();
+        _compositeDisposable?.Dispose();        
     }
 
     #region Theme Changed
@@ -278,61 +307,33 @@ public sealed partial class DesktopPlayerUI : UserControl, IDraggableAreaAware
         set { SetValue(VideoPositionProperty, value); }
     }
 
-    // Using a DependencyProperty as the backing store for VideoPositionSeconds.  This enables animation, styling, binding, etc...
     public static readonly DependencyProperty VideoPositionProperty =
         DependencyProperty.Register("VideoPosition", typeof(TimeSpan), typeof(DesktopPlayerUI), new PropertyMetadata(TimeSpan.Zero));
 
-
-    
-    void RefrectSliderPositionToPlaybackPosition()
-    {
-        this.NowVideoPositionChanging = true;
-        if (_vm.MediaPlayer.PlaybackSession.PlaybackState is MediaPlaybackState.Playing or MediaPlaybackState.Paused)
-        {
-            _vm.MediaPlayer.PlaybackSession.Position = TimeSpan.FromSeconds(SeekBarSlider.Value);
-        }
-        this.NowVideoPositionChanging = false;
-    }
-
-    double _prevPosition;
+        
     private void SeekBarSlider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
     {
-        if (Math.Abs(_prevPosition - e.NewValue) > 1.0)
+        if (NowVideoPositionChanging || _nowSeekBarUpdating) { return; }
+        if (_vm.MediaPlayer.PlaybackSession.PlaybackState is not MediaPlaybackState.Playing and not MediaPlaybackState.Paused) { return; }
+        if (Math.Abs(_vm.MediaPlayer.PlaybackSession.Position.TotalSeconds - e.NewValue) < 1.0) { return; }
+        
+        var session = _vm.MediaPlayer.PlaybackSession;
+        NowVideoPositionChanging = true;
+        session.SeekCompleted -= PlaybackSession_SeekCompleted;
+        session.SeekCompleted += PlaybackSession_SeekCompleted;        
+        session.Position = TimeSpan.FromSeconds(SeekBarSlider.Value);
+                
+        void PlaybackSession_SeekCompleted(MediaPlaybackSession sender, object args)
         {
-            RefrectSliderPositionToPlaybackPosition();
-        }
-
-        _prevPosition = e.NewValue;
-    }
-
-    private void SeekBarSlider_ManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
-    {
-        SeekBarSlider.ManipulationCompleted -= SeekBarSlider_ManipulationCompleted;
-    }
-
-    private void CoreWindow_PointerReleased(CoreWindow sender, PointerEventArgs args)
-    {
-        SeekBarSlider.ManipulationCompleted -= SeekBarSlider_ManipulationCompleted;
-        Window.Current.CoreWindow.PointerReleased -= CoreWindow_PointerReleased;
-
-        NowVideoPositionChanging = false;
-        SeekSwipe.IsEnabled = true;
-
-        RefrectSliderPositionToPlaybackPosition();
-    }
-
-    private void PlaybackSession_PositionChanged(MediaPlaybackSession sender, object args)
-    {
-        _dispatcherQueue.TryEnqueue(() =>
-        {
-            if (sender.PlaybackState == MediaPlaybackState.None) { return; }
-            VideoPosition = sender.Position;
-            if (this.NowVideoPositionChanging is false)
+            _dispatcherQueue.TryEnqueue(() => 
             {
-                SeekBarSlider.Value = VideoPosition.TotalSeconds;
-            }
-        });
+                session.SeekCompleted -= PlaybackSession_SeekCompleted;
+                NowVideoPositionChanging = false;
+            });
+        }
     }
+
+
 
     public bool NowVideoPositionChanging
     {

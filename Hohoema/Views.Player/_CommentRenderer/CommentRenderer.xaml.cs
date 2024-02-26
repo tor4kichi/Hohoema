@@ -1,8 +1,5 @@
-﻿#nullable enable
-using Hohoema.Models.Player.Comment;
+﻿using Hohoema.Models.Player.Comment;
 using Microsoft.Extensions.ObjectPool;
-using Microsoft.Toolkit.Uwp.UI.Animations;
-using NiconicoToolkit.NicoRepo;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections;
@@ -22,8 +19,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 
-// The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
-
+#nullable enable
 namespace Hohoema.Views.Player;
 
 sealed class CommentUIObjectPoolPolicy : IPooledObjectPolicy<CommentUI>
@@ -37,6 +33,11 @@ sealed class CommentUIObjectPoolPolicy : IPooledObjectPolicy<CommentUI>
     {
         commentUI.Comment = null;
         commentUI.Opacity = 1.0;
+        commentUI.VerticalPosition = 0;
+        commentUI.DisplayMode = CommentDisplayMode.Scrolling;
+        commentUI.VideoPosition = default;
+        commentUI.EndPosition = default;
+        commentUI.CommentText = "";        
         return true;
     }
 }
@@ -57,6 +58,8 @@ public sealed partial class CommentRenderer : UserControl
         _windowResizeTimer.Interval = TimeSpan.FromSeconds(0.25);
         _windowResizeTimer.Tick += _windowResizeTimer_Tick;
         _windowResizeTimer.IsRepeating = false;
+
+        _commentUpdateTimer = _dispatcherQueue.CreateTimer();
     }
 
     CompositeDisposable? _disposables;
@@ -315,32 +318,6 @@ public sealed partial class CommentRenderer : UserControl
 
     #endregion
 
-    private CancellationTokenSource? _scrollCommentAnimationCts;
-    private CancellationToken GetScrollCommentAnimationCancellationToken()
-    {
-        _scrollCommentAnimationCts ??= new CancellationTokenSource();
-        return _scrollCommentAnimationCts.Token;
-    }
-    private void StopScrollCommentAnimation()
-    {
-        if (_scrollCommentAnimationCts != null)
-        {
-            try
-            {
-                _scrollCommentAnimationCts.Cancel();
-                _scrollCommentAnimationCts.Dispose();
-            }
-            catch (ObjectDisposedException)
-            {
-
-            }
-            finally
-            {
-                _scrollCommentAnimationCts = null;
-            }
-        }
-    }
-
 
     const int OWNER_COMMENT_Z_INDEX = 1;
 
@@ -380,7 +357,48 @@ public sealed partial class CommentRenderer : UserControl
     private readonly List<CommentUI?> PrevRenderCommentEachLine_Bottom = new List<CommentUI?>();
 
 
-    DispatcherQueueTimer _commentUpdateTimer;
+
+    private readonly DispatcherQueueTimer _commentUpdateTimer;
+    private readonly Stopwatch _commentUpdateStopwatch = new Stopwatch();
+    private void RestartCommentUpdateTimer()
+    {
+        _commentUpdateTimer.Stop();
+
+        _commentUpdateTimer.Tick -= TimerHandler;
+        _commentUpdateTimer.Tick += TimerHandler;
+        _commentUpdateTimer.IsRepeating = true;
+        _commentUpdateTimer.Interval = TimeSpan.FromMilliseconds(64);
+        _commentUpdateTimer.Start();
+
+        _commentUpdateStopwatch.Restart();
+    }
+    
+    private void UpdateCommentPositionInCurrentVPos()
+    {
+        // 表示中のコメント位置を更新
+        var currentVpos = CurrentVPos;
+        for (int i = 0; i < CommentCanvas.Children.Count; i++)
+        {
+            var renderComment = (CommentCanvas.Children[i] as CommentUI)!;
+            if (renderComment.DisplayMode == CommentDisplayMode.Scrolling)
+            {
+                SetCommentScrollPos(renderComment, _frameData.CanvasWidth, currentVpos);
+            }
+        }
+    }
+    
+    private void CompositionTarget_Rendering(object sender, object e)
+    {        
+        if (_frameData.PlaybackState != MediaPlaybackState.Playing) { return; }
+        if (_frameData.Visibility == Visibility.Collapsed) { return; }        
+        UpdateCommentPositionInCurrentVPos();
+    }
+
+    void TimerHandler(DispatcherQueueTimer timer, object s)
+    {
+        TickCommentRendering();
+    }
+    
     private void CommentRenderer_Loaded(object sender, RoutedEventArgs e)
     {
         _disposables = new CompositeDisposable();
@@ -388,17 +406,19 @@ public sealed partial class CommentRenderer : UserControl
             .Subscribe(x =>
             {
                 ResetComments();
+                if (Visibility == Visibility.Visible)
+                {
+                    RestartCommentUpdateTimer();
+                }
             })
             .AddTo(_disposables);
 
         if (MediaPlayer != null)
         {
             MediaPlayer.PlaybackSession.PlaybackStateChanged -= PlaybackSession_PlaybackStateChanged;
-            MediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
             MediaPlayer.PlaybackSession.PlaybackStateChanged += PlaybackSession_PlaybackStateChanged;
-            MediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
         }
-
+        
         _prevWindowSize = new Size(Window.Current.Bounds.Width, Window.Current.Bounds.Height);
         Window.Current.SizeChanged += WindowSizeChanged;
 
@@ -406,41 +426,20 @@ public sealed partial class CommentRenderer : UserControl
         _commentBaseScale = null;
         this.SizeChanged += CommentRenderer_SizeChanged;
 
-        int intervalTimeMS = 10;
-        float intervalTimeMSInverted = 1f / intervalTimeMS;
-        Stopwatch stopwatch = new Stopwatch();
-        int skipCount = 0;
-        _commentUpdateTimer = _dispatcherQueue.CreateTimer();
-        _commentUpdateTimer.Tick += (timer, s) => 
-        {
-            if (skipCount > 0)
-            {
-                skipCount--;
-                Debug.WriteLine($"Skip comment render : remain {skipCount}");
-                return;
-            }
-            
-            stopwatch.Restart();
-            try
-            {
-                TickCommentRendering();
-            }
-            finally
-            {
-                stopwatch.Stop();
-                skipCount = (int)Math.Ceiling(stopwatch.ElapsedMilliseconds * intervalTimeMSInverted);
-            }
-        };
-        _commentUpdateTimer.IsRepeating = true;
-        _commentUpdateTimer.Interval = TimeSpan.FromMilliseconds(intervalTimeMS);
-        _commentUpdateTimer.Start();
+        Windows.UI.Xaml.Media.CompositionTarget.Rendering += CompositionTarget_Rendering;
+        RestartCommentUpdateTimer();
     }
 
 
     bool _isProcessCommentRendering;
+    private readonly TimeSpan _popRenderCommentFromPendingForwardingTime = TimeSpan.FromSeconds(0.1);
     void TickCommentRendering(CommentRenderFrameData? frame = null)
     {
-        if (_isProcessCommentRendering) { return; }
+        if (_isProcessCommentRendering) 
+        {
+            Debug.WriteLine("skip due to process comment rendering.");
+            return; 
+        }
         _isProcessCommentRendering = true;
         try
         {
@@ -450,13 +449,33 @@ public sealed partial class CommentRenderer : UserControl
             var prev = PlaybackState;
             PlaybackState = sender?.PlaybackState ?? null;
             frame ??= GetRenderFrameData(withUpdate: true);
+            var currentVpos = frame.CurrentVpos;
             if (prev != PlaybackState)
             {
                 Debug.WriteLine("state changed " + PlaybackState);
                 ResetScrollCommentsAnimation(frame);
             }
-
-            TimeSpan currentVpos = CurrentVPos;
+            else
+            {
+                // シークを判定
+                float diffTime = (float)(currentVpos - _prevPosition).TotalSeconds;
+                if (1.0f < diffTime && diffTime <= DefaultDisplayDuration.TotalSeconds)
+                {
+                    Debug.WriteLine("seeked! position changed lite");
+                    ResetScrollCommentsAnimation(GetRenderFrameData(withUpdate: true));
+                }
+                else if (Math.Abs(diffTime) > 1.0f)
+                {
+                    Debug.WriteLine("seeked! position changed");
+                    ResetComments();
+                }
+            }
+            
+            // シーク判定用
+            // コメントの再描画完了時間を前回位置として記録する
+            // currentVposを使うとシーク判定の時間以上にコメント描画の処理に時間が掛かった場合に
+            // コメント再描画のループが発生してしまう。
+            _prevPosition = currentVpos;
 
             // 表示期間を過ぎたコメントを削除
             for (int i = 0; i < CommentCanvas.Children.Count; i++)
@@ -475,13 +494,14 @@ public sealed partial class CommentRenderer : UserControl
 
             // 追加待機中のコメントをチェック
             int count = 0;
+            TimeSpan popForwardingTime = currentVpos + _popRenderCommentFromPendingForwardingTime;
             for (int i = 0; i < _pendingRenderComments.Count; i++)
             {
                 if (count >= 25) { break; }
                 count++;
 
                 var comment = _pendingRenderComments[i];
-                if (comment.VideoPosition <= (currentVpos + TimeSpan.FromSeconds(1)))
+                if (comment.VideoPosition <= popForwardingTime)
                 {
                     _pendingRenderComments.RemoveAt(i);
                     --i;
@@ -507,15 +527,14 @@ public sealed partial class CommentRenderer : UserControl
         var mediaPlayer = MediaPlayer;
         if (mediaPlayer != null)
         {
-            mediaPlayer.PlaybackSession.PlaybackStateChanged -= PlaybackSession_PlaybackStateChanged;
-            mediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
+            mediaPlayer.PlaybackSession.PlaybackStateChanged -= PlaybackSession_PlaybackStateChanged;            
         }
 
         _disposables?.Dispose();
         _disposables = null;
         _windowResizeTimer.Stop();
         _commentUpdateTimer.Stop();
-        StopScrollCommentAnimation();
+        Windows.UI.Xaml.Media.CompositionTarget.Rendering -= CompositionTarget_Rendering;
         ClearComments();
     }
 
@@ -562,29 +581,6 @@ public sealed partial class CommentRenderer : UserControl
     }
 
     private TimeSpan _prevPosition;
-    private void PlaybackSession_PositionChanged(MediaPlaybackSession sender, object args)
-    {
-        _dispatcherQueue.TryEnqueue(() =>
-        {
-            var currentVpos = CurrentVPos;
-            var diffTime = (float)(currentVpos - _prevPosition).TotalSeconds;            
-            if (1.0f < diffTime && diffTime <= DefaultDisplayDuration.TotalSeconds)
-            {
-                Debug.WriteLine("seeked! position changed lite");
-                ResetScrollCommentsAnimation(GetRenderFrameData(withUpdate: true));
-            }
-            else if (Math.Abs(diffTime) > 1.0f)
-            {
-                Debug.WriteLine("seeked! position changed");
-                ResetComments();
-            }
-
-            // コメントの再描画完了時間を前回位置として記録する
-            // currentVposを使うとシーク判定の時間以上にコメント描画の処理に時間が掛かった場合に
-            // コメント再描画のループが発生してしまう。
-            _prevPosition = CurrentVPos;
-        });
-    }
 
     private MediaPlaybackState? PlaybackState = null;
     private void PlaybackSession_PlaybackStateChanged(MediaPlaybackSession sender, object args)
@@ -612,9 +608,6 @@ public sealed partial class CommentRenderer : UserControl
     {
         if (frame.PlaybackState == MediaPlaybackState.Playing)
         {
-            StopScrollCommentAnimation();
-
-            var ct = GetScrollCommentAnimationCancellationToken();
             foreach (var renderComment in CommentCanvas.Children.Cast<CommentUI>())
             {
                 if (renderComment.DisplayMode == CommentDisplayMode.Scrolling)
@@ -629,19 +622,8 @@ public sealed partial class CommentRenderer : UserControl
                             continue;
                         }
 
-                        var ab = AnimationBuilder.Create()
-                            .Translation(Axis.Y)
-                            .NormalizedKeyFrames(b => b
-                                .KeyFrame(0.0, renderComment.VerticalPosition))
-                            .Translation(Axis.X,
-                                from: renderComment.GetPosition(frame.CanvasWidth, frame.CurrentVpos),
-                                to: -renderComment.TextWidth,
-                                duration: duration,
-                                easingType: EasingType.Linear
-                            )
-                            ;
-
-                        ab.StartAsync(renderComment, ct);
+                        SetCommentScrollPos(renderComment, frame.CanvasWidth, frame.CurrentVpos);
+                        SetCommentVerticalPos(renderComment, renderComment.VerticalPosition);
                     }
                     else
                     {
@@ -652,35 +634,32 @@ public sealed partial class CommentRenderer : UserControl
         }
         else
         {
-            StopScrollCommentAnimation();
-
             foreach (var renderComment in CommentCanvas.Children.Cast<CommentUI>())
             {
                 if (renderComment.DisplayMode == CommentDisplayMode.Scrolling)
                 {
-                    // 現在時間での横位置を求める
-                    // lerp 現在時間における位置の比率
-                    //var val = renderComment.GetPosition(frame.CanvasWidth, frame.CurrentVpos);
-                    //if (val.HasValue)
-                    //{
-                    //    renderComment.Translation((float)val.Value, duration: 0).Start();
-                    //}
-                    var posX = renderComment.GetPosition(frame.CanvasWidth, frame.CurrentVpos);
-                    var ab = AnimationBuilder.Create()
-                            .Translation(Axis.Y)
-                            .NormalizedKeyFrames(b => b
-                                .KeyFrame(0.0, renderComment.VerticalPosition))
-                            .Translation(Axis.X)
-                            .NormalizedKeyFrames(b => b
-                                .KeyFrame(0.0, posX))
-                            ;
-                    ab.Start(renderComment);
-
+                    // 現在時間での横位置を求める                    
+                    SetCommentScrollPos(renderComment, frame.CanvasWidth, frame.CurrentVpos);
+                    SetCommentVerticalPos(renderComment, renderComment.VerticalPosition);
                 }
             }
         }
     }
 
+    static void SetCommentScrollPos(CommentUI comment, int canvasWidth, TimeSpan currentVpos)
+    {
+        Canvas.SetLeft(comment, comment.GetPosition(canvasWidth, currentVpos));
+    }
+
+    static void SetCommentHorizontalPos(CommentUI comment, double horizontalPos)
+    {
+        Canvas.SetLeft(comment, horizontalPos);
+    }
+
+    static void SetCommentVerticalPos(CommentUI comment, double verticalPos)
+    {
+        Canvas.SetTop(comment, verticalPos);
+    }
 
 
     class CommentRenderFrameData
@@ -688,7 +667,7 @@ public sealed partial class CommentRenderer : UserControl
         public TimeSpan CurrentVpos { get; set; }// (uint)Math.Floor(VideoPosition.TotalMilliseconds * 0.1);
         public int CanvasWidth { get; set; }// (int)CommentCanvas.ActualWidth;
         public uint CanvasHeight { get; set; } //= (uint)CommentCanvas.ActualHeight;
-        public double HalfCanvasWidth { get; set; } //= canvasWidth / 2;
+        public float HalfCanvasWidth { get; set; } //= canvasWidth / 2;
         public float FontScale { get; set; } //= (float)CommentSizeScale;
         public float TextBGOffset { get; set; }
         public Color CommentDefaultColor { get; set; } //= CommentDefaultColor;
@@ -723,21 +702,20 @@ public sealed partial class CommentRenderer : UserControl
         _frameData.CurrentVpos = VideoPosition + VideoPositionOffset;
         _frameData.CanvasWidth = (int)CommentCanvas.ActualWidth;
         _frameData.CanvasHeight = (uint)CommentCanvas.ActualHeight;
-        _frameData.HalfCanvasWidth = CommentCanvas.ActualWidth * 0.5;
+        _frameData.HalfCanvasWidth = (float)CommentCanvas.ActualWidth * 0.5f;
         _frameData.FontScale = (float)CommentSizeScale;
         _frameData.TextBGOffset = (float)Math.Floor((float)FontSize * TextBGOffsetBias);
         _frameData.Visibility = Visibility;
         _frameData.PlaybackRate = (float)MediaPlayer.PlaybackSession.PlaybackRate;
         _frameData.PlaybackRateInverse = 1f / (float)MediaPlayer.PlaybackSession.PlaybackRate;
-        _frameData.ScrollCommentAnimationCancelToken = GetScrollCommentAnimationCancellationToken();
         _frameData.CommentDisplayPredicate = CommentDisplayPredicate;
+
+        //Debug.WriteLine($"video pos: {_frameData.CurrentVpos}");
     }
 
 
     void ClearComments()
-    {
-        StopScrollCommentAnimation();
-
+    {        
         foreach (var commentUI in CommentCanvas.Children.Cast<CommentUI>())
         {
             commentUI.SizeChanged -= RenderComment_SizeChanged;
@@ -770,6 +748,7 @@ public sealed partial class CommentRenderer : UserControl
                         AddOrPushPending((comment as IComment)!, frame);
                     }
                     TickCommentRendering();
+                    UpdateCommentPositionInCurrentVPos();
                     _prevPosition = CurrentVPos;
                 }
             }
@@ -900,7 +879,7 @@ public sealed partial class CommentRenderer : UserControl
             // 前に流れているコメントを走査して挿入可能な高さを判定していく
             // 前後のコメントが重複なく流せるかを求める
             int insertPosition = -1;
-            double verticalPos = 8;
+            float verticalPos = 8;
             var currentCommentReachLeftEdgeTime = renderComment.CalcReachLeftEdge(frame.CanvasWidth);
             for (var i = 0; i < PrevRenderCommentEachLine_Stream.Count; i++)
             {
@@ -943,47 +922,14 @@ public sealed partial class CommentRenderer : UserControl
             if (isOutBoundComment is false)
             {
                 // 最初は右端に配置
-                float initialCanvasLeft = renderComment.GetPosition(frame.CanvasWidth, frame.CurrentVpos);
-
                 renderComment.Opacity = 1.0;
                 renderComment.VerticalPosition = verticalPos;
 
-                float posToMovingRatio = initialCanvasLeft / (frame.CanvasWidth + renderComment.TextWidth);
                 TimeSpan displayDuration = (renderComment.EndPosition - frame.CurrentVpos) * frame.PlaybackRateInverse;
                 if (displayDuration > TimeSpan.FromMilliseconds(1))
                 {
-                    if (frame.PlaybackState == MediaPlaybackState.Playing)
-                    {
-                        var ab = AnimationBuilder.Create()
-                            .Translation(Axis.Y)
-                            .NormalizedKeyFrames(b => b
-                                .KeyFrame(0.0, renderComment.VerticalPosition))
-                            .Translation(Axis.X,
-                                from: (float)initialCanvasLeft,
-                                to: -renderComment.TextWidth,
-                                duration: displayDuration,
-                                easingType: EasingType.Linear
-                                );
-
-                        ab.Start(renderComment, frame.ScrollCommentAnimationCancelToken);
-                    }
-                    else
-                    {
-                        var ab = AnimationBuilder.Create()
-                           .Translation(Axis.Y)
-                           .NormalizedKeyFrames(b => b
-                               .KeyFrame(0.0, renderComment.VerticalPosition)
-                               , duration: displayDuration
-                               )
-                           .Translation(Axis.X)
-                           .NormalizedKeyFrames(b => b
-                               .KeyFrame(0.0, (float)initialCanvasLeft)
-                               , duration: displayDuration
-                               )
-                            ;
-
-                        ab.Start(renderComment);
-                    }
+                    SetCommentScrollPos(renderComment, frame.CanvasWidth, frame.CurrentVpos);
+                    SetCommentVerticalPos(renderComment, renderComment.VerticalPosition);                    
                 }
 
                 if (insertPosition == -1)
@@ -1004,7 +950,7 @@ public sealed partial class CommentRenderer : UserControl
             {
                 // 上に位置する場合の縦位置の決定
                 int insertPosition = -1;
-                double verticalPos = 8;
+                float verticalPos = 8;
                 for (var i = 0; i < PrevRenderCommentEachLine_Top.Count; i++)
                 {
                     var prevComment = PrevRenderCommentEachLine_Top[i];
@@ -1024,15 +970,9 @@ public sealed partial class CommentRenderer : UserControl
                 if (isOutBoundComment is false)
                 {
                     renderComment.VerticalPosition = verticalPos;
-                    var left = (float)frame.HalfCanvasWidth - renderComment.TextWidth * 0.5f;
-                    AnimationBuilder.Create()
-                       .Translation(Axis.Y)
-                       .NormalizedKeyFrames(b => b
-                           .KeyFrame(0.0, renderComment.VerticalPosition))
-                       .Translation(Axis.X)
-                       .NormalizedKeyFrames(b => b
-                           .KeyFrame(0.0, left))
-                       .Start(renderComment);
+                    var left = frame.HalfCanvasWidth - renderComment.TextWidth * 0.5f;                    
+                    SetCommentHorizontalPos(renderComment, left);
+                    SetCommentVerticalPos(renderComment, renderComment.VerticalPosition);
 
                     if (insertPosition == -1)
                     {
@@ -1050,7 +990,7 @@ public sealed partial class CommentRenderer : UserControl
             {
                 // 下に位置する場合の縦位置の決定
                 int insertPosition = -1;
-                double verticalPos = frame.CanvasHeight - renderComment.TextHeight - BottomCommentMargin;
+                float verticalPos = frame.CanvasHeight - renderComment.TextHeight - BottomCommentMargin;
                 for (var i = 0; i < PrevRenderCommentEachLine_Bottom.Count; i++)
                 {
                     var prevComment = PrevRenderCommentEachLine_Bottom[i];
@@ -1070,15 +1010,9 @@ public sealed partial class CommentRenderer : UserControl
                 if (isOutBoundComment is false)
                 {
                     renderComment.VerticalPosition = verticalPos;
-                    var left = frame.HalfCanvasWidth - renderComment.TextWidth * 0.5f;
-                    AnimationBuilder.Create()
-                       .Translation(Axis.Y)
-                       .NormalizedKeyFrames(b => b
-                           .KeyFrame(0.0, renderComment.VerticalPosition))
-                       .Translation(Axis.X)
-                       .NormalizedKeyFrames(b => b
-                           .KeyFrame(0.0, left))
-                       .Start(renderComment);
+                    var left = frame.HalfCanvasWidth - renderComment.TextWidth * 0.5f;                    
+                    SetCommentHorizontalPos(renderComment, left);
+                    SetCommentVerticalPos(renderComment, renderComment.VerticalPosition);
 
                     if (insertPosition == -1)
                     {
@@ -1094,7 +1028,8 @@ public sealed partial class CommentRenderer : UserControl
             }
             else //if (comment.VAlign == VerticalAlignment.Center)
             {
-                renderComment.Translation = new((float)frame.HalfCanvasWidth - renderComment.TextWidth * 0.5f, frame.CanvasHeight * 0.5f - renderComment.TextHeight * 0.5f, 0);
+                SetCommentHorizontalPos(renderComment, frame.HalfCanvasWidth - renderComment.TextWidth * 0.5f);
+                SetCommentVerticalPos(renderComment, frame.CanvasHeight * 0.5f - renderComment.TextHeight * 0.5f);
             }
 
             // オーナーコメントの場合は優先して表示されるように
