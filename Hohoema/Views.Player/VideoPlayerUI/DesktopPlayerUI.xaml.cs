@@ -79,14 +79,26 @@ public sealed partial class DesktopPlayerUI : UserControl, IDraggableAreaAware
         _positionUpdateTimer.IsRepeating = true;
         _positionUpdateTimer.Tick += (t, s) => 
         {
-            if (NowVideoPositionChanging) { return; }
+            if (NowVideoPositionChanging || _nowSeekBarUpdating) { return; }
 
             var playbackSession = _vm.MediaPlayer.PlaybackSession;
             if (playbackSession.PlaybackState == MediaPlaybackState.None) { return; }
-            var time = VideoPosition = playbackSession.Position;
-            SeekBarSlider.Value = time.TotalSeconds;
+
+            // ユーザー操作ではないスライダー値の変更時はシーク処理を行わないようにしたい
+            _nowSeekBarUpdating = true;
+            try
+            {
+                var time = VideoPosition = playbackSession.Position;
+                SeekBarSlider.Value = time.TotalSeconds;                
+            }
+            finally
+            {
+                _nowSeekBarUpdating = false;
+            }
         };
     }
+
+    private bool _nowSeekBarUpdating;
 
     DispatcherQueueTimer _positionUpdateTimer;
 
@@ -301,13 +313,12 @@ public sealed partial class DesktopPlayerUI : UserControl, IDraggableAreaAware
         
     private void SeekBarSlider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
     {
-        if (NowVideoPositionChanging) { return; }
+        if (NowVideoPositionChanging || _nowSeekBarUpdating) { return; }
         if (_vm.MediaPlayer.PlaybackSession.PlaybackState is not MediaPlaybackState.Playing and not MediaPlaybackState.Paused) { return; }
         if (Math.Abs(_vm.MediaPlayer.PlaybackSession.Position.TotalSeconds - e.NewValue) < 1.0) { return; }
-
+        
         var session = _vm.MediaPlayer.PlaybackSession;
         NowVideoPositionChanging = true;
-        bool nowPlaying = session.PlaybackState == MediaPlaybackState.Playing;
         session.SeekCompleted -= PlaybackSession_SeekCompleted;
         session.SeekCompleted += PlaybackSession_SeekCompleted;        
         session.Position = TimeSpan.FromSeconds(SeekBarSlider.Value);

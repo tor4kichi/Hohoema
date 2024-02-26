@@ -6,6 +6,7 @@ using System;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading;
+using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Input;
@@ -13,7 +14,13 @@ using Windows.UI.Xaml.Input;
 namespace Hohoema.Views.Behaviors;
 
 public sealed class VisiblityFadeChanger : Behavior<FrameworkElement>, IDisposable
-	{
+{
+    public VisiblityFadeChanger()
+    {
+        _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
+    }
+
+    private readonly DispatcherQueue _dispatcherQueue;
 
 
     #region AutoHide
@@ -47,7 +54,7 @@ public sealed class VisiblityFadeChanger : Behavior<FrameworkElement>, IDisposab
         {
             source.Show();
         }
-        
+
     }
 
 
@@ -93,22 +100,22 @@ public sealed class VisiblityFadeChanger : Behavior<FrameworkElement>, IDisposab
     #region Delay Property
 
     public static readonly DependencyProperty DelayProperty =
-			DependencyProperty.Register("Delay"
-					, typeof(TimeSpan)
-					, typeof(VisiblityFadeChanger)
-					, new PropertyMetadata(TimeSpan.FromSeconds(3), OnDelayPropertyChanged)
-				);
+        DependencyProperty.Register("Delay"
+                , typeof(TimeSpan)
+                , typeof(VisiblityFadeChanger)
+                , new PropertyMetadata(TimeSpan.FromSeconds(3), OnDelayPropertyChanged)
+            );
 
-		public TimeSpan Delay
-		{
-			get { return (TimeSpan)GetValue(DelayProperty); }
-			set { SetValue(DelayProperty, value); }
-		}
+    public TimeSpan Delay
+    {
+        get { return (TimeSpan)GetValue(DelayProperty); }
+        set { SetValue(DelayProperty, value); }
+    }
 
 
-		public static void OnDelayPropertyChanged(object sender, DependencyPropertyChangedEventArgs args)
-		{
-			VisiblityFadeChanger source = (VisiblityFadeChanger)sender;
+    public static void OnDelayPropertyChanged(object sender, DependencyPropertyChangedEventArgs args)
+    {
+        VisiblityFadeChanger source = (VisiblityFadeChanger)sender;
 
         source.ResetAutoHideThrottling();
     }
@@ -120,16 +127,16 @@ public sealed class VisiblityFadeChanger : Behavior<FrameworkElement>, IDisposab
     {
         _autoHideThrottlingDisposer?.Dispose();
         _autoHideThrottlingDisposer = AutoHideSubject.Throttle(Delay)
-               .Subscribe(_ =>
-               {
-                   var task = Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                   {
-                       if (IsAutoHideEnabled)
-                       {
-                           Hide();
-                       }
-                   });
-               });
+            .Subscribe(_ =>
+            {
+                _dispatcherQueue.TryEnqueue(() =>
+                    {
+                        if (IsAutoHideEnabled)
+                        {
+                            Hide();
+                        }
+                    });
+            });
 
     }
 
@@ -189,7 +196,7 @@ public sealed class VisiblityFadeChanger : Behavior<FrameworkElement>, IDisposab
     private void StopAnimation()
     {
         if (_animCts == null) { return; }
-        
+
         _animCts.Cancel();
         _animCts.Dispose();
         _animCts = null;
@@ -207,7 +214,7 @@ public sealed class VisiblityFadeChanger : Behavior<FrameworkElement>, IDisposab
     }
 
     private void Show()
-		{
+    {
         if (this.AssociatedObject == null) { return; }
 
         StopAnimation();
@@ -228,7 +235,7 @@ public sealed class VisiblityFadeChanger : Behavior<FrameworkElement>, IDisposab
         }
     }
 
-    
+
 
     private void Hide()
     {
@@ -246,12 +253,12 @@ public sealed class VisiblityFadeChanger : Behavior<FrameworkElement>, IDisposab
         {
             AssociatedObject.Opacity = 0.0;
         }
-        
+
     }
 
     private void HideAnimation_Completed()
     {
-        _ = Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => 
+        _dispatcherQueue.TryEnqueue(() =>
         {
             try
             {
@@ -273,9 +280,8 @@ public sealed class VisiblityFadeChanger : Behavior<FrameworkElement>, IDisposab
         IsVisible = !IsVisible;
     }
 
-    private CompositeDisposable _CompositeDisposable;
-
-    private IDisposable _autoHideThrottlingDisposer;
+    private CompositeDisposable? _CompositeDisposable;
+    private IDisposable? _autoHideThrottlingDisposer;
 
     protected override void OnAttached()
     {
@@ -305,7 +311,7 @@ public sealed class VisiblityFadeChanger : Behavior<FrameworkElement>, IDisposab
         _autoHideThrottlingDisposer = AutoHideSubject.Throttle(Delay)
             .Subscribe(_ =>
         {
-            var task = Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            _dispatcherQueue.TryEnqueue(() =>
             {
                 if (IsAutoHideEnabled)
                 {
@@ -313,7 +319,7 @@ public sealed class VisiblityFadeChanger : Behavior<FrameworkElement>, IDisposab
                 }
             });
         });
-            
+
 
         AssociatedObject.PointerMoved += AssociatedObject_PointerMoved;
     }
@@ -326,8 +332,8 @@ public sealed class VisiblityFadeChanger : Behavior<FrameworkElement>, IDisposab
     }
 
     protected override void OnDetaching()
-		{
-			base.OnDetaching();
+    {
+        base.OnDetaching();
 
         _autoHideThrottlingDisposer?.Dispose();
         _autoHideThrottlingDisposer = null;
@@ -335,7 +341,7 @@ public sealed class VisiblityFadeChanger : Behavior<FrameworkElement>, IDisposab
         _CompositeDisposable = null;
 
         this.AssociatedObject.Visibility = Visibility.Visible;
-		}
+    }
 
     public void Dispose()
     {
