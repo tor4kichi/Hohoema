@@ -765,6 +765,7 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
             // メディア再生成功時のメッセージを飛ばす
             _ = _messenger.Send(new PlaybackStartedMessage(new(this, CurrentPlaylistId, item.VideoId, videoSession.Quality, _mediaPlayer.PlaybackSession)));
 
+            _mediaPlayer.PlaybackSession.PlaybackStateChanged -= PlaybackSession_PlaybackStateChanged;
             _mediaPlayer.PlaybackSession.PlaybackStateChanged += PlaybackSession_PlaybackStateChanged;
 
             _mediaPlayer.CommandManager.IsEnabled = false;

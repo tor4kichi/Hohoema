@@ -153,6 +153,7 @@ public static class ShareHelper
             _ShareText = content;
             _ShareTitleText = title;
             DataTransferManager dataTransferManager = DataTransferManager.GetForCurrentView();
+            dataTransferManager.DataRequested -= DataTransferManager_DataRequested;
             dataTransferManager.DataRequested += DataTransferManager_DataRequested;
 
             DataTransferManager.ShowShareUI();
