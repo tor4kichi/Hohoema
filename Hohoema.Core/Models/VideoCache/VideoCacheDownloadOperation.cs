@@ -25,7 +25,7 @@ public class VideoCacheDownloadOperation : IDisposable, IVideoCacheDownloadOpera
     public VideoCacheItem VideoCacheItem { get; }
 
     private readonly VideoCacheManager _videoCacheManager;
-    private readonly DmcVideoStreamingSession _dmcVideoStreamingSession;
+    private readonly object _dmcVideoStreamingSession;
     private readonly IVideoCacheDownloadOperationOutput _videoCacheDownloadOperationOutput;
     private CancellationTokenSource _cancellationTokenSource;
     private CancellationTokenSource _pauseCancellationTokenSource;
@@ -37,8 +37,10 @@ public class VideoCacheDownloadOperation : IDisposable, IVideoCacheDownloadOpera
     public event EventHandler<VideoCacheDownloadOperationProgress> Progress;
     public event EventHandler Completed;
 
-    internal VideoCacheDownloadOperation(VideoCacheManager videoCacheManager, VideoCacheItem videoCacheItem, DmcVideoStreamingSession dmcVideoStreamingSession, IVideoCacheDownloadOperationOutput videoCacheDownloadOperationOutput)
+    internal VideoCacheDownloadOperation(VideoCacheManager videoCacheManager, VideoCacheItem videoCacheItem, object dmcVideoStreamingSession, IVideoCacheDownloadOperationOutput videoCacheDownloadOperationOutput)
     {
+        throw new NotSupportedException();
+
         _videoCacheManager = videoCacheManager;
         VideoCacheItem = videoCacheItem;
         _dmcVideoStreamingSession = dmcVideoStreamingSession;
@@ -55,8 +57,8 @@ public class VideoCacheDownloadOperation : IDisposable, IVideoCacheDownloadOpera
         IRandomAccessStream downloadStream = null;
         try
         {
-            Uri uri = await _dmcVideoStreamingSession.GetDownloadUrlAndSetupDownloadSession();
-            downloadStream = await HttpRandomAccessStream.CreateAsync(_dmcVideoStreamingSession.NiconicoSession.ToolkitContext.HttpClient, uri);
+            //Uri uri = await _dmcVideoStreamingSession.GetDownloadUrlAndSetupDownloadSession();
+            //downloadStream = await HttpRandomAccessStream.CreateAsync(_dmcVideoStreamingSession.NiconicoSession.ToolkitContext.HttpClient, uri);
         }
         catch
         {
@@ -72,7 +74,7 @@ public class VideoCacheDownloadOperation : IDisposable, IVideoCacheDownloadOpera
         _pauseCancellationTokenSource = new CancellationTokenSource();
         _linkedCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_cancellationTokenSource.Token, _onwerShipReturnedCancellationTokenSource.Token, _pauseCancellationTokenSource.Token);
 
-        _dmcVideoStreamingSession.StopStreamingFromOwnerShipReturned += _dmcVideoStreamingSession_StopStreamingFromOwnerShipReturned;
+        //_dmcVideoStreamingSession.StopStreamingFromOwnerShipReturned += _dmcVideoStreamingSession_StopStreamingFromOwnerShipReturned;
 
         try
         {
@@ -111,7 +113,7 @@ public class VideoCacheDownloadOperation : IDisposable, IVideoCacheDownloadOpera
         finally
         {
             _ = _cancelAwaitTcs.TrySetResult(true);
-            _dmcVideoStreamingSession.StopStreamingFromOwnerShipReturned -= _dmcVideoStreamingSession_StopStreamingFromOwnerShipReturned;
+            //_dmcVideoStreamingSession.StopStreamingFromOwnerShipReturned -= _dmcVideoStreamingSession_StopStreamingFromOwnerShipReturned;
             downloadStream.Dispose();
             _onwerShipReturnedCancellationTokenSource.Dispose();
             _pauseCancellationTokenSource.Dispose();
@@ -148,7 +150,7 @@ public class VideoCacheDownloadOperation : IDisposable, IVideoCacheDownloadOpera
 
     void IDisposable.Dispose()
     {
-        _dmcVideoStreamingSession.Dispose();
+        //_dmcVideoStreamingSession.Dispose();
     }
 
     public Task PauseAsync()

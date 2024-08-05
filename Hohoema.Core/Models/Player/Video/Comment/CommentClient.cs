@@ -34,7 +34,7 @@ public class CommentClient
     public string RawVideoId { get; }
     public string VideoOwnerId => _watchApiData!.Owner.Id.ToString();
 
-    internal DmcWatchApiData? _watchApiData { get; set; }
+    internal NicoVideoWatchApiResponse.Response? _watchApiData { get; set; }
 
 
     private readonly NiconicoSession _niconicoSession;
@@ -48,7 +48,7 @@ public class CommentClient
         Guard.IsNotNull(_watchApiData);
 
         VideoId videoId = _watchApiData.Video.Id;
-        NiconicoToolkit.Video.Watch.Thread mainThread = _watchApiData.Comment.Threads.First(x => x.ForkLabel == ThreadTargetForkConstants.Main);
+        NiconicoToolkit.Video.Watch.NicoVideoWatchApiResponse.Thread mainThread = _watchApiData.Comment.Threads.First(x => x.ForkLabel == ThreadTargetForkConstants.Main);
         string threadId = mainThread.Id.ToString();
 
         bool isPostCompleted = false;
@@ -86,7 +86,7 @@ public class CommentClient
         {
             if (_watchApiData == null) { return false; }
 
-            return _watchApiData.Channel == null && _watchApiData.Community == null;
+            return _watchApiData.Channel == null;
         }
     }
 
@@ -154,7 +154,7 @@ public class CommentClient
         if (threadForkLabel == ThreadTargetForkConstants.Main)
         {
             Guard.IsNotNull(_watchApiData);
-            NiconicoToolkit.Video.Watch.Thread thread = _watchApiData.Comment.Threads.First(x => x.ForkLabel == ThreadTargetForkConstants.Main);
+            NiconicoToolkit.Video.Watch.NicoVideoWatchApiResponse.Thread thread = _watchApiData.Comment.Threads.First(x => x.ForkLabel == ThreadTargetForkConstants.Main);
             ThreadPostKeyResponse res = await _nvCommentApi.GetPostKeyAsync(thread.Id.ToString(), ct);
             Guard.IsTrue(res.IsSuccess);
 
@@ -163,7 +163,7 @@ public class CommentClient
         else if (threadForkLabel == ThreadTargetForkConstants.Easy)
         {
             Guard.IsNotNull(_watchApiData);
-            NiconicoToolkit.Video.Watch.Thread thread = _watchApiData.Comment.Threads.First(x => x.ForkLabel == ThreadTargetForkConstants.Easy);
+            NiconicoToolkit.Video.Watch.NicoVideoWatchApiResponse.Thread thread = _watchApiData.Comment.Threads.First(x => x.ForkLabel == ThreadTargetForkConstants.Easy);
             ThreadEasyPostKeyResponse res = await _nvCommentApi.GetEasyPostKeyAsync(thread.Id.ToString(), ct);
             Guard.IsTrue(res.IsSuccess);
 

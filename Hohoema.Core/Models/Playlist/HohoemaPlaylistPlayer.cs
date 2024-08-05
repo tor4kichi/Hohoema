@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using AngleSharp.Attributes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
@@ -541,15 +542,13 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
         TimeSpan? currentPosition = GetCurrentPlaybackPosition();
 
         IStreamingSession videoSession;
-        if (_videoSessionDisposable is not DmcVideoStreamingSession dmcSession)
+        if (_videoSessionDisposable is DomandStreamingSession dommandSession)
         {
             videoSession = await CurrentPlayingSession.VideoSessionProvider.CreateVideoSessionAsync(qualityEntity);
         }
         else
         {
-            dmcSession.StopPlayback();
-            dmcSession.SetQuality(qualityEntity.QualityId);
-            videoSession = dmcSession;            
+            throw new NotSupportedException("Not supported video playback quality on not DomandStreamingSession.");
         }
 
         if (qualityEntity.IsAvailable is false)

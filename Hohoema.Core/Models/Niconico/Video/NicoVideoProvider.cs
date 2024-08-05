@@ -329,24 +329,24 @@ public sealed class NicoVideoProvider : ProviderBase
         }));
     }
 
-    public async Task<WatchPageResponse> GetWatchPageResponseAsync(VideoId videoId, bool noHisotry = false)
+    public async Task<NicoVideoWatchApiResponse> GetWatchPageResponseAsync(VideoId videoId, bool noHisotry = false)
     {
         if (_niconicoSession.ServiceStatus.IsOutOfService())
         {
             return null;
         }
 
-        WatchPageResponse data = await _niconicoSession.ToolkitContext.Video.VideoWatch.GetInitialWatchDataAsync(videoId, !noHisotry, !noHisotry);
-        if (data.WatchApiResponse?.WatchApiData is not null and var watchData)
+        var data = await _niconicoSession.ToolkitContext.Video.VideoWatch.GetWatchDataAsync(videoId);
+        if (data.Data.Response is not null and var watchData)
         {
             _ = UpdateCache(videoId, info =>
             {
-                WatchApiVideo video = watchData.Video;
+                var video = watchData.Video;
                 info.VideoAliasId = videoId;
                 info.Title = video.Title;
                 info.Length = TimeSpan.FromSeconds(video.Duration);
-                info.PostedAt = video.RegisteredAt.DateTime;
-                info.ThumbnailUrl = video.Thumbnail.Url.OriginalString;
+                info.PostedAt = video.RegisteredAt;
+                info.ThumbnailUrl = video.Thumbnail.Url;
                 info.Description = video.Description;
 
                 if (watchData.Owner is not null and var userOwner)
@@ -354,7 +354,7 @@ public sealed class NicoVideoProvider : ProviderBase
                     info.Owner = new NicoVideoOwner()
                     {
                         ScreenName = userOwner.Nickname,
-                        IconUrl = userOwner.IconUrl.OriginalString,
+                        IconUrl = userOwner.IconUrl,
                         OwnerId = userOwner.Id.ToString(),
                         UserType = OwnerType.User
                     };
@@ -370,7 +370,7 @@ public sealed class NicoVideoProvider : ProviderBase
                     };
                 }
 
-                return (watchData.Video.IsDeleted, default);
+                return (watchData.Video.IsDeleted.Value, default);
             });
         }
 

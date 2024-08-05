@@ -796,9 +796,9 @@ public class HyperlinkItem
 
 public class VideoSeriesViewModel : ISeries
 {
-    private readonly WatchApiSeries _userSeries;
+    private readonly NicoVideoWatchApiResponse.WatchApiSeries _userSeries;
 
-    public VideoSeriesViewModel(WatchApiSeries userSeries)
+    public VideoSeriesViewModel(NicoVideoWatchApiResponse.WatchApiSeries userSeries)
     {
         _userSeries = userSeries;
     }

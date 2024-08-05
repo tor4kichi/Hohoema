@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Windows.Foundation;
+using static NiconicoToolkit.Video.Watch.NicoVideoWatchApiResponse;
 
 namespace Hohoema.Models.Player.Video;
 
@@ -43,41 +44,41 @@ public interface INicoVideoDetails : IVideoDetail
 
 public class DmcVideoDetails : INicoVideoDetails
 {
-    private readonly DmcWatchApiData _dmcWatchRes;
+    private readonly Response _res;
 
-    internal DmcVideoDetails(DmcWatchApiData dmcWatchData)
+    internal DmcVideoDetails(Response dmcWatchData)
     {
-        _dmcWatchRes = dmcWatchData;
-        Tags = _dmcWatchRes.Tag.Items.Select(x => new NicoVideoTag(x.Name)).ToArray();
+        _res = dmcWatchData;
+        Tags = _res.Tag.Items.Select(x => new NicoVideoTag(x.Name)).ToArray();
     }
 
 
-    public VideoId VideoId => _dmcWatchRes.Video.Id;
+    public VideoId VideoId => _res.Video.Id;
 
-    public string Title => _dmcWatchRes.Video.Title;
+    public string Title => _res.Video.Title;
 
     public NicoVideoTag[] Tags { get; }
 
-    public string ThumbnailUrl => _dmcWatchRes.Video.Thumbnail.LargeUrl?.OriginalString ?? _dmcWatchRes.Video.Thumbnail.MiddleUrl?.OriginalString ?? _dmcWatchRes.Video.Thumbnail.Url?.OriginalString;
+    public string ThumbnailUrl => _res.Video.Thumbnail.LargeUrl ?? _res.Video.Thumbnail.MiddleUrl ?? _res.Video.Thumbnail.Url;
 
-    public TimeSpan VideoLength => TimeSpan.FromSeconds(_dmcWatchRes.Video.Duration);
+    public TimeSpan VideoLength => TimeSpan.FromSeconds(_res.Video.Duration);
 
-    public DateTime SubmitDate => _dmcWatchRes.Video.RegisteredAt.DateTime;
+    public DateTime SubmitDate => _res.Video.RegisteredAt;
 
-    public int ViewCount => _dmcWatchRes.Video.Count.View;
+    public int ViewCount => _res.Video.Count.View;
 
-    public int CommentCount => _dmcWatchRes.Video.Count.Comment;
+    public int CommentCount => _res.Video.Count.Comment;
 
-    public int MylistCount => _dmcWatchRes.Video.Count.Mylist;
+    public int MylistCount => _res.Video.Count.Mylist;
 
-    public string ProviderId => _dmcWatchRes.Owner?.Id.ToString() ?? _dmcWatchRes.Channel?.Id;
-    public string ProviderName => _dmcWatchRes.Owner?.Nickname ?? _dmcWatchRes.Channel?.Name;
+    public string ProviderId => _res.Owner?.Id.ToString() ?? _res.Channel?.Id;
+    public string ProviderName => _res.Owner?.Nickname ?? _res.Channel?.Name;
 
-    public string OwnerIconUrl => _dmcWatchRes.Owner?.IconUrl.OriginalString ?? _dmcWatchRes.Channel?.Thumbnail.Url.OriginalString;
+    public string OwnerIconUrl => _res.Owner?.IconUrl ?? _res.Channel?.Thumbnail.Url.OriginalString;
 
-    public bool IsChannelOwnedVideo => _dmcWatchRes.Channel != null;
+    public bool IsChannelOwnedVideo => _res.Channel != null;
 
-    public string DescriptionHtml => _dmcWatchRes.Video.Description;
+    public string DescriptionHtml => _res.Video.Description;
 
     public double LoudnessCorrectionValue
     {
@@ -85,13 +86,13 @@ public class DmcVideoDetails : INicoVideoDetails
         {
             try
             {
-                if (_dmcWatchRes.Media.Delivery != null) 
+                if (_res.Media.Delivery != null) 
                 {
-                    return _dmcWatchRes.Media.Delivery.Movie.Audios[0].Metadata.LoudnessCollection[0].Value;
+                    return _res.Media.Delivery.Movie.Audios[0].LoudnessCollection[0].Value.Value;
                 }
-                else if (_dmcWatchRes.Media.Domand != null)
+                else if (_res.Media.Domand != null)
                 {
-                    return _dmcWatchRes.Media.Domand.Audios.FirstOrDefault(x => x.IsAvailable ?? false)?.LoudnessCollection[0].Value ?? 1;
+                    return _res.Media.Domand.Audios.FirstOrDefault(x => x.IsAvailable ?? false)?.LoudnessCollection[0].Value ?? 1;
                 }
             }
             catch { }
@@ -101,14 +102,14 @@ public class DmcVideoDetails : INicoVideoDetails
     }
 
 
-    public bool IsSeriesVideo => _dmcWatchRes?.Series != null;
-    public WatchApiSeries Series => _dmcWatchRes?.Series;
+    public bool IsSeriesVideo => _res?.Series != null;
+    public WatchApiSeries Series => _res?.Series;
 
-    public bool IsLikedVideo => _dmcWatchRes.Video.Viewer?.Like.IsLiked ?? false;
+    public bool IsLikedVideo => _res.Video.Viewer?.Like.IsLiked ?? false;
 
     string IVideoDetail.Description => DescriptionHtml;
 
-    bool IVideoDetail.IsDeleted => _dmcWatchRes.Video.IsDeleted;
+    bool IVideoDetail.IsDeleted => _res.Video.IsDeleted.Value;
 
     VideoPermission IVideoDetail.Permission => throw new NotSupportedException();
 
@@ -117,7 +118,7 @@ public class DmcVideoDetails : INicoVideoDetails
     DateTime IVideoContent.PostedAt => SubmitDate;
 
 
-    OwnerType IVideoContentProvider.ProviderType => _dmcWatchRes.Channel != null ? OwnerType.Channel : OwnerType.User;
+    OwnerType IVideoContentProvider.ProviderType => _res.Channel != null ? OwnerType.Channel : OwnerType.User;
 
     string IVideoDetail.ProviderIconUrl => OwnerIconUrl;
 
@@ -147,7 +148,7 @@ public class PreparePlayVideoResult : INiconicoVideoSessionProvider, INiconicoCo
     public ImmutableArray<NicoVideoQualityEntity> AvailableQualities { get; }
 
     private readonly NicoVideoSessionOwnershipManager _ownershipManager;
-    private readonly DmcWatchApiData _dmcWatchData;
+    private readonly Response _dmcWatchData;
     private readonly bool _isForceDmc;
     private readonly NiconicoSession _niconicoSession;
 
@@ -165,7 +166,7 @@ public class PreparePlayVideoResult : INiconicoVideoSessionProvider, INiconicoCo
         IsSuccess = false;
     }
 
-    public PreparePlayVideoResult(VideoId contentId, NiconicoSession niconicoSession, PreparePlayVideoFailedReason failedReason, DmcWatchApiData dmcWatchData = null)
+    public PreparePlayVideoResult(VideoId contentId, NiconicoSession niconicoSession, PreparePlayVideoFailedReason failedReason, Response dmcWatchData = null)
         : this(contentId, niconicoSession)
     {
         AvailableQualities = ImmutableArray<NicoVideoQualityEntity>.Empty;
@@ -174,7 +175,7 @@ public class PreparePlayVideoResult : INiconicoVideoSessionProvider, INiconicoCo
         _dmcWatchData = dmcWatchData;
     }
 
-    public PreparePlayVideoResult(VideoId contentId, NiconicoSession niconicoSession, NicoVideoSessionOwnershipManager ownershipManager, DmcWatchApiData dmcWatchData, bool isForceDmc)
+    public PreparePlayVideoResult(VideoId contentId, NiconicoSession niconicoSession, NicoVideoSessionOwnershipManager ownershipManager, Response dmcWatchData, bool isForceDmc)
         : this(contentId, niconicoSession)
     {
         _ownershipManager = ownershipManager;
@@ -185,7 +186,7 @@ public class PreparePlayVideoResult : INiconicoVideoSessionProvider, INiconicoCo
         if (_isForceDmc && _dmcWatchData?.Media.Delivery is not null)
         {
             AvailableQualities = _dmcWatchData.Media.Delivery.Movie.Videos
-                    .Select(x => new NicoVideoQualityEntity(x.IsAvailable, QualityIdToNicoVideoQuality(x.Id), x.Id, (int)x.Metadata.Bitrate, (int)x.Metadata.Resolution.Width, (int)x.Metadata.Resolution.Height) { Label = x.Metadata.Label })
+                    .Select(x => new NicoVideoQualityEntity(x.IsAvailable.Value, QualityIdToNicoVideoQuality(x.Id), x.Id, (int)x.BitRate.Value, (int)x.Width, (int)x.Height) { Label = x.Label })
                     .ToImmutableArray();
         }
         else if (_dmcWatchData?.Media.Domand is { } domand)
@@ -197,7 +198,7 @@ public class PreparePlayVideoResult : INiconicoVideoSessionProvider, INiconicoCo
         else if (_dmcWatchData?.Media.Delivery is { } delivery)
         {
             AvailableQualities = delivery.Movie.Videos
-                    .Select(x => new NicoVideoQualityEntity(x.IsAvailable, QualityIdToNicoVideoQuality(x.Id), x.Id, (int)x.Metadata.Bitrate, (int)x.Metadata.Resolution.Width, (int)x.Metadata.Resolution.Height) { Label = x.Metadata.Label })
+                    .Select(x => new NicoVideoQualityEntity(x.IsAvailable.Value, QualityIdToNicoVideoQuality(x.Id), x.Id, (int)x.BitRate.Value, (int)x.Width, (int)x.Height) { Label = x.Label })
                     .ToImmutableArray();
         }        
         else
@@ -246,25 +247,14 @@ public class PreparePlayVideoResult : INiconicoVideoSessionProvider, INiconicoCo
                 }
             }
             else if (_dmcWatchData.Media.Delivery is not null and var delivery)
-            {                
-                NicoVideoSessionOwnershipManager.VideoSessionOwnership ownership = await _ownershipManager.TryRentVideoSessionOwnershipAsync(_dmcWatchData.Video.Id, !IsForCacheDownload);
-                if (ownership != null)
-                {
-                    streamingSession = new DmcVideoStreamingSession(qualityEntity.QualityId, _dmcWatchData, _niconicoSession, ownership);
-                }
-
-            }
-            else if (_dmcWatchData.Media.DeliveryLegacy != null)
             {
-                throw new NotSupportedException("DmcWatchResponse.Media.DeliveryLegacy is not supported");
-                /*
-                var ownership = await _ownershipManager.TryRentVideoSessionOwnershipAsync(_dmcWatchData.DmcWatchResponse.Video.Id, !IsForCacheDownload);
-                if (ownership != null)
-                {
-                    streamingSession = new SmileVideoStreamingSession(
-                        new Uri(_dmcWatchData.DmcWatchResponse.Video.SmileInfo.Url), _niconicoSession, ownership);
-                }
-                */
+                throw new NotSupportedException("DmcWatchResponse.Media.Delivery is not supported");
+                //NicoVideoSessionOwnershipManager.VideoSessionOwnership ownership = await _ownershipManager.TryRentVideoSessionOwnershipAsync(_dmcWatchData.Video.Id, !IsForCacheDownload);
+                //if (ownership != null)
+                //{
+                //    streamingSession = new DmcVideoStreamingSession(qualityEntity.QualityId, _dmcWatchData, _niconicoSession, ownership);
+                //}
+
             }
             else
             {
@@ -289,10 +279,10 @@ public class PreparePlayVideoResult : INiconicoVideoSessionProvider, INiconicoCo
         return _dmcWatchData != null ? CreateCommentSession(ContentId, _dmcWatchData) : throw new NotSupportedException();
     }
 
-    private Task<ICommentSession<IVideoComment>> CreateCommentSession(string contentId, DmcWatchApiData watchData)
+    private Task<ICommentSession<IVideoComment>> CreateCommentSession(string contentId, Response watchData)
     {
         CommentClient commentClient = new(_niconicoSession, contentId);
-        DmcWatchApiData dmcRes = watchData;
+        Response dmcRes = watchData;
         //commentClient.CommentServerInfo = new CommentServerInfo()
         //{
         //    ServerUrl = dmcRes.Comment.Threads[0].Server.OriginalString,
@@ -513,34 +503,34 @@ public class NicoVideoSessionProvider
 
         try
         {
-            WatchPageResponse dmcRes = await _nicoVideoProvider.GetWatchPageResponseAsync(rawVideoId, noHistory);
-            if (dmcRes.WatchApiResponse is null)
+            var dmcRes = await _nicoVideoProvider.GetWatchPageResponseAsync(rawVideoId, noHistory);
+            if (dmcRes.Data.Response.Video is null)
             {
                 throw new NotSupportedException("視聴不可：視聴ページの取得または解析に失敗");
             }
-            else if (dmcRes.WatchApiResponse.WatchApiData.Video.IsDeleted)
+            else if (dmcRes.Data.Response.Video.IsDeleted.Value)
             {
-                return new PreparePlayVideoResult(rawVideoId, _niconicoSession, PreparePlayVideoFailedReason.Deleted, dmcRes.WatchApiResponse.WatchApiData);
+                return new PreparePlayVideoResult(rawVideoId, _niconicoSession, PreparePlayVideoFailedReason.Deleted, dmcRes.Data.Response);
             }
-            else if (dmcRes.WatchApiResponse.WatchApiData.Media.Delivery == null && dmcRes.WatchApiResponse.WatchApiData.Media.Domand == null)
+            else if (dmcRes.Data.Response.Media.Domand == null)
             {
-                Preview preview = dmcRes.WatchApiResponse.WatchApiData.Payment.Preview;
-                if (preview.Premium.IsEnabled)
+                Preview preview = dmcRes.Data.Response.Payment.Preview;
+                if (preview.Premium.IsEnabled.Value)
                 {
-                    return new PreparePlayVideoResult(rawVideoId, _niconicoSession, PreparePlayVideoFailedReason.NotPlayPermit_RequirePremiumMember, dmcRes.WatchApiResponse.WatchApiData);
+                    return new PreparePlayVideoResult(rawVideoId, _niconicoSession, PreparePlayVideoFailedReason.NotPlayPermit_RequirePremiumMember, dmcRes.Data.Response);
 
                 }
                 else
                 {
-                    return preview.Ppv.IsEnabled
-                        ? new PreparePlayVideoResult(rawVideoId, _niconicoSession, PreparePlayVideoFailedReason.NotPlayPermit_RequirePay, dmcRes.WatchApiResponse.WatchApiData)
-                        : preview.Admission.IsEnabled
-                                            ? new PreparePlayVideoResult(rawVideoId, _niconicoSession, PreparePlayVideoFailedReason.NotPlayPermit_RequireChannelMember, dmcRes.WatchApiResponse.WatchApiData)
+                    return preview.Ppv.IsEnabled.Value
+                        ? new PreparePlayVideoResult(rawVideoId, _niconicoSession, PreparePlayVideoFailedReason.NotPlayPermit_RequirePay, dmcRes.Data.Response)
+                        : preview.Admission.IsEnabled.Value
+                                            ? new PreparePlayVideoResult(rawVideoId, _niconicoSession, PreparePlayVideoFailedReason.NotPlayPermit_RequireChannelMember, dmcRes.Data.Response)
                                             : throw new NotSupportedException("視聴不可：不明な理由で視聴不可");
                 }
             }
 
-            return new PreparePlayVideoResult(rawVideoId, _niconicoSession, _nicoVideoSessionOwnershipManager, dmcRes.WatchApiResponse.WatchApiData, _playerSettings.ForceUsingDmcVideoOrigin)
+            return new PreparePlayVideoResult(rawVideoId, _niconicoSession, _nicoVideoSessionOwnershipManager, dmcRes.Data.Response, _playerSettings.ForceUsingDmcVideoOrigin)
             {
                 IsForCacheDownload = noHistory
             };
@@ -670,7 +660,7 @@ public class NiconicoContent
 
 public static class DmcWatchSessionExtension
 {
-    public static NicoVideoQuality ToNicoVideoQuality(this DmcWatchApiData dmcWatchData, string qualityId)
+    public static NicoVideoQuality ToNicoVideoQuality(this Response dmcWatchData, string qualityId)
     {
         if (dmcWatchData.Media.Domand is { } domand
             && domand.Videos.FirstOrDefault(x => x.Id == qualityId) is { }  videoQuality
@@ -687,10 +677,10 @@ public static class DmcWatchSessionExtension
             };
         }
 
-        VideoContent dmcVideoContent = dmcWatchData?.Media.Delivery.Movie.Videos.FirstOrDefault(x => x.Id == qualityId);
+        NicoVideoWatchApiResponse.Video dmcVideoContent = dmcWatchData?.Media.Delivery.Movie.Videos.FirstOrDefault(x => x.Id == qualityId);
         if (dmcVideoContent != null)
         {
-            VideoContent[] qualities = dmcWatchData.Media.Delivery.Movie.Videos;
+            NicoVideoWatchApiResponse.Video[] qualities = dmcWatchData.Media.Delivery.Movie.Videos;
             int index = Array.IndexOf(qualities, dmcVideoContent);
 
             // DmcInfo.Quality の要素数は動画によって1～5個まで様々である
