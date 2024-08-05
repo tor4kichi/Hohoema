@@ -12,17 +12,18 @@ using NiconicoToolkit.Video.Watch;
 using NiconicoToolkit.Video.Watch.Domand;
 using Windows.Media.Core;
 using Windows.Media.Streaming.Adaptive;
+using static NiconicoToolkit.Video.Watch.NicoVideoWatchApiResponse;
 
 namespace Hohoema.Models.Player.Video;
 public sealed class DomandStreamingSession : VideoStreamingSession
 {
     private readonly NiconicoContext _context;
-    private readonly DmcWatchApiData _watchApiData;
-    private readonly MediaDomand _domand;
+    private readonly Response _watchApiData;
+    private readonly Domand _domand;
 
     public DomandStreamingSession(
-        DmcWatchApiData watchApiData,
-        MediaDomand domand,
+        Response watchApiData,
+        Domand domand,
         NiconicoSession niconicoSession,
         NicoVideoSessionOwnershipManager.VideoSessionOwnership videoSessionOwnership)
         : base(niconicoSession, videoSessionOwnership)
@@ -40,11 +41,11 @@ public sealed class DomandStreamingSession : VideoStreamingSession
     public override string QualityId { get; protected set; }
     public override NicoVideoQuality Quality { get; protected set; }
 
-    public DomandAudio AudioQuality { get; set; }
-    public DomandVideo VideoQuality { get; set; }
+    public NicoVideoWatchApiResponse.Audio AudioQuality { get; set; }
+    public NicoVideoWatchApiResponse.Video VideoQuality { get; set; }
 
-    public List<DomandVideo> GetVideoQualities() => _watchApiData.Media.Domand.Videos;
-    public List<DomandAudio> GetAudioQualities() => _watchApiData.Media.Domand.Audios;
+    public List<NicoVideoWatchApiResponse.Video> GetVideoQualities() => _watchApiData.Media.Domand.Videos;
+    public List<NicoVideoWatchApiResponse.Audio> GetAudioQualities() => _watchApiData.Media.Domand.Audios;
 
     public void SetQuality(NicoVideoQuality quality)
     {

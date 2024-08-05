@@ -165,7 +165,7 @@ public partial class PrimaryWindowCoreLayoutViewModel : ObservableObject, IRecip
             new SeparatorMenuItemViewModel(),
             _queueMenuItemViewModel,
             new NavigateAwareMenuItemViewModel(HohoemaPageType.RankingCategoryList.Translate(), HohoemaPageType.RankingCategoryList),
-            new NavigateAwareMenuItemViewModel(HohoemaPageType.NicoRepo.Translate(), HohoemaPageType.NicoRepo, new NavigationParameters("type=Video")),
+            //new NavigateAwareMenuItemViewModel(HohoemaPageType.NicoRepo.Translate(), HohoemaPageType.NicoRepo, new NavigationParameters("type=Video")),
             new SubscriptionMenuItemViewModel(_messenger, _subscriptionManager, _queuePlaylist, _notificationService),
             //new NavigateAwareMenuItemViewModel("WatchAfterMylist".Translate(), HohoemaPageType.Mylist, new NavigationParameters(("id", MylistId.WatchAfterMylistId.ToString()))),
             new MylistSubMenuMenu(_userMylistManager, OpenPageCommand),
@@ -175,7 +175,7 @@ public partial class PrimaryWindowCoreLayoutViewModel : ObservableObject, IRecip
             
             new SeparatorMenuItemViewModel(),
             new LogginUserLiveSummaryItemViewModel(NiconicoSession, _logger, OpenLiveContentCommand),
-            new NavigateAwareMenuItemViewModel(HohoemaPageType.NicoRepo.Translate(), HohoemaPageType.NicoRepo, new NavigationParameters("type=Program")),
+            //new NavigateAwareMenuItemViewModel(HohoemaPageType.NicoRepo.Translate(), HohoemaPageType.NicoRepo, new NavigationParameters("type=Program")),
             new NavigateAwareMenuItemViewModel(HohoemaPageType.Timeshift.Translate(), HohoemaPageType.Timeshift),
         };
 
@@ -1014,6 +1014,8 @@ public sealed class LogginUserLiveSummaryItemViewModel : HohoemaListingPageItemB
             _nextRefreshAvairableAt = DateTime.Now + TimeSpan.FromMinutes(1);
 
             var res = await _niconicoSession.ToolkitContext.Live.LiveNotify.GetLiveNotifyAsync();
+            if (res.IsSuccess is false) { return; }
+
             Items.Clear();
             foreach (var data in res.Data.NotifyboxContent)
             {

@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using AngleSharp.Attributes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
@@ -541,15 +542,13 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
         TimeSpan? currentPosition = GetCurrentPlaybackPosition();
 
         IStreamingSession videoSession;
-        if (_videoSessionDisposable is not DmcVideoStreamingSession dmcSession)
+        if (_videoSessionDisposable is DomandStreamingSession dommandSession)
         {
             videoSession = await CurrentPlayingSession.VideoSessionProvider.CreateVideoSessionAsync(qualityEntity);
         }
         else
         {
-            dmcSession.StopPlayback();
-            dmcSession.SetQuality(qualityEntity.QualityId);
-            videoSession = dmcSession;            
+            throw new NotSupportedException("Not supported video playback quality on not DomandStreamingSession.");
         }
 
         if (qualityEntity.IsAvailable is false)
@@ -765,6 +764,7 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
             // メディア再生成功時のメッセージを飛ばす
             _ = _messenger.Send(new PlaybackStartedMessage(new(this, CurrentPlaylistId, item.VideoId, videoSession.Quality, _mediaPlayer.PlaybackSession)));
 
+            _mediaPlayer.PlaybackSession.PlaybackStateChanged -= PlaybackSession_PlaybackStateChanged;
             _mediaPlayer.PlaybackSession.PlaybackStateChanged += PlaybackSession_PlaybackStateChanged;
 
             _mediaPlayer.CommandManager.IsEnabled = false;

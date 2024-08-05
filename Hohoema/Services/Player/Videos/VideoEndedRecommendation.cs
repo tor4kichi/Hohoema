@@ -18,6 +18,7 @@ using System.Reactive.Disposables;
 using System.Threading.Tasks;
 using Windows.Media.Playback;
 using Windows.System;
+using static NiconicoToolkit.Video.Watch.NicoVideoWatchApiResponse;
 
 namespace Hohoema.Services.Player;
 

@@ -323,8 +323,8 @@ public sealed class VideoCacheManager : IDisposable
         }
 
         // require watch permission
-        NiconicoToolkit.Video.Watch.WatchPageResponse watchData = await _niconicoSession.ToolkitContext.Video.VideoWatch.GetInitialWatchDataAsync(item.VideoId);
-        NiconicoToolkit.Video.Watch.DmcWatchApiData watchApiData = watchData?.WatchApiResponse?.WatchApiData;
+        NiconicoToolkit.Video.Watch.NicoVideoWatchApiResponse watchData = await _niconicoSession.ToolkitContext.Video.VideoWatch.GetWatchDataAsync(item.VideoId);
+        NiconicoToolkit.Video.Watch.NicoVideoWatchApiResponse.Response watchApiData = watchData.Data.Response;
         if (watchApiData?.Media?.Delivery is null)
         {
             throw new VideoCacheException("VideoCacheItem is can not play, require content access permission. reason : " + watchApiData?.OkReason);
@@ -689,9 +689,8 @@ public sealed class VideoCacheManager : IDisposable
 
         try
         {
-            NiconicoToolkit.Video.Watch.WatchPageResponse res = await _niconicoSession.ToolkitContext.Video.VideoWatch.GetInitialWatchDataAsync(item.VideoId, false, false);
-            NiconicoToolkit.Video.Watch.DmcWatchApiData watchApiData = res.WatchApiResponse?.WatchApiData;
-
+            NiconicoToolkit.Video.Watch.NicoVideoWatchApiResponse watchData = await _niconicoSession.ToolkitContext.Video.VideoWatch.GetWatchDataAsync(item.VideoId);
+            NiconicoToolkit.Video.Watch.NicoVideoWatchApiResponse.Response watchApiData = watchData.Data.Response;
             if (watchApiData is null)
             {
 
@@ -825,10 +824,11 @@ public sealed class VideoCacheManager : IDisposable
 
             UpdateVideoCacheEntity(item);
 
-            DmcVideoStreamingSession dmcVideoStreamingSession = new(NicoVideoCacheQualityHelper.CacheQualityToQualityId(candidateDownloadingQuality), watchApiData, _niconicoSession, videoSessionOwnershipRentResult, forCacheDownload: true);
-            VideoCacheDownloadOperation op = new(this, item, dmcVideoStreamingSession, new VideoCacheDownloadOperationOutputWithEncryption(outputFile, Xts));
+            //DmcVideoStreamingSession dmcVideoStreamingSession = new(NicoVideoCacheQualityHelper.CacheQualityToQualityId(candidateDownloadingQuality), watchApiData, _niconicoSession, videoSessionOwnershipRentResult, forCacheDownload: true);
+            //VideoCacheDownloadOperation op = new(this, item, dmcVideoStreamingSession, new VideoCacheDownloadOperationOutputWithEncryption(outputFile, Xts));
 
-            return new VideoCacheDownloadOperationCreationResult(op);
+            //return new VideoCacheDownloadOperationCreationResult(op);
+            throw new NotSupportedException();
         }
         catch
         {
