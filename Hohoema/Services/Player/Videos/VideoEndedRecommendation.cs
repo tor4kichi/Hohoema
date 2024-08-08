@@ -7,7 +7,7 @@ using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Player;
 using Hohoema.Models.Player.Video;
 using Hohoema.Models.Playlist;
-using NiconicoToolkit.NicoRepo;
+using NiconicoToolkit.FollowingsActivity;
 using NiconicoToolkit.Video;
 using NiconicoToolkit.Video.Watch;
 using Reactive.Bindings;

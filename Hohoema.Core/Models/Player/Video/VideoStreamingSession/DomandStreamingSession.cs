@@ -18,12 +18,12 @@ namespace Hohoema.Models.Player.Video;
 public sealed class DomandStreamingSession : VideoStreamingSession
 {
     private readonly NiconicoContext _context;
-    private readonly Response _watchApiData;
-    private readonly Domand _domand;
+    private readonly WatchResponse _watchApiData;
+    private readonly WatchDomand _domand;
 
     public DomandStreamingSession(
-        Response watchApiData,
-        Domand domand,
+        WatchResponse watchApiData,
+        WatchDomand domand,
         NiconicoSession niconicoSession,
         NicoVideoSessionOwnershipManager.VideoSessionOwnership videoSessionOwnership)
         : base(niconicoSession, videoSessionOwnership)
@@ -31,8 +31,8 @@ public sealed class DomandStreamingSession : VideoStreamingSession
         _context = niconicoSession.ToolkitContext;
         _watchApiData = watchApiData;
         _domand = domand;
-        VideoQuality = _domand.Videos.Where(x => x.IsAvailable ?? false).Last();
-        AudioQuality = _domand.Audios.Where(x => x.IsAvailable ?? false).Last();
+        VideoQuality = _domand.Videos.Where(x => x.IsAvailable).Last();
+        AudioQuality = _domand.Audios.Where(x => x.IsAvailable).Last();
 
         QualityId = VideoQuality.Id;
         Quality = _watchApiData.ToNicoVideoQuality(QualityId);
@@ -41,11 +41,11 @@ public sealed class DomandStreamingSession : VideoStreamingSession
     public override string QualityId { get; protected set; }
     public override NicoVideoQuality Quality { get; protected set; }
 
-    public NicoVideoWatchApiResponse.Audio AudioQuality { get; set; }
-    public NicoVideoWatchApiResponse.Video VideoQuality { get; set; }
+    public AudioContent AudioQuality { get; set; }
+    public VideoContent VideoQuality { get; set; }
 
-    public List<NicoVideoWatchApiResponse.Video> GetVideoQualities() => _watchApiData.Media.Domand.Videos;
-    public List<NicoVideoWatchApiResponse.Audio> GetAudioQualities() => _watchApiData.Media.Domand.Audios;
+    public List<VideoContent> GetVideoQualities() => _watchApiData.Media.Domand.Videos;
+    public List<AudioContent> GetAudioQualities() => _watchApiData.Media.Domand.Audios;
 
     public void SetQuality(NicoVideoQuality quality)
     {
@@ -59,25 +59,25 @@ public sealed class DomandStreamingSession : VideoStreamingSession
             _ => 0,
         };
 
-        if (_watchApiData.Media.Domand.Videos.Where(x => (x.IsAvailable ?? false) && ((x.QualityLevel ?? 0) == requireQualityLevel)).FirstOrDefault() is { } requireQuality)
+        if (_watchApiData.Media.Domand.Videos.Where(x => (x.IsAvailable) && ((x.QualityLevel) == requireQualityLevel)).FirstOrDefault() is { } requireQuality)
         {
             VideoQuality = requireQuality;
         }
         else
         {
-            VideoQuality = _watchApiData.Media.Domand.Videos.Where(x => x.IsAvailable ?? false).First();
+            VideoQuality = _watchApiData.Media.Domand.Videos.Where(x => x.IsAvailable).First();
         }
 
         Debug.WriteLine($"audio qualities: {string.Join(',', _watchApiData.Media.Domand.Audios.Select(x => x.Id))}");
 
-        var recommendedAudioQuality = _watchApiData.Media.Domand.Audios.First(x => (x.QualityLevel ?? 0) == VideoQuality.RecommendedHighestAudioQualityLevel);
-        if (recommendedAudioQuality.IsAvailable ?? false)
+        var recommendedAudioQuality = _watchApiData.Media.Domand.Audios.First(x => (x.QualityLevel) == VideoQuality.RecommendedHighestAudioQualityLevel);
+        if (recommendedAudioQuality.IsAvailable)
         {
             AudioQuality = recommendedAudioQuality;
         }
         else
         {
-            AudioQuality = _watchApiData.Media.Domand.Audios.First(x => x.IsAvailable ?? false);
+            AudioQuality = _watchApiData.Media.Domand.Audios.First(x => x.IsAvailable);
         }
 
         Debug.WriteLine($"Set Quality Video: {VideoQuality.Id}, Audio: {AudioQuality.Id}");
@@ -98,7 +98,7 @@ public sealed class DomandStreamingSession : VideoStreamingSession
 
         if (res.IsSuccess is false)
         {
-            var lowAudio = _domand.Audios.First(x => x.IsAvailable ?? false);
+            var lowAudio = _domand.Audios.First(x => x.IsAvailable);
             Debug.WriteLine($"can't use Audio Level {AudioQuality.Id}, so fallback to {lowAudio.Id}");
             res = await _context.Video.VideoWatch.GetDomandHlsAccessRightAsync(
             _watchApiData.Video.Id,

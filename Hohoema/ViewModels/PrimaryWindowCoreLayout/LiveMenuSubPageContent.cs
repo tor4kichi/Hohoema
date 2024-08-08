@@ -32,7 +32,7 @@ public class LiveMenuSubPageContent : MenuItemBase
         if (NiconicoSession.IsLoggedIn)
         {
             MenuItems.Add(new NavigateAwareMenuItemViewModel(HohoemaPageType.Timeshift.Translate(), HohoemaPageType.Timeshift));
-            MenuItems.Add(new NavigateAwareMenuItemViewModel(HohoemaPageType.NicoRepo.Translate(), HohoemaPageType.NicoRepo));
+            MenuItems.Add(new NavigateAwareMenuItemViewModel(HohoemaPageType.FollowingsActivity.Translate(), HohoemaPageType.FollowingsActivity));
             MenuItems.Add(new NavigateAwareMenuItemViewModel(HohoemaPageType.FollowManage.Translate(), HohoemaPageType.FollowManage));
         }
 

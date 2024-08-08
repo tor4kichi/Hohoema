@@ -82,7 +82,7 @@ HohoemaPageType.FeedGroup = Feed group
 HohoemaPageType.FeedGroupManage = New videos
 HohoemaPageType.FeedVideoList = Video list of the feed
 HohoemaPageType.FollowManage = Follow
-HohoemaPageType.NicoRepo = Nicorepo
+HohoemaPageType.FollowingsActivity = Followings New
 HohoemaPageType.RankingCategory = Category ranking
 HohoemaPageType.RankingCategoryList = Ranking list
 HohoemaPageType.Recommend = Recommended video
@@ -710,47 +710,16 @@ FollowInfoIsRequireLogIn = You must be logged in to see follow information
 FollowerCount = Follower
 MylistVideoCountDesc = {0} videos
 
-#### Nicorepo ####
-NicoRepoDisplayOptions = Display conditions
-NicoRepoType.All = All
-NicoRepoType.Video = Video posting
-NicoRepoType.Program = Live broadcast started
-NicoRepoType.Image = Illustration posting
-NicoRepoType.ComicStory = Manga post
-NicoRepoType.Article = Article posting
-NicoRepoType.Game = Game
-NicoRepoDisplayTarget.All = All
-NicoRepoDisplayTarget.Self = Myself
-NicoRepoDisplayTarget.User = User
-NicoRepoDisplayTarget.Channel = Channel
-NicoRepoDisplayTarget.Community = Community
-NicoRepoDisplayTarget.Mylist = Mylist
+#### Followings Activity ####
+FollowingsActivityDisplayOptions = New arrival display target
+ActivityType.All = All
+ActivityType.Video = Video posting
+ActivityType.Live = Live broadcast starts
+ActivityType.Publish = Content post
 
-NicoRepoItemTopic.Unknown = unknown
-NicoRepoItemTopic.Live_Channel_Program_Onairs = Start live broadcasting (channel)
-NicoRepoItemTopic.Live_Channel_Program_Reserve = Live Broadcast Reservation (Channel)
-NicoRepoItemTopic.Live_User_Program_OnAirs = Start live broadcast (user)
-NicoRepoItemTopic.Live_User_Program_Reserve = Live broadcast reservation (user)
-NicoRepoItemTopic.NicoVideo_Channel_Blomaga_Upload = Buromaga Post
-NicoRepoItemTopic.NicoVideo_Channel_Video_Upload = Channel Video Post
-NicoRepoItemTopic.NicoVideo_Community_Level_Raise = Raising the community level
-NicoRepoItemTopic.NicoVideo_User_Community_Video_Add = Register the video as a community
-NicoRepoItemTopic.NicoVideo_User_Mylist_Add_Video = Add video to Mylist
-NicoRepoItemTopic.NicoVideo_User_Video_Advertise = User video was advertised
-NicoRepoItemTopic.NicoVideo_User_Video_Kiriban_Play = Number of plays
-NicoRepoItemTopic.NicoVideo_User_Video_UpdateHighestRankings = Top ranking update
-NicoRepoItemTopic.NicoVideo_User_Video_Upload = User video posting
 
-NicorepoNoItems = There is no Nirekopo that can be displayed
+FollowingsActivityNoItems = There is no Nirekopo that can be displayed
 
-NicoRepo_Video_UserVideoUpload = {0} posted a video
-NicoRepo_Video_UserMylistAddVideo = {0} added a video to Mylist
-NicoRepo_Video_CommunityAddVideo = Add video to {0} (community)
-NicoRepo_Video_ChannelVideoUpload = {0} posted a video
-NicoRepo_Live_UserProgramOnAirs = {0} starts live broadcast
-NicoRepo_Live_UserProgramReserve = {0} booked live
-NicoRepo_Live_ChannelProgramOnAirs = {0} starts live broadcast
-NicoRepo_Live_ChannelProgramReserve = {0} reserves live broadcast
 LiveStreamingStartAtWithDateTime = {0} Start broadcasting
 
 

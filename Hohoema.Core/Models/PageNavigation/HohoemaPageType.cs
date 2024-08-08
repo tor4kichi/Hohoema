@@ -45,7 +45,7 @@ public enum HohoemaPageType
     Splash,
     VideoPlayer,
 
-    NicoRepo,
+    FollowingsActivity,
     Recommend,
 
     ChannelInfo,

@@ -321,7 +321,7 @@
     <Compile Include="Views.Niconico\Series\UserSeriesPageViewModel.cs" />
     <Compile Include="Views.Niconico\Follow\FollowManagePageViewModel.cs" />
     <Compile Include="ViewModels\Niconico.Account\LogoutFromNiconicoCommand.cs" />
-    <Compile Include="Views.Niconico\NicoRepo\NicoRepoPageViewModel.cs" />
+    <Compile Include="Views.Niconico\FollowingsActivity\FollowingsActivityPageViewModel.cs" />
     <Compile Include="Views.Niconico\Live\TimeshiftPageViewModel.cs" />
     <Compile Include="Views.Niconico\Activity\WatchHistoryPageViewModel.cs" />
     <Compile Include="Views.Niconico\User\UserInfoPageViewModel.cs" />
@@ -479,8 +479,8 @@
     <Compile Include="Views.Niconico\Follow\FollowManagePage.xaml.cs">
       <DependentUpon>FollowManagePage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views.Niconico\NicoRepo\NicoRepoPage.xaml.cs">
-      <DependentUpon>NicoRepoPage.xaml</DependentUpon>
+    <Compile Include="Views.Niconico\FollowingsActivity\FollowingsActivityPage.xaml.cs">
+      <DependentUpon>FollowingsActivityPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views.Niconico\Live\TimeshiftPage.xaml.cs">
       <DependentUpon>TimeshiftPage.xaml</DependentUpon>
@@ -1035,7 +1035,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Views.Niconico\NicoRepo\NicoRepoPage.xaml">
+    <Page Include="Views.Niconico\FollowingsActivity\FollowingsActivityPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

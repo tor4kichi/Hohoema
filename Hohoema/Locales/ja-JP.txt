@@ -82,7 +82,7 @@ HohoemaPageType.FeedGroup = フィードグループ
 HohoemaPageType.FeedGroupManage = 新着動画
 HohoemaPageType.FeedVideoList = フィードの動画一覧
 HohoemaPageType.FollowManage = フォロー
-HohoemaPageType.NicoRepo = ニコレポ
+HohoemaPageType.FollowingsActivity = フォロー新着
 HohoemaPageType.RankingCategory = カテゴリランキング
 HohoemaPageType.RankingCategoryList = ランキング一覧
 HohoemaPageType.Recommend = オススメ動画
@@ -710,47 +710,16 @@ FollowInfoIsRequireLogIn = フォローを確認するにはログインして�
 FollowerCount = フォロワー
 MylistVideoCountDesc = {0}件の動画
 
-#### Nicorepo ####
-NicoRepoDisplayOptions = 表示条件
-NicoRepoType.All = すべて
-NicoRepoType.Video = 動画投稿
-NicoRepoType.Program = 生放送開始
-NicoRepoType.Image = イラスト投稿
-NicoRepoType.ComicStory = マンガ投稿
-NicoRepoType.Article = 記事投稿
-NicoRepoType.Game = ゲーム
-NicoRepoDisplayTarget.All = すべて
-NicoRepoDisplayTarget.Self = 自分
-NicoRepoDisplayTarget.User = ユーザー
-NicoRepoDisplayTarget.Channel = チャンネル
-NicoRepoDisplayTarget.Community = コミュニティ
-NicoRepoDisplayTarget.Mylist = マイリスト
+#### Followings Activity ####
+FollowingsActivityDisplayOptions = 新着表示対象
+ActivityType.All = すべて
+ActivityType.Video = 動画投稿
+ActivityType.Live = 生放送開始
+ActivityType.Publish = コンテンツ投稿
 
-NicoRepoItemTopic.Unknown = 不明
-NicoRepoItemTopic.Live_Channel_Program_Onairs = 生放送開始（チャンネル）
-NicoRepoItemTopic.Live_Channel_Program_Reserve = 生放送の予約（チャンネル）
-NicoRepoItemTopic.Live_User_Program_OnAirs = 生放送開始（ユーザー）
-NicoRepoItemTopic.Live_User_Program_Reserve = 生放送の予約（ユーザー）
-NicoRepoItemTopic.NicoVideo_Channel_Blomaga_Upload = ブロマガ投稿
-NicoRepoItemTopic.NicoVideo_Channel_Video_Upload = チャンネルの動画投稿
-NicoRepoItemTopic.NicoVideo_Community_Level_Raise = コミュニティレベルの上昇
-NicoRepoItemTopic.NicoVideo_User_Community_Video_Add = 動画をコミュニティ登録
-NicoRepoItemTopic.NicoVideo_User_Mylist_Add_Video = 動画をマイリスト登録
-NicoRepoItemTopic.NicoVideo_User_Video_Advertise = ユーザー動画が広告された
-NicoRepoItemTopic.NicoVideo_User_Video_Kiriban_Play = 再生数キリ番
-NicoRepoItemTopic.NicoVideo_User_Video_UpdateHighestRankings = ランキング最高順位更新
-NicoRepoItemTopic.NicoVideo_User_Video_Upload = ユーザーの動画投稿
 
-NicorepoNoItems = 表示可能なニレコポがありません
+FollowingsActivityNoItems = 表示可能な新着コンテンツがありません
 
-NicoRepo_Video_UserVideoUpload = {0} さんが動画を投稿
-NicoRepo_Video_UserMylistAddVideo = {0} さんがマイリストに動画を追加
-NicoRepo_Video_CommunityAddVideo = {0} （コミュニティ）に動画を追加
-NicoRepo_Video_ChannelVideoUpload = {0} が動画を投稿
-NicoRepo_Live_UserProgramOnAirs = {0} さんが生放送を開始
-NicoRepo_Live_UserProgramReserve = {0} さんが生放送を予約
-NicoRepo_Live_ChannelProgramOnAirs = {0} が生放送を開始
-NicoRepo_Live_ChannelProgramReserve = {0} が生放送を予約
 LiveStreamingStartAtWithDateTime = {0} 放送開始
 
 

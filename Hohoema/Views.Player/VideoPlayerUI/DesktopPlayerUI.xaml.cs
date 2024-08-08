@@ -9,7 +9,7 @@ using Hohoema.Views.Converters;
 using Hohoema.Views.Helpers;
 using I18NPortable;
 using Microsoft.Toolkit.Uwp.Helpers;
-using NiconicoToolkit.NicoRepo;
+using NiconicoToolkit.FollowingsActivity;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;

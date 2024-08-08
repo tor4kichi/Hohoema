@@ -13,7 +13,6 @@ using Hohoema.Helpers;
 using Hohoema.Infra;
 using Hohoema.Models.Application;
 using Hohoema.Models.Niconico;
-using Hohoema.Models.Niconico.NicoRepo;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Pins;
 using Hohoema.Models.Player;
@@ -301,7 +300,7 @@ public sealed partial class App : Application
         viewLocator.RegisterForNavigation<Views.Pages.Niconico.Mylist.MylistPage>();
         viewLocator.RegisterForNavigation<Views.Pages.Niconico.Mylist.OwnerMylistManagePage>();
         viewLocator.RegisterForNavigation<Views.Pages.Niconico.Mylist.UserMylistPage>();
-        viewLocator.RegisterForNavigation<Views.Pages.Niconico.NicoRepo.NicoRepoPage>();
+        viewLocator.RegisterForNavigation<Views.Pages.Niconico.FollowingsActivity.FollowingsActivityPage>();
         viewLocator.RegisterForNavigation<Views.Pages.Niconico.Search.SearchPage>();
         viewLocator.RegisterForNavigation<Views.Pages.Niconico.Search.SearchResultTagPage>();
         viewLocator.RegisterForNavigation<Views.Pages.Niconico.Search.SearchResultKeywordPage>();
@@ -389,7 +388,6 @@ public sealed partial class App : Application
         container.Register<PlayerSettings>(reuse: Reuse.Singleton);
         container.Register<VideoFilteringSettings>(reuse: Reuse.Singleton);
         container.Register<VideoRankingSettings>(reuse: Reuse.Singleton);
-        container.Register<NicoRepoSettings>(reuse: Reuse.Singleton);
         container.Register<CommentFliteringRepository>(reuse: Reuse.Singleton);
         container.Register<QueuePlaylist>(reuse: Reuse.Singleton);
 

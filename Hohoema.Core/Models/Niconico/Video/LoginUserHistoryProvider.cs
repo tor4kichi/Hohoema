@@ -31,7 +31,7 @@ public sealed class LoginUserVideoWatchHistoryProvider : ProviderBase
             throw new HohoemaException("Failed get login user video watch history. Require LogIn.");
         }
 
-        VideoWatchHistory res = await _niconicoSession.ToolkitContext.Activity.VideoWachHistory.GetWatchHistoryAsync(page, pageSize);
+        VideoWatchHistory res = await _niconicoSession.ToolkitContext.History.VideoWachHistory.GetWatchHistoryAsync(page, pageSize);
 
         if (res.Meta.IsSuccess is false) { throw new HohoemaException("Failed get login user video watch history"); }
 
@@ -46,19 +46,19 @@ public sealed class LoginUserVideoWatchHistoryProvider : ProviderBase
 
     public async Task<bool> RemoveAllHistoriesAsync()
     {
-        VideoWatchHistoryDeleteResult res = await _niconicoSession.ToolkitContext.Activity.VideoWachHistory.DeleteAllWatchHistoriesAsync();
+        VideoWatchHistoryDeleteResult res = await _niconicoSession.ToolkitContext.History.VideoWachHistory.DeleteAllWatchHistoriesAsync();
         return res.IsSuccess;
     }
 
     public async Task<bool> RemoveHistoryAsync(VideoId videoId)
     {
-        VideoWatchHistoryDeleteResult res = await _niconicoSession.ToolkitContext.Activity.VideoWachHistory.DeleteWatchHistoriesAsync(videoId);
+        VideoWatchHistoryDeleteResult res = await _niconicoSession.ToolkitContext.History.VideoWachHistory.DeleteWatchHistoriesAsync(videoId);
         return res.IsSuccess;
     }
 
     public async Task<bool> RemoveHistoryAsync(IEnumerable<VideoId> videoIdList)
     {
-        VideoWatchHistoryDeleteResult res = await _niconicoSession.ToolkitContext.Activity.VideoWachHistory.DeleteWatchHistoriesAsync(videoIdList);
+        VideoWatchHistoryDeleteResult res = await _niconicoSession.ToolkitContext.History.VideoWachHistory.DeleteWatchHistoriesAsync(videoIdList);
         return res.IsSuccess;
     }
 }

@@ -60,7 +60,7 @@ public sealed class VideoMenuSubPageContent : MenuItemBase, IDisposable
         if (NiconicoSession.IsLoggedIn)
         {
             MenuItems.Add(new NavigateAwareMenuItemViewModel(HohoemaPageType.RankingCategoryList.Translate(), HohoemaPageType.RankingCategoryList));
-            MenuItems.Add(new NavigateAwareMenuItemViewModel(HohoemaPageType.NicoRepo.Translate(), HohoemaPageType.NicoRepo));
+            MenuItems.Add(new NavigateAwareMenuItemViewModel(HohoemaPageType.FollowingsActivity.Translate(), HohoemaPageType.FollowingsActivity));
             MenuItems.Add(new NavigateAwareMenuItemViewModel(HohoemaPageType.FollowManage.Translate(), HohoemaPageType.FollowManage));
             MenuItems.Add(new NavigateAwareMenuItemViewModel(HohoemaPageType.WatchHistory.Translate(), HohoemaPageType.WatchHistory));
             MenuItems.Add(new SeparatorMenuItemViewModel());

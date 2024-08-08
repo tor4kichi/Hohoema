@@ -1,10 +1,10 @@
 ﻿<Page
-  x:Class="Hohoema.Views.Pages.Niconico.NicoRepo.NicoRepoPage"
+  x:Class="Hohoema.Views.Pages.Niconico.FollowingsActivity.FollowingsActivityPage"
   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-  xmlns:local="using:Hohoema.Views.Pages.Niconico.NicoRepo"
+  xmlns:local="using:Hohoema.Views.Pages.Niconico.FollowingsActivity"
   xmlns:i="using:Microsoft.Xaml.Interactivity"
   xmlns:core="using:Microsoft.Xaml.Interactions.Core"
   xmlns:models="using:Hohoema.Models.Application"
@@ -20,22 +20,37 @@
   xmlns:windowsStateTriggers="using:WindowsStateTriggers"
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" 
   xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors" 
-  xmlns:vm="using:Hohoema.ViewModels.Pages.Niconico.NicoRepo" 
+  xmlns:vm="using:Hohoema.ViewModels.Pages.Niconico.FollowingsActivity" 
   DataContext="{x:Null}"
   NavigationCacheMode="Enabled"
   mc:Ignorable="d"
   >
   <Page.Resources>
-    <local:NicoRepoTimelineItemTemplateSelector x:Key="NicoRepoItemTemplateSelector">
+    <local:FollowingsActivityTimelineItemTemplateSelector x:Key="FollowingsActivityItemTemplateSelector">
       <!-- Video Item -->
-      <local:NicoRepoTimelineItemTemplateSelector.VideoItem>
-        <DataTemplate x:DataType="vm:NicoRepoVideoTimeline">
+      <local:FollowingsActivityTimelineItemTemplateSelector.VideoItem>
+        <DataTemplate x:DataType="vm:FollowingsActivityVideoTimeline">
           <Grid>
-            <TextBlock Text="{x:Bind ItempTopicDescription}"
-                     Opacity="0.7"
-                     FontSize="12"
-                     HorizontalAlignment="Right"
-                     VerticalAlignment="Bottom" />
+
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom" Spacing="8"
+                        Margin="160 0 0 0"
+                        >
+
+              <StackPanel Orientation="Horizontal" Spacing="8" >
+                <TextBlock Text="{x:Bind ProviderName}"
+                           Opacity="0.7"
+                           FontSize="12"
+                           VerticalAlignment="Center"
+                           />
+              </StackPanel>
+              <TextBlock Text="{x:Bind ItempTopicDescription}"
+                         Opacity="0.7"
+                         FontSize="12"
+                         VerticalAlignment="Center"
+                          />
+            </StackPanel>
 
             <videoListPage:VideoListItemControl 
                 Title="{x:Bind Label}"                 
@@ -54,28 +69,38 @@
               />
           </Grid>
         </DataTemplate>
-      </local:NicoRepoTimelineItemTemplateSelector.VideoItem>
+      </local:FollowingsActivityTimelineItemTemplateSelector.VideoItem>
       <!-- Live Item -->
-      <local:NicoRepoTimelineItemTemplateSelector.LiveItem>
-        <DataTemplate >
-          <Grid Margin="8 0 8 0">
+      <local:FollowingsActivityTimelineItemTemplateSelector.LiveItem>
+        <DataTemplate x:DataType="vm:FollowingsActivityLiveTimeline" >
+          <Grid Padding="8 8 8 8"
+                BorderThickness="0 0 0 1"
+                BorderBrush="{ThemeResource HohoemaLightBorderBrush}">
             <StackPanel>
-              <uwpcontrols:DockPanel Margin="0 0 0 0">
-                <uwpcontrols:ImageEx Source="{Binding ThumbnailUrl}" Width="36" Height="36" CornerRadius="24" uwpcontrols:DockPanel.Dock="Left" />
-                <TextBlock Text="{Binding StartTime, Converter={StaticResource ToRelationalTime}}" uwpcontrols:DockPanel.Dock="Right" 
-                           VerticalAlignment="Center"                         
-                           />
-
-                <TextBlock Text="{Binding ItempTopicDescription}"
-                           Margin="8 0 0 0"
-                           VerticalAlignment="Center"
-                     />
+              <uwpcontrols:DockPanel Margin="0 0 0 8">
+                <uwpcontrols:ImageEx Source="{x:Bind Activity.Actor.IconUrl}"
+                                     Width="36"
+                                     Height="36"
+                                     CornerRadius="24"
+                                     uwpcontrols:DockPanel.Dock="Left"
+                                     Margin="8" />
+                <TextBlock Text="{x:Bind Activity.Message.Text}" uwpcontrols:DockPanel.Dock="Bottom" Opacity="0.7" />
+                <StackPanel Orientation="Horizontal"
+                            Spacing="8">
+                  <TextBlock Text="{x:Bind Activity.Actor.Name}"
+                             VerticalAlignment="Center" />
+                  <TextBlock Text="{x:Bind Activity.Content.StartedAt, Converter={StaticResource ToRelationalTime}}"
+                             uwpcontrols:DockPanel.Dock="Right"
+                             VerticalAlignment="Center" />
+                </StackPanel>
               </uwpcontrols:DockPanel>
 
-              <StackPanel Margin="42 0 0 0" Spacing="8">
+              <StackPanel Margin="52 0 0 0" Spacing="8" BorderBrush="{ThemeResource HohoemaLightBorderBrush}" BorderThickness="1" CornerRadius="4"
+                          Background="{ThemeResource SystemAltLowColor}"
+                          >
                 <uwpcontrols:DockPanel>
-                  <uwpcontrols:ImageEx Source="{Binding CommunityThumbnail}" CornerRadius="4" Height="64" Stretch="Uniform" />
-                  <TextBlock Text="{Binding LiveTitle}" VerticalAlignment="Center" Margin="8 0" TextTrimming="CharacterEllipsis" MaxLines="2" TextWrapping="Wrap" />
+                  <uwpcontrols:ImageEx Source="{x:Bind Activity.ThumbnailUrl}" Height="120" Stretch="Uniform" />
+                  <TextBlock Text="{x:Bind Activity.Content.Title}" VerticalAlignment="Center" Margin="8 0" TextTrimming="CharacterEllipsis" MaxLines="2" TextWrapping="Wrap" />
                 </uwpcontrols:DockPanel>
 
               </StackPanel>
@@ -83,14 +108,14 @@
 
           </Grid>
         </DataTemplate>
-      </local:NicoRepoTimelineItemTemplateSelector.LiveItem>
-    </local:NicoRepoTimelineItemTemplateSelector>
+      </local:FollowingsActivityTimelineItemTemplateSelector.LiveItem>
+    </local:FollowingsActivityTimelineItemTemplateSelector>
   </Page.Resources>
   <Grid>
 
     <ListView x:Name="ItemsList"
               ItemsSource="{x:Bind _vm.ItemsView, Mode=OneWay}"
-              ItemTemplateSelector="{StaticResource NicoRepoItemTemplateSelector}"
+              ItemTemplateSelector="{StaticResource FollowingsActivityItemTemplateSelector}"
               ItemContainerStyleSelector="{StaticResource ListViewItemContainerStyleSelector}"
               IsItemClickEnabled="True"
               IncrementalLoadingTrigger="Edge"
@@ -100,7 +125,7 @@
               uwpExtensions:ScrollViewerExtensions.VerticalScrollBarMargin="0 0 0 0"
               xmlns:myExtensions="using:Hohoema.Views.Extensions"
               myExtensions:ListViewBase.DeferInitialize="True"
-              Style="{StaticResource FixedHeaderListViewStyle}"
+              Style="{StaticResource FixedHeaderListViewStyle}"              
               >
 
       <ListView.ItemContainerTransitions>
@@ -116,20 +141,19 @@
 
               <CommandBar.PrimaryCommands>
                 <AppBarElementContainer VerticalContentAlignment="Stretch" IsTabStop="False">
-                  <DropDownButton Background="Transparent" VerticalAlignment="Stretch" CornerRadius="4" Height="34">
-                    <TextBlock>
-                      <Run Text="{i18nExt:Localize Key=NicoRepoDisplayOptions}" /> : <Run Text="{x:Bind _vm.NicoRepoType.Value, Mode=OneWay, Converter={StaticResource LocalizeConverter}}" />
+                  <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock VerticalAlignment="Center" >   
+                      <Run Text="{i18nExt:Localize Key=FollowingsActivityDisplayOptions}" />
                     </TextBlock>
-                    <DropDownButton.Flyout>
-                      <Flyout x:Name="TopicsEditFlyout" >
-                        <ListView ItemsSource="{x:Bind _vm.NicoRepoTypeList}" SelectionMode="Single" IsMultiSelectCheckBoxEnabled="False" SelectedItem="{Binding NicoRepoType.Value, Mode=TwoWay}"
-                                  ItemTemplate="{StaticResource LocalizedTextItemTemplate}"
-                                  SingleSelectionFollowsFocus="False"
-                                  >
-                        </ListView>
-                      </Flyout>
-                    </DropDownButton.Flyout>
-                  </DropDownButton>
+                    <ComboBox x:Name="ActivityTypeSelector"  ItemsSource="{x:Bind _vm.FollowingsActivityTypeList}"
+                              SelectedItem="{Binding SelectedActivityType, Mode=OneWay}"
+                              SelectionChanged="ActivityTypeSelector_SelectionChanged"
+                              ItemTemplate="{StaticResource LocalizedTextItemTemplate}"
+                              VerticalAlignment="Center"
+                              MinWidth="140"
+                              >
+                    </ComboBox>
+                  </StackPanel>
                 </AppBarElementContainer>
                 <AppBarButton x:Name="ScrollToTopButton" Label="{i18nExt:Localize Key=ReturnToPageTop}" Icon="Up">
                   <i:Interaction.Behaviors>
@@ -149,10 +173,13 @@
           <ItemsStackPanel x:Name="ItemsPanel" Margin="0 0 0 0"  />
         </ItemsPanelTemplate>
       </ListView.ItemsPanel>
+      <ListView.Footer>
+        <Border Height="64" />
+      </ListView.Footer>
     </ListView>
     <Grid x:Name="NoTimelineItemsLayout"
           Visibility="Collapsed">
-      <TextBlock Text="{i18nExt:Localize Key=NicorepoNoItems}"
+      <TextBlock Text="{i18nExt:Localize Key=FollowingsActivityNoItems}"
                  Style="{StaticResource SubtitleTextBlockStyle}"
                  Opacity="0.8"
                  VerticalAlignment="Center"
