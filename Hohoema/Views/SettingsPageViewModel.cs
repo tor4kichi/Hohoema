@@ -5,7 +5,6 @@ using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Helpers;
 using Hohoema.Models;
 using Hohoema.Models.Application;
-using Hohoema.Models.Niconico.NicoRepo;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.PageNavigation;
 using Hohoema.Models.Player;
@@ -59,7 +58,6 @@ public sealed partial class SettingsPageViewModel : HohoemaPageViewModelBase
     private readonly INotificationService _notificationService;
     private readonly PlayerSettings PlayerSettings;
     private readonly VideoRankingSettings RankingSettings;
-    private readonly NicoRepoSettings ActivityFeedSettings;
     public AppearanceSettings AppearanceSettings { get; }
     private readonly VideoCacheSettings VideoCacheSettings;
     public ApplicationLayoutManager ApplicationLayoutManager { get; }
@@ -72,7 +70,6 @@ public sealed partial class SettingsPageViewModel : HohoemaPageViewModelBase
         INotificationService toastService,
         PlayerSettings playerSettings,
         VideoRankingSettings rankingSettings,
-        NicoRepoSettings nicoRepoSettings,
         AppearanceSettings appearanceSettings,
         VideoCacheSettings cacheSettings,
         VideoCacheFolderManager videoCacheFolderManager,
@@ -86,7 +83,6 @@ public sealed partial class SettingsPageViewModel : HohoemaPageViewModelBase
         RankingSettings = rankingSettings;
         _HohoemaDialogService = dialogService;
         PlayerSettings = playerSettings;
-        ActivityFeedSettings = nicoRepoSettings;
         AppearanceSettings = appearanceSettings;
         VideoCacheSettings = cacheSettings;
         _videoCacheFolderManager = videoCacheFolderManager;
@@ -199,7 +195,7 @@ public sealed partial class SettingsPageViewModel : HohoemaPageViewModelBase
 
     public List<HohoemaPageType> StartupPageTypeList { get; } = new List<HohoemaPageType>()
     {
-        HohoemaPageType.NicoRepo,
+        HohoemaPageType.FollowingsActivity,
         HohoemaPageType.Search,
         HohoemaPageType.RankingCategoryList,
         HohoemaPageType.CacheManagement,
@@ -547,7 +543,7 @@ public sealed partial class SettingsPageViewModel : HohoemaPageViewModelBase
                 _backupManager.RestoreVideoFilteringSettings,
                 _backupManager.RestorePlayerSettings,
                 _backupManager.RestoreAppearanceSettings,
-                _backupManager.RestoreNicoRepoSettings,
+                //_backupManager.RestoreFollowingsActivitySettings,
                 _backupManager.RestoreCommentSettings,
             };
 

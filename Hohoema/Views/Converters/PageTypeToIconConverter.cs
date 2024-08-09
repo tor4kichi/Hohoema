@@ -31,7 +31,7 @@ public sealed class PageTypeToIconConverter : IValueConverter
                 HohoemaPageType.Subscription => new SymbolIcon(Symbol.Important),
                 HohoemaPageType.LocalPlaylist => new SymbolIcon(Symbol.List),
                 HohoemaPageType.VideoQueue => new SymbolIcon(Symbol.Play),
-                HohoemaPageType.NicoRepo => new SymbolIcon(Symbol.Bookmarks),
+                HohoemaPageType.FollowingsActivity => new SymbolIcon(Symbol.Bookmarks),
                 HohoemaPageType.SubscriptionManagement => new SymbolIcon(Symbol.Globe),
                 HohoemaPageType.SubscVideoList => new SymbolIcon(Symbol.Globe),
                 _ => throw new NotSupportedException(),

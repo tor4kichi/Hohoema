@@ -82,7 +82,7 @@ HohoemaPageType.FeedGroup = Feed流群组
 HohoemaPageType.FeedGroupManage = Mylist更新
 HohoemaPageType.FeedVideoList = Feed流视频一览
 HohoemaPageType.FollowManage = 关注
-HohoemaPageType.NicoRepo = Nico动态
+HohoemaPageType.FollowingsActivity = 关注新品
 HohoemaPageType.RankingCategory = 分类排行
 HohoemaPageType.RankingCategoryList = 排行一览
 HohoemaPageType.Recommend = 推荐视频
@@ -710,47 +710,16 @@ FollowInfoIsRequireLogIn = 您需要登录才能查看关注信息
 FollowerCount = 追随者
 MylistVideoCountDesc = {0}个视频
 
-#### Nicorepo ####
-NicoRepoDisplayOptions = 显示条件
-NicoRepoType.All = 所有
-NicoRepoType.Video = 影片发布
-NicoRepoType.Program = 直播开始
-NicoRepoType.Image = 发布插图
-NicoRepoType.ComicStory = 漫画贴
-NicoRepoType.Article = 文章发布
-NicoRepoType.Game = 游戏
-NicoRepoDisplayTarget.All = 所有
-NicoRepoDisplayTarget.Self = 我
-NicoRepoDisplayTarget.User = 用户
-NicoRepoDisplayTarget.Channel = 渠道
-NicoRepoDisplayTarget.Community = 社区
-NicoRepoDisplayTarget.Mylist = 我的列表
+#### Followings Activity ####
+FollowingsActivityDisplayOptions = 新到货展示目标
+ActivityType.All = 全部
+ActivityType.Video = 视频发布
+ActivityType.Live = 直播开始
+ActivityType.Publish = 内容帖子
 
-NicoRepoItemTopic.Unknown = 不明
-NicoRepoItemTopic.Live_Channel_Program_Onairs = 直播开始（频道）
-NicoRepoItemTopic.Live_Channel_Program_Reserve = 直播预定（频道）
-NicoRepoItemTopic.Live_User_Program_OnAirs = 直播开始（用户）
-NicoRepoItemTopic.Live_User_Program_Reserve = 直播预定（用户）
-NicoRepoItemTopic.NicoVideo_Channel_Blomaga_Upload = Blomaga邮政
-NicoRepoItemTopic.NicoVideo_Channel_Video_Upload = 频道视频发布
-NicoRepoItemTopic.NicoVideo_Community_Level_Raise = 社区水平上升
-NicoRepoItemTopic.NicoVideo_User_Community_Video_Add = 视频的社区注册
-NicoRepoItemTopic.NicoVideo_User_Mylist_Add_Video = 在我的列表中注册视频
-NicoRepoItemTopic.NicoVideo_User_Video_Advertise = 用户视频已发布
-NicoRepoItemTopic.NicoVideo_User_Video_Kiriban_Play = 播放编号
-NicoRepoItemTopic.NicoVideo_User_Video_UpdateHighestRankings = 排名最新
-NicoRepoItemTopic.NicoVideo_User_Video_Upload = 用户视频发布
 
-NicorepoNoItems = 没有可显示的Nirekopo
+FollowingsActivityNoItems = 没有可显示的Nirekopo
 
-NicoRepo_Video_UserVideoUpload = {0}发布了一个视频
-NicoRepo_Video_UserMylistAddVideo = {0}已将视频添加到“我的列表”中
-NicoRepo_Video_CommunityAddVideo = 将视频添加到{0}（社区）
-NicoRepo_Video_ChannelVideoUpload = {0}发布了一个视频
-NicoRepo_Live_UserProgramOnAirs = {0}已开始直播
-NicoRepo_Live_UserProgramReserve = {0}已预订直播
-NicoRepo_Live_ChannelProgramOnAirs = {0}已开始直播
-NicoRepo_Live_ChannelProgramReserve = {0}已预订直播
 LiveStreamingStartAtWithDateTime = {0}广播开始
 
 

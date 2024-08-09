@@ -1,6 +1,6 @@
 ﻿#nullable enable
 using Hohoema.Contracts.Subscriptions;
-using NiconicoToolkit.NicoRepo;
+using NiconicoToolkit.FollowingsActivity;
 using System;
 using System.Collections.Generic;
 using System.IO;

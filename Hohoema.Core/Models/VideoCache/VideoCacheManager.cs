@@ -6,6 +6,7 @@ using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Player.Video;
 using Microsoft.Toolkit.Uwp.Helpers;
 using NiconicoToolkit.Video;
+using NiconicoToolkit.Video.Watch;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -323,8 +324,8 @@ public sealed class VideoCacheManager : IDisposable
         }
 
         // require watch permission
-        NiconicoToolkit.Video.Watch.NicoVideoWatchApiResponse watchData = await _niconicoSession.ToolkitContext.Video.VideoWatch.GetWatchDataAsync(item.VideoId);
-        NiconicoToolkit.Video.Watch.NicoVideoWatchApiResponse.Response watchApiData = watchData.Data.Response;
+        NicoVideoWatchApiResponse watchData = await _niconicoSession.ToolkitContext.Video.VideoWatch.GetWatchDataAsync(item.VideoId);
+        WatchResponse watchApiData = watchData.Data.Response;
         if (watchApiData?.Media?.Delivery is null)
         {
             throw new VideoCacheException("VideoCacheItem is can not play, require content access permission. reason : " + watchApiData?.OkReason);
@@ -689,8 +690,8 @@ public sealed class VideoCacheManager : IDisposable
 
         try
         {
-            NiconicoToolkit.Video.Watch.NicoVideoWatchApiResponse watchData = await _niconicoSession.ToolkitContext.Video.VideoWatch.GetWatchDataAsync(item.VideoId);
-            NiconicoToolkit.Video.Watch.NicoVideoWatchApiResponse.Response watchApiData = watchData.Data.Response;
+            NicoVideoWatchApiResponse watchData = await _niconicoSession.ToolkitContext.Video.VideoWatch.GetWatchDataAsync(item.VideoId);
+            WatchResponse watchApiData = watchData.Data.Response;
             if (watchApiData is null)
             {
 

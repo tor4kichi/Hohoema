@@ -2,7 +2,6 @@
 using CommunityToolkit.Mvvm.Messaging.Messages;
 using Hohoema.Contracts.Subscriptions;
 using Hohoema.Models.LocalMylist;
-using Hohoema.Models.Niconico.NicoRepo;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.PageNavigation;
 using Hohoema.Models.Pins;
@@ -12,7 +11,6 @@ using Hohoema.Models.Playlist;
 using Hohoema.Models.Subscriptions;
 using LiteDB;
 using NiconicoToolkit.Live.WatchSession;
-using NiconicoToolkit.NicoRepo;
 using NiconicoToolkit.Ranking.Video;
 using NiconicoToolkit.Video;
 using System;
@@ -48,7 +46,6 @@ public sealed class BackupManager
     private readonly VideoFilteringSettings _videoFilteringSettings;
     private readonly PlayerSettings _playerSettings;
     private readonly AppearanceSettings _appearanceSettings;
-    private readonly NicoRepoSettings _nicoRepoSettings;
     private readonly CommentFliteringRepository _commentFliteringRepository;
     private readonly JsonSerializerOptions _options;
 
@@ -64,7 +61,6 @@ public sealed class BackupManager
         VideoFilteringSettings videoFilteringSettings,
         PlayerSettings playerSettings,
         AppearanceSettings appearanceSettings,
-        NicoRepoSettings nicoRepoSettings,
         CommentFliteringRepository commentFliteringRepository
         )
     {
@@ -76,8 +72,7 @@ public sealed class BackupManager
         _videoRankingSettings = videoRankingSettings;
         _videoFilteringSettings = videoFilteringSettings;
         _playerSettings = playerSettings;
-        _appearanceSettings = appearanceSettings;
-        _nicoRepoSettings = nicoRepoSettings;
+        _appearanceSettings = appearanceSettings;        
         _commentFliteringRepository = commentFliteringRepository;
         _options = new JsonSerializerOptions()
         {
@@ -211,11 +206,6 @@ public sealed class BackupManager
                 FirstAppearPageType = _appearanceSettings.FirstAppearPageType.ToString(),
                 OverrideInteractionMode = _appearanceSettings.OverrideInteractionMode?.ToString(),
                 ApplicationTheme = _appearanceSettings.ApplicationTheme.ToString()
-            },
-
-            NicoRepoSettings = new NicoRepoSettingsBackupEntry
-            {
-                DisplayNicoRepoMuteContextTriggers = _nicoRepoSettings.DisplayNicoRepoMuteContextTriggers.Select(x => x.ToString()).ToArray()
             },
 
             CommentSettingsBackupEntry = new CommentSettingsBackupEntry
@@ -477,7 +467,7 @@ public sealed class BackupManager
 
         if (backup.NicoRepoSettings.DisplayNicoRepoMuteContextTriggers?.Any() ?? false)
         {
-            _nicoRepoSettings.DisplayNicoRepoMuteContextTriggers = backup.NicoRepoSettings.DisplayNicoRepoMuteContextTriggers.Select(x => Enum.TryParse<NicoRepoMuteContextTrigger>(x, out NicoRepoMuteContextTrigger type) ? type : default(NicoRepoMuteContextTrigger?)).Where(x => x != null).Select(x => x.Value).ToList();
+            //_nicoRepoSettings.DisplayNicoRepoMuteContextTriggers = backup.NicoRepoSettings.DisplayNicoRepoMuteContextTriggers.Select(x => Enum.TryParse<NicoRepoMuteContextTrigger>(x, out NicoRepoMuteContextTrigger type) ? type : default(NicoRepoMuteContextTrigger?)).Where(x => x != null).Select(x => x.Value).ToList();
         }
     }
 

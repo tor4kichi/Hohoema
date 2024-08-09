@@ -418,7 +418,7 @@ public class VideoListItemControlViewModel
 
 
 
-    public string ProviderIconUrl { get; private set; }
+    public string ProviderIconUrl { get; protected set; }
 
     public OwnerType ProviderType { get; init; }
 
