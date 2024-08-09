@@ -124,7 +124,50 @@
 
         <uwpControls:DockPanel Margin="8 0" >
 
-          <StackPanel Orientation="Horizontal" uwpControls:DockPanel.Dock="Right">
+          <StackPanel Orientation="Horizontal" uwpControls:DockPanel.Dock="Right" Spacing="16">
+
+            <CheckBox IsChecked="{x:Bind _vm.AppearanceSettings.AutoRestartOnUpdateInstalled, Mode=TwoWay}"
+                      Content="インストール後に自動で再起動"
+                      Visibility="{x:Bind _vm.HasAppUpdate, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}"
+                      />
+
+            <StackPanel Orientation="Horizontal"
+                        Visibility="{x:Bind _vm.NowProgressUpdateDownloadAndInstall, Mode=OneWay, Converter={StaticResource BooleanToVisibilityInverted}}"
+                        >
+              <Button Content="アプリ更新"
+                      Command="{x:Bind _vm.AppUpdateCommand}"
+                      Style="{ThemeResource AccentButtonStyle}"
+                      Visibility="{x:Bind _vm.RequiredRestartForUpdateCompleted, Mode=OneWay, Converter={StaticResource BooleanToVisibilityInverted}}"
+                      >
+              </Button>
+              <Button Content="再起動して更新"
+                      Command="{x:Bind _vm.RestartForAppUpdateInstalledCommand}"
+                      Visibility="{x:Bind _vm.RequiredRestartForUpdateCompleted, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}"
+                      >
+                
+              </Button>
+            </StackPanel>
+            <StackPanel Orientation="Vertical"
+                        Visibility="{x:Bind _vm.NowProgressUpdateDownloadAndInstall, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}"
+                        Spacing="4"
+                        >
+              <TextBlock Text="更新中" Opacity="0.7" />
+              <muxc:ProgressBar IsIndeterminate="False" 
+                                Value="{x:Bind _vm.UpdateProgress, Mode=OneWay}"
+                                Minimum="0.0"
+                                Maximum="1.0"
+                                Width="120"                                
+                                >
+                
+              </muxc:ProgressBar>
+            </StackPanel>
+                       
+            <StackPanel Visibility="{x:Bind _vm.HasAppUpdate, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}">
+              <TextBlock>  
+                <Run Text="更新後:" /><Run Text="{x:Bind _vm.UpdateAppVersion.Major, Mode=OneWay}" />.<Run Text="{x:Bind _vm.UpdateAppVersion.Minor, Mode=OneWay}" />.<Run Text="{x:Bind _vm.UpdateAppVersion.Build, Mode=OneWay}" />
+              </TextBlock>
+            </StackPanel>
+            
             <TextBlock Opacity="0.7" Style="{StaticResource BodyTextBlockStyle}" VerticalAlignment="Center"
                        TextAlignment="Right"
                            Text="{x:Bind _vm.VersionText}"                                                      

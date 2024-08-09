@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
@@ -32,7 +33,11 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Windows.ApplicationModel;
+using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.Store;
+using Windows.Foundation;
+using Windows.Services.Store;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.UI;
@@ -105,6 +110,8 @@ public sealed partial class SettingsPageViewModel : HohoemaPageViewModelBase
 
     public override async Task OnNavigatedToAsync(INavigationParameters parameters)
     {
+        HasAppUpdate = false;
+
         await base.OnNavigatedToAsync(parameters);
 
         foreach (var item in _videoFilteringRepository.GetVideoTitleFilteringEntries().Select(x =>
@@ -116,6 +123,73 @@ public sealed partial class SettingsPageViewModel : HohoemaPageViewModelBase
 
         _ = LoadAddonsAsync(NavigationCancellationToken);
         _ = LoadLisenceItemsAsync(NavigationCancellationToken);
+        _update = await App.Current.CheckUpdateAsync();
+        CurrentAppVersion = Windows.ApplicationModel.AppInfo.Current.Package.Id.Version;
+        var updateVer = _update.AppUpdate?.Package.Id.Version ?? default;
+        UpdateAppVersion = updateVer;
+        HasAppUpdate = _update.HasAppUpdate;
+    }
+
+    private CheckUpdateResult? _update;
+
+    [ObservableProperty]
+    private PackageVersion _currentAppVersion;
+
+    [ObservableProperty]
+    private PackageVersion _updateAppVersion;
+
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(AppUpdateCommand))]
+    private bool _hasAppUpdate;
+
+    [ObservableProperty]
+    private bool _nowProgressUpdateDownloadAndInstall;
+
+    [ObservableProperty]
+    private float _updateProgress;
+
+    [ObservableProperty]
+    private bool _requiredRestartForUpdateCompleted;
+
+   
+    [RelayCommand(CanExecute = nameof(HasAppUpdate))]
+    async Task AppUpdateAsync()
+    {
+        if (_update == null || _update.HasAppUpdate is false) { return; }
+
+        UpdateProgress = 0;
+        NowProgressUpdateDownloadAndInstall = true;
+        try
+        {
+            var op = _update.DownloadAndInstallAllUpdatesAsync();
+
+            op.Progress = (x, y) =>
+            {
+                UpdateProgress = (float)y.TotalDownloadProgress;
+            };
+            var result = await op.AsTask();
+            Debug.WriteLine($"{result.OverallState}");
+
+            RequiredRestartForUpdateCompleted = result.OverallState == StorePackageUpdateState.Completed;
+        }
+        finally
+        {
+            NowProgressUpdateDownloadAndInstall = false;
+        }
+
+        if (AppearanceSettings.AutoRestartOnUpdateInstalled)
+        {
+            await RestartForAppUpdateInstalledAsync();
+        }
+    }
+
+    [RelayCommand]
+    async Task RestartForAppUpdateInstalledAsync()
+    {
+        if (RequiredRestartForUpdateCompleted)
+        {
+            await CoreApplication.RequestRestartAsync("");
+        }
     }
 
     async Task LoadAddonsAsync(CancellationToken ct)
@@ -423,6 +497,8 @@ public sealed partial class SettingsPageViewModel : HohoemaPageViewModelBase
 
     [ObservableProperty]
     private long? _maxVideoCacheStorageSize;
+    private StorePackageUpdate _appUpdate;
+
     partial void OnMaxVideoCacheStorageSizeChanged(long? value)
     {
         VideoCacheSettings.MaxVideoCacheStorageSize = value;
