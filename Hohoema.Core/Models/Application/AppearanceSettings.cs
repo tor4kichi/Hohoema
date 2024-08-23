@@ -15,6 +15,7 @@ public class AppearanceSettings : FlagsRepositoryBase
 {
     public AppearanceSettings(ILocalizeService localizeService)
     {
+        _autoRestartOnUpdateInstalled = Read(true, nameof(AutoRestartOnUpdateInstalled));
         _locale = Read(localizeService.GetDefaultLocale(), nameof(Locale));
         _firstAppearPageType = Read(HohoemaPageType.RankingCategoryList, nameof(FirstAppearPageType));
         _OverrideInteractionMode = Read(default(ApplicationInteractionMode?), nameof(OverrideInteractionMode));
@@ -41,6 +42,13 @@ public class AppearanceSettings : FlagsRepositoryBase
         _SecondaryViewDisplayRegionMonitorDeviceId = Read(string.Empty, nameof(SecondaryViewDisplayRegionMonitorDeviceId));
         _SecondaryViewLastWindowPosition = Read(default(Point?), nameof(SecondaryViewLastWindowPosition));
         _SecondaryViewLastWindowSize = Read(default(Size?), nameof(SecondaryViewLastWindowSize));        
+    }
+
+    private bool _autoRestartOnUpdateInstalled;
+    public bool AutoRestartOnUpdateInstalled
+    {
+        get => _autoRestartOnUpdateInstalled;
+        set => SetProperty(ref _autoRestartOnUpdateInstalled, value);
     }
 
     private string _locale;

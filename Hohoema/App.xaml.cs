@@ -64,6 +64,11 @@ using ValueTaskSupplement;
 using Hohoema.Contracts.Subscriptions;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.Toolkit.Uwp.UI;
+using Windows.Services.Store;
+using CommunityToolkit.Diagnostics;
+using Hohoema.Models.Notification;
+using CommunityToolkit.Mvvm.Input;
+using Hohoema.Views.Pages.Hohoema;
 
 namespace Hohoema;
 
@@ -908,7 +913,23 @@ public sealed partial class App : Application
         }
         catch { }
 #endif
+
+        var update = await CheckUpdateAsync();
+        if (update.HasAppUpdate && update.AppUpdate != null)
+        {
+            var v = update.AppUpdate.Package.Id.Version;
+            messenger.Send(new InAppNotificationMessage(new() 
+            {                
+                Content = $"アプリの更新が利用できます -> v{v.Major}.{v.Minor}.{v.Build}.{v.Revision}",
+                Commands = { new InAppNotificationCommand() { Label = "確認する", Command = new RelayCommand(() => 
+                {
+                    var ns = Container.Resolve<INavigationService>();
+                    ns.NavigateAsync(nameof(SettingsPage));
+                })}}
+            }));
+        }
     }
+
 
 
   
@@ -1095,4 +1116,61 @@ public sealed partial class App : Application
 
     #endregion
 
+    public async Task<CheckUpdateResult> CheckUpdateAsync(CancellationToken ct = default)
+    {
+        var storeContext = StoreContext.GetDefault();
+        IReadOnlyList<StorePackageUpdate> updates = await storeContext.GetAppAndOptionalStorePackageUpdatesAsync();
+        return new CheckUpdateResult(storeContext, updates);
+    }
 }
+
+
+public class CheckUpdateResult
+{
+    private readonly StoreContext _storeContext;
+    private readonly IReadOnlyList<StorePackageUpdate> _updates;
+
+    public CheckUpdateResult(StoreContext storeContext, IReadOnlyList<StorePackageUpdate> updates)
+    {
+        _storeContext = storeContext;
+        _updates = updates;
+    }
+
+    public bool HasAppUpdate
+    {
+        get
+        {
+            if (AppUpdate is { } appUpdate)
+            {
+                var currentAppVersion = Windows.ApplicationModel.AppInfo.Current.Package.Id.Version;
+                var updateVer = appUpdate.Package.Id.Version;
+                return currentAppVersion.Major < updateVer.Major
+                || currentAppVersion.Minor < updateVer.Minor
+                || currentAppVersion.Build < updateVer.Build
+                || currentAppVersion.Revision < updateVer.Revision
+                ;
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
+
+    public bool CanDownloadSilently => _storeContext.CanSilentlyDownloadStorePackageUpdates;
+
+    public StorePackageUpdate? AppUpdate => _updates.FirstOrDefault(x => x.Package.DisplayName == "Hohoema");
+
+    public IAsyncOperationWithProgress<StorePackageUpdateResult, StorePackageUpdateStatus> DownloadAndInstallAllUpdatesAsync()
+    {
+        if (CanDownloadSilently)
+        {
+            return _storeContext.TrySilentDownloadAndInstallStorePackageUpdatesAsync(_updates);
+        }
+        else
+        {
+            return _storeContext.RequestDownloadAndInstallStorePackageUpdatesAsync(_updates);
+        }
+    }
+}
+
