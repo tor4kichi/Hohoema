@@ -918,7 +918,7 @@ public sealed partial class App : Application
         if (update.HasAppUpdate && update.AppUpdate != null)
         {
             var v = update.AppUpdate.Package.Id.Version;
-            messenger.Send(new InAppNotificationMessage(new() 
+            Container.Resolve<IMessenger>().Send(new InAppNotificationMessage(new() 
             {                
                 Content = $"アプリの更新が利用できます -> v{v.Major}.{v.Minor}.{v.Build}.{v.Revision}",
                 Commands = { new InAppNotificationCommand() { Label = "確認する", Command = new RelayCommand(() => 
