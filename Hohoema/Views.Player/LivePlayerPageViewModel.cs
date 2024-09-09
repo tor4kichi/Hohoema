@@ -3,6 +3,7 @@ using AngleSharp.Html.Parser;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using Dwango.Nicolive.Chat.Data;
 using Hohoema.Contracts.Services.Player;
 using Hohoema.Helpers;
 using Hohoema.Models.Application;
@@ -25,8 +26,8 @@ using Hohoema.ViewModels.Player.PlayerSidePaneContent;
 using Hohoema.Views.Player;
 using I18NPortable;
 using Microsoft.Toolkit.Uwp;
+using NdgrClientSharp;
 using NiconicoToolkit.Live;
-using NiconicoToolkit.Live.Timeshift;
 using NiconicoToolkit.Live.WatchPageProp;
 using NiconicoToolkit.Live.WatchSession;
 using NiconicoToolkit.Live.WatchSession.Events;
@@ -38,8 +39,10 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Http;
 using System.Reactive;
 using System.Reactive.Concurrency;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
@@ -88,7 +91,7 @@ public class LiveContent : ILiveContent
 
 
 
-public class LivePlayerPageViewModel : HohoemaPageViewModelBase
+public partial class LivePlayerPageViewModel : HohoemaPageViewModelBase
 	{
     public ReadOnlyReactivePropertySlim<PlayerDisplayView> CurrentPlayerDisplayView { get; }
     public IScheduler _scheduler { get; }
@@ -190,9 +193,9 @@ public class LivePlayerPageViewModel : HohoemaPageViewModelBase
 
 
     public ObservableCollection<LiveOperationCommand> LiveOperationCommands { get; private set; } = new ObservableCollection<LiveOperationCommand>();
-    public ReactiveProperty<LiveOperationCommand> BroadcasterLiveOperationCommand { get; }
-    public ReactiveProperty<LiveOperationCommand> OperaterLiveOperationCommand { get; }
-    public ReactiveProperty<LiveOperationCommand> PressLiveOperationCommand { get; }
+    public Reactive.Bindings.ReactiveProperty<LiveOperationCommand> BroadcasterLiveOperationCommand { get; }
+    public Reactive.Bindings.ReactiveProperty<LiveOperationCommand> OperaterLiveOperationCommand { get; }
+    public Reactive.Bindings.ReactiveProperty<LiveOperationCommand> PressLiveOperationCommand { get; }
 
     private TimeSpan _LiveElapsedTime;
     public TimeSpan LiveElapsedTime
@@ -255,23 +258,23 @@ public class LivePlayerPageViewModel : HohoemaPageViewModelBase
     public ObservableCollection<LiveQualityLimitType> LiveAvailableLimitQualities { get; } = new ObservableCollection<LiveQualityLimitType>();
 
 
-    public ReactiveProperty<LiveStatus?> LiveStatusType { get; private set; }
+    public Reactive.Bindings.ReactiveProperty<LiveStatus?> LiveStatusType { get; private set; }
 
     public ReactivePropertySlim<bool> NowRefreshing { get; private set; }
 
-    public ReactiveProperty<bool> CanChangeQuality { get; private set; }
-    public ReactiveProperty<LiveQualityType> RequestQuality { get; private set; }
-    public ReactiveProperty<LiveQualityType> CurrentQuality { get; private set; }
+    public Reactive.Bindings.ReactiveProperty<bool> CanChangeQuality { get; private set; }
+    public Reactive.Bindings.ReactiveProperty<LiveQualityType> RequestQuality { get; private set; }
+    public Reactive.Bindings.ReactiveProperty<LiveQualityType> CurrentQuality { get; private set; }
 
-    public ReactiveProperty<LiveQualityLimitType> QualityLimit { get; private set; }
+    public Reactive.Bindings.ReactiveProperty<LiveQualityLimitType> QualityLimit { get; private set; }
 
-    public ReactiveProperty<bool> IsLowLatency { get; }
+    public Reactive.Bindings.ReactiveProperty<bool> IsLowLatency { get; }
 
     public ReactiveCommand<TimeSpan?> SeekVideoCommand { get; private set; }
 
     public IReadOnlyReactiveProperty<bool> CanSeek { get; }
-    public ReactiveProperty<double> SeekBarTimeshiftPosition { get; }
-    private ReactiveProperty<double> _MaxSeekablePosition { get; }
+    public Reactive.Bindings.ReactiveProperty<double> SeekBarTimeshiftPosition { get; }
+    private Reactive.Bindings.ReactiveProperty<double> _MaxSeekablePosition { get; }
     public IReadOnlyReactiveProperty<double> MaxSeekablePosition => _MaxSeekablePosition;
     private bool _NowSeekBarPositionChanging = false;
 
@@ -280,14 +283,14 @@ public class LivePlayerPageViewModel : HohoemaPageViewModelBase
 
     // comment
 
-    public ReactiveProperty<bool> IsCommentDisplayEnable { get; private set; }
-    public ReactiveProperty<TimeSpan> RequestCommentDisplayDuration { get; private set; }
-    public ReactiveProperty<double> CommentFontScale { get; private set; }
+    public Reactive.Bindings.ReactiveProperty<bool> IsCommentDisplayEnable { get; private set; }
+    public Reactive.Bindings.ReactiveProperty<TimeSpan> RequestCommentDisplayDuration { get; private set; }
+    public Reactive.Bindings.ReactiveProperty<double> CommentFontScale { get; private set; }
 
-    public ReactiveProperty<double> CommentCanvasHeight { get; private set; }
-    public ReactiveProperty<Color> CommentDefaultColor { get; private set; }
+    public Reactive.Bindings.ReactiveProperty<double> CommentCanvasHeight { get; private set; }
+    public Reactive.Bindings.ReactiveProperty<Color> CommentDefaultColor { get; private set; }
 
-    public ReadOnlyReactiveProperty<double> CommentOpacity { get; private set; }
+    public IReadOnlyReactiveProperty<double> CommentOpacity { get; private set; }
 
 
 
@@ -295,8 +298,8 @@ public class LivePlayerPageViewModel : HohoemaPageViewModelBase
     ISubject<Unit> _SuccessPostCommentSubject { get; }
     public IReadOnlyReactiveProperty<Unit> SuccessPostCommentSubject { get; }
     public CommentCommandEditerViewModel CommandEditerVM { get; private set; }
-    public ReactiveProperty<string> CommentSubmitText { get; private set; }
-    public ReactiveProperty<bool> NowCommentSubmitting { get; private set; }
+    public Reactive.Bindings.ReactiveProperty<string> CommentSubmitText { get; private set; }
+    public Reactive.Bindings.ReactiveProperty<bool> NowCommentSubmitting { get; private set; }
 
 
     public AsyncReactiveCommand CommentSubmitCommand { get; private set; }
@@ -304,8 +307,8 @@ public class LivePlayerPageViewModel : HohoemaPageViewModelBase
     public Microsoft.Toolkit.Uwp.UI.AdvancedCollectionView FilterdComments { get; } = new Microsoft.Toolkit.Uwp.UI.AdvancedCollectionView();
 
     // suggestion
-    public ReactiveProperty<LiveSuggestion> Suggestion { get; private set; }
-    public ReactiveProperty<bool> HasSuggestion { get; private set; }
+    public Reactive.Bindings.ReactiveProperty<LiveSuggestion> Suggestion { get; private set; }
+    public Reactive.Bindings.ReactiveProperty<bool> HasSuggestion { get; private set; }
 
 
     // Side Pane Content
@@ -368,8 +371,7 @@ public class LivePlayerPageViewModel : HohoemaPageViewModelBase
     {
         get { return _WatchStartLiveElapsedTime; }
         private set { SetProperty(ref _WatchStartLiveElapsedTime, value); }
-    }
-
+    }   
 
 
     public LivePlayerPageViewModel(
@@ -444,12 +446,12 @@ public class LivePlayerPageViewModel : HohoemaPageViewModelBase
         VolumeUpCommand = new MediaPlayerVolumeUpCommand(SoundVolumeManager);
         VolumeDownCommand = new MediaPlayerVolumeDownCommand(SoundVolumeManager);
         
-        LiveStatusType = new ReactiveProperty<LiveStatus?>(_scheduler);
+        LiveStatusType = new Reactive.Bindings.ReactiveProperty<LiveStatus?>(_scheduler);
 
-        CanChangeQuality = new ReactiveProperty<bool>(_scheduler, false);
+        CanChangeQuality = new Reactive.Bindings.ReactiveProperty<bool>(_scheduler, false);
         RequestQuality = PlayerSettings.ToReactivePropertyAsSynchronized(x => x.DefaultLiveQuality, _scheduler)
             .AddTo(_CompositeDisposable);
-        CurrentQuality = new ReactiveProperty<LiveQualityType>(_scheduler, mode: ReactivePropertyMode.DistinctUntilChanged)
+        CurrentQuality = new Reactive.Bindings.ReactiveProperty<LiveQualityType>(_scheduler, mode: ReactivePropertyMode.DistinctUntilChanged)
             .AddTo(_CompositeDisposable);
 
         IsLowLatency = PlayerSettings.ToReactivePropertyAsSynchronized(x => x.LiveWatchWithLowLatency, _scheduler, mode: ReactivePropertyMode.DistinctUntilChanged)
@@ -464,8 +466,8 @@ public class LivePlayerPageViewModel : HohoemaPageViewModelBase
             .ToReactivePropertyAsSynchronized(x => x.IsCommentDisplay_Live, _scheduler)
             .AddTo(_CompositeDisposable);
 
-        CommentCanvasHeight = new ReactiveProperty<double>(_scheduler, 0.0).AddTo(_CompositeDisposable);
-        CommentDefaultColor = new ReactiveProperty<Color>(_scheduler, Colors.White).AddTo(_CompositeDisposable);
+        CommentCanvasHeight = new Reactive.Bindings.ReactiveProperty<double>(_scheduler, 0.0).AddTo(_CompositeDisposable);
+        CommentDefaultColor = new Reactive.Bindings.ReactiveProperty<Color>(_scheduler, Colors.White).AddTo(_CompositeDisposable);
 
         CommentOpacity = PlayerSettings.ObserveProperty(x => x.CommentOpacity)
             .ToReadOnlyReactiveProperty(eventScheduler: _scheduler);
@@ -474,9 +476,9 @@ public class LivePlayerPageViewModel : HohoemaPageViewModelBase
         FilterdComments.SortDescriptions.Add(new Microsoft.Toolkit.Uwp.UI.SortDescription(nameof(IComment.VideoPosition), Microsoft.Toolkit.Uwp.UI.SortDirection.Ascending));
         FilterdComments.Filter = (x) => !_commentFiltering.IsHiddenComment(x as IComment);
 
-        NowCommentSubmitting = new ReactiveProperty<bool>(_scheduler, false)
+        NowCommentSubmitting = new Reactive.Bindings.ReactiveProperty<bool>(_scheduler, false)
             .AddTo(_CompositeDisposable);
-        CommentSubmitText = new ReactiveProperty<string>(_scheduler, null)
+        CommentSubmitText = new Reactive.Bindings.ReactiveProperty<string>(_scheduler, null)
             .AddTo(_CompositeDisposable);
         CommentSubmitCommand = CommentSubmitText.Select(x => string.IsNullOrWhiteSpace(x) is false)
             .ToAsyncReactiveCommand()
@@ -494,9 +496,9 @@ public class LivePlayerPageViewModel : HohoemaPageViewModelBase
         })
         .AddTo(_CompositeDisposable);
 
-        SeekBarTimeshiftPosition = new ReactiveProperty<double>(_scheduler, 0.0, mode: ReactivePropertyMode.DistinctUntilChanged)
+        SeekBarTimeshiftPosition = new Reactive.Bindings.ReactiveProperty<double>(_scheduler, 0.0, mode: ReactivePropertyMode.DistinctUntilChanged)
             .AddTo(_CompositeDisposable);
-        _MaxSeekablePosition = new ReactiveProperty<double>(_scheduler, 0.0)
+        _MaxSeekablePosition = new Reactive.Bindings.ReactiveProperty<double>(_scheduler, 0.0)
             .AddTo(_CompositeDisposable);
 
         bool _seelBarChangingFirst = false;
@@ -560,9 +562,9 @@ public class LivePlayerPageViewModel : HohoemaPageViewModelBase
             throw new NotSupportedException();
 #endif
 
-                    _DisplayingLiveComments.Clear();
-                    _ListLiveComments.Clear();
-                    _CommentSession.Seek(NavigationCancellationToken, time);
+                    //_DisplayingLiveComments.Clear();
+                    //_ListLiveComments.Clear();
+                    
 
                     // Note: MediaPlayer.PositionはSourceを再設定するたびに0にリセットされる
                     var elapsedTimeResult = _watchSessionTimer.UpdatePlaybackTime(TimeSpan.Zero);
@@ -605,16 +607,16 @@ public class LivePlayerPageViewModel : HohoemaPageViewModelBase
             .AddTo(_CompositeDisposable);
 
         // operation command
-        BroadcasterLiveOperationCommand = new ReactiveProperty<LiveOperationCommand>(_scheduler)
+        BroadcasterLiveOperationCommand = new Reactive.Bindings.ReactiveProperty<LiveOperationCommand>(_scheduler)
             .AddTo(_CompositeDisposable);
 
-        OperaterLiveOperationCommand = new ReactiveProperty<LiveOperationCommand>(_scheduler)
+        OperaterLiveOperationCommand = new Reactive.Bindings.ReactiveProperty<LiveOperationCommand>(_scheduler)
             .AddTo(_CompositeDisposable);
 
-        PressLiveOperationCommand = new ReactiveProperty<LiveOperationCommand>(_scheduler)
+        PressLiveOperationCommand = new Reactive.Bindings.ReactiveProperty<LiveOperationCommand>(_scheduler)
             .AddTo(_CompositeDisposable);
 
-        Suggestion = new ReactiveProperty<LiveSuggestion>(_scheduler);
+        Suggestion = new Reactive.Bindings.ReactiveProperty<LiveSuggestion>(_scheduler);
         HasSuggestion = Suggestion.Select(x => x != null)
             .ToReactiveProperty(_scheduler);
 
@@ -633,7 +635,7 @@ public class LivePlayerPageViewModel : HohoemaPageViewModelBase
 
         // Side Pane
 
-        CurrentSidePaneContentType = new ReactiveProperty<PlayerSidePaneContentType?>(_scheduler, _PrevPrevSidePaneContentType)
+        CurrentSidePaneContentType = new Reactive.Bindings.ReactiveProperty<PlayerSidePaneContentType?>(_scheduler, _PrevPrevSidePaneContentType)
             .AddTo(_CompositeDisposable);
         CurrentSidePaneContent = CurrentSidePaneContentType
             .Select(GetSidePaneContent)
@@ -675,7 +677,7 @@ public class LivePlayerPageViewModel : HohoemaPageViewModelBase
         // Noneの時
         // OnAirかCommingSoonの時
 
-        NowRefreshing = new ReactivePropertySlim<bool>();
+        NowRefreshing = new Reactive.Bindings.ReactivePropertySlim<bool>();
 
         TogglePlayPauseCommand = new AsyncReactiveCommand()
             .AddTo(_CompositeDisposable);
@@ -797,11 +799,12 @@ public class LivePlayerPageViewModel : HohoemaPageViewModelBase
         _MediaSource = null;
         _AdaptiveMediaSource?.Dispose();
         _AdaptiveMediaSource = null;
-
+        _commentSessionDisposable?.Dispose();
+        _commentSessionDisposable = null;
         if (_watchSession != null)
         {
             _watchSession.RecieveStream -= _watchSession_RecieveStream;
-            _watchSession.RecieveRoom -= _watchSession_RecieveRoom;
+            _watchSession.MessageServer -= _watchSession_RecieveRoom;
             _watchSession.RecieveSchedule -= _watchSession_RecieveSchedule;
             _watchSession.RecieveStatistics -= _watchSession_RecieveStatistics;
             _watchSession.ReceiveDisconnect -= _watchSession_ReceiveDisconnect;
@@ -969,7 +972,7 @@ public class LivePlayerPageViewModel : HohoemaPageViewModelBase
                 _watchSession = NiconicoToolkit.Live.LiveClient.CreateWatchSession(_PlayerProp, LiveContext.UserAgent);
 
                 _watchSession.RecieveStream += _watchSession_RecieveStream;
-                _watchSession.RecieveRoom += _watchSession_RecieveRoom;
+                _watchSession.MessageServer += _watchSession_RecieveRoom;
                 _watchSession.RecieveSchedule += _watchSession_RecieveSchedule;
                 _watchSession.RecieveStatistics += _watchSession_RecieveStatistics;
                 _watchSession.ReceiveDisconnect += _watchSession_ReceiveDisconnect;
@@ -1177,47 +1180,138 @@ public class LivePlayerPageViewModel : HohoemaPageViewModelBase
 
     void CloseCommentSession()
     {
-        if (_CommentSession != null)
-        {
-            var cs = _CommentSession;
-            _CommentSession = null;
-            cs.CommentReceived -= _CommentSession_CommentReceived;
-            cs.CommentPosted -= _CommentSession_CommentPosted;
-            cs.Connected -= _CommentSession_Connected;
-            cs.Disconnected -= _CommentSession_Disconnected;
-            cs.Dispose();
-        }
+        _commentSessionDisposable?.Dispose();
+        _commentSessionDisposable = null;
+        //if (_CommentSession != null)
+        //{
+        //    var cs = _CommentSession;
+        //    _CommentSession = null;
+        //    cs.CommentReceived -= _CommentSession_CommentReceived;
+        //    cs.CommentPosted -= _CommentSession_CommentPosted;
+        //    cs.Connected -= _CommentSession_Connected;
+        //    cs.Disconnected -= _CommentSession_Disconnected;
+        //    cs.Dispose();
+        //}
     }
 
-    LiveCommentSession _CommentSession;
-    private void _watchSession_RecieveRoom(Live2CurrentRoomEventArgs e)
+    CompositeDisposable? _commentSessionDisposable;
+    private void _watchSession_RecieveRoom(Live2MessageServerEventArgs e)
     {
         var ct = NavigationCancellationToken;
         _dispatcherQueue.TryEnqueue(async () =>
         {
             CloseCommentSession();
+            
+            // タイムシフト視聴時は一回だけ取得して以後そのままとする
+            if (IsTimeshift && _ListLiveComments.Any()) { return; }
 
             _ListLiveComments.Clear();
             _DisplayingLiveComments.Clear();
+            _commentSessionDisposable?.Dispose();
+            _commentSessionDisposable = new CompositeDisposable();
+            HttpClient httpClient = new HttpClient()
+                .AddTo(_commentSessionDisposable);
+            foreach (var (key, value) in NiconicoSession.ToolkitContext.HttpClient.DefaultRequestHeaders.ToArray()) //ToArrayしないと稀にSystem.Exceptionが飛んできて失敗する
+            {
+                httpClient.DefaultRequestHeaders.Add(key, value);
+            }
+
+            var ndgrApiClient = new NdgrClientSharp.NdgrApi.NdgrApiClient(httpClient)
+                .AddTo(_commentSessionDisposable);
+            var pastCommentFetcher = new NdgrPastCommentFetcher(ndgrApiClient);
+            Subscribe(pastCommentFetcher.FetchPastComments(e.ViewUri.ToString(), IsTimeshift ? null : 100), m =>
+            {
+                if (m.Message?.Chat is { } chat)
+                {
+                    AddComment(new LiveChatData()
+                    {
+                        Content = chat.Content,
+                        VideoPosition = TimeSpan.FromMilliseconds(chat.Vpos * 10),
+                        UserId = chat.HasRawUserId ? chat.RawUserId.ToString() : chat.HasHashedUserId ? chat.HashedUserId : "",
+                        CommentId = chat.No,
+                        IsAnonymity = !chat.HasRawUserId,
+                    });
+                }
+                else if (m.Message?.OverflowedChat is { } overflowedChat)
+                {
+                    AddComment(new LiveChatData()
+                    {
+                        Content = overflowedChat.Content,
+                        VideoPosition = TimeSpan.FromMilliseconds(overflowedChat.Vpos * 10),
+                        UserId = overflowedChat.HasRawUserId ? overflowedChat.RawUserId.ToString() : overflowedChat.HasHashedUserId ? overflowedChat.HashedUserId : "",
+                        CommentId = overflowedChat.No,
+                        IsAnonymity = !overflowedChat.HasRawUserId,
+                    });
+                }
+            })
+            .AddTo(_commentSessionDisposable);
 
             if (!IsTimeshift)
-            {
-                _CommentSession = e.CreateCommentClientForLiveStreaming(NiconicoSession.HohoemaUserAgent, _PlayerProp.User.Id.ToString());
-            }
-            else
-            {
-                _CommentSession = e.CreateCommentClientForTimeshift(NiconicoSession.HohoemaUserAgent, _PlayerProp.User.Id.ToString(), OpenTime, EndTime);
+            {                
+                var commentFetcher = new NdgrLiveCommentFetcher(ndgrApiClient)
+                   .AddTo(_commentSessionDisposable);
+                commentFetcher.Connect(e.ViewUri.ToString());
+                this.Subscribe(commentFetcher.OnMessageReceived, (m) =>
+                {
+                    if (m.Message?.Chat is { } chat)
+                    {
+                        AddComment(new LiveChatData()
+                        {
+                            Content = chat.Content,
+                            VideoPosition = TimeSpan.FromMilliseconds(chat.Vpos * 10),
+                            UserId = chat.HasRawUserId ? chat.RawUserId.ToString() : chat.HasHashedUserId ? chat.HashedUserId : "",
+                            CommentId = chat.No,
+                            IsAnonymity = !chat.HasRawUserId,
+                        });
+                    }
+                    else if (m.Message?.OverflowedChat is { } overflowedChat)
+                    {
+                        AddComment(new LiveChatData()
+                        {
+                            Content = overflowedChat.Content,
+                            VideoPosition = TimeSpan.FromMilliseconds(overflowedChat.Vpos * 10),
+                            UserId = overflowedChat.HasRawUserId ? overflowedChat.RawUserId.ToString() : overflowedChat.HasHashedUserId ? overflowedChat.HashedUserId : "",
+                            CommentId = overflowedChat.No,
+                            IsAnonymity = !overflowedChat.HasRawUserId,
+                        });
+                    }
+                    //else if (m.Message?.Nicoad)
+                })
+                .AddTo(_commentSessionDisposable);
+
             }
 
-            _CommentSession.CommentReceived += _CommentSession_CommentReceived;
-            _CommentSession.CommentPosted += _CommentSession_CommentPosted;
-            _CommentSession.Connected += _CommentSession_Connected;
-            _CommentSession.Disconnected += _CommentSession_Disconnected;
+            //commentFetcher.OnMessageReceived.Subscribe(new Observer<ChunkedMessage>(x => 
+            //    {
+            //        if (x.Message.Chat is { } chat)
+            //        {
+            //            AddComment(new LiveChatData()
+            //            {
+            //                Content = chat.Content,
+            //                VideoPosition = TimeSpan.FromMilliseconds(chat.Vpos * 10),
+            //            });
+            //        }
+            //    }))
+            //    .AddTo(_commentSessionDisposable);
 
-            if (_CommentSession != null)
-            {                    
-                await _CommentSession.OpenAsync(ct, IsTimeshift ? _watchSessionTimer.PlaybackHeadPosition : TimeSpan.Zero);
-            }
+            //if (!IsTimeshift)
+            //{
+            //    _CommentSession = e.CreateCommentClientForLiveStreaming(NiconicoSession.HohoemaUserAgent, _PlayerProp.User.Id.ToString());
+            //}
+            //else
+            //{
+            //    _CommentSession = e.CreateCommentClientForTimeshift(NiconicoSession.HohoemaUserAgent, _PlayerProp.User.Id.ToString(), OpenTime, EndTime);
+            //}
+
+            //_CommentSession.CommentReceived += _CommentSession_CommentReceived;
+            //_CommentSession.CommentPosted += _CommentSession_CommentPosted;
+            //_CommentSession.Connected += _CommentSession_Connected;
+            //_CommentSession.Disconnected += _CommentSession_Disconnected;
+
+            //if (_CommentSession != null)
+            //{                    
+            //    await _CommentSession.OpenAsync(ct, IsTimeshift ? _watchSessionTimer.PlaybackHeadPosition : TimeSpan.Zero);
+            //}
         });
     }
 
@@ -1265,7 +1359,7 @@ public class LivePlayerPageViewModel : HohoemaPageViewModelBase
             // 表示範囲にある場合は頭から流れるように
             if (!IsTimeshift)
             {
-                commentVM.VideoPosition = DateTimeOffset.FromUnixTimeSeconds(comment.Date) + TimeSpan.FromMilliseconds(comment.DateUsec / 1000) - OpenTime + TimeSpan.FromSeconds(1);
+                commentVM.VideoPosition = commentVM.VideoPosition + TimeSpan.FromSeconds(3);
             }
 
             if (!commentVM.IsAnonymity)

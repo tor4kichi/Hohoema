@@ -233,6 +233,7 @@
     <Compile Include="Views.Hohoema\Subscription\EditSubscriptionGroupDialog.xaml.cs">
       <DependentUpon>EditSubscriptionGroupDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views.Player\LivePlayerPageViewModel_CommentSubscribe.cs" />
     <Compile Include="Views\Controls\VideoList\VideoCacheListItem.cs" />
     <Compile Include="Views\Converters\SizeToRectConverter.cs" />
     <Compile Include="Views\TemplateSelector\ListItemContainerStyleSelector.cs" />
@@ -799,6 +800,9 @@
     <PackageReference Include="DryIoc.Microsoft.DependencyInjection">
       <Version>5.1.0</Version>
     </PackageReference>
+    <PackageReference Include="Google.Protobuf">
+      <Version>3.27.3</Version>
+    </PackageReference>
     <PackageReference Include="I18NPortable">
       <Version>1.0.1</Version>
     </PackageReference>
@@ -846,6 +850,9 @@
     </PackageReference>
     <PackageReference Include="Microsoft.UI.Xaml">
       <Version>2.7.2</Version>
+    </PackageReference>
+    <PackageReference Include="R3">
+      <Version>1.2.8</Version>
     </PackageReference>
     <PackageReference Include="ReactiveProperty">
       <Version>7.12.0</Version>
@@ -1295,6 +1302,18 @@
       <Project>{5877a9ca-2d3a-4b8b-86ca-d77e6d68cf98}</Project>
       <Name>Hohoema.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\R3.UWP\R3.UWP.csproj">
+      <Project>{a90fcb00-1552-4570-94a9-a1dd9f2cebeb}</Project>
+      <Name>R3.UWP</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="NdgrClientSharp">
+      <HintPath>NdgrClientSharp\netstandard2.0\NdgrClientSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="NdgrClientSharp.Protocol">
+      <HintPath>NdgrClientSharp\netstandard2.0\NdgrClientSharp.Protocol.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>

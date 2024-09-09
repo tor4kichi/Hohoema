@@ -167,6 +167,27 @@
       "author": [ "tor4kichi" ],
       "lisence_type": "MIT",
       "lisence_page_url": "https://github.com/tor4kichi/NiconicoToolkit/blob/master/LICENSE"
+    },
+    {
+      "name": "R3",
+      "site": "https://github.com/Cysharp/R3",
+      "author": [ "Cysharp" ],
+      "lisence_type": "MIT",
+      "lisence_page_url": "https://github.com/Cysharp/R3/blob/main/LICENSE"
+    },
+    {
+      "name": "NdgrClientSharp",
+      "site": "https://github.com/TORISOUP/NdgrClientSharp",
+      "author": [ "TORISOUP" ],
+      "lisence_type": "MIT",
+      "lisence_page_url": "https://github.com/TORISOUP/NdgrClientSharp/blob/master/LICENSE"
+    },
+    {
+      "name": "Protocol Buffers",
+      "site": "https://github.com/TORISOUP/NdgrClientSharp",
+      "author": [ "Google Inc" ],
+      "lisence_type": "BSD",
+      "lisence_page_url": "https://github.com/protocolbuffers/protobuf/blob/main/LICENSE"
     }
   ]
 }
