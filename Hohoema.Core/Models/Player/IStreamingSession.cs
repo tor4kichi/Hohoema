@@ -9,5 +9,5 @@ namespace Hohoema.Models.Player;
 public interface IStreamingSession : IDisposable
 {
     NicoVideoQuality Quality { get; }
-    Task StartPlayback(MediaPlayer player, TimeSpan initialPosition = default);
+    Task SetMediaSourceToPlayer(MediaPlayer player, TimeSpan initialPosition = default, bool play = true);
 }

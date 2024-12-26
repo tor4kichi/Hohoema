@@ -42,6 +42,7 @@ public sealed class MediaPlayerSetter : Behavior<MediaPlayerElement>
     {
         base.OnAttached();
 
+        this.AssociatedObject.Loaded -= AssociatedObject_Loaded;
         this.AssociatedObject.Loaded += AssociatedObject_Loaded;
     }
 
@@ -54,6 +55,7 @@ public sealed class MediaPlayerSetter : Behavior<MediaPlayerElement>
 
     private void AssociatedObject_Loaded(object sender, Windows.UI.Xaml.RoutedEventArgs e)
     {
+        this.AssociatedObject.Loaded -= AssociatedObject_Loaded;
         if (MediaPlayer != null)
         {
             AssociatedObject.SetMediaPlayer(MediaPlayer);
