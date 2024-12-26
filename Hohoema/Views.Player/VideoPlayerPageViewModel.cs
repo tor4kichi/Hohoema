@@ -493,15 +493,12 @@ public partial class VideoPlayerPageViewModel : HohoemaPageViewModelBase
                             // コメントを更新
                             await _dispatcherQueue.EnqueueAsync(async () =>
                             {
-                                sender.Pause();
-                                try
-                                {
-                                    await CommentPlayer.UpdatePlayingCommentAsync(result.CommentSessionProvider);
-                                }
-                                finally
-                                {
-                                    sender.Play();
-                                }
+                                await CommentPlayer.UpdatePlayingCommentAsync(result.CommentSessionProvider);
+
+                                // コメント読み込み完了後に再生を開始したい
+                                // このためにHohoemaPlaylistPlayerなどで再生開始しないように調整している
+                                // 動画準備段階でコメント準備処理が走ると稀に映像が表示されないまま再生するケースがあった
+                                MediaPlayer.Play();
                             });
                         }
                         void MediaPlayer_MediaFailed(MediaPlayer sender, MediaPlayerFailedEventArgs args)

@@ -43,7 +43,7 @@ public abstract class VideoStreamingSession : IVideoStreamingSession, IDisposabl
         StopStreamingFromOwnerShipReturned?.Invoke(this, e);
     }
 
-    public async Task StartPlayback(MediaPlayer player, TimeSpan initialPosition = default)
+    public async Task SetMediaSourceToPlayer(MediaPlayer player, TimeSpan initialPosition = default, bool play = true)
     {
         // Note: HTML5プレイヤー移行中のFLV動画に対するフォールバック処理
         // サムネではContentType=FLV,SWFとなっていても、
@@ -147,8 +147,10 @@ public abstract class VideoStreamingSession : IVideoStreamingSession, IDisposabl
             _PlayingMediaPlayer.PlaybackSession.Position = initialPosition;
 
             OnStartStreaming();
-
-            _PlayingMediaPlayer.Play();
+            if (play)
+            {
+                _PlayingMediaPlayer.Play();
+            }
         }
         else
         {

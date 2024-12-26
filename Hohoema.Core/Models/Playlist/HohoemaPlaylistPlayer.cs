@@ -544,6 +544,7 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
         IStreamingSession videoSession;
         if (_videoSessionDisposable is DomandStreamingSession dommandSession)
         {
+            _videoSessionDisposable?.Dispose();
             videoSession = await CurrentPlayingSession.VideoSessionProvider.CreateVideoSessionAsync(qualityEntity);
         }
         else
@@ -560,7 +561,7 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
 
         
         _videoSessionDisposable = videoSession;
-        await videoSession.StartPlayback(_mediaPlayer, currentPosition ?? TimeSpan.Zero);
+        await videoSession.SetMediaSourceToPlayer(_mediaPlayer, currentPosition ?? TimeSpan.Zero);
         _mediaPlayer.PlaybackSession.PlaybackRate = lastPlaybackRate;
 
         _playerSettings.DefaultVideoQualityId = qualityEntity.QualityId;
@@ -575,11 +576,10 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
         TimeSpan endPosition = _mediaPlayer.PlaybackSession.Position;
         VideoId? videoId = CurrentPlaylistItem?.VideoId;
 
+        _mediaPlayer.Source = null;
         _videoSessionDisposable?.Dispose();
         _videoSessionDisposable = null;
         CurrentPlayingSession = null;
-        _mediaPlayer.Pause();
-        _mediaPlayer.Source = null;
         ClearCurrentContent();
 
         if (prevSource != null && videoId.HasValue)
@@ -731,6 +731,7 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
     {
         Guard.IsNotNull(item, nameof(item));
 
+        IStreamingSession? videoSession = null;
         try
         {
             PlayingOrchestrateResult result = await _videoStreamingOriginOrchestrator.CreatePlayingOrchestrateResultAsync(item.VideoId);
@@ -747,10 +748,9 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
                 qualityEntity = AvailableQualities.SkipWhile(x => !x.IsAvailable).First();
             }
 
-            IStreamingSession videoSession = await result.VideoSessionProvider.CreateVideoSessionAsync(qualityEntity);            
+            videoSession = await result.VideoSessionProvider.CreateVideoSessionAsync(qualityEntity);            
 
             _videoSessionDisposable = videoSession;
-            await videoSession.StartPlayback(_mediaPlayer, startPosition ?? TimeSpan.Zero);
 
             _mediaPlayer.PlaybackSession.PlaybackRate = _playerSettings.PlaybackRate;
             CurrentQuality = AvailableQualities.First(x => x.Quality == videoSession.Quality);
@@ -760,9 +760,6 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
             OnPropertyChanged(nameof(AvailableQualities));
 
             NowPlayingWithCache = videoSession is CachedVideoStreamingSession;
-
-            // メディア再生成功時のメッセージを飛ばす
-            _ = _messenger.Send(new PlaybackStartedMessage(new(this, CurrentPlaylistId, item.VideoId, videoSession.Quality, _mediaPlayer.PlaybackSession)));
 
             _mediaPlayer.PlaybackSession.PlaybackStateChanged -= PlaybackSession_PlaybackStateChanged;
             _mediaPlayer.PlaybackSession.PlaybackStateChanged += PlaybackSession_PlaybackStateChanged;
@@ -791,10 +788,20 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
             _smtc.ButtonPressed -= _smtc_ButtonPressed;
             _smtc.ButtonPressed += _smtc_ButtonPressed;
 
+            // 自動で再生開始せず、アプリ側で制御してもらう
+            await videoSession.SetMediaSourceToPlayer(_mediaPlayer, startPosition ?? TimeSpan.Zero, false);
+
+            // メディア再生成功時のメッセージを飛ばす
+            _ = _messenger.Send(new PlaybackStartedMessage(new(this, CurrentPlaylistId, item.VideoId, videoSession.Quality, _mediaPlayer.PlaybackSession)));
+
             return true;
         }
         catch (Exception)
         {
+            videoSession?.Dispose();
+            _mediaPlayer.PlaybackSession.PlaybackStateChanged -= PlaybackSession_PlaybackStateChanged;
+            _smtc.ButtonPressed -= _smtc_ButtonPressed;
+
             StopPlaybackMedia();
             _ = _messenger.Send(new PlaybackFailedMessage(new(this, CurrentPlaylistId, item.VideoId, PlayingOrchestrateFailedReason.Unknown)));
             throw;
