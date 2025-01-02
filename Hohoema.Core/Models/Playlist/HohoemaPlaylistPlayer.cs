@@ -752,13 +752,6 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
 
             _videoSessionDisposable = videoSession;
 
-            _mediaPlayer.PlaybackSession.PlaybackRate = _playerSettings.PlaybackRate;
-            CurrentQuality = AvailableQualities.First(x => x.Quality == videoSession.Quality);
-            Guard.IsNotNull(_mediaPlayer.PlaybackSession, nameof(_mediaPlayer.PlaybackSession));
-
-
-            OnPropertyChanged(nameof(AvailableQualities));
-
             NowPlayingWithCache = videoSession is CachedVideoStreamingSession;
 
             _mediaPlayer.PlaybackSession.PlaybackStateChanged -= PlaybackSession_PlaybackStateChanged;
@@ -790,6 +783,12 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
 
             // 自動で再生開始せず、アプリ側で制御してもらう
             await videoSession.SetMediaSourceToPlayer(_mediaPlayer, startPosition ?? TimeSpan.Zero, false);
+
+            _mediaPlayer.PlaybackSession.PlaybackRate = _playerSettings.PlaybackRate;
+            CurrentQuality = AvailableQualities.First(x => x.Quality == videoSession.Quality);
+            Guard.IsNotNull(_mediaPlayer.PlaybackSession, nameof(_mediaPlayer.PlaybackSession));
+
+            OnPropertyChanged(nameof(AvailableQualities));
 
             // メディア再生成功時のメッセージを飛ばす
             _ = _messenger.Send(new PlaybackStartedMessage(new(this, CurrentPlaylistId, item.VideoId, videoSession.Quality, _mediaPlayer.PlaybackSession)));
