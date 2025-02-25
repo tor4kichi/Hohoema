@@ -104,10 +104,11 @@ public sealed class ChannelFollowProvider : ProviderBase, IFollowProvider<IChann
 
     public async Task<bool> IsFollowingAsync(ChannelId channelId)
     {
-        ChannelInfo channelInfo = await _niconicoSession.ToolkitContext.Channel.GetChannelInfoAsync(channelId);
-        ChannelAuthorityResponse res = await _niconicoSession.ToolkitContext.Follow.Channel.GetChannelAuthorityAsync((uint)channelInfo.ChannelId);
+        throw new NotImplementedException();
+        //ChannelInfo channelInfo = await _niconicoSession.ToolkitContext.Channel.GetChannelInfoAsync(channelId);
+        //ChannelAuthorityResponse res = await _niconicoSession.ToolkitContext.Follow.Channel.GetChannelAuthorityAsync((uint)channelInfo.ChannelId);
 
-        return res.Data?.Session?.IsFollowing ?? false;
+        //return res.Data?.Session?.IsFollowing ?? false;
     }
 
     public async Task<ChannelAuthorityResponse> GetChannelAuthorityAsync(ChannelId channelId)
@@ -117,8 +118,9 @@ public sealed class ChannelFollowProvider : ProviderBase, IFollowProvider<IChann
 
     public async Task<ChannelAuthorityResponse> GetChannelAuthorityAsync(string channelScreenName)
     {
-        ChannelInfo channelInfo = await _niconicoSession.ToolkitContext.Channel.GetChannelInfoAsync(channelScreenName);
-        return await _niconicoSession.ToolkitContext.Follow.Channel.GetChannelAuthorityAsync((uint)channelInfo.ChannelId);
+        throw new NotImplementedException();
+        //ChannelInfo channelInfo = await _niconicoSession.ToolkitContext.Channel.GetChannelInfoAsync(channelScreenName);
+        //return await _niconicoSession.ToolkitContext.Follow.Channel.GetChannelAuthorityAsync((uint)channelInfo.ChannelId);
 
     }
 }

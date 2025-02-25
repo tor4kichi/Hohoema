@@ -15,7 +15,7 @@ using Hohoema.ViewModels.Subscriptions;
 using Hohoema.ViewModels.VideoListPage;
 using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Collections;
-using Microsoft.Toolkit.Diagnostics;
+using CommunityToolkit.Diagnostics;
 using NiconicoToolkit.User;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;

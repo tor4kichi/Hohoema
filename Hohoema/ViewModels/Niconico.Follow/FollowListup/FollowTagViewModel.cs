@@ -6,7 +6,7 @@ namespace Hohoema.ViewModels.Niconico.Follow;
 
 public sealed class FollowTagViewModel : ITag
 {
-    public FollowTagViewModel(FollowTagsResponse.Tag tag)
+    public FollowTagViewModel(FollowTag tag)
     {
         _Tag = tag;
     }
@@ -14,7 +14,7 @@ public sealed class FollowTagViewModel : ITag
     public string Tag => _Tag.Name;
 
 
-    public FollowTagsResponse.Tag _Tag { get; }
+    public FollowTag _Tag { get; }
 
     public string NicoDicSummary => _Tag.NicodicSummary;
 }

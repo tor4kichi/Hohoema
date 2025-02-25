@@ -8,7 +8,7 @@ using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Playlist;
 using Hohoema.Contracts.Playlist;
 using Hohoema.Services.Playlist;
-using Microsoft.Toolkit.Diagnostics;
+using CommunityToolkit.Diagnostics;
 using Microsoft.Toolkit.Uwp.Helpers;
 using NiconicoToolkit.Live;
 using NiconicoToolkit.Video;

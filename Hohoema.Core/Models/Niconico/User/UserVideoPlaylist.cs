@@ -3,7 +3,7 @@ using Hohoema.Models.Niconico.User;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Playlist;
 using Hohoema.Models.Video;
-using Microsoft.Toolkit.Diagnostics;
+using CommunityToolkit.Diagnostics;
 using NiconicoToolkit.User;
 using System.Collections.Generic;
 using System.Linq;

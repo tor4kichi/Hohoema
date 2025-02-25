@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.Niconico.Channel;
-using Hohoema.Models.Niconico.Community;
 using Hohoema.Models.Niconico.Follow;
 using Hohoema.Models.Niconico.Follow.LoginUser;
 using Hohoema.Models.Niconico.Mylist;
@@ -95,7 +94,6 @@ public class FollowGroupViewModel<ItemType> : ObservableObject, IDisposable
                 FollowItemType.Tag => _messenger.OpenVideoListPageAsync((ITag)item),
                 FollowItemType.Mylist => _messenger.OpenVideoListPageAsync((IMylist)item),
                 FollowItemType.Channel => _messenger.OpenVideoListPageAsync((IChannel)item),
-                FollowItemType.Community => _messenger.OpenVideoListPageAsync((ICommunity)item),
                 _ => throw new NotSupportedException(FollowItemType.ToString()),
             };
         });

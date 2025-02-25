@@ -5,7 +5,7 @@ using CommunityToolkit.Mvvm.DependencyInjection;
 using Hohoema.Contracts.Services;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Playlist;
-using Microsoft.Toolkit.Diagnostics;
+using CommunityToolkit.Diagnostics;
 using NiconicoToolkit.Mylist;
 using System;
 using System.Collections.Generic;

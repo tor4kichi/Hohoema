@@ -36,21 +36,16 @@ public sealed class FollowNotificationAndConfirmListener : IDisposable
         _messenger.Register<TagFollowAddedMessage>(this, (r, m) => NotifyFollowAdded(m.Value));
         _messenger.Register<MylistFollowAddedMessage>(this, (r, m) => NotifyFollowAdded(m.Value));
         _messenger.Register<ChannelFollowAddedMessage>(this, (r, m) => NotifyFollowAdded(m.Value));
-        _messenger.Register<CommunityFollowAddedMessage>(this, (r, m) => NotifyFollowAdded(m.Value));
 
         _messenger.Register<UserFollowRemovedMessage>(this, (r, m) => NotifyFollowRemoved(m.Value));
         _messenger.Register<TagFollowRemovedMessage>(this, (r, m) => NotifyFollowRemoved(m.Value));
         _messenger.Register<MylistFollowRemovedMessage>(this, (r, m) => NotifyFollowRemoved(m.Value));
         _messenger.Register<ChannelFollowRemovedMessage>(this, (r, m) => NotifyFollowRemoved(m.Value));
-        _messenger.Register<CommunityFollowRemovedMessage>(this, (r, m) => NotifyFollowRemoved(m.Value));
 
         _messenger.Register<UserFollowRemoveConfirmingAsyncRequestMessage>(this, (r, m) => m.Reply(ConfirmFollowRemovingAsync(m.Target)));
         _messenger.Register<TagFollowRemoveConfirmingAsyncRequestMessage>(this, (r, m) => m.Reply(ConfirmFollowRemovingAsync(m.Target)));
         _messenger.Register<MylistFollowRemoveConfirmingAsyncRequestMessage>(this, (r, m) => m.Reply(ConfirmFollowRemovingAsync(m.Target)));
         _messenger.Register<ChannelFollowRemoveConfirmingAsyncRequestMessage>(this, (r, m) => m.Reply(ConfirmFollowRemovingAsync(m.Target)));
-        _messenger.Register<CommunityFollowRemoveConfirmingAsyncRequestMessage>(this, (r, m) => m.Reply(ConfirmFollowRemovingAsync(m.Target)));
-
-
     }
 
     private void NotifyFollowAdded(IFollowable item)

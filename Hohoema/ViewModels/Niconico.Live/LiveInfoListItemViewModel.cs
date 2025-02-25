@@ -299,9 +299,9 @@ public partial class LiveInfoListItemViewModel : ObservableObject, ILiveContent,
 
         CommunityType = item.Program.Provider switch
         {
-            Provider.COMMUNITY => ProviderType.Community,
-            Provider.CHANNEL => ProviderType.Channel,
-            Provider.OFFICIAL => ProviderType.Official,
+            LiveProvider.COMMUNITY => ProviderType.Community,
+            LiveProvider.CHANNEL => ProviderType.Channel,
+            LiveProvider.OFFICIAL => ProviderType.Official,
             _ => throw new NotSupportedException(),
         };
 
@@ -312,7 +312,7 @@ public partial class LiveInfoListItemViewModel : ObservableObject, ILiveContent,
         StartTime = item.Program.Schedule.OpenTime;
         EndTime = item.Program.Schedule.EndTime;
         IsTimeshiftEnabled = item.TimeshiftSetting != null;
-        IsCommunityMemberOnly = item.Features.Enabled.Any(x => x is Feature.MEMBER_ONLY);
+        IsCommunityMemberOnly = item.Features.Enabled.Any(x => x is LiveFeature.MEMBER_ONLY);
 
 
         if (StartTime > DateTimeOffset.Now)

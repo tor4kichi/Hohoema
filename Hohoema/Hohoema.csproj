@@ -222,7 +222,6 @@
     <Compile Include="ViewModels\Player\TogglePlayerDisplayViewCommand.cs" />
     <Compile Include="ViewModels\Niconico.Follow\FollowListup\FollowMylistGroupViewModel.cs" />
     <Compile Include="ViewModels\Niconico.Follow\FollowListup\FollowChannelGroupViewModel.cs" />
-    <Compile Include="ViewModels\Niconico.Follow\FollowListup\FollowCommunityGroupViewModel.cs" />
     <Compile Include="ViewModels\Niconico.Follow\FollowListup\FollowTagGroupViewModel.cs" />
     <Compile Include="ViewModels\Niconico.Follow\FollowListup\FollowUserGroupViewModel.cs" />
     <Compile Include="ViewModels\Niconico.Follow\IFollowContext.cs" />
@@ -238,10 +237,6 @@
     <Compile Include="Views\Converters\SizeToRectConverter.cs" />
     <Compile Include="Views\TemplateSelector\ListItemContainerStyleSelector.cs" />
     <Compile Include="Views\UINavigation\UINavigationManager.cs" />
-    <Compile Include="ViewModels\Community\CommunityLiveInfoViewModel.cs" />
-    <Compile Include="ViewModels\Community\CommunityNewsViewModel.cs" />
-    <Compile Include="ViewModels\Community\CommunityVideoInfoViewModel.cs" />
-    <Compile Include="ViewModels\Community\CurrentLiveInfoViewModel.cs" />
     <Compile Include="ViewModels\Niconico.Ranking\FavoriteRankingGenreGroupItem.cs" />
     <Compile Include="ViewModels\Niconico.Ranking\HiddenGenreItem.cs" />
     <Compile Include="ViewModels\Niconico.Ranking\RankingGenreItem.cs" />
@@ -260,7 +255,6 @@
     <Compile Include="Views.Hohoema\LocalMylist\LocalPlaylistManagePageViewModel.cs" />
     <Compile Include="Views.Hohoema\LocalMylist\LocalPlaylistPageViewModel.cs" />
     <Compile Include="Views\DebugPageViewModel.cs" />
-    <Compile Include="Views.Niconico\Community\CommunityViewModel.cs" />
     <Compile Include="Views.Player\LegacyVideoPlayerPage.xaml.cs">
       <DependentUpon>LegacyVideoPlayerPage.xaml</DependentUpon>
     </Compile>
@@ -298,13 +292,9 @@
     <Compile Include="ViewModels\Niconico.Follow\FollowListup\FollowMylistViewModel.cs" />
     <Compile Include="ViewModels\Niconico.Follow\FollowListup\FollowChannelIncrementalSource.cs" />
     <Compile Include="ViewModels\Niconico.Follow\FollowListup\FollowChannelViewModel.cs" />
-    <Compile Include="ViewModels\Niconico.Follow\FollowListup\FollowCommunityIncrementalSource.cs" />
-    <Compile Include="ViewModels\Niconico.Follow\FollowListup\FollowCommunityViewModel.cs" />
     <Compile Include="Views.Niconico\Search\SearchHistoryListItemViewModel.cs" />
     <Compile Include="ViewModels\Niconico.Search\VideoSearchIncrementalSource.cs" />
     <Compile Include="Views.Niconico\Channel\ChannelVideoPageViewModel.cs" />
-    <Compile Include="Views.Niconico\Community\CommunityPageViewModel.cs" />
-    <Compile Include="Views.Niconico\Community\CommunityVideoPageViewModel.cs" />
     <Compile Include="ViewModels\Niconico.Live\NicoLiveUserIdAddToNGCommand.cs" />
     <Compile Include="ViewModels\Niconico.Live\NicoLiveUserIdRemoveFromNGCommand.cs" />
     <Compile Include="ViewModels\Niconico.Live\OpenBroadcasterInfoCommand.cs" />
@@ -422,15 +412,6 @@
     </Compile>
     <Compile Include="Views.Niconico\Channel\ChannelVideoPage.xaml.cs">
       <DependentUpon>ChannelVideoPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views.Niconico\Search\CommunityInfoControl.xaml.cs">
-      <DependentUpon>CommunityInfoControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views.Niconico\Community\CommunityPage.xaml.cs">
-      <DependentUpon>CommunityPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views.Niconico\Community\CommunityVideoPage.xaml.cs">
-      <DependentUpon>CommunityVideoPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\DebugPage.xaml.cs">
       <DependentUpon>DebugPage.xaml</DependentUpon>
@@ -864,7 +845,7 @@
       <Version>1.3.0</Version>
     </PackageReference>
     <PackageReference Include="System.Text.Json">
-      <Version>5.0.2</Version>
+      <Version>9.0.2</Version>
     </PackageReference>
     <PackageReference Include="ValueTaskSupplement">
       <Version>1.1.0</Version>
@@ -955,18 +936,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views.Niconico\Channel\ChannelVideoPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views.Niconico\Search\CommunityInfoControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views.Niconico\Community\CommunityPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views.Niconico\Community\CommunityVideoPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

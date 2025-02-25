@@ -19,8 +19,7 @@ public class FollowManagePageViewModel : HohoemaPageViewModelBase
        UserFollowProvider userFollowProvider,
        TagFollowProvider tagFollowProvider,
        MylistFollowProvider mylistFollowProvider,
-       ChannelFollowProvider channelFollowProvider,
-       CommunityFollowProvider communityFollowProvider
+       ChannelFollowProvider channelFollowProvider
        )
     {
         ApplicationLayoutManager = applicationLayoutManager;
@@ -30,7 +29,6 @@ public class FollowManagePageViewModel : HohoemaPageViewModelBase
         _tagFollowProvider = tagFollowProvider;
         _mylistFollowProvider = mylistFollowProvider;
         _channelFollowProvider = channelFollowProvider;
-        _communityFollowProvider = communityFollowProvider;
     }
 
 
@@ -47,7 +45,6 @@ public class FollowManagePageViewModel : HohoemaPageViewModelBase
     private readonly TagFollowProvider _tagFollowProvider;
     private readonly MylistFollowProvider _mylistFollowProvider;
     private readonly ChannelFollowProvider _channelFollowProvider;
-    private readonly CommunityFollowProvider _communityFollowProvider;
 
     public object[]? FollowGroups { get; private set; }
 
@@ -59,7 +56,6 @@ public class FollowManagePageViewModel : HohoemaPageViewModelBase
             new FollowTagGroupViewModel(_tagFollowProvider, _messenger),
             new FolloMylistGroupViewModel(_mylistFollowProvider, _messenger),
             new FollowChannelGroupViewModel(_channelFollowProvider, _messenger),
-            new FollowCommunityGroupViewModel(_communityFollowProvider, NiconicoSession.UserId ?? 0, _messenger),
         }; ;
         OnPropertyChanged(nameof(FollowGroups));
 

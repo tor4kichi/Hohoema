@@ -161,11 +161,6 @@ public static class NavigationMessengerExtension
         }
     }
 
-    public static async Task<INavigationResult> OpenVideoListPageAsync(this IMessenger messenger, Models.Niconico.Community.ICommunity communityContent)
-    {
-        return await messenger.OpenPageWithIdAsync(HohoemaPageType.CommunityVideo, communityContent.CommunityId);
-    }
-
     public static async Task<INavigationResult> OpenVideoListPageAsync(this IMessenger messenger, IMylist mylistContent)
     {
         return await messenger.OpenPageWithIdAsync(HohoemaPageType.Mylist, mylistContent.PlaylistId.Id);

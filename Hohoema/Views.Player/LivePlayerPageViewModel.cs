@@ -9,7 +9,6 @@ using Hohoema.Helpers;
 using Hohoema.Models.Application;
 using Hohoema.Models.Live;
 using Hohoema.Models.Niconico;
-using Hohoema.Models.Niconico.Community;
 using Hohoema.Models.Niconico.Live;
 using Hohoema.Models.Niconico.Live.LoginUser;
 using Hohoema.Models.Niconico.User;
@@ -103,7 +102,6 @@ public partial class LivePlayerPageViewModel : HohoemaPageViewModelBase
     public LoginUserLiveReservationProvider LoginUserLiveReservationProvider { get; }
     public NiconicoSession NiconicoSession { get; }
     public UserProvider UserProvider { get; }
-    public CommunityProvider CommunityProvider { get; }
     public DialogService _HohoemaDialogService { get; }
 
     private readonly IMessenger _messenger;
@@ -386,7 +384,6 @@ public partial class LivePlayerPageViewModel : HohoemaPageViewModelBase
         NiconicoSession niconicoSession,
         UserProvider userProvider,
         UserNameProvider userNameRepository,
-        CommunityProvider communityProvider,
         Services.DialogService dialogService,
         NotificationService notificationService,
         MediaPlayer mediaPlayer,
@@ -420,7 +417,6 @@ public partial class LivePlayerPageViewModel : HohoemaPageViewModelBase
         NiconicoSession = niconicoSession;
         UserProvider = userProvider;
         _userNameRepository = userNameRepository;
-        CommunityProvider = communityProvider;
 
         _HohoemaDialogService = dialogService;
         _NotificationService = notificationService;

@@ -48,11 +48,11 @@ public sealed class TagFollowProvider : ProviderBase, IFollowProvider<ITag>
     }
 
 
-    public async Task<List<FollowTagsResponse.Tag>> GetAllAsync()
+    public async Task<List<FollowTag>> GetAllAsync()
     {
         if (!_niconicoSession.IsLoggedIn)
         {
-            return new List<FollowTagsResponse.Tag>();
+            return new List<FollowTag>();
         }
 
         FollowTagsResponse res = await _niconicoSession.ToolkitContext.Follow.Tag.GetFollowTagsAsync();

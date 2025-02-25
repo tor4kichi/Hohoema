@@ -38,9 +38,6 @@ public sealed class OpenVideoListPageCommand : CommandBase
             case IVideoContentProvider videoContent:
                 _ = _messenger.OpenVideoListPageAsync(videoContent);
                 break;
-            case Models.Niconico.Community.ICommunity communityContent:
-                _ = _messenger.OpenVideoListPageAsync(communityContent);
-                break;
             case IMylist mylistContent:
                 _ = _messenger.OpenVideoListPageAsync(mylistContent);
                 break;

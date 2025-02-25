@@ -9,7 +9,7 @@ using Hohoema.Infra;
 using Hohoema.Models.LocalMylist;
 using Hohoema.Models.Niconico.Video;
 using LiteDB;
-using Microsoft.Toolkit.Diagnostics;
+using CommunityToolkit.Diagnostics;
 using NiconicoToolkit.Video;
 using System;
 using System.Collections;

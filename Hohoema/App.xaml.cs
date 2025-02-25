@@ -297,8 +297,6 @@ public sealed partial class App : Application
         viewLocator.RegisterForNavigation<Views.Pages.Hohoema.VideoCache.CacheManagementPage>();
         viewLocator.RegisterForNavigation<Views.Pages.Niconico.Activity.WatchHistoryPage>();
         viewLocator.RegisterForNavigation<Views.Pages.Niconico.Channel.ChannelVideoPage>();
-        viewLocator.RegisterForNavigation<Views.Pages.Niconico.Community.CommunityPage>();
-        viewLocator.RegisterForNavigation<Views.Pages.Niconico.Community.CommunityVideoPage>();
         viewLocator.RegisterForNavigation<Views.Pages.Niconico.Follow.FollowManagePage>();
         viewLocator.RegisterForNavigation<Views.Pages.Niconico.Live.LiveInfomationPage>();
         viewLocator.RegisterForNavigation<Views.Pages.Niconico.Live.TimeshiftPage>();

@@ -1,7 +1,7 @@
 ﻿#nullable enable
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Playlist;
-using Microsoft.Toolkit.Diagnostics;
+using CommunityToolkit.Diagnostics;
 using NiconicoToolkit.Channels;
 using System.Collections.Generic;
 using System.Linq;

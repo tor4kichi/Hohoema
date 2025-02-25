@@ -2,6 +2,7 @@
 using Hohoema.Infra;
 using NiconicoToolkit.Channels;
 using System.Threading.Tasks;
+using System;
 
 namespace Hohoema.Models.Niconico.Channel;
 
@@ -39,6 +40,7 @@ public sealed class ChannelProvider : ProviderBase
 
     public Task<ChannelInfo> GetChannelInfo(ChannelId channelId)
     {
-        return _niconicoSession.ToolkitContext.Channel.GetChannelInfoAsync(channelId);
+        throw new NotImplementedException("");
+        //return _niconicoSession.ToolkitContext.Channel.GetChannelInfoAsync(channelId);
     }
 }

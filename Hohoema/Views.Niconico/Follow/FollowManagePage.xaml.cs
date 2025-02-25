@@ -2,7 +2,6 @@
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Channel;
-using Hohoema.Models.Niconico.Community;
 using Hohoema.Models.Niconico.Follow;
 using Hohoema.Models.Niconico.Mylist;
 using Hohoema.Models.Niconico.Video;
@@ -89,7 +88,6 @@ public sealed partial class FollowManagePage : Page
 				ITag => TagItemTemplate,
 				IMylist => MylistItemTemplate,
 				IChannel => ChannelItemTemplate,
-				ICommunity => CommunityItemTemplate,
 				_ => throw new NotSupportedException(),
 			};
 		}

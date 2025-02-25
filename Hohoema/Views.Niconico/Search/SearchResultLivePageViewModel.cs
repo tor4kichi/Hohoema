@@ -26,9 +26,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.UI.Xaml.Navigation;
 using NiconicoSession = Hohoema.Models.Niconico.NiconicoSession;
-using LiveStatus = NiconicoToolkit.Search.Live.Status;
+using LiveStatus = NiconicoToolkit.Search.Live.SearchLiveStatus;
 using LiveSort = NiconicoToolkit.Search.Live.Sort;
-using LiveProvider = NiconicoToolkit.Search.Live.Provider;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.Messaging;
@@ -214,9 +213,9 @@ public class LiveSearchSource : IIncrementalSource<LiveInfoListItemViewModel>
 {
     public LiveSearchSource(
         string keyword,
-        NiconicoToolkit.Search.Live.Status status,
-        NiconicoToolkit.Search.Live.Sort sort,
-        NiconicoToolkit.Search.Live.Provider provider,
+        SearchLiveStatus status,
+        Sort sort,
+        LiveProvider provider,
         TimeshiftReservationsResponse? reservationRes,
         SearchProvider searchProvider,
         NiconicoSession niconicoSession,

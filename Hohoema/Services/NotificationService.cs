@@ -2,7 +2,6 @@
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.Niconico;
-using Hohoema.Models.Niconico.Community;
 using Hohoema.Models.Niconico.Live;
 using Hohoema.Models.Niconico.Mylist;
 using Hohoema.Models.Niconico.User;
@@ -14,7 +13,6 @@ using Hohoema.Contracts.Player;
 using I18NPortable;
 using Microsoft.Toolkit.Uwp.Notifications;
 using NiconicoToolkit;
-using NiconicoToolkit.Community;
 using NiconicoToolkit.Live;
 using NiconicoToolkit.Mylist;
 using NiconicoToolkit.User;
@@ -35,7 +33,6 @@ public sealed class HohoemaNotificationService
     public NicoVideoProvider NicoVideoProvider { get; }
     public MylistProvider MylistProvider { get; }
     public NicoLiveProvider NicoLiveProvider { get; }
-    public CommunityProvider CommunityProvider { get; }
     public UserProvider UserProvider { get; }
 
     private readonly IMessenger _messenger;
@@ -51,7 +48,6 @@ public sealed class HohoemaNotificationService
         NicoVideoProvider nicoVideoProvider,
         MylistProvider mylistProvider,
         NicoLiveProvider nicoLiveProvider,
-        CommunityProvider communityProvider,
         UserProvider userProvider,
         IMessenger messenger
         )
@@ -62,7 +58,6 @@ public sealed class HohoemaNotificationService
         NicoVideoProvider = nicoVideoProvider;
         MylistProvider = mylistProvider;
         NicoLiveProvider = nicoLiveProvider;
-        CommunityProvider = communityProvider;
         UserProvider = userProvider;
 
         _messenger = messenger;
@@ -82,9 +77,6 @@ public sealed class HohoemaNotificationService
                 break;
             case NiconicoIdType.Mylist:
                 notificationPayload = SubmitMylistContentSuggestion((MylistId)id);
-                break;
-            case NiconicoIdType.Community:
-                notificationPayload = SubmitCommunityContentSuggestion((CommunityId)id);
                 break;
             case NiconicoIdType.User:
                 notificationPayload = SubmitUserSuggestion((UserId)id);
@@ -237,39 +229,6 @@ public sealed class HohoemaNotificationService
                     },
                 }
         };
-    }
-
-    private async Task<InAppNotificationPayload> SubmitCommunityContentSuggestion(CommunityId communityId)
-    {
-        return null;
-        //CommunityInfoResponse communityInfo = null;
-        //try
-        //{
-        //    communityInfo = await CommunityProvider.GetCommunityInfo(communityId);
-        //}
-        //catch { }
-
-        //if (communityInfo?.IsOK != true || communityInfo.Community == null) { return null; }
-
-        //var community = communityInfo.Community;
-        //return new InAppNotificationPayload()
-        //{
-        //    Content = "InAppNotification_ContentDetectedFromClipboard".Translate(community.Name),
-        //    ShowDuration = DefaultNotificationShowDuration,
-        //    IsShowDismissButton = true,
-        //    Commands = {
-        //            new InAppNotificationCommand()
-        //            {
-        //                Label = HohoemaPageType.Community.Translate(),
-        //                Command = new RelayCommand(() =>
-        //                {
-        //                    _messenger.OpenPageAsync(HohoemaPageType.Community, communityId);
-
-        //                    NotificationService.DismissInAppNotification();
-        //                })
-        //            },
-        //        }
-        //};
     }
 
     private async Task<InAppNotificationPayload> SubmitUserSuggestion(UserId userId)

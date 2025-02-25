@@ -12,7 +12,7 @@ using Hohoema.Models.PageNavigation;
 using Hohoema.Models.Player;
 using Hohoema.Models.Player.Video;
 using Microsoft.Toolkit.Collections;
-using Microsoft.Toolkit.Diagnostics;
+using CommunityToolkit.Diagnostics;
 using Microsoft.Toolkit.Uwp;
 using NiconicoToolkit.Video;
 using Reactive.Bindings.Extensions;

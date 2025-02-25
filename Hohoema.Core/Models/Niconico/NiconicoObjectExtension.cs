@@ -1,6 +1,5 @@
 ﻿#nullable enable
 using Hohoema.Models.Niconico.Channel;
-using Hohoema.Models.Niconico.Community;
 using Hohoema.Models.Niconico.Live;
 using Hohoema.Models.Niconico.Mylist;
 using Hohoema.Models.Niconico.Video;
@@ -16,7 +15,6 @@ public static class NiconicoObjectExtension
         {
             IVideoContent video => video.Title,
             ILiveContent live => live.Title,
-            ICommunity community => community.Name,
             IChannel channel => channel.Name,
             IMylist mylist => mylist.Name,
             ITag tag => tag.Tag,
