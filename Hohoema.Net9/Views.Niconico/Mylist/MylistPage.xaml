@@ -1,0 +1,188 @@
+﻿<Page
+    x:Name="PageRoot"
+    x:Class="Hohoema.Views.Pages.Niconico.Mylist.MylistPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+  xmlns:i="using:Microsoft.Xaml.Interactivity"
+  xmlns:controls="using:Hohoema.Views.Controls"
+  xmlns:flyouts="using:Hohoema.Views.Flyouts"
+  xmlns:videolistPage="using:Hohoema.Views.Controls.VideoList"
+  xmlns:triggers="using:Microsoft.Toolkit.Uwp.UI.Triggers"
+  xmlns:myConv="using:Hohoema.Views.Converters"
+  xmlns:models="using:Hohoema.Models.Application"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" 
+  DataContext="{x:Null}"
+    NavigationCacheMode="Enabled"
+    mc:Ignorable="d"
+    >
+  
+  <Grid>
+    <videolistPage:VideoItemsListView ItemsSource="{Binding ItemsView, Mode=OneWay}" 
+                                      ItemCommand="{Binding VideoPlayWithQueueCommand}" 
+                                      ItemTemplate="{StaticResource VideoListItemControlDefaultTemplate}"
+                                      RefreshCommand="{Binding RefreshCommand}" 
+                                      PlaylistPassToFlyout="{Binding Mylist.Value, Mode=OneWay}" 
+                                      x:Name="VideoItemsListView"
+                                      >
+      <videolistPage:VideoItemsListView.Header>
+        <Grid x:Name="HeaderLayout" BorderThickness="0 0 0 1" BorderBrush="{StaticResource HohoemaLightBorderBrush}">
+          <CommandBar x:Name="VideoListCommandBar" DefaultLabelPosition="Right" VerticalContentAlignment="Center"
+                      IsEnabled="{Binding NowLoading, Mode=OneWay, Converter={StaticResource BoolNegation}}"                          
+                      >
+
+            <CommandBar.Content>
+              <controls:AppTitleBar Title="{Binding Title, Mode=OneWay}" />
+            </CommandBar.Content>
+            <CommandBar.PrimaryCommands>
+
+              <AppBarToggleButton x:Name="ToggleMylistFavoriteButton" IsChecked="{Binding FollowContext.IsFollowing, Mode=TwoWay}" IsEnabled="{Binding FollowContext.NowChanging, Mode=OneWay, Converter={StaticResource BoolNegation}}" Visibility="Collapsed" Icon="Favorite" Label="{i18nExt:Localize Key=Follow}" />
+
+              <AppBarElementContainer IsEnabled="False" IsTabStop="False">
+                <StackPanel Orientation="Horizontal">
+
+                  <StackPanel Orientation="Horizontal" Margin="0 0 0 0" Visibility="{Binding UserName, Mode=OneWay, Converter={StaticResource NotNullToVisibility}}">
+                    <TextBlock FontSize="14">
+                        <Run Text="{i18nExt:Localize Key=ContentOwner}" /> : <Run Text="{Binding UserName, Mode=OneWay}" /></TextBlock>
+                    <Border x:Name="DefaultMylistRegistrationCount" Visibility="Collapsed" Margin="8 0 0 0">
+                      <TextBlock>
+                        (<Run Text="{i18nExt:Localize Key=MylistRegisteredCount}" />:<Run Text="{Binding DeflistRegistrationCount, Mode=OneWay}" /> <Run Text="{i18nExt:Localize Key=MylistRegisteredCountLimit}" />:<Run Text="{Binding DeflistRegistrationCapacity}" />)</TextBlock>
+                    </Border>
+                    <Border x:Name="MylistRegistrationCount" Visibility="Collapsed" Margin="8 0 0 0">
+                      <TextBlock>
+                        (<Run Text="{i18nExt:Localize Key=MylistRegisteredCount}" />:<Run Text="{Binding MaxItemsCount, Mode=OneWay}" /> <Run Text="{i18nExt:Localize Key=MylistRegisteredCountSum}" />:<Run Text="{Binding MylistRegistrationCount, Mode=OneWay}" /> 上限:<Run Text="{Binding MylistRegistrationCapacity, Mode=OneWay}" />)</TextBlock>
+                    </Border>
+                  </StackPanel>
+                </StackPanel>
+              </AppBarElementContainer>
+              <AppBarElementContainer  VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" IsTabStop="False">
+                <ComboBox ItemsSource="{Binding SortItems}"
+                          SelectedItem="{Binding SelectedSortOptionItem.Value, Mode=TwoWay}"
+                          VerticalAlignment="Stretch"
+                          Margin="0 6"
+                                >
+                  <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                      <TextBlock Text="{Binding Label}" />
+
+                    </DataTemplate>
+                  </ComboBox.ItemTemplate>
+                </ComboBox>
+
+              </AppBarElementContainer>
+              <!-- 非選択中 -->
+              <AppBarButton x:Name="PlayAllButton" Icon="Play" Label="{i18nExt:Localize Key=PlayAll}" Command="{Binding PlaylistPlayAllCommand}" CommandParameter="{Binding CurrentPlaylistToken.Value, Mode=OneWay}" />
+              <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
+                <i:Interaction.Behaviors>
+                  <i:EventTriggerBehavior EventName="Click">
+                    <i:CallMethodAction TargetObject="{x:Bind VideoItemsListView}" MethodName="ResetScrollPosition" />
+                  </i:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
+              </AppBarButton>
+
+              <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
+
+              <AppBarButton x:Name="RefreshButton"
+                              Label="{i18nExt:Localize Key=Refresh}" 
+                              Icon="Refresh"
+                              Command="{Binding RefreshCommand}"
+                              VerticalAlignment="Center"
+                          >
+              </AppBarButton>
+              
+            </CommandBar.PrimaryCommands>
+            <CommandBar.SecondaryCommands>
+              <AppBarButton x:Name="FeedRegstrationButton" Icon="Add" Visibility="Visible" Label="{i18nExt:Localize Key=SubscriptionAdd}"
+                                Command="{Binding AddSubscriptionCommand}"
+                                CommandParameter="{Binding Mylist.Value, Mode=OneWay}"
+                                >
+              </AppBarButton>
+              <AppBarButton x:Name="OpenUserPageButton" Command="{Binding OpenMylistOwnerCommand}" Background="Transparent" Visibility="Collapsed" Icon="People" Label="{i18nExt:Localize Key=MylistOwner}"></AppBarButton>
+              <AppBarButton x:Name="EditMylistButton" Command="{Binding EditMylistGroupCommand}" CommandParameter="{Binding Mylist.Value, Mode=OneWay}" Background="Transparent" Visibility="Collapsed" Icon="Edit" Label="{i18nExt:Localize Key=MylistEditInfo}"></AppBarButton>
+              <AppBarSeparator x:Name="MylistDeleteButtonSeparator" Visibility="Collapsed" />
+              <AppBarButton x:Name="DeleteMylistButton" Command="{Binding DeleteMylistCommand}" CommandParameter="{Binding Mylist.Value, Mode=OneWay}" Background="Transparent" Visibility="Collapsed" Icon="Delete" Label="{i18nExt:Localize Key=MylistDelete}"></AppBarButton>
+            </CommandBar.SecondaryCommands>
+          </CommandBar>
+        </Grid>
+      </videolistPage:VideoItemsListView.Header>
+    </videolistPage:VideoItemsListView>
+    
+    <VisualStateManager.VisualStateGroups>
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <triggers:IsEqualStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout, Mode=OneWay}" To="{x:Bind models:ApplicationLayout.TV}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_TV}" />
+            <Setter Target="VideoItemsListView.ItemsPanelPadding" Value="{StaticResource ContentPageMargin_TV}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <triggers:IsEqualStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout, Mode=OneWay}" To="{x:Bind models:ApplicationLayout.Desktop}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Desktop}" />
+            <Setter Target="VideoItemsListView.ItemsPanelPadding" Value="{StaticResource ContentPageMargin_Desktop}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <triggers:IsEqualStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout, Mode=OneWay}" To="{x:Bind models:ApplicationLayout.Tablet}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
+            <Setter Target="VideoItemsListView.ItemsPanelPadding" Value="{StaticResource ContentPageMargin_Tablet}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <triggers:IsEqualStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout, Mode=OneWay}" To="{x:Bind models:ApplicationLayout.Mobile}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
+            <Setter Target="VideoItemsListView.ItemsPanelPadding" Value="{StaticResource ContentPageMargin_Mobile}" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+     
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{Binding IsLoginUserDeflist, Mode=OneWay}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="FeedRegstrationButton.Visibility" Value="Collapsed" />
+            <Setter Target="DefaultMylistRegistrationCount.Visibility" Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{Binding IsUserOwnerdMylist, Mode=OneWay}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="OpenUserPageButton.Visibility" Value="Visible" />
+            <Setter Target="ToggleMylistFavoriteButton.Visibility" Value="Visible" />
+            <Setter Target="EditMylistButton.Visibility" Value="Visible" />
+            <Setter Target="DeleteMylistButton.Visibility" Value="Visible" />
+            <Setter Target="MylistDeleteButtonSeparator.Visibility" Value="Visible" />
+            <Setter Target="MylistRegistrationCount.Visibility" Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="True" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="ToggleMylistFavoriteButton.Visibility" Value="Visible" />
+            <Setter Target="OpenUserPageButton.Visibility" Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      
+    </VisualStateManager.VisualStateGroups>
+  </Grid>
+</Page>

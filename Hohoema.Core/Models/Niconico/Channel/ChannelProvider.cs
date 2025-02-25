@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using Hohoema.Infra;
 using NiconicoToolkit.Channels;
+using System;
 using System.Threading.Tasks;
 
 namespace Hohoema.Models.Niconico.Channel;
@@ -23,6 +24,7 @@ public sealed class ChannelProvider : ProviderBase
         ChannelEntity cached = _channelNameCacheRepository.FindById(strChannelId);
         if (cached == null)
         {
+            throw new NotSupportedException();
             ChannelInfo info = await GetChannelInfo(channelId);
             cached = new ChannelEntity() { ChannelId = strChannelId, ScreenName = info.ScreenName };
             _ = _channelNameCacheRepository.UpdateItem(cached);
@@ -39,6 +41,7 @@ public sealed class ChannelProvider : ProviderBase
 
     public Task<ChannelInfo> GetChannelInfo(ChannelId channelId)
     {
-        return _niconicoSession.ToolkitContext.Channel.GetChannelInfoAsync(channelId);
+        throw new NotSupportedException();
+        //return _niconicoSession.ToolkitContext.Channel.GetChannelInfoAsync(channelId);
     }
 }

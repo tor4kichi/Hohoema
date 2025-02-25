@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "Hohoema.Net9": {
+      "commandName": "MsixPackage"
+    }
+  }
+}

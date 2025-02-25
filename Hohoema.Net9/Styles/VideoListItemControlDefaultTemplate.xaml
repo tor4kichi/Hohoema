@@ -1,0 +1,27 @@
+﻿<ResourceDictionary
+  x:Class="Hohoema.Styles.VideoListItemControlDefaultTemplate"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+  xmlns:listPageVM="using:Hohoema.ViewModels.VideoListPage" 
+  xmlns:videoList="using:Hohoema.Views.Controls.VideoList"
+  >
+  <DataTemplate x:Key="VideoListItemControlDefaultTemplate" 
+                    x:DataType="listPageVM:VideoListItemControlViewModel"
+                  >
+    <videoList:VideoListItemControl 
+                Title="{x:Bind Label}"                 
+                ImageSource="{x:Bind ThumbnailUrl}"
+                Length="{x:Bind Length, Converter={StaticResource TimeToMovieLengthConverter}}"  
+                IsQueueItem="{x:Bind IsQueueItem, Mode=OneWay}"
+                IsWatched="{x:Bind IsWatched, Mode=OneWay}"
+                IsDeleted="{x:Bind IsDeleted}"
+                IsHidden="{x:Bind VideoHiddenInfo, Mode=OneWay, Converter={StaticResource NotNullToBoolean}}"
+                CacheStatus="{x:Bind CacheStatus, Mode=OneWay}"
+                PostedAt="{x:Bind PostedAt, Converter={StaticResource DateTimeToString}}"
+                PrivateReason="{x:Bind PrivateReason, Converter={StaticResource LocalizeConverter}}"
+                ViewCount="{x:Bind ViewCount, Converter={StaticResource ToUserFriendlyNumber}}"
+                CommentCount="{x:Bind CommentCount, Converter={StaticResource ToUserFriendlyNumber}}"
+                MylistCount="{x:Bind MylistCount, Converter={StaticResource ToUserFriendlyNumber}}"      
+              />
+  </DataTemplate>
+</ResourceDictionary>

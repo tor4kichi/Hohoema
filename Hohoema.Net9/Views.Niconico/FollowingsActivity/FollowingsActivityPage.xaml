@@ -1,0 +1,242 @@
+﻿<Page
+  x:Class="Hohoema.Views.Pages.Niconico.FollowingsActivity.FollowingsActivityPage"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:local="using:Hohoema.Views.Pages.Niconico.FollowingsActivity"
+  xmlns:i="using:Microsoft.Xaml.Interactivity"
+  xmlns:models="using:Hohoema.Models.Application"
+  xmlns:mybehavior="using:Hohoema.Views.Behaviors"
+  xmlns:controls="using:Hohoema.Views.Controls"
+  xmlns:uwpExtensions="using:Microsoft.Toolkit.Uwp.UI"
+  xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
+  xmlns:templateSelector="using:Hohoema.Views.TemplateSelector"
+  xmlns:listitem="using:Hohoema.Views.HohoemaListItem"
+  xmlns:flyouts="using:Hohoema.Views.Flyouts"
+  xmlns:viewModels="using:Hohoema.ViewModels"
+  xmlns:videoListPage="using:Hohoema.Views.Controls.VideoList"
+  xmlns:triggers="using:Microsoft.Toolkit.Uwp.UI.Triggers"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" 
+  xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors" 
+  xmlns:vm="using:Hohoema.ViewModels.Pages.Niconico.FollowingsActivity" 
+  DataContext="{x:Null}"
+  NavigationCacheMode="Enabled"
+  mc:Ignorable="d"
+  >
+  <Page.Resources>
+    <local:FollowingsActivityTimelineItemTemplateSelector x:Key="FollowingsActivityItemTemplateSelector">
+      <!-- Video Item -->
+      <local:FollowingsActivityTimelineItemTemplateSelector.VideoItem>
+        <DataTemplate x:DataType="vm:FollowingsActivityVideoTimeline">
+          <Grid>
+
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom" Spacing="8"
+                        Margin="160 0 0 0"
+                        >
+
+              <StackPanel Orientation="Horizontal" Spacing="8" >
+                <TextBlock Text="{x:Bind ProviderName}"
+                           Opacity="0.7"
+                           FontSize="12"
+                           VerticalAlignment="Center"
+                           />
+              </StackPanel>
+              <TextBlock Text="{x:Bind ItempTopicDescription}"
+                         Opacity="0.7"
+                         FontSize="12"
+                         VerticalAlignment="Center"
+                          />
+            </StackPanel>
+
+            <videoListPage:VideoListItemControl 
+                Title="{x:Bind Label}"                 
+                ImageSource="{x:Bind ThumbnailUrl}"
+                Length="{x:Bind Length, Converter={StaticResource TimeToMovieLengthConverter}}"  
+                IsQueueItem="{x:Bind IsQueueItem, Mode=OneWay}"
+                IsWatched="{x:Bind IsWatched, Mode=OneWay}"
+                IsDeleted="{x:Bind IsDeleted}"
+                IsHidden="{x:Bind VideoHiddenInfo, Mode=OneWay, Converter={StaticResource NotNullToBoolean}}"
+                CacheStatus="{x:Bind CacheStatus, Mode=OneWay}"
+                PostedAt="{x:Bind PostedAt, Converter={StaticResource DateTimeToString}}"
+                PrivateReason="{x:Bind PrivateReason, Converter={StaticResource LocalizeConverter}}"
+                ViewCount="{x:Bind ViewCount, Converter={StaticResource ToUserFriendlyNumber}}"
+                CommentCount="{x:Bind CommentCount, Converter={StaticResource ToUserFriendlyNumber}}"
+                MylistCount="{x:Bind MylistCount, Converter={StaticResource ToUserFriendlyNumber}}"
+              />
+          </Grid>
+        </DataTemplate>
+      </local:FollowingsActivityTimelineItemTemplateSelector.VideoItem>
+      <!-- Live Item -->
+      <local:FollowingsActivityTimelineItemTemplateSelector.LiveItem>
+        <DataTemplate x:DataType="vm:FollowingsActivityLiveTimeline" >
+          <Grid Padding="8 8 8 8"
+                BorderThickness="0 0 0 1"
+                BorderBrush="{ThemeResource HohoemaLightBorderBrush}">
+            <StackPanel>
+              <uwpcontrols:DockPanel Margin="0 0 0 8">
+                <uwpcontrols:ImageEx Source="{x:Bind Activity.Actor.IconUrl}"
+                                     Width="36"
+                                     Height="36"
+                                     CornerRadius="24"
+                                     uwpcontrols:DockPanel.Dock="Left"
+                                     Margin="8" />
+                <TextBlock Text="{x:Bind Activity.Message.Text}" uwpcontrols:DockPanel.Dock="Bottom" Opacity="0.7" />
+                <StackPanel Orientation="Horizontal"
+                            Spacing="8">
+                  <TextBlock Text="{x:Bind Activity.Actor.Name}"
+                             VerticalAlignment="Center" />
+                  <TextBlock Text="{x:Bind Activity.Content.StartedAt, Converter={StaticResource ToRelationalTime}}"
+                             uwpcontrols:DockPanel.Dock="Right"
+                             VerticalAlignment="Center" />
+                </StackPanel>
+              </uwpcontrols:DockPanel>
+
+              <StackPanel Margin="52 0 0 0" Spacing="8" BorderBrush="{ThemeResource HohoemaLightBorderBrush}" BorderThickness="1" CornerRadius="4"
+                          Background="{ThemeResource SystemAltLowColor}"
+                          >
+                <uwpcontrols:DockPanel>
+                  <uwpcontrols:ImageEx Source="{x:Bind Activity.ThumbnailUrl}" Height="120" Stretch="Uniform" />
+                  <TextBlock Text="{x:Bind Activity.Content.Title}" VerticalAlignment="Center" Margin="8 0" TextTrimming="CharacterEllipsis" MaxLines="2" TextWrapping="Wrap" />
+                </uwpcontrols:DockPanel>
+
+              </StackPanel>
+            </StackPanel>
+
+          </Grid>
+        </DataTemplate>
+      </local:FollowingsActivityTimelineItemTemplateSelector.LiveItem>
+    </local:FollowingsActivityTimelineItemTemplateSelector>
+  </Page.Resources>
+  <Grid>
+
+    <ListView x:Name="ItemsList"
+              ItemsSource="{Binding ItemsView, Mode=OneWay}"
+              ItemTemplateSelector="{StaticResource FollowingsActivityItemTemplateSelector}"
+              ItemContainerStyleSelector="{StaticResource ListViewItemContainerStyleSelector}"
+              IsItemClickEnabled="True"
+              IncrementalLoadingTrigger="Edge"
+              UseSystemFocusVisuals="True"
+              SelectionMode="None"
+              HorizontalContentAlignment="Stretch"
+              uwpExtensions:ScrollViewerExtensions.VerticalScrollBarMargin="0 0 0 0"
+              xmlns:myExtensions="using:Hohoema.Views.Extensions"
+              myExtensions:ListViewBase.DeferInitialize="True"
+              Style="{StaticResource FixedHeaderListViewStyle}"              
+              >
+
+      <ListView.ItemContainerTransitions>
+        <TransitionCollection />
+      </ListView.ItemContainerTransitions>
+      <ListView.Header>
+        <Grid BorderThickness="0 0 0 1" BorderBrush="{StaticResource HohoemaLightBorderBrush}">
+          <StackPanel x:Name="HeaderLayout">
+            <CommandBar x:Name="TopCommandBar" Padding="8 0" DefaultLabelPosition="Right" VerticalContentAlignment="Center">
+              <CommandBar.Content>
+                <controls:AppTitleBar Title="{Binding Title}" IsTabStop="False" />
+              </CommandBar.Content>
+
+              <CommandBar.PrimaryCommands>
+                <AppBarElementContainer VerticalContentAlignment="Stretch" IsTabStop="False">
+                  <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock VerticalAlignment="Center" >   
+                      <Run Text="{i18nExt:Localize Key=FollowingsActivityDisplayOptions}" />
+                    </TextBlock>
+                    <ComboBox x:Name="ActivityTypeSelector"  ItemsSource="{Binding FollowingsActivityTypeList}"
+                              SelectedItem="{Binding SelectedActivityType, Mode=OneWay}"
+                              SelectionChanged="ActivityTypeSelector_SelectionChanged"
+                              ItemTemplate="{StaticResource LocalizedTextItemTemplate}"
+                              VerticalAlignment="Center"
+                              MinWidth="140"
+                              >
+                    </ComboBox>
+                  </StackPanel>
+                </AppBarElementContainer>
+                <AppBarButton x:Name="ScrollToTopButton" Label="{i18nExt:Localize Key=ReturnToPageTop}" Icon="Up">
+                  <i:Interaction.Behaviors>
+                    <i:EventTriggerBehavior EventName="Click">
+                      <i:CallMethodAction TargetObject="{x:Bind}" MethodName="ResetScrollPosition" />
+                    </i:EventTriggerBehavior>
+                  </i:Interaction.Behaviors>
+                </AppBarButton>
+                <AppBarButton x:Name="RefreshButton" Icon="Refresh" Background="Transparent" Label="{i18nExt:Localize Key=Refresh}" Command="{Binding ResetListCommand}" />
+              </CommandBar.PrimaryCommands>
+            </CommandBar>
+          </StackPanel>
+        </Grid>
+      </ListView.Header>
+      <ListView.ItemsPanel>
+        <ItemsPanelTemplate>
+          <ItemsStackPanel x:Name="ItemsPanel" Margin="0 0 0 0"  />
+        </ItemsPanelTemplate>
+      </ListView.ItemsPanel>
+      <ListView.Footer>
+        <Border Height="64" />
+      </ListView.Footer>
+    </ListView>
+    <Grid x:Name="NoTimelineItemsLayout"
+          Visibility="Collapsed">
+      <TextBlock Text="{i18nExt:Localize Key=FollowingsActivityNoItems}"
+                 Style="{StaticResource SubtitleTextBlockStyle}"
+                 Opacity="0.8"
+                 VerticalAlignment="Center"
+                 HorizontalAlignment="Center" />
+    </Grid>
+
+    <VisualStateManager.VisualStateGroups>
+      <!-- レイアウトモード -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <triggers:IsEqualStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout, Mode=OneWay}" To="{x:Bind models:ApplicationLayout.TV}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_TV}" />
+            <Setter Target="ItemsList.Padding" Value="{StaticResource ContentListViewBodyMargin_TV}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <triggers:IsEqualStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout, Mode=OneWay}" To="{x:Bind models:ApplicationLayout.Desktop}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Desktop}" />
+            <Setter Target="ItemsList.Padding" Value="{StaticResource ContentListViewBodyMargin_Desktop}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <triggers:IsEqualStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout, Mode=OneWay}" To="{x:Bind models:ApplicationLayout.Tablet}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Tablet}" />
+            <Setter Target="ItemsList.Padding" Value="{StaticResource ContentListViewBodyMargin_Tablet}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <triggers:IsEqualStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout, Mode=OneWay}" To="{x:Bind models:ApplicationLayout.Mobile}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
+            <Setter Target="ItemsList.Padding" Value="{StaticResource ContentListViewBodyMargin_Mobile}" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+     
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{Binding HasItem, Mode=OneWay, Converter={StaticResource BoolNegation}}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="NoTimelineItemsLayout.Visibility"
+                    Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+    </VisualStateManager.VisualStateGroups>
+  </Grid>
+</Page>

@@ -1,0 +1,1130 @@
+﻿#### General ####
+cancel = Cancel
+Cancel = Cancel
+Confirm = Decision
+
+CreateNew = Create New
+Delete = Delete
+
+Edit = Edit
+Reset = Reset
+Share = Share
+Copy = Copy
+Add = Add to
+OpenWithBrowser = Open in browser
+OpenAsLink = Open link
+CopyAsLink = Copy link
+Search = Search
+Refresh = Update
+ReturnToPageTop = Back to top
+NoSelected = No selection
+Settings = Configuration
+
+ContentOwner = Owner
+Profile = Profile
+Notice = Notice
+All = All
+Close = Close
+Open = Open
+Rename = Rename
+RenameX = Rename {0}
+ConfirmDeleteX = Are you sure you want to delete {0}?
+ConfirmDeleteX_ImpossibleReDo = Are you sure you want to delete {0}? (Changes cannot be undone)
+Submit = Send
+Done = Complete
+Select = Choice
+WatchVideo = View
+Preview = Previous
+Next = Next
+ViewList = Show list
+
+
+#### Hohoema App ####
+HohoemaAppServiceLevel.Offline = Off-line
+HohoemaAppServiceLevel.WithoutLoggedIn = No login
+HohoemaAppServiceLevel.LoggedIn = Login
+HohoemaAppServiceLevel.ServiceUnavailable = Unable to use Nico Nico video service
+
+NiconicoServiceType.Video = Video
+NiconicoServiceType.Live = Live broadcast
+
+ToastNotification_ExceptionHandled = I have a problem with Hohoema
+OpenErrorLog = Copy error log
+OpenErrorLogFolder = Open log folder
+
+Notification_HowToFocusForController = Y to focus here (close if no action)
+
+
+## Clipboard action
+InAppNotification_ContentDetectedFromClipboard = Are you looking for {0}?
+
+#### Time ####
+RelationalDateTime_JustNow = just now
+RelationalDateTime_SomeMinutesAgo = {0} minutes ago
+RelationalDateTime_SomeHoursAgo = {0} hours ago
+RelationalDateTime_SomeDaysAgo = {0} days ago
+RelationalDateTime_SomeWeeksAgo = {0} weeks ago
+RelationalDateTime_SomeMonthAgo = {0} months ago
+RelationalDateTime_SomeYearsAgo = {0} years ago
+
+TimeSpanHoursAndMinites = {0} hours {1} minutes
+TimeSpanMinutes = {0} minutes
+
+#### PageType ####
+HohoemaPageType.ChannelInfo = Channel information
+HohoemaPageType.ChannelVideo = Channel video
+HohoemaPageType.LiveInfomation = Live broadcast information
+HohoemaPageType.CacheManagement = Cache management
+HohoemaPageType.Community = Community information
+HohoemaPageType.CommunityVideo = List of community videos
+HohoemaPageType.ConfirmWatchHurmfulVideo = Checking the viewing of harmful designated videos
+HohoemaPageType.FeedGroup = Feed group
+HohoemaPageType.FeedGroupManage = New videos
+HohoemaPageType.FeedVideoList = Video list of the feed
+HohoemaPageType.FollowManage = Follow
+HohoemaPageType.FollowingsActivity = Followings New
+HohoemaPageType.RankingCategory = Category ranking
+HohoemaPageType.RankingCategoryList = Ranking list
+HohoemaPageType.Recommend = Recommended video
+HohoemaPageType.Search = Search
+HohoemaPageType.SearchResultCommunity = Community search
+HohoemaPageType.SearchResultKeyword = Keyword search
+HohoemaPageType.SearchResultLive = Live broadcast search
+HohoemaPageType.SearchResultMylist = Mylist search
+HohoemaPageType.SearchResultTag = Tag search
+HohoemaPageType.Settings = Configuration
+HohoemaPageType.Splash = Startup screen
+HohoemaPageType.Subscription = Subsc management
+HohoemaPageType.SubscVideoList = List of new videos
+HohoemaPageType.Timeshift = Time shift
+HohoemaPageType.UserInfo = User information
+HohoemaPageType.UserMylist = Mylist
+HohoemaPageType.UserSeries = Series list
+HohoemaPageType.UserVideo = User video list
+HohoemaPageType.Series = Series video list
+HohoemaPageType.VideoInfomation = Video information
+HohoemaPageType.WatchHistory = Viewing history
+HohoemaPageType.LocalPlaylist = playlist
+HohoemaPageType.Mylist = Mylist
+HohoemaPageType.VideoQueue = Queue
+HohoemaPageType.SubscriptionManagement = Subsc management
+HohoemaPageType.OwnerMylistManage = Mylist management
+HohoemaPageType.LocalPlaylistManage = Local Mylist Management
+
+#### Menu ####
+LogInUserInfo = Login user information
+LogOut = Log out
+LogIn = Login
+
+Account  = Account
+
+Pin = Pinned
+PinCurrentPage = Pin the current page
+PinChangeArias = Alias ​​the pin
+PinRemove = Unpin
+PinHowToAddition = Open the page you like and pin it with the "+ button"
+PinRenameDialogPlacefolder_EmptyToDefault = Example) Music ranking (leave blank to restore default name)
+Pin_Move = Move pin position
+Pin_MovePreview = Move up one
+Pin_MoveNext = Move down one
+Pin_MoveToHead = Move to the beginning
+Pin_MoveToTail = Move to the end
+PinAddedWithTitle = Pin {0}
+PinRemovedWithTitle = Unpin {0}
+PinMoveToFolder = Move folder
+AddPinFolder = Add folder
+PinFolder_DefaultName = Pin folder
+PinMoveToRoot = Root folder
+
+
+#### Video Cache feature ####
+Cache = Cache
+OpenCacheFolder = Open save folder
+ChangeCacheFolder = Change save folder
+PickCacheSaveFolder = Select cache save folder
+ChoiceCacheSavingFolder = Select a folder to save the cache. \nWhen the save destination is selected, preparation for use is complete.
+CacheSaveFolderChangeToX = Changed the cache save destination to {0}
+CacheFolderAccessState.SelectedButNotExist_Desc = The selected folder cannot be confirmed. Reconnect the external storage or reselect the cache destination folder
+CacheVideoNoItems = No cached videos
+CacheFeatureIsAvairableForOnlyNiconicoPremiumMember = Cash function is for premium members only
+
+DownloadOperationRunning = Running
+DownloadOperationStopping = Stopping
+
+VideoCacheStatus.Pending = Waiting
+VideoCacheStatus.Downloading = Updating
+VideoCacheStatus.DownloadPaused = Pause
+VideoCacheStatus.Completed = Done
+VideoCacheStatus.Failed = Failure
+
+VideoCacheDownloadOperationFailedReason.Unknown = Cause unknown
+VideoCacheDownloadOperationFailedReason.InternetUnavairable = Internet offline
+VideoCacheDownloadOperationFailedReason.NoUsageAuthority = Only available to premium members
+VideoCacheDownloadOperationFailedReason.CanNotCacheEncryptedContent = Encrypted video cannot be cached
+VideoCacheDownloadOperationFailedReason.StorageCapacityLimitReached = Reached storage limit
+VideoCacheDownloadOperationFailedReason.RistrictedDownloadLineCount = The number of parallel downloads reaches the upper limit
+VideoCacheDownloadOperationFailedReason.NoMorePendingOrPausingItem = Handle all cache requests
+VideoCacheDownloadOperationFailedReason.VideoDeleteFromServer = Not available because the video has been deleted
+VideoCacheDownloadOperationFailedReason.RequirePermission_Premium = [Cache failure] Premium member-only videos cannot be cached
+VideoCacheDownloadOperationFailedReason.RequirePermission_Admission = [Cache failure] Only channel members can cash
+
+IsAllowDownloadOnMeteredNetwork = Allow download via mobile communication
+IsNotifyOnDownloadWithMeteredNetwork = Notify when download starts via mobile communication
+MaxVideoCacheStorageSize = Video cache storage limit (GB)
+MaxVideoCacheSize_Unlimited = Unlimited
+CachedStorageSize_Current = In use
+CachedStorageSize_Limit = Upper limit
+
+CacheVideo_Notification_RequestAdded = Add cache request
+CacheVideo_Notification_DownloadStarted = Cache start
+CacheVideo_Notification_Completed = Cache complete
+CacheVideo_Notification_RequestRemoved = Delete cache request
+CacheVideo_Notification_Failed = Cache download failure
+CacheVideo_Notification_Paused = Cache pause
+
+CacheVideo_ToastNotification_Completed = Download complete
+CacheVideo_ToastNotification_PlayVideo = View
+CacheVideo_ToastNotification_CloseToast = Close
+CacheVideo_ToastNotification_Downloading = Downloading
+CacheVideo_ToastNotification_DownloadPausing = Paused
+CacheVideo_ToastNotification_Failed = Download failure
+CacheVideo_ToastNotification_CacheDelete = Delete
+
+
+
+#### Subscription ####
+SubscriptionNewVideos = New videos
+SubscriptionGroup = Subscription group
+
+SubscriptionAdd = Add subscription
+SubscriptionAddUserVideos = Add Contributor to Subscription
+SubscriptionAddSeries = Add series to subscription
+
+SubscriptionSourceType.User = User
+SubscriptionSourceType.Channel = Channel
+SubscriptionSourceType.Mylist = Mylist
+SubscriptionSourceType.TagSearch = Tag search
+SubscriptionSourceType.KeywordSearch = Keyword search
+SubscriptionSourceType.Series = Series
+
+SubscriptionsAutoUpdateRunning = Automatic updating
+SubscriptionsNextUpdateTime = Next update
+SubscriptionsAutoNotUpdateRunning = Automatic update is stopped
+SubscriptionsPrevUpdateTime = Last update
+
+StopSubscribe? = Can I stop checking for new arrivals?
+StopSubscribe = Stop checking new arrivals
+
+OpenSubscriptionSourceVideoList = Open video list
+ReorderSubsciprionSource_Move = Change the sort order...
+ReorderSubsciprionSource_MovePreview = Move forward
+ReorderSubsciprionSource_MoveNext = Move back
+ReorderSubsciprionSource_MoveToHead = Move to front
+ReorderSubsciprionSource_MoveToTail = Move to the end
+
+SubscNotification_StartAutoUpdate = New videos check started
+SubscNotification_CompleteAutoUpdate = New videos check completed
+SubscNotification_NoNewVideos = No new videos
+Notification_SuccessAddSubscriptionSourceWithLabel = Added "{0}" to subscription.
+Notification_FailedSubscriptionUpdate = Subscription renewal failed
+Notification_SuccessAddToWatchLaterWithAddedCount = New videos {0} added to See later
+SubscNotification_SampleVideosHeader = new video found
+VideosWithCount = {0} videos
+
+
+
+SubscGroup_DefaultGroupName = Default
+AddSubscriptionGroup_InputSubscGroupName_Title = Decide on a subscription group name
+SubscGroup_CreateGroup = Create subscription group
+SubscGroup_ContextMenuItemTitle = Change subscription group
+SubscGroup_SelectGroup = Select subscription group
+SubscGroup_Rename = Rename subscription group
+SubscGroup_DeleteComfirmDialogContent = Even if you delete a subscribed group, the subscribed group will be changed to "default", so you can safely delete it. \nAre you sure you want to delete it?
+SubscGroup_DeleteComfirmDialogTitle = Are you sure you want to delete the {0} group?
+
+SubscGroupVideosAllCheckedWithSubscGroupTitle = No videos to display
+SubscVideosDisplayChecked = Show checked
+SubscVideos_MarkAsCheckedWithDays = Checked {0} days ago
+SubscVideos_MarkAsChecked = Mark as checked
+SubscVideos_AllMarkAsChecked = Mark all checked
+Subsc_UnwatchedVideoCount = New {0} videos
+
+SubscGroupSettings_Title = Subscription group name
+SubscGroupSettings = Display and notification settings
+SubscGroupSettings_Notification = Notify me of new arrivals
+SubscGroupSettings_AddToQueue = Add New to Queue
+SubscGroupSettings_ShowAppMenu = Show group in menu
+
+SubscGroup_PlayFromHere = Watch from here
+SubscGroup_AllPlayUnwatched = Play new video
+SubscGroup_AddToQueue = Add to queue
+
+SubscVideos_ShowAllSubsc = Show all
+
+
+
+#### Settings ####
+MenuPaneDisplayMode = Menu display position
+NavigationViewPaneDisplayMode.Auto = Automatic
+NavigationViewPaneDisplayMode.Left = Always displayed on the left
+NavigationViewPaneDisplayMode.Top = Always displayed at the top
+NavigationViewPaneDisplayMode.LeftCompact = Compact display on the left
+NavigationViewPaneDisplayMode.LeftMinimal = Minimum display on the left
+FullScreenWhenAppLaunched_CheckBoxText = Launch with FullScreen
+AppearanceSettings = Display settings
+ApplicationDisplayMode = Display mode
+ApplicationDisplayMode.TV = TV set
+ApplicationDisplayMode.Desktop = Desktop
+ApplicationDisplayMode.Tablet = Tablet
+ApplicationDisplayMode.Mobile = Mobile
+ApplicationInteractionMode = Layout mode
+ApplicationInteractionMode.Controller = Controller
+ApplicationInteractionMode.Mouse = Mouse
+ApplicationInteractionMode.Touch = Touch
+DisplayLanguage = 🌏言語/Language/语言🌏
+FirstOpenPageType = Page displayed at startup
+Theme = Theme
+ElementTheme.Default = According to system settings
+ElementTheme.Light = Light
+ElementTheme.Dark = Dark
+IsGamePadIntractionEnabled = Enable controller input
+FilterSettings = Filter setting
+FilterEnableWithVideoOwnerID = Filter by video contributor ID
+ShowFilteredVideoOwnerNames = Show filtered video contributor names
+FilterEnableWithVideoTitle = Filter by video title
+AddVideoTitleFilterEntry = Add filter
+AvairableRegureExpression = Regular expression is available
+CacheSettings = Cache settings
+DefaultCacheVideoQuality = Quality of videos to cache
+AboutThisApp = About this app
+ApplicationVersion = App version
+UpdateNotice = Update information
+ShowUpdateNote = View updated information
+DevelopProjectPage_LinkTitle = Project page
+PrivacyPolicy = Privacy policy
+Feedback = Feedback
+SendMessageToDeveloperWith_Marshmallow-QA = Send a message to developers using anonymous question service <Marshmallow>
+ReviewInMicrosoftStore = Submit a review from the store
+ThirdPartyLibraryDependencies = Library used in the application
+Others = Other
+Purchased = Purchased
+
+ShowErrorLogButtonTitle = Error log
+CopyAppVersionToClipboard = Copy version number
+EnableDebugModeToggleSwitchTitle = Enable debug mode
+
+ErrorReportDialogTitle = Error report
+ErrorReportDialogComfirmButtonText = Send
+ErrorReportDialog_ErrorMessageDesc = Error message (read only)
+ErrorReportDialog_SendScreenshotToggleButtonDesc = Send screenshot
+ErrorReportDialog_UserInputTextBoxDesc = Explain the situation where the error occurred (up to 1000 characters)
+
+
+
+
+UserDataSettings = Backup
+BackupUserData = Export backup
+RestoreUserData = Load backup
+BackupSaveComplete = saved a backup
+BackupSaveFailed = Failed to save backup. \n{0}
+BackupRestoreComplete = Restore from backup is complete
+BackupRestoreFailed = Failed to restore from backup\n{0}
+
+ApplicationDiagnosticsReport = App usage report
+EnableCrashReport = Send app error information
+EnableAnalyticsReport = Send application function / page usage status
+
+
+IsVideoListItemDoubleClickOrDoubleTapToPlayEnabled = Start playback by double-clicking a video list item
+IsVideoListItemAdditionalUIEnabled = Show add action button for video list items
+IsVideoListItemMiddleClickToAddQueueEnabled = Add video list item to queue on center click
+IsVideoListThumbnailCacheEnabled = Cache thumbnail images
+VideoListThumbnailCacheMaxCount = Maximum number of thumbnail image caches
+VideoListThumbnailCache_ClearAll = Delete all image caches
+VideoListThumbnailCache_TotalBytes = Total size of image cache
+
+
+#### Niconico General ####
+PrivateReasonType.PostedBy = Delete poster
+PrivateReasonType.Private = Private setting
+PrivateReasonType.Publishers = Admin delete
+PrivateReasonType.RightsHolders = Right holder deletion
+
+HidingSensitiveContent = Content that may contain sensitive material.
+ChangeSensitiveSettings = Change settings (browser opens)
+
+VideoOwner = Contributor
+Follow = Follow
+Keyword = Keyword
+Tag = Tag
+NiconicoIchiba = Market
+Mylist = Mylist
+Comment  = Comment
+Series = Series
+
+#### Login ####
+LogInToNiconicoVideo = Login to Nico Nico Douga
+Mail = Mail address
+Password = Password
+AllowSavePassword = Save password
+IfCreateNewAccount_ClickHere = Click here to create a new account
+IfForgetPassword_ClickHere = Forgot your password? Procedure of re-issue
+Hohoema_PrivacyPolicy = Hohoema Privacy Policy
+
+TwoFactorAuth_InputCode = Please enter the verification code
+CodeTextBoxPlacefolder_Input6digit = Enter 6 digit number
+IsTrustedDevice = Trust the device
+IsTrustedDevice_Desc = If enabled, you can skip two-step verification on this device next time
+
+UnavailableNiconicoService = [Niko Niko service unavailable]\nThe service may be under maintenance or a service failure may have occurred.
+LoginFailed_WrongMailOrPassword = The email address or password seems to be different
+NowProcessTwoFactorAuth = Processing two-step verification
+
+
+#### Comment Command Editer ####
+CommentCommand = Command
+CommentSubmitWithAnonymous = Post anonymously
+CommentSubmitWithAnonymousDescription = You cannot post anonymously on channel community videos
+CommentSize = Font size
+CommentVerticalAlignment = Vertical alignment
+CommentColor = Comment color
+UseFreeInputCommand = Use arbitrary input command
+FreeInputCommandTextBoxPlacefolderText = Enter any command here
+
+# Comment List
+AddFilteringCommentUserId = Add comment user ID hidden
+ClearFilteredCommentUserIdInCurrentVideo = Hide hidden video during playback Clear user ID
+ClearFilteredCommentUserId = Clear all hidden comments User ID
+
+CommentReplaceSettings = Comment replacement settings
+PlacefolderCommentTransformConditionRegex = Character string to replace
+PlacefolderCommentTransformConditionReplaced = Character string after replacement
+
+#### Video ####
+NicoVideoQuality.Unknown = No image quality specified
+NicoVideoQuality.Mobile = Mobile image quality
+NicoVideoQuality.Low = Low image quality
+NicoVideoQuality.Midium = Medium quality
+NicoVideoQuality.High = high resolution
+NicoVideoQuality.SuperHigh = Very high image quality
+
+
+
+VideoPostAt = Post date
+VideoPostAt_Short = Post
+
+ViewCount = Views
+ViewCount_Short = Playback
+CommentCount = Number of comments
+CommentCount_Short = Comments
+MylistCount = Number of mylist
+MylistCount_Short = Mylist
+
+Play = Playback
+PlayPauseToggleButtonTitle = Play/Pause
+Quality = Quality
+PlaybackRate = Playback speed
+FullScreen = Full screen
+CompactOverlay = Small front screen
+WindowInWindow = Small window
+PlayWithSecondaryView = Watch in a new window
+PlayWithPrimaryView = Watch in main window
+FixToLandscape = Hold horizontally
+
+SoundVolume = Volume
+SeekPlaybackPosition = Seek
+Seconds = Second
+SwitchToMainWindow = Switch to main window
+VideoInfomation = Video information
+RelatedInfomation = Related information
+
+DisableSeekFromNicoScript = Seek is prohibited by the poster
+DisableCommentSubmitFromNicoScript = Posting comments is prohibited by the poster
+
+VideoPlayWithCached = Cached
+VideoPlayWithOnline = Online playback
+
+LoudnessCorrectionValueTitle = Volume adjustment for this video
+UseLoudnessCorrection = Reduce the volume difference between videos
+ForceUsingDmcVideoOrigin = Prioritize old video distribution server
+Mute = Mute
+ToggleHideComment = Hide comments
+CommentTextBoxPlacefolder = Comment
+SubmitComment = Post
+
+RecommendedNextVideo = Next video
+CanNotPlay = This video cannot be played
+PlayingOrchestrateFailedReason.Deleted = Video deleted
+PlayingOrchestrateFailedReason.VideoFormatNotSupported = Unsupported video formats
+PlayingOrchestrateFailedReason.NotPlayPermit_RequirePay = Requires purchase of viewing rights
+PlayingOrchestrateFailedReason.NotPlayPermit_RequireChannelMember = You need to join a channel member
+PlayingOrchestrateFailedReason.NotPlayPermit_RequirePremiumMember = Membership required to become a premium member
+PlayingOrchestrateFailedReason.Unknown = Cause unknown
+
+DeletedVideoNoticeWithTitle = {0} is the deleted video
+DeletedVideoNotice = It is a deleted video
+DeletedVideoToastNotificationTitleWithVideoId = Video {0} cannot be played
+ToastNotification_VideoDeletedWithId = Video deletion: {0}
+ToastNotification_ExplainVideoForceDeletion = "{0}" was deleted from the NicoNico video server, so the cache was deleted forcibly.
+Notification_VideoQualityChanged_Success = Change to {0}
+Notification_VideoQualityChanged_Failed = Failed to change quality
+
+PlaybackRate_WithRate = x{0}
+PlaybackRate_Default = x1.0
+
+
+
+# CommentCommandEditer
+OpenAboutCommentCommand = About commands
+CommentSizeCommandSampleText = A
+CommentVerticalPositionTopCommandText = Up
+CommentVerticalPositionMiddleCommandText = Medium
+CommentVerticalPositionBottomCommandText = Under
+
+# Video Settings
+VideoPlayerSettings = Video player settings
+PlaylistEndedAction = Automatic action when playback is completed
+NextVideoAutoDectectionAndMove = Automatically detect and move the next part video
+CommentSubmitSettings = Comment posting settings
+EnableAnonimityCommentCommandAsDefault = Enable anonymous (184) command by default
+PauseWithWritingComment = Pause the video when you start writing a comment
+CommentDisplaySettings = Comment display settings
+CommentDisplayDuration = Comment display time
+CommentDisplaySize = Display size of comment
+CommentOpacity = Comment opacity
+CommentDefaultColor = Default comment color
+CommentFilteringSettings = NG setting of comment
+AppearShareNGScore = Show shared NG score
+EnableCommentFilteringWithFreeWord = Enable comment filters
+PlacefolderCommentFilteringFreeWord = Enter NG comment
+CommentFilteringHowToUse = -Specify the filter string for each line\n-Regular expressions can be used
+AutoShortingKUSAWords = Automatic mower
+AutoShortingKUSAWordsDescription = * Prunes consecutive "w" into one character
+AutoShortingKUSAWordsExample = wwwwww -> w
+NicoScriptSettings = Nicoscript setting
+NicoScript_Default = @Default
+NicoScript_DisallowSeek = @Seek prohibited
+NicoScript_DisallowComment = @Comment prohibited
+NicoScript_Jump = @ Jump
+DesktopSettings = Settings for desktop
+SoundVolumeChangeValueWithMouseScroll = Mouse scroll volume change
+PlayRepeat = Loop playback
+
+# Likes いいね機能
+NicoLike = ❤ Like
+LikeThanksMessageDescWithVideoOwnerName = A thank-you message from {0} to like
+
+Video_RequirePay = Paid
+Video_RequirePremiumMember = P
+Video_FreeForChannelMember = Free for members
+Video_ChannelMemberUnlimitedAccess = Unlimited monthly viewing
+
+#### Live ####
+LivePlayingQuality = Live image quality
+LivePlayingQualityLimit = Maximum quality for automatic
+LiveQualityLimitType.Unknown = Very high image quality
+LiveQualityLimitType.SuperLow = Mobile quality
+LiveQualityLimitType.Low = Normal quality
+LiveQualityLimitType.Normal = Low quality
+LiveQualityLimitType.High = High quality
+LiveQualityLimitType.SuperHigh = Very high quality
+LiveQualityType.Abr = Automatic
+LiveQualityType.SuperLow = Mobile quality
+LiveQualityType.Low = Low quality
+LiveQualityType.Normal = Normal quality
+LiveQualityType.High = High quality
+LiveQualityType.SuperHigh = Very high quality
+LiveQualityType.AudioHigh = Priority on sound
+LiveQualityType.BroadcasterHigh = High quality (for broadcasters)
+LiveQualityType.BroadcasterLow = Low quality (for broadcasters)
+
+
+LowLatency = Low latency mode
+
+ReservationStatus.PRODUCT_ARCHIVE_TIMEOUT = End of viewing period
+ReservationStatus.PRODUCT_ARCHIVE_WATCH = Available for viewing
+ReservationStatus.RESERVED = Reserved
+ReservationStatus.TSARCHIVE = Available for viewing
+ReservationStatus.USE_LIMIT_DATE_OUT = Expired viewing rights
+ReservationStatus.WATCH = Available for viewing
+ReservationStatus.USER_TIMESHIFT_DATE_OUT = End of viewing period
+ReservationStatus.FIRST_WATCH = Not watched
+ReservationStatus.LIMIT_DATE_OUT = Expiration of viewing rights
+
+Expired_AllDayLong = All day
+Expired_Unlimited = Unspecified deadline or unlimited
+
+DeleteOutdatedReservationConfirm_Title = Bulk deletion of expired time shifts
+DeleteReservationConfirm_Agree = Delete timeshift reservation
+DeleteReservationConfirmText = Delete the following time shift reservations
+DeleteSelectedReservationConfirm_Title = Batch delete selected time shifts
+DeletingReservations = Deleting time shift
+
+LiveStreamingStartAt = Broadcast start
+LiveStreamingEndAt = Broadcast end
+LiveStreamingDescription = Broadcast explanation
+LinkItemsInLiveStreamingDescription = Link in broadcast explanation
+NoTags = There are no registered tags
+LiveStreamOwner = Broadcaster
+CommunityMemberCount = Number of members
+CommunityLevel = Level
+CommunityDetail = Community details
+ThisStreamingIsPresentedByOfficial = This broadcast is delivered by the official
+
+WatchLiveStreaming = View
+
+TimeShift_WatchLimit = Viewing time limit
+AddTimeshift = Time shift reservation
+AlreadyAddedTimeshift = Time shift reserved
+DeleteTimeshift = Reservation deletion
+ConfirmDeleteTimeshift = Are you sure you want to delete the time shift reservation?
+InAppNotification_DeletedTimeshift = Deleted time shift reservation
+InAppNotification_FailedDeleteTimeshift = [Failure] The time shift reservation could not be deleted
+DialogContent_ConfirmTimeshiftReservationiOverwrite = You can make a reservation by overwriting "{0}" with the time shift reservation of "{1}". \n (If you want to delete other time shifts, cancel and operate from the time shift list page.)
+DialogTitle_ConfirmTimeshiftReservationiOverwrite = There is no space in the reservation frame. Would you like to overwrite the old timeshift reservation?
+Overwrite = Overwrite
+InAppNotification_AddedTimeshiftWithTitle = Reserved for "{0}" time shift
+InAppNotification_ExistTimeshift = The specified broadcast is already time-shift reserved
+InAppNotification_TimeshiftExpired = The specified broadcast could not be reserved because the time shift reservation has expired
+Dialog_ConfirmTimeshiftWatch_WatchLimitByDate = Do you want to start time-shifted viewing of this broadcast? \n It can be viewed repeatedly within the exhibition deadline. \n\nPublication deadline: {0}
+Dialog_ConfirmTimeshiftWatch_WatchLimitByDuration = Do you want to start time-shifted viewing of this broadcast? \nThe viewing deadline is set starting from the start of viewing. You can watch repeatedly only within the viewing deadline. \n\nEstimated viewing time limit: {0}
+FailedWatchLive = Failed to get live broadcast viewing information
+
+CopyLiveStreamingLink = Copy live link
+CopyLiveStreamingId = Copy live broadcast ID
+CopyLiveStreamingShareText = Copy shared text
+
+LiveInfomation = Broadcast information
+LiveBroadcasterInfomation = Broadcaster information
+
+DisallowCommentInTimeshift = You cannot comment when watching time shift
+
+# Live Settings
+LivePlayerSettings = Live player settings
+
+# Live ListViewItem
+ProviderType.Channel = Channel
+ProviderType.Community = User
+ProviderType.Official = Official
+LiveStatus.Reserved = Scheduled
+LiveStatus.Onair = On air
+LiveStatus.Past = Past
+LiveContentPayRequired = Paid
+LiveContentChannelContent = CH
+LiveContentOfficialContent = Official
+LiveContentTimeshiftEnabled = TS
+LiveContentCommunityMemberOnly = Member Only
+LiveSearchPageSortOrder.RecentDesc = Broadcast date Asc
+LiveSearchPageSortOrder.RecentAsc = Broadcast date Desc
+LiveSearchPageSortOrder.TimeshiftCountDesc = TS Reservations Desc
+LiveSearchPageSortOrder.TimeshiftCountAsc = TS Reservations Asc
+LiveSearchPageSortOrder.ViewCountDesc = Visitors Desc
+LiveSearchPageSortOrder.ViewCountAsc = Visitors Asc
+LiveSearchPageSortOrder.CommentCountDesc = Comments Desc
+LiveSearchPageSortOrder.CommentCountAsc = Comments Asc
+LiveSearchPageSortOrder.UserLevelDesc = User Level Desc
+LiveSearchPageSortOrder.UserLevelAsc = User Level Asc
+LiveSearchDisplayWithIsTagSearch = Limit search to tags
+LiveSearchDisplayWIthIsTimeshiftAvairable = Display only programs that can be time-shifted
+LiveSearchDisplayWithIsDisableGrouping = Display programs of the same broadcaster without grouping
+LiveSearchDisplayWithIsHideMemberOnly = Display excluding community-only programs
+LiveContentThumbnailBadgeReserved = Scheduled
+LiveContentThumbnailBadgeOnair = LIVE
+LiveContentThumbnailBadgePastAndTimeshiftPresent = TS
+LiveContentThumbnailBadgePastAndTimeshiftNotPresent = End of publish
+
+Status.BEFORE_RELEASE = Before opening
+Status.RELEASED = Scheduled
+Status.ON_AIR = OnAir
+Status.ENDED = Past
+Sort.RecentDesc = Broadcast date Desc
+Sort.RecentAsc = Broadcast date Asc
+Sort.Popular = Popularity Asc
+Sort.TimeshiftReservationsDesc = TS Reservations Desc
+Sort.TimeshiftReservationsAsc = TS Reservations Asc
+Sort.ViewersDesc = Visitors Desc
+Sort.ViewersAsc = Visitors Asc
+Sort.CommentsDesc = Comments Desc
+Sort.CommentsAsc = Comments Asc
+Sort.UserLevelDesc = User Level Desc
+Sort.UserLevelAsc = User Level Asc
+Sort.CommunityCreatedDesc = Oldest community created
+Sort.CommunityCreatedAsc = Newest community created
+Provider.COMMUNITY = Community
+Provider.CHANNEL = Channel
+Provider.OFFICIAL = Official
+
+
+
+LiveViewCount = Visit
+LiveCommentCount = comment
+TimeshiftCount = TS
+
+
+
+
+
+#### Comment ####
+CommentOwnerAddToHiddenCommentUser = Hide comments for this user
+RemoveHiddenCommentOwner = Unhide
+HiddenCommentUser = User not commenting
+
+
+#### PlayerSettings ####
+PlaylistEndAction.NothingDo = do nothing
+PlaylistEndAction.ChangeIntoSplit = Show player small
+PlaylistEndAction.CloseIfPlayWithCurrentWindow = Close player
+
+AutoMovePlaylist = Auto play
+
+
+
+# 全て表示（NGScoreを無視）
+CommentNGScoreShareLevel.None = None
+# NGScore -10000 以上を表示
+CommentNGScoreShareLevel.Weak = Weak (-10000)
+# NGScore -4800 以上を表示
+CommentNGScoreShareLevel.Middle = Medium (-4800)
+# NGScore -1000 以上を表示
+CommentNGScoreShareLevel.Strong = Strong (-1000)
+# NGScore -100 以上を表示
+CommentNGScoreShareLevel.VeryStrong = Very strong (-100)
+# NGScore -10 以上を表示
+CommentNGScoreShareLevel.UltraVeryStrong = Super Super Strength (-10)
+
+
+#### Nico Follow ####
+FollowItemType.User = User
+FollowItemType.Mylist = Mylist
+FollowItemType.Tag = Tag
+FollowItemType.Community = Community
+FollowItemType.Channel = Channel
+
+FollowAddedNotification_WithItemName = Followed "{0}"
+FollowRemovedNotification_WithItemName = Unfollowed "{0}"
+ConfirmRemoveFollow_DialogDescWithItemName = Unfollow "{0}"
+ConfirmRemoveFollow_DialogTitle = Confirm unfollowing
+RemoveFollow = Unfollow
+
+FollowInfoIsRequireLogIn = You must be logged in to see follow information
+FollowerCount = Follower
+MylistVideoCountDesc = {0} videos
+
+#### Followings Activity ####
+FollowingsActivityDisplayOptions = New arrival display target
+ActivityType.All = All
+ActivityType.Video = Video posting
+ActivityType.Live = Live broadcast starts
+ActivityType.Publish = Content post
+
+
+FollowingsActivityNoItems = There is no Nirekopo that can be displayed
+
+LiveStreamingStartAtWithDateTime = {0} Start broadcasting
+
+
+#### Ranking ####
+Ranking = Ranking
+RankingTerm.Total = Whole period
+RankingTerm.Hour = Hourly
+RankingTerm.Month = Monthly
+RankingTerm.Week = Weekly
+RankingTerm.Day = 24h
+
+RankingGenre.All = All genres
+RankingGenre.Animal = Animal
+RankingGenre.Anime = Anime
+RankingGenre.Commentary_Lecture = Commentary/Lecture
+RankingGenre.Cooking = Cooking
+RankingGenre.Dance = Dance
+RankingGenre.Nature = Nature
+RankingGenre.Music_Sound = Music/sound
+RankingGenre.Other = Other
+RankingGenre.R18 = R-18 (Adult content)
+RankingGenre.Radio = Radio
+RankingGenre.Society_Politics_News = Society/Politics/Current Affairs
+RankingGenre.Sports = Sports
+RankingGenre.Technology_Craft = Technology
+RankingGenre.Traveling_Outdoor = Travel/Outdoor
+RankingGenre.Vehicle = Vehicle
+RankingGenre.Game = Game
+RankingGenre.Entertainment = Entertainment
+RankingGenre.HotTopic = Topic
+
+RankingNoItems = Failed to get ranking items\nPlease try accessing again later.
+
+RankingTitleWithGenre = Ranking for {0}
+SelectDisplayRankingGenre = Select the genre to display
+SelectReDisplayHiddenRankingTags = Select tags to redisplay
+FavoriteRankingTag = Favorite tag
+AddFavoriteRankingTag = Add to Favourites
+RemoveFavoriteRankingTag = Remove from Favorites
+HiddenThisRankingTag = Hide this tag
+HiddenThisRankingGenre = Hide this genre
+
+
+#### Search ####
+VideoSearchSuggest = Video search
+LiveSearchSuggest = Live broadcast search
+DetailSearchSuggest = Detailed search
+
+
+SearchTarget.Keyword = Keyword
+SearchTarget.Tag = Tag
+SearchTarget.Mylist = Mylist
+SearchTarget.Community = Community
+SearchTarget.Niconama = Live broadcast
+
+TagSearchNoItems = There are no videos that match the tag
+KeywordSearchNoItems = There is no video that matches the keyword
+LiveSearchNoItems = There is no live broadcast that matches the keyword
+MylistSearchNoItems = There is no Mylist that matches the keyword
+CommunitySearchNoItems = No community matches the keyword
+
+SearchHistory = Search history
+RemoveSearchHistory = Delete from search history
+
+VideoSortKey.Hot = Popularity
+VideoSortKey.Personalized = Recommended
+VideoSortKey.LastCommentTime_Asc = Oldest comment time
+VideoSortKey.LastCommentTime_Desc = Newest comment time
+VideoSortKey.ViewCount_Asc = View count Asc
+VideoSortKey.ViewCount_Desc = View count Desc
+VideoSortKey.MylistCount_Asc = Mylist connt Asc
+VideoSortKey.MylistCount_Desc = Mylist count Desc
+VideoSortKey.CommentCount_Asc = Comment count Asc
+VideoSortKey.CommentCount_Desc = Comment count Desc
+VideoSortKey.RegisteredAt_Asc = Oldest posted date
+VideoSortKey.RegisteredAt_Desc = Newest posted date
+VideoSortKey.Duration_Asc = Shortest video time
+VideoSortKey.Duration_Desc = Longest video time
+VideoSortKey.LikeCount_Asc = Like! Asc
+VideoSortKey.LikeCount_Desc = Like! Desc
+
+MylistSort.TitleAsc = Ascending title
+MylistSort.TitleDesc = Title descending
+MylistSort.AddedAtAsc = Mylist registration is oldest
+MylistSort.AddedAtDesc = Mylist registration is newest
+MylistSort.MylistCommentAsc = Memo ascending order
+MylistSort.MylistCommentDesc = Memo descending order
+MylistSort.RegisteredAtAsc = Post date and time in chronological order
+MylistSort.RegisteredAtDesc = Posting date is newest first
+MylistSort.ViewCountAsc = In ascending order of views
+MylistSort.ViewCountDesc = In descending order of views
+MylistSort.LastCommentTimeAsc = Comments from oldest to newest
+MylistSort.LastCommentTimeDesc = Comments are newest
+MylistSort.CommentCountAsc = In ascending order of comments
+MylistSort.CommentCountDesc = Most comments
+MylistSort.MylistCountAsc = In ascending order of Mylist
+MylistSort.MylistCountDesc = In descending order of Mylist
+MylistSort.DurationAsc = Playback time in ascending order
+MylistSort.DurationDesc = Longest playback time
+
+CommunitySearchSort.CreatedAt_Ascending = Oldest first
+CommunitySearchSort.CreatedAt_Descending = Newest first
+CommunitySearchSort.UpdateAt_Ascending = Oldest to newest
+CommunitySearchSort.UpdateAt_Descending = Updates are newest first
+CommunitySearchSort.CommunityLevel_Ascending = Ascending level
+CommunitySearchSort.CommunityLevel_Descending = In descending order of level
+CommunitySearchSort.MemberCount_Ascending = Ascending order of registered members
+CommunitySearchSort.MemberCount_Descending = The most registered members
+CommunitySearchSort.VideoCount_Ascending = In order from the smallest number of posted videos
+CommunitySearchSort.VideoCount_Descending = Highest number of posted videos
+
+CommunitySearchWithKeyword = Search by keyword
+CommunitySearchWithTag = Search by tag
+
+LiveSearchResultOption_Order = Display order
+LiveSearchResultOption_Mode = Broadcast status
+LiveSearchResultOption_Provider = Broadcaster
+
+LiveSearchSortType.StartTime_Descending = Ascending order of broadcasting date and time
+LiveSearchSortType.StartTime_Ascending = Broadcast date and time
+LiveSearchSortType.ScoreTimeshiftReserved_Descending = Order with the largest number of time shift reservations
+LiveSearchSortType.ScoreTimeshiftReserved_Ascending = Ascending order of time shift reservations
+LiveSearchSortType.ViewCounter_Descending = Highest number of visitors
+LiveSearchSortType.ViewCounter_Ascending = Ascending order of number of visitors
+LiveSearchSortType.CommentCounter_Descending = Most comments
+LiveSearchSortType.CommentCounter_Ascending = In ascending order of comments
+
+LiveScheduledAt = Scheduled to start
+LiveElapsedAt = Progress
+LiveStartedAt = Start
+
+
+NicoliveSearchMode.OnAir = On air
+NicoliveSearchMode.Reserved = Broadcast schedule
+NicoliveSearchMode.Closed = Past broadcast
+
+CommunityType.Official = Official
+CommunityType.Channel = Channel
+CommunityType.Community = User
+
+SearchWithKeyword = Keyword search
+SearchWithTag = Tag search
+
+
+#### Playlist ####
+PlayingVideo = Playing video
+PlayAll = Play all
+CurrentPlaylist = Current playlist
+
+DeleteLocalPlaylistDescription = This operation is irreversible.
+DeleteLocalPlaylistTitle = Delete {0}
+
+Shuffle = Shuffle
+RepeatAll = Repeat All
+OpenPlaylistSourcePage = Open the video list
+
+
+
+
+
+
+#### Local Playlist ####
+LocalPlaylist = Local Mylist
+LocalPlaylistDelete = Delete playlist
+LocalPlaylistNoItems = Playlist is empty
+InAppNotification_LocalPlaylistAddedItems = Added {1} videos to {0}
+InAppNotification_LocalPlaylistRemovedItems = Deleted {1} videos from {0}
+LocalPlaylistOpenVideoList = Open the video list
+LocalPlaylistChangeThumbnail = Change thumbnail image
+
+LocalMylistSortKey.AddedAt_Desc = Addition is newest
+LocalMylistSortKey.AddedAt_Asc = Addition is oldest
+LocalMylistSortKey.Title_Desc = Title descending
+LocalMylistSortKey.Title_Asc = Title ascending
+LocalMylistSortKey.PostedAt_Desc = Posting date is newest
+LocalMylistSortKey.PostedAt_Asc = Posting date is oldest
+
+
+
+#### Queue ####
+@view = Queue
+RemoveWatchedItems = Delete watched
+
+
+#### Mylist ####
+WatchAfterMylist = See later
+MylistOwner = Owner information
+MylistEditInfo = Edit Mylist Information
+MylistDelete = Delete Mylist
+
+MylistRegisteredCount = Registration
+MylistRegisteredCountLimit = Upper limit
+MylistRegisteredCountSum = Total
+
+# ex) マイリストに登録完了\n「作業用BGM」に「動画タイトル」を追加しました
+CompleteRegisrationForKind0_AddItem2_ToKindTitle1 = Registration completed on {0}\nAdded "{2}" to "{1}"
+ExistRegisrationForKind0_AddItem2_ToKindTitle1 = Already added to {0}\n"{2}" has been added to "{1}"
+FailedRegisrationForKind0_AddItem2_ToKindTitle1 = Registration failed for {0}\n"{2}" could not be added to "{1}"
+
+InAppNotification_MylistAddedItems_Success = Added {1} videos to {0}
+InAppNotification_MylistAddedItems_Fail = Failed to add to {0}
+InAppNotification_MylistRemovedItems_Success = Deleted {1} videos from {0}
+InAppNotification_MylistRemovedItems_Fail = Failed to delete from {0}
+
+ContentStatus.Deleted = Deleted
+ContentStatus.Hidden = Hide
+ContentStatus.Public = Public
+ContentStatus.Private = Private
+
+## Edit Mylist
+MylistName = Mylist name
+MylistDescription = Explanation
+MylistMemo = Note
+MylistPrivateSettings = Open range
+MylistPrivateSettings_Private = Only me
+MylistPrivateSettings_Public = Anyone
+MylistThemeColor = Theme color
+MylistSort = Sort
+
+
+#### Video Items Select Action ####
+RemoveWatchHisotryItem = Delete from viewing history
+LocalMylistRemoveItem = Remove from Mylist
+MylistRemoveItem = Remove from Mylist
+MylistCopyItem = Copy to another Mylist
+SelectCopyTargetMylist = Select Mylist of copy destination
+InAppNotification_MylistCopiedItems_Success = Copied {1} videos to {0}
+InAppNotification_MylistCopiedItems_Fail = Failed to copy video to {0}
+MylistMoveItem = Move to another Mylist
+SelectMoveTargetMylist = Select the destination Mylist
+InAppNotification_MylistMovedItems_Success = Moved {1} videos to {0}
+InAppNotification_MylistMovedItems_Fail = Failed to move video to {0}
+QueueAddItem = Add to queue
+QueueRemoveItem = Remove from queue
+WatchAfterAddItem = Add to see later
+WatchAfterRemoveItem = Deleted later
+MylistAddItem = Add to Mylist
+LocalMylistAddItem = Add to Mylist
+SelectLocalMylist = Select Local Mylist
+AllPlayFromHere = Continuous playback from here
+
+OpenVideoInfo = Video information
+OpenOwnerVideos = Video list of posters
+OpenOwnerMylists = Mylist of contributors
+OpenOwnerSeries = List of contributor series
+AddHiddenVideoOwner = Hide poster
+Dialog_HiddenVideoOwnerDesc = This change can be undone from the settings page
+Dialog_HiddenVideoOwnerTitle = Do you want to hide the posted video of "{0}"?
+ExitOnceReveal = Return to invisible
+HiddenVideo = Hidden video
+OnceReveal = Redisplay only now
+RemoveHiddenVideoOwner = Unhide
+
+CopyVideoId = Copy video ID
+CopyVideoLink = Copy video link
+CopyShareText = Copy text for sharing
+
+CacheRequest = Cash acquisition
+CacheRequestWithQuality = Get cache (specify image quality)
+CacheRemove = Delete cache
+ConfirmCacheRemoveTitle = Clear cache
+ConfirmCacheRemoveContent = Title: "{0}"\nA redownload is required to revert
+ConfirmCacheRemoveTitle_Multiple = Delete {0} caches
+ConfirmCacheRemoveContent_Multiple = Re-download is required to revert
+
+SelectAll = Select all
+SelectStart = Start selection
+SelectEnd = End selection
+
+
+#### Video Infomation Page ####
+PlayVideo = Playback
+ThisVideoIsHidden = This video is hidden by the filter settings
+OpenFilterSettings = Open filter settings
+VideoDescription = Video description
+VideoOwnerDetail = Contributor details
+VideoIntroduction = Video introduction
+LinkInVideoIntroduction = Link in the video introduction
+RelatedVideos = Related Videos
+NoItems_RelatedVideos = No related videos
+FailedLoading_VideoInfomation = Failed to read the video information
+AllPlaySeriesVideos = Play continuously from the beginning of the series
+
+
+
+
+#### User Videos Page ####
+UserVideosNoItems = There are no posted videos
+UserVideosIsPrivate = Posted videos are private
+
+UserVideoSortKey.RegisteredAt_Asc = Posts in chronological order
+UserVideoSortKey.RegisteredAt_Desc = Posts in newest order
+UserVideoSortKey.ViewCount_Asc = In ascending order of views
+UserVideoSortKey.ViewCount_Desc = In descending order of the number of views
+UserVideoSortKey.LastCommentTime_Asc = Comments from oldest to newest
+UserVideoSortKey.LastCommentTime_Desc = Comments are newest
+UserVideoSortKey.CommentCount_Asc = In ascending order of comments
+UserVideoSortKey.CommentCount_Desc = In descending order of the number of comments
+UserVideoSortKey.MylistCount_Asc = In ascending order of the number of mylists
+UserVideoSortKey.MylistCount_Desc = In descending order of the number of mylists
+UserVideoSortKey.Duration_Asc = Video time in ascending order
+UserVideoSortKey.Duration_Desc = Video time longest
+
+
+#### UserInfo ####
+UserFollower = Follower
+UserStamp = Stamp
+UserOwnedVideos = Video list
+NoItems_UserOwnedVideos = There are no posted videos
+IsVideoPrivate_UserOwnedVideos = Posted video list is private
+NoItems_Mylist = There is no mylist
+
+
+#### User Mylist ####
+LocalPlaylistCreate = Create local mylist
+LocalPlaylistNameTextBoxPlacefolder = Enter the local mylist name
+MylistCreate = Create Mylist
+MylistNameTextBoxPlacefolder = Enter mylist name
+SelectMylist = Select Mylist
+RenameLocalPlaylist = Change playlist name
+
+EditMylist = Edit Mylist
+MylistDefaultSort.Old = Oldest first
+MylistDefaultSort.Latest = Registration is newest first
+MylistDefaultSort.Memo_Ascending = Ascending order
+MylistDefaultSort.Memo_Descending = Memo descending
+MylistDefaultSort.Title_Ascending = Ascending title
+MylistDefaultSort.Title_Descending = Title descending order
+MylistDefaultSort.FirstRetrieve_Ascending = Posts are newest first
+MylistDefaultSort.FirstRetrieve_Descending = From oldest to newest
+MylistDefaultSort.View_Ascending = Most played
+MylistDefaultSort.View_Descending = In ascending order of playback
+MylistDefaultSort.Comment_New = Comments are newest first
+MylistDefaultSort.Comment_Old = Comments are in old order
+MylistDefaultSort.CommentCount_Ascending = Most commentary
+MylistDefaultSort.CommentCount_Descending = In ascending order of comments
+MylistDefaultSort.MylistCount_Ascending = The most added to Mylist
+MylistDefaultSort.MylistCount_Descending = Ascending order of addition to Mylist
+MylistDefaultSort.Length_Ascending = Longest video time
+MylistDefaultSort.Length_Descending = Shortest video time
+MylistOpenVideoList = Open the video list
+
+#### User Series ####
+UserSeriesListWithOwnerName = {0} series list
+NoItems_UserSeries = There is no series
+
+SeriesVideoSortKey.AddedAt_Asc = Newest registration
+SeriesVideoSortKey.AddedAt_Desc = Oldest registration 
+SeriesVideoSortKey.PostedAt_Asc = Posts in newest order
+SeriesVideoSortKey.PostedAt_Desc = Posts in oldest order
+SeriesVideoSortKey.Title_Asc = Title ascending order
+SeriesVideoSortKey.Title_Desc = Title descending
+SeriesVideoSortKey.WatchCount_Asc = Views ascending
+SeriesVideoSortKey.WatchCount_Desc = Views descending
+SeriesVideoSortKey.MylistCount_Asc = Mylist registrations ascending
+SeriesVideoSortKey.MylistCount_Desc = Mylist registrations descending
+SeriesVideoSortKey.CommentCount_Asc = In ascending order of comments
+SeriesVideoSortKey.CommentCount_Desc = In descending order of the number of comments
+
+
+
+
+
+
+
+#### Ichiba ####
+IchibaNoItems = There are no items to display
+
+
+#### Recommend ####
+Recommend = Recommendation
+RecommendNotFound = No recommendations found
+RelatedTags = Related Tags
+
+
+#### Watch History ####
+WatchHistoryRemoveAll = Delete all history
+WatchHistoryConfirmRemove = Really deleted
+WatchHistoryConfirmRemoveDescription = Delete all viewing history\nAre you sure you want to delete?
+WatchCountWithUnit = {0} times
+WatchHistoryNoItems = No viewing history
+VideoHistory_DeleteOne_Success = Deleted viewing history
+VideoHistory_DeleteOne_Fail = Failed to delete viewing history
+VideoHistories_AllDelete_Success = Deleted all viewing history
+VideoHistories_AllDeleted_Fail = Failed to delete all viewing history
+
+#### Community ####
+CommunityOpenAt = Opening date
+NowLiveStreaming = Currently on air
+CommunityVidoes = Community video
+
+
+#### Channel ####
+ChannelVideoNoItems = No channel videos
+InAppNotification_CanNotCacheChannelVideos_ForContentProtection = Channel videos cannot be cached due to content protection
+
+ChannelVideoSortKey.FirstRetrieve_Asc = Posts in chronological order
+ChannelVideoSortKey.FirstRetrieve_Desc = Posts in newest order
+ChannelVideoSortKey.ViewCount_Asc = In ascending order of views
+ChannelVideoSortKey.ViewCount_Desc = In descending order of the number of views
+ChannelVideoSortKey.CommentCount_Asc = In ascending order of comments
+ChannelVideoSortKey.CommentCount_Desc = In descending order of the number of comments
+ChannelVideoSortKey.MylistCount_Asc = In ascending order of the number of mylists
+ChannelVideoSortKey.MylistCount_Desc = In descending order of the number of mylists
+ChannelVideoSortKey.NewComment_Asc = Comments from oldest to newest
+ChannelVideoSortKey.NewComment_Desc = Comments are newest
+ChannelVideoSortKey.Length_Asc = Video time in ascending order
+ChannelVideoSortKey.Length_Desc = Video time longest

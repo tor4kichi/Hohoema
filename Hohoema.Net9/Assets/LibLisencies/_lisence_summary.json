@@ -1,0 +1,193 @@
+﻿{
+  "items": [
+    {
+      "name": "ReactiveProperty",
+      "site": "https://github.com/runceel/ReactiveProperty",
+      "author": [ "neuecc", "xin9le", "okazuki" ],
+      "lisence_type": "MIT",
+      "lisence_page_url": "https://github.com/runceel/ReactiveProperty/blob/master/LICENSE.txt"
+    },
+    {
+      "name": "Prism",
+      "site": "https://github.com/PrismLibrary/Prism",
+      "author": [ ".NET Foundation" ],
+      "lisence_type": "Apache_v2",
+      "lisence_page_url": "https://github.com/PrismLibrary/Prism/blob/master/LICENSE"
+    },
+    {
+      "name": "Material Design Icons",
+      "site": "https://materialdesignicons.com/",
+      "author": [ "Austin Andrews", "Google" ],
+      "lisence_type": "SIL_OFL_v1_1",
+      "lisence_page_url": "https://github.com/Templarian/MaterialDesign/blob/master/license.txt"
+    },
+    {
+      "name": "Windows Community Toolkit",
+      "site": "https://github.com/windows-toolkit/WindowsCommunityToolkit",
+      "author": [ "Microsoft Corporation" ],
+      "lisence_type": "MIT",
+      "lisence_page_url": "https://github.com/windows-toolkit/WindowsCommunityToolkit/blob/master/license.md"
+    },
+    {
+      "name": "AdaptiveTriggerLibrary",
+      "site": "http://herdo.github.io/AdaptiveTriggerLibrary/",
+      "author": [ "Stefan Over" ],
+      "lisence_type": "MIT",
+      "lisence_page_url": "https://github.com/Herdo/AdaptiveTriggerLibrary/blob/master/LICENSE"
+    },
+    {
+      "name": "I18NPortable",
+      "site": "https://github.com/xleon/I18N-Portable",
+      "author": [ "Diego Ponce de León" ],
+      "lisence_type": "MIT",
+      "lisence_page_url": "https://github.com/xleon/I18N-Portable/blob/master/LICENSE"
+    },
+    {
+      "name": "LiteDB",
+      "site": "https://github.com/mbdavid/LiteDB",
+      "author": [ "Mauricio David" ],
+      "lisence_type": "MIT",
+      "lisence_page_url": "https://github.com/mbdavid/LiteDB/blob/master/LICENSE"
+    },
+    {
+      "name": "Macross Software JSON Extensions",
+      "site": "https://github.com/Macross-Software/core/blob/develop/ClassLibraries/Macross.Json.Extensions/README.md",
+      "author": [ "Macross Software" ],
+      "lisence_type": "MIT",
+      "lisence_page_url": "https://github.com/Macross-Software/core/blob/develop/LICENSE.txt"
+    },
+    {
+      "name": "Windows UI Library(WinUI)",
+      "site": "https://github.com/microsoft/microsoft-ui-xaml",
+      "author": [ "Microsoft Corporation" ],
+      "lisence_type": "MIT",
+      "lisence_page_url": "https://github.com/microsoft/microsoft-ui-xaml/blob/master/LICENSE"
+    },
+    {
+      "name": "Microsoft.Extensions.ObjectPool",
+      "site": "https://github.com/dotnet/aspnetcore",
+      "author": [ ".NET Foundation" ],
+      "lisence_type": "Apache License 2.0",
+      "lisence_page_url": "https://github.com/dotnet/aspnetcore/blob/main/LICENSE.txt"
+    },
+    {
+      "name": "MVVM Helpers",
+      "site": "https://github.com/jamesmontemagno/mvvm-helpers",
+      "author": [ "James Montemagno" ],
+      "lisence_type": "MIT",
+      "lisence_page_url": "https://github.com/jamesmontemagno/mvvm-helpers/blob/master/LICENSE.md"
+    },
+    {
+      "name": "System.Text.Json",
+      "site": "https://github.com/dotnet/corefx/tree/master/src/System.Text.Json",
+      "author": [ ".NET Foundation and Contributors" ],
+      "lisence_type": "MIT",
+      "lisence_page_url": "https://github.com/dotnet/corefx/blob/master/LICENSE.TXT"
+    },
+    {
+      "name": "Uno",
+      "site": "https://github.com/unoplatform/uno",
+      "author": [ "nventive" ],
+      "lisence_type": "Apache 2.0 License",
+      "lisence_page_url": "https://github.com/unoplatform/uno/blob/master/License.md"
+    },
+    {
+      "name": "ValueTaskSupplement",
+      "site": "https://github.com/Cysharp/ValueTaskSupplement",
+      "author": [ "Cysharp, Inc." ],
+      "lisence_type": "MIT",
+      "lisence_page_url": "https://github.com/Cysharp/ValueTaskSupplement/blob/master/LICENSE"
+    },
+    {
+      "name": "Xamarin.Essentials",
+      "site": "https://github.com/xamarin/Essentials",
+      "author": [ "Microsoft Corporation" ],
+      "lisence_type": "MIT",
+      "lisence_page_url": "https://github.com/xamarin/Essentials/blob/main/LICENSE"
+    },
+    {
+      "name": "XTSSharp",
+      "site": "https://bitbucket.org/garethl/xtssharp/src/master/",
+      "author": [ "Gareth Lennox" ],
+      "lisence_type": "3-clause BSD license",
+      "lisence_page_url": "https://bitbucket.org/garethl/xtssharp/src/master/license.txt"
+    },
+    {
+      "name": "AngleSharp",
+      "site": "https://anglesharp.github.io/",
+      "author": [ "AngleSharp" ],
+      "lisence_type": "MIT",
+      "lisence_page_url": "https://github.com/AngleSharp/AngleSharp/blob/master/LICENSE"
+    },
+    {
+      "name": "WebScoket4Net",
+      "site": "https://github.com/kerryjiang/WebSocket4Net",
+      "author": [ "Kerry Jiang" ],
+      "lisence_type": "Apache License 2.0",
+      "lisence_page_url": "https://github.com/kerryjiang/WebSocket4Net/blob/992717fd92c499953fdd3bf8426900755c343431/Directory.Build.props"
+    },
+    {
+      "name": "CodeHollow.FeedReader",
+      "site": "https://github.com/codehollow/FeedReader",
+      "author": [ "Armin Reiter" ],
+      "lisence_type": "MIT",
+      "lisence_page_url": "https://github.com/codehollow/FeedReader/blob/master/LICENSE"
+    },
+    {
+      "name": "U8XmlParser",
+      "site": "https://github.com/ikorin24/U8XmlParser",
+      "author": [ "ikorin24", "and all contributors" ],
+      "lisence_type": "MIT",
+      "lisence_page_url": "https://github.com/ikorin24/U8XmlParser/blob/master/LICENSE"
+    },
+    {
+      "name": "DryIoc",
+      "site": "https://github.com/dadhi/DryIoc",
+      "author": [ "Maksim Volkau" ],
+      "lisence_type": "MIT",
+      "lisence_page_url": "https://github.com/dadhi/DryIoc/blob/master/LICENSE.txt"
+    },
+    {
+      "name": "ZString",
+      "site": "https://github.com/Cysharp/ZString",
+      "author": [ "Cysharp, Inc." ],
+      "lisence_type": "MIT",
+      "lisence_page_url": "https://github.com/Cysharp/ZString/blob/master/LICENSE"
+    },
+    {
+      "name": "ZLogger",
+      "site": "https://github.com/Cysharp/ZLogger",
+      "author": [ "Cysharp, Inc." ],
+      "lisence_type": "MIT",
+      "lisence_page_url": "https://github.com/Cysharp/ZLogger/blob/master/LICENSEE"
+    },
+    {
+      "name": "NiconicoToolkit",
+      "site": "https://github.com/tor4kichi/NiconicoToolkit",
+      "author": [ "tor4kichi" ],
+      "lisence_type": "MIT",
+      "lisence_page_url": "https://github.com/tor4kichi/NiconicoToolkit/blob/master/LICENSE"
+    },
+    {
+      "name": "R3",
+      "site": "https://github.com/Cysharp/R3",
+      "author": [ "Cysharp" ],
+      "lisence_type": "MIT",
+      "lisence_page_url": "https://github.com/Cysharp/R3/blob/main/LICENSE"
+    },
+    {
+      "name": "NdgrClientSharp",
+      "site": "https://github.com/TORISOUP/NdgrClientSharp",
+      "author": [ "TORISOUP" ],
+      "lisence_type": "MIT",
+      "lisence_page_url": "https://github.com/TORISOUP/NdgrClientSharp/blob/master/LICENSE"
+    },
+    {
+      "name": "Protocol Buffers",
+      "site": "https://github.com/TORISOUP/NdgrClientSharp",
+      "author": [ "Google Inc" ],
+      "lisence_type": "BSD",
+      "lisence_page_url": "https://github.com/protocolbuffers/protobuf/blob/main/LICENSE"
+    }
+  ]
+}

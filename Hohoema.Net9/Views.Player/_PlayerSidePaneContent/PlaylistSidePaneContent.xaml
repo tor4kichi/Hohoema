@@ -1,0 +1,104 @@
+﻿<UserControl 
+  x:Class="Hohoema.Views.Player.PlaylistSidePaneContent"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:i="using:Microsoft.Xaml.Interactivity"
+  xmlns:mybehavior="using:Hohoema.Views.Behaviors"
+  xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+  xmlns:uwpext="using:Microsoft.Toolkit.Uwp.UI"
+  xmlns:videoList="using:Hohoema.Views.Controls.VideoList" 
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" 
+  xmlns:videoModel="using:Hohoema.Models.Niconico.Video"
+  mc:Ignorable="d"
+  d:DesignHeight="300"
+  d:DesignWidth="400"
+  >
+  <Grid>
+    <uwpControls:DockPanel x:Name="RootLayout">
+      <i:Interaction.Behaviors>
+        <i:EventTriggerBehavior EventName="Loaded">
+          <mybehavior:SetFocus TargetObject="{Binding ElementName=ShuffleSwitchingButton}" />
+        </i:EventTriggerBehavior>
+      </i:Interaction.Behaviors>
+
+      <uwpControls:DockPanel x:Name="HeaderLayout" uwpControls:DockPanel.Dock="Top">
+
+        <CommandBar DefaultLabelPosition="Collapsed" VerticalContentAlignment="Center" >
+          <CommandBar.Content>
+            <StackPanel Orientation="Horizontal">
+              <StackPanel Margin="8 0">
+                <TextBlock uwpControls:DockPanel.Dock="Top" Text="{i18nExt:Localize Key=CurrentPlaylist}" Style="{StaticResource CaptionTextBlockStyle}" Margin="0" Opacity="0.7"></TextBlock>
+                <TextBlock Text="{Binding CurrentPlaylist.Value.Name, Mode=OneWay}" Style="{StaticResource BodyTextBlockStyle}" Margin="0" VerticalAlignment="Top" />
+              </StackPanel>
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <TextBlock Text="{i18nExt:Localize Key=AutoMovePlaylist}" VerticalAlignment="Center" />
+                <ToggleSwitch IsOn="{Binding IsAutoMovePlaylistEnabled.Value, Mode=TwoWay}" Style="{StaticResource ToggleSwitchNoHeader}" />
+              </StackPanel>
+            </StackPanel>
+          </CommandBar.Content>
+
+          <CommandBar.PrimaryCommands>
+            <AppBarToggleButton Label="{i18nExt:Localize Key=RepeatAll}" IsChecked="{Binding IsListRepeatModeEnable.Value, Mode=TwoWay}" Icon="RepeatAll" ToolTipService.ToolTip="{i18nExt:Localize Key=RepeatAll}" />
+            <AppBarToggleButton Label="{i18nExt:Localize Key=Shuffle}" IsChecked="{Binding IsShuffleEnabled.Value, Mode=TwoWay}" Icon="Shuffle"
+                                x:Name="ShuffleSwitchingButton" 
+                                IsEnabled="{Binding IsShuffleAvailable.Value}"
+                                ToolTipService.ToolTip="{i18nExt:Localize Key=Shuffle}"
+                                />
+          </CommandBar.PrimaryCommands>
+
+          <CommandBar.SecondaryCommands>
+            <AppBarButton Label="{i18nExt:Localize Key=OpenPlaylistSourcePage}"  Command="{Binding OpenPageCommand}" CommandParameter="{Binding CurrentPlaylist.Value, Mode=OneWay}" />
+          </CommandBar.SecondaryCommands>
+        </CommandBar>
+      </uwpControls:DockPanel>
+
+      <ListView x:Name="ItemsListView"
+                ItemsSource="{Binding CurrentItems}" 
+                SelectionMode="Single" 
+                SingleSelectionFollowsFocus="False"
+                IsItemClickEnabled="True"
+                IsFocusEngagementEnabled="True" 
+                uwpext:ListViewExtensions.ItemContainerStretchDirection="Horizontal"
+                SelectedItem="{Binding CurrentPlaylistItem.Value, Mode=OneWay}"
+                ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
+                IncrementalLoadingTrigger="Edge"
+                >
+        <i:Interaction.Behaviors>
+          <i:EventTriggerBehavior EventName="ItemClick">
+            <i:InvokeCommandAction Command="{Binding PlayWithCurrentPlaylistCommand}" InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+          </i:EventTriggerBehavior>
+        </i:Interaction.Behaviors>
+        <ListView.ItemTemplate>
+          <DataTemplate x:DataType="videoModel:IVideoContent">
+            <videoList:VideoListItemControl Title="{x:Bind Title}"
+                                            PostedAt="{x:Bind PostedAt}"
+                                            ImageSource="{x:Bind ThumbnailUrl}"
+                                            Length="{x:Bind Length}"
+                                            />
+          </DataTemplate>
+        </ListView.ItemTemplate>
+      </ListView>
+
+    </uwpControls:DockPanel>
+    <VisualStateManager.VisualStateGroups>
+      <!-- Xbox -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{StaticResource DeviceType_IsXbox}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="PlaylistItemsListView.Padding"
+                    Value="0 0 48 0" />
+            <Setter Target="HeaderLayout.Padding"
+                    Value="0 0 48 0" />
+            <Setter Target="FooterLayout.Padding"
+                    Value="0 0 48 0" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+    </VisualStateManager.VisualStateGroups>
+  </Grid>
+</UserControl>

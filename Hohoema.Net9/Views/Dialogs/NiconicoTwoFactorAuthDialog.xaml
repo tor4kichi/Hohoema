@@ -1,0 +1,42 @@
+﻿<ContentDialog x:Class="Hohoema.Dialogs.NiconicoTwoFactorAuthDialog"
+               xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+               xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+               xmlns:local="using:Hohoema.Dialogs"
+               xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+               xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+               xmlns:mybehavior="using:Hohoema.Views.Behaviors"
+               xmlns:i="using:Microsoft.Xaml.Interactivity"
+               mc:Ignorable="d"
+               xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
+               Title="{i18nExt:Localize Key=TwoFactorAuth_InputCode}"
+               SecondaryButtonText="{i18nExt:Localize Key=Cancel}">
+
+  <Grid>
+
+    <ScrollViewer>
+
+      <WebView x:Name="WebView"
+               NavigationCompleted="WebView_NavigationCompleted"
+               NavigationFailed="WebView_NavigationFailed"
+               NavigationStarting="WebView_NavigationStarting"
+               MinWidth="280">
+        <i:Interaction.Behaviors>
+          <mybehavior:WebViewAutoResizeToContent />
+        </i:Interaction.Behaviors>
+      </WebView>
+
+    </ScrollViewer>
+
+    <Grid Visibility="{x:Bind Path=NowLoading.Value, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}">
+
+      <Border x:Name="TapBarrier"
+              Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+      </Border>
+
+      <ProgressRing Height="48"
+                    Width="48"
+                    IsActive="{x:Bind NowLoading.Value}" />
+    </Grid>
+  </Grid>
+</ContentDialog>

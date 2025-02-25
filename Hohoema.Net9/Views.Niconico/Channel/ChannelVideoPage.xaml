@@ -1,0 +1,221 @@
+﻿<Page
+    x:Class="Hohoema.Views.Pages.Niconico.Channel.ChannelVideoPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Hohoema.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:view="using:Hohoema.Views"
+    xmlns:models="using:Hohoema.Models.Application"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:mybehavior="using:Hohoema.Views.Behaviors"
+    xmlns:controls="using:Hohoema.Views.Controls"
+    xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI"
+    xmlns:actions="using:Hohoema.Views.Actions"
+    xmlns:videolistPage="using:Hohoema.Views.Controls.VideoList"
+  xmlns:triggers="using:Microsoft.Toolkit.Uwp.UI.Triggers"
+    xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" 
+  DataContext="{x:Null}"
+    NavigationCacheMode="Enabled"
+    mc:Ignorable="d"
+    >
+
+  <Grid>
+    <videolistPage:VideoItemsListView ItemsSource="{Binding ItemsView}"
+                                      ItemCommand="{Binding VideoPlayWithQueueCommand}"
+                                      RefreshCommand="{Binding ResetListCommand}"
+                                      PlaylistPassToFlyout="{Binding ChannelVideoPlaylist}"
+                                      x:Name="VideoItemsListView"
+                                      >
+      <videolistPage:VideoItemsListView.Header>
+        <Grid x:Name="HeaderLayout" BorderThickness="0 0 0 1" BorderBrush="{StaticResource HohoemaLightBorderBrush}">
+          <CommandBar x:Name="VideoListCommandBar" DefaultLabelPosition="Right" VerticalContentAlignment="Center">
+            <CommandBar.Content>
+              <controls:AppTitleBar Title="{Binding Title}" />
+            </CommandBar.Content>
+
+            <CommandBar.PrimaryCommands>
+
+              <AppBarToggleButton x:Name="ChannelFollowButton"
+                                    Background="Transparent"
+                                    IsChecked="{Binding FollowContext.IsFollowing, Mode=TwoWay}"
+                                    IsEnabled="{Binding FollowContext.NowChanging, Converter={StaticResource BoolNegation}}" 
+                                    Icon="Favorite"
+                                    Label="{i18nExt:Localize Key=Follow}"
+                                    Visibility="Collapsed"
+                                    />
+
+              <AppBarElementContainer VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" IsTabStop="False">
+                <ComboBox ItemsSource="{Binding SortOptions}"
+                          SelectedItem="{Binding SelectedSortOption, Mode=TwoWay}"
+                          IsEnabled="{Binding NowLoading, Converter={StaticResource BoolNegation}}"
+                          VerticalAlignment="Stretch"
+                          Margin="0 6"
+                          >
+                  <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                      <TextBlock Text="{Binding Label}" />
+                    </DataTemplate>
+                  </ComboBox.ItemTemplate>
+                </ComboBox>
+              </AppBarElementContainer>
+
+              <AppBarButton x:Name="PlayAllButton"
+                                Icon="Play"
+                                Label="{i18nExt:Localize Key=PlayAll}"
+                                Command="{Binding PlaylistPlayAllCommand}"
+                                CommandParameter="{Binding CurrentPlaylistToken.Value}"></AppBarButton>
+
+              
+              <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
+                <i:Interaction.Behaviors>
+                  <i:EventTriggerBehavior EventName="Click">
+                    <i:CallMethodAction TargetObject="{x:Bind VideoItemsListView}" MethodName="ResetScrollPosition" />
+                  </i:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
+              </AppBarButton>
+
+              <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
+
+            </CommandBar.PrimaryCommands>
+            <CommandBar.SecondaryCommands>
+              <AppBarButton x:Name="RefreshButton"
+                              Label="{i18nExt:Localize Key=Refresh}" 
+                              Icon="Refresh"
+                              Command="{Binding RefreshCommand}"
+                              IsEnabled="{Binding CanChangeSort}"
+                              VerticalAlignment="Center"
+                          >
+              </AppBarButton>
+
+              <AppBarButton Label="{i18nExt:Localize Key=OpenWithBrowser}"
+                                            Command="{Binding OpenLinkCommand}"
+                                              CommandParameter="{Binding ChannelInfo}"
+                                            VerticalAlignment="Center"
+                                            UseSystemFocusVisuals="True"
+                                            />
+
+            </CommandBar.SecondaryCommands>
+          </CommandBar>
+        </Grid>
+      </videolistPage:VideoItemsListView.Header>
+
+      <videolistPage:VideoItemsListView.ItemTemplate>
+        <DataTemplate x:DataType="vm:ChannelVideoListItemViewModel"
+                      xmlns:vm="using:Hohoema.ViewModels.Pages.Niconico.Channel"
+                      >
+          <Grid>
+            <videolistPage:VideoListItemControl 
+                Title="{x:Bind Label}"                 
+                ImageSource="{x:Bind ThumbnailUrl}"
+                Length="{x:Bind Length, Converter={StaticResource TimeToMovieLengthConverter}}"  
+                IsQueueItem="{x:Bind IsQueueItem, Mode=OneWay}"
+                IsWatched="{x:Bind IsWatched, Mode=OneWay}"
+                IsDeleted="{x:Bind IsDeleted}"
+                IsHidden="{x:Bind VideoHiddenInfo, Mode=OneWay, Converter={StaticResource NotNullToBoolean}}"
+                CacheStatus="{x:Bind CacheStatus, Mode=OneWay}"
+                PostedAt="{x:Bind PostedAt, Converter={StaticResource DateTimeToString}}"
+                PrivateReason="{x:Bind PrivateReason, Converter={StaticResource LocalizeConverter}}"
+                ViewCount="{x:Bind ViewCount, Converter={StaticResource ToUserFriendlyNumber}}"
+                CommentCount="{x:Bind CommentCount, Converter={StaticResource ToUserFriendlyNumber}}"
+                MylistCount="{x:Bind MylistCount, Converter={StaticResource ToUserFriendlyNumber}}"
+              />
+          </Grid>
+        </DataTemplate>
+      </videolistPage:VideoItemsListView.ItemTemplate>
+
+    </videolistPage:VideoItemsListView>
+
+    <StackPanel x:Name="EmptyItemsLayout" Visibility="Collapsed" Spacing="8" >
+      <TextBlock Text="{i18nExt:Localize Key=ChannelVideoNoItems}"
+                    Style="{StaticResource SubtitleTextBlockStyle}"
+                    Opacity="0.8"
+                  HorizontalAlignment="Center"
+                    />
+
+    </StackPanel>
+
+    <StackPanel x:Name="PageLoadingErrorLayout" Visibility="Collapsed" Spacing="8">
+      <Grid BorderBrush="{ThemeResource SystemErrorTextColor}" MaxWidth="600" BorderThickness="1" >
+        <TextBlock Text="{Binding Error, Mode=OneWay}" TextWrapping="Wrap" IsTextSelectionEnabled="True" Margin="16" />
+      </Grid>
+    </StackPanel>
+
+
+    <VisualStateManager.VisualStateGroups>
+
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{Binding NiconicoSession.IsLoggedIn}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="ChannelFollowButton.Visibility" Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+
+      <!-- レイアウトモード -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <triggers:IsEqualStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" To="{x:Bind models:ApplicationLayout.TV}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_TV}" />
+            <Setter Target="VideoItemsListView.ItemsPanelPadding" Value="{StaticResource ContentPageMargin_TV}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <triggers:IsEqualStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" To="{x:Bind models:ApplicationLayout.Desktop}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Desktop}" />
+            <Setter Target="VideoItemsListView.ItemsPanelPadding" Value="{StaticResource ContentPageMargin_Desktop}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <triggers:IsEqualStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" To="{x:Bind models:ApplicationLayout.Tablet}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
+            <Setter Target="VideoItemsListView.ItemsPanelPadding" Value="{StaticResource ContentPageMargin_Tablet}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <triggers:IsEqualStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" To="{x:Bind models:ApplicationLayout.Mobile}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
+            <Setter Target="VideoItemsListView.ItemsPanelPadding" Value="{StaticResource ContentPageMargin_Mobile}" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{Binding NowLoading}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="ScrollToTopButton.IsEnabled" Value="False" />
+            <Setter Target="RefreshButton.IsEnabled" Value="False" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <triggers:IsEqualStateTrigger Value="{Binding ItemsView.Count}" To="0" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="EmptyItemsLayout.Visibility" Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+
+    </VisualStateManager.VisualStateGroups>
+
+  </Grid>
+</Page>

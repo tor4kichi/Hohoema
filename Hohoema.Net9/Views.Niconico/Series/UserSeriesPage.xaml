@@ -1,0 +1,94 @@
+﻿<Page
+    x:Class="Hohoema.Views.Pages.Niconico.Series.UserSeriesPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+  xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+  xmlns:viewModels="using:Hohoema.ViewModels.Niconico.Series" 
+  xmlns:i="using:Microsoft.Xaml.Interactivity"
+  xmlns:myExtensions="using:Hohoema.Views.Extensions" 
+  xmlns:triggers="using:Microsoft.Toolkit.Uwp.UI.Triggers"
+  xmlns:controls="using:Hohoema.Views.Controls"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
+  mc:Ignorable="d"
+  NavigationCacheMode="Enabled"
+  >
+  <Page.Resources>
+    <DataTemplate x:Key="SeriesContextFlyoutTemplate" x:DataType="viewModels:UserSeriesItemViewModel">
+      <MenuFlyout>
+        <MenuFlyoutItem Text="{i18nExt:Localize Key=PlayAll}" 
+                        Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.PlaylistPlayAllCommand}"
+                        CommandParameter="{Binding}"
+                        />
+        <MenuFlyoutItem Text="{i18nExt:Localize Key=SubscriptionAdd}" 
+                        Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.AddSubscriptionCommand}"
+                        CommandParameter="{Binding}"
+                        />
+      </MenuFlyout>
+    </DataTemplate>
+  </Page.Resources>
+  <Grid>
+    <GridView x:Name="UserSeriesGridView"
+              ItemsSource="{Binding UserSeriesList}"      
+              IsItemClickEnabled="True"
+              myExtensions:ListViewBase.ItemContextFlyoutTemplate="{StaticResource SeriesContextFlyoutTemplate}"
+              myExtensions:ListViewBase.ItemContextFlyoutCustomObjectToTag="{Binding}"
+              >
+      <i:Interaction.Behaviors>
+        <i:EventTriggerBehavior EventName="ItemClick">
+          <i:InvokeCommandAction Command="{Binding OpenSeriesVideoPageCommand}"
+                                    InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+        </i:EventTriggerBehavior>
+      </i:Interaction.Behaviors>
+
+      <GridView.Header>
+        <Border Padding="16 0 0 0"
+                BorderThickness="0 0 0 1" BorderBrush="{StaticResource HohoemaLightBorderBrush}"
+                >
+          <CommandBar DefaultLabelPosition="Right" VerticalContentAlignment="Center">
+            <CommandBar.Content>
+              <controls:AppTitleBar Title="{Binding Title}" />
+            </CommandBar.Content>
+          </CommandBar>
+        </Border>
+      </GridView.Header>
+
+      <GridView.ItemTemplate>
+        <DataTemplate x:DataType="viewModels:UserSeriesItemViewModel">
+          <mylistView:MylistCardView xmlns:mylistView="using:Hohoema.Views.Mylist"
+                                      PlaylistName="{x:Bind Title}" ImageUrl="{x:Bind ThumbnailUrl}" ImageCaption="{x:Bind ItemsCount}" ImageHeight="100"
+                                               />
+        </DataTemplate>
+      </GridView.ItemTemplate>
+    </GridView>
+
+    <Grid x:Name="NoItemsDescriptionLayout" Opacity="0.0" IsHitTestVisible="False">
+      <TextBlock Text="{i18nExt:Localize Key=NoItems_UserSeries}"
+                 HorizontalAlignment="Center"
+                 VerticalAlignment="Center"
+                 Style="{StaticResource SubtitleTextBlockStyle}"
+                 Opacity="0.8"
+                 />
+    </Grid>
+
+    <VisualStateManager.VisualStateGroups>
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{Binding NowUpdating}" />
+          </VisualState.StateTriggers>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <triggers:IsEqualStateTrigger Value="{Binding UserSeriesList.Count}" To="0" />
+          </VisualState.StateTriggers>
+
+          <VisualState.Setters>
+            <Setter Target="NoItemsDescriptionLayout.Opacity" Value="1.0" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+    </VisualStateManager.VisualStateGroups>
+  </Grid>
+</Page>

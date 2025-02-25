@@ -1,0 +1,44 @@
+﻿<UserControl 
+  x:Name="CommentRoot"
+  x:Class="Hohoema.Views.Player.CommentUI"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:animations="using:Microsoft.Toolkit.Uwp.UI.Animations"
+  xmlns:contractWin11Present="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractPresent(Windows.Foundation.UniversalApiContract,13)"
+  xmlns:contractWin11NotPresent="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractNotPresent(Windows.Foundation.UniversalApiContract,13)"
+  mc:Ignorable="d" 
+  d:DesignHeight="300" 
+  d:DesignWidth="400"
+  >
+
+  <Grid Visibility="{x:Bind IsVisible, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}">
+
+    <TextBlock x:Name="BackgroundText"
+               Text="{x:Bind CommentText, Mode=OneWay}"
+              Foreground="{x:Bind BackTextColor, Mode=OneWay, Converter={StaticResource ColorToBrush}}"
+              Opacity="0.75"
+              FontSize="{x:Bind CommentFontSize, Mode=OneWay}"
+              contractWin11Present:FontWeight="SemiBold"
+              contractWin11NotPresent:FontWeight="Medium"
+              TextLineBounds="Tight"
+              
+            >
+      <TextBlock.RenderTransform>
+        <TranslateTransform X="{x:Bind TextBGOffsetX, Mode=OneWay}" Y="{x:Bind TextBGOffsetY, Mode=OneWay}" />
+      </TextBlock.RenderTransform>
+    </TextBlock>
+
+    <TextBlock x:Name="ForegroundText"
+               Text="{x:Bind CommentText, Mode=OneWay}"
+               Foreground="{x:Bind TextColor, Mode=OneWay, Converter={StaticResource ColorToBrush}}" 
+               FontSize="{x:Bind CommentFontSize, Mode=OneWay}" 
+               contractWin11Present:FontWeight="SemiBold"
+              contractWin11NotPresent:FontWeight="Medium"
+               TextLineBounds="Tight" 
+                />
+
+  </Grid>
+
+</UserControl>

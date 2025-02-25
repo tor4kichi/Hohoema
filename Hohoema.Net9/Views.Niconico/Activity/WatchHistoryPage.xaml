@@ -1,0 +1,151 @@
+﻿<Page
+    x:Name="PageRoot"
+    x:Class="Hohoema.Views.Pages.Niconico.Activity.WatchHistoryPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:i="using:Microsoft.Xaml.Interactivity"
+  xmlns:models="using:Hohoema.Models.Application"
+  xmlns:controls="using:Hohoema.Views.Controls"
+  xmlns:videolistPage="using:Hohoema.Views.Controls.VideoList"
+  xmlns:triggers="using:Microsoft.Toolkit.Uwp.UI.Triggers"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" 
+  DataContext="{x:Null}"
+    NavigationCacheMode="Enabled"
+    mc:Ignorable="d"
+    >
+  <Grid>
+    <videolistPage:VideoItemsListView 
+      x:Name="VideoItemsListView" 
+      ItemsSource="{Binding ItemsView, Mode=OneWay}"
+      ItemCommand="{Binding VideoPlayWithQueueCommand}" 
+      RefreshCommand="{Binding ResetListCommand}" 
+      >
+      <videolistPage:VideoItemsListView.Header>
+        <Grid x:Name="HeaderLayout" BorderThickness="0 0 0 1" BorderBrush="{StaticResource HohoemaLightBorderBrush}">
+          <CommandBar x:Name="VideoListCommandBar" DefaultLabelPosition="Right" VerticalContentAlignment="Center">
+            <CommandBar.Content>
+              <controls:AppTitleBar Title="{Binding Title, Mode=OneWay}" />
+            </CommandBar.Content>
+            <CommandBar.PrimaryCommands>
+
+              <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
+                <i:Interaction.Behaviors>
+                  <i:EventTriggerBehavior EventName="Click">
+                    <i:CallMethodAction TargetObject="{x:Bind VideoItemsListView}" MethodName="ResetScrollPosition" />
+                  </i:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
+              </AppBarButton>
+              <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
+              <AppBarButton Label="{i18nExt:Localize Key=Refresh}" Icon="Refresh" Command="{Binding ResetListCommand}" x:Name="RefreshButton" VerticalAlignment="Center" />
+            </CommandBar.PrimaryCommands>
+            <CommandBar.SecondaryCommands>
+              <AppBarButton x:Name="RemoveAllHistoryButton" Label="{i18nExt:Localize Key=WatchHistoryRemoveAll}" Icon="Delete" AllowFocusOnInteraction="True">
+                <AppBarButton.Flyout>
+                  <Flyout>
+                    <StackPanel Margin="8" Width="240">
+                      <TextBlock Margin="0 0 0 16" LineHeight="20" TextWrapping="Wrap" Text="{i18nExt:Localize Key=WatchHistoryConfirmRemoveDescription}"></TextBlock>
+                      <Button Content="{i18nExt:Localize Key=WatchHistoryConfirmRemove}" Command="{Binding WatchHistoryRemoveAllCommand}" HorizontalAlignment="Stretch" />
+                    </StackPanel>
+                  </Flyout>
+                </AppBarButton.Flyout>
+              </AppBarButton>
+            </CommandBar.SecondaryCommands>
+          </CommandBar>
+        </Grid>
+      </videolistPage:VideoItemsListView.Header>
+      <videolistPage:VideoItemsListView.ItemTemplate>
+        <DataTemplate x:DataType="vm:HistoryVideoListItemControlViewModel"
+                      xmlns:vm="using:Hohoema.ViewModels.Pages.Niconico.Activity"
+                      >
+          <Grid>
+            <videolistPage:VideoListItemControl 
+                Title="{x:Bind Label}"                 
+                ImageSource="{x:Bind ThumbnailUrl}"
+                Length="{x:Bind Length, Converter={StaticResource TimeToMovieLengthConverter}}"  
+                IsQueueItem="{x:Bind IsQueueItem, Mode=OneWay}"
+                IsWatched="False"
+                IsDeleted="{x:Bind IsDeleted}"
+                IsHidden="{x:Bind VideoHiddenInfo, Mode=OneWay, Converter={StaticResource NotNullToBoolean}}"
+                CacheStatus="{x:Bind CacheStatus, Mode=OneWay}"
+                PostedAt="{x:Bind PostedAt, Converter={StaticResource DateTimeToString}}"
+                PrivateReason="{x:Bind PrivateReason, Converter={StaticResource LocalizeConverter}}"
+                ViewCount="{x:Bind ViewCount, Converter={StaticResource ToUserFriendlyNumber}}"
+                CommentCount="{x:Bind CommentCount, Converter={StaticResource ToUserFriendlyNumber}}"
+                MylistCount="{x:Bind MylistCount, Converter={StaticResource ToUserFriendlyNumber}}"
+              />
+
+            <TextBlock HorizontalAlignment="Right" VerticalAlignment="Top" Foreground="#77777777"
+                       Text="{x:Bind LastWatchedAt, Converter={StaticResource DateTimeToString}}"
+                       />
+            <TextBlock HorizontalAlignment="Right" VerticalAlignment="Bottom" FontSize="24" Foreground="#77777777"
+                       Text="{x:Bind UserViewCount}" 
+                       />
+          </Grid>
+        </DataTemplate>
+      </videolistPage:VideoItemsListView.ItemTemplate>
+    </videolistPage:VideoItemsListView>
+    <Grid x:Name="EmptyItemsLayout" Opacity="0" HorizontalAlignment="Center" VerticalAlignment="Center">
+      <TextBlock Text="{i18nExt:Localize Key=WatchHistoryNoItems}" Style="{StaticResource SubtitleTextBlockStyle}" Opacity="0.8" />
+    </Grid>
+    <VisualStateManager.VisualStateGroups>
+      <!-- レイアウトモード -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <triggers:IsEqualStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout, Mode=OneWay}" To="{x:Bind models:ApplicationLayout.TV}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_TV}" />
+            <Setter Target="VideoItemsListView.ItemsPanelPadding" Value="{StaticResource ContentListViewBodyMargin_TV}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <triggers:IsEqualStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout, Mode=OneWay}" To="{x:Bind models:ApplicationLayout.Desktop}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Desktop}" />
+            <Setter Target="VideoItemsListView.ItemsPanelPadding" Value="{StaticResource ContentListViewBodyMargin_Desktop}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <triggers:IsEqualStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout, Mode=OneWay}" To="{x:Bind models:ApplicationLayout.Tablet}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Tablet}" />
+            <Setter Target="VideoItemsListView.ItemsPanelPadding" Value="{StaticResource ContentListViewBodyMargin_Tablet}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <triggers:IsEqualStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout, Mode=OneWay}" To="{x:Bind models:ApplicationLayout.Mobile}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
+            <Setter Target="VideoItemsListView.ItemsPanelPadding" Value="{StaticResource ContentListViewBodyMargin_Mobile}" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+     
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{Binding NowLoading, Mode=OneWay}" />
+          </VisualState.StateTriggers>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{Binding HasItem, Mode=OneWay, Converter={StaticResource BoolNegation}}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="EmptyItemsLayout.Opacity" Value="1.0" />
+            <Setter Target="RemoveAllHistoryButton.IsEnabled" Value="False" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+    </VisualStateManager.VisualStateGroups>
+  </Grid>
+</Page>
