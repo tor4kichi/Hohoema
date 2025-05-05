@@ -698,7 +698,7 @@ public sealed partial class CommentRenderer : UserControl
         _frameData.CommentDisplayDuration = DefaultDisplayDuration;
         _frameData.InverseCommentDisplayDurationInMs = 1.0f / (float)DefaultDisplayDuration.TotalMilliseconds;
         _frameData.PlaybackState = MediaPlayer.PlaybackSession.PlaybackState;
-        _frameData.CommentDefaultColor = CommentDefaultColor;
+        _frameData.CommentDefaultColor = CommentDefaultColor == default ? Colors.WhiteSmoke : CommentDefaultColor;
         _frameData.CurrentVpos = VideoPosition + VideoPositionOffset;
         _frameData.CanvasWidth = (int)CommentCanvas.ActualWidth;
         _frameData.CanvasHeight = (uint)CommentCanvas.ActualHeight;
