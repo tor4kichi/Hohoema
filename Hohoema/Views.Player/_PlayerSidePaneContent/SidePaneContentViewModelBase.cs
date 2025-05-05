@@ -8,19 +8,19 @@ using System.Threading.Tasks;
 namespace Hohoema.ViewModels.Player.PlayerSidePaneContent;
 
 public abstract class SidePaneContentViewModelBase : ObservableObject, IDisposable
+{
+	protected readonly CompositeDisposable _CompositeDisposable;
+
+	public SidePaneContentViewModelBase()
 	{
-    private static readonly CompositeDisposable compositeDisposable = new CompositeDisposable();
-    protected ICollection<IDisposable> _CompositeDisposable = compositeDisposable;
+		_CompositeDisposable = new CompositeDisposable();
+    }
 
-		public SidePaneContentViewModelBase()
-		{
-		}
+	virtual public Task OnEnter() { return Task.CompletedTask; }
+	virtual public void OnLeave() { }
 
-    virtual public Task OnEnter() { return Task.CompletedTask; }
-    virtual public void OnLeave() { }
-
-		public virtual void Dispose()
-		{
-			compositeDisposable?.Dispose();
-		}
+	public virtual void Dispose()
+	{
+        _CompositeDisposable?.Dispose();
 	}
+}

@@ -3,7 +3,9 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Player;
 using Hohoema.Models.Player.Comment;
+using Hohoema.Models.Player.Video;
 using Hohoema.Services.Player.Videos;
+using R3;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.ObjectModel;
@@ -28,9 +30,9 @@ public class SettingsSidePaneContentViewModel : SidePaneContentViewModelBase
         SoundVolumeManager = soundVolumeManager;
         _scheduler = scheduler;
 
-
         FilteringKeywords = new ObservableCollection<CommentFliteringRepository.FilteringCommentTextKeyword>(CommentFiltering.GetAllFilteringCommentTextCondition());
-        Observable.FromEventPattern<CommentFilteringFacade.FilteringCommentTextKeywordEventArgs>(
+        DisposableBuilder db = new DisposableBuilder();
+        System.Reactive.Linq.Observable.FromEventPattern<CommentFilteringFacade.FilteringCommentTextKeywordEventArgs>(
             h => CommentFiltering.FilterKeywordAdded += h,
             h => CommentFiltering.FilterKeywordAdded -= h
             )
@@ -38,9 +40,9 @@ public class SettingsSidePaneContentViewModel : SidePaneContentViewModelBase
             {
                 FilteringKeywords.Add(args.EventArgs.FilterKeyword);
             })
-            .AddTo(_CompositeDisposable);
+            .AddTo(ref db);
 
-        Observable.FromEventPattern<CommentFilteringFacade.FilteringCommentTextKeywordEventArgs>(
+        System.Reactive.Linq.Observable.FromEventPattern<CommentFilteringFacade.FilteringCommentTextKeywordEventArgs>(
             h => CommentFiltering.FilterKeywordRemoved += h,
             h => CommentFiltering.FilterKeywordRemoved -= h
             )
@@ -48,11 +50,11 @@ public class SettingsSidePaneContentViewModel : SidePaneContentViewModelBase
             {
                 FilteringKeywords.Remove(args.EventArgs.FilterKeyword);
             })
-            .AddTo(_CompositeDisposable);
+            .AddTo(ref db);
 
         // 
         VideoCommentTransformConditions = new ObservableCollection<CommentFliteringRepository.CommentTextTransformCondition>(CommentFiltering.GetTextTranformConditions());
-        Observable.FromEventPattern<CommentFilteringFacade.CommentTextTranformConditionChangedArgs>(
+        System.Reactive.Linq.Observable.FromEventPattern<CommentFilteringFacade.CommentTextTranformConditionChangedArgs>(
             h => CommentFiltering.TransformConditionAdded += h,
             h => CommentFiltering.TransformConditionAdded -= h
             )
@@ -60,9 +62,9 @@ public class SettingsSidePaneContentViewModel : SidePaneContentViewModelBase
             {
                 VideoCommentTransformConditions.Add(args.EventArgs.TransformCondition);
             })
-            .AddTo(_CompositeDisposable);
+            .AddTo(ref db);
 
-        Observable.FromEventPattern<CommentFilteringFacade.CommentTextTranformConditionChangedArgs>(
+        System.Reactive.Linq.Observable.FromEventPattern<CommentFilteringFacade.CommentTextTranformConditionChangedArgs>(
             h => CommentFiltering.TransformConditionRemoved += h,
             h => CommentFiltering.TransformConditionRemoved -= h
             )
@@ -70,7 +72,13 @@ public class SettingsSidePaneContentViewModel : SidePaneContentViewModelBase
             {
                 VideoCommentTransformConditions.Remove(args.EventArgs.TransformCondition);
             })
-            .AddTo(_CompositeDisposable);
+            .AddTo(ref db);
+
+        PlayerSettings.ObservePropertyChanged(x => x.IsMitigationForVideoLoadingEnabled, pushCurrentValueOnSubscribe: false)
+            .Subscribe(x => DomandStreamingSession.HttpClientPathToPlayingSession = !x)
+            .AddTo(ref db);
+
+        _CompositeDisposable.Add(db.Build());
     }
 
     private void CommentFiltering_FilterKeywordAdded(object sender, CommentFilteringFacade.FilteringCommentTextKeywordEventArgs e)

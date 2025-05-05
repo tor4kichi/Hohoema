@@ -17,6 +17,8 @@ using static NiconicoToolkit.Video.Watch.NicoVideoWatchApiResponse;
 namespace Hohoema.Models.Player.Video;
 public sealed class DomandStreamingSession : VideoStreamingSession
 {
+    public static bool HttpClientPathToPlayingSession = true;
+
     private readonly NiconicoContext _context;
     private readonly WatchResponse _watchApiData;
     private readonly WatchDomand _domand;
@@ -97,7 +99,7 @@ public sealed class DomandStreamingSession : VideoStreamingSession
             );
 
         if (res.IsSuccess is false)
-        {
+        { 
             var lowAudio = _domand.Audios.First(x => x.IsAvailable);
             Debug.WriteLine($"can't use Audio Level {AudioQuality.Id}, so fallback to {lowAudio.Id}");
             res = await _context.Video.VideoWatch.GetDomandHlsAccessRightAsync(
@@ -109,7 +111,9 @@ public sealed class DomandStreamingSession : VideoStreamingSession
             );
         }
 
-        var amsResult = await AdaptiveMediaSource.CreateFromUriAsync(new Uri(res.Data.ContentUrl), _context.HttpClient);
+        var amsResult = HttpClientPathToPlayingSession
+            ? await AdaptiveMediaSource.CreateFromUriAsync(new Uri(res.Data.ContentUrl), _context.HttpClient)
+            : await AdaptiveMediaSource.CreateFromUriAsync(new Uri(res.Data.ContentUrl));
         if (amsResult.Status == AdaptiveMediaSourceCreationStatus.Success)
         {
             return MediaSource.CreateFromAdaptiveMediaSource(amsResult.MediaSource);

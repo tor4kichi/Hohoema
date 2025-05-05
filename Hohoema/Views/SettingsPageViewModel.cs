@@ -9,6 +9,7 @@ using Hohoema.Models.Application;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.PageNavigation;
 using Hohoema.Models.Player;
+using Hohoema.Models.Player.Video;
 using Hohoema.Models.VideoCache;
 using Hohoema.Services;
 using Hohoema.Services.Player.Videos;

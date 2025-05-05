@@ -151,9 +151,9 @@
           </Grid>
 
           <Grid>
-            <TextBlock Text="{i18nExt:Localize Key=ForceUsingDmcVideoOrigin}"
+            <TextBlock Text="{i18nExt:Localize Key=PlayerSettings_IsMitigationForVideoLoadingEnabled}"
                        Style="{StaticResource SettingsOptionTitleTextBlock}" />
-            <ToggleSwitch IsOn="{x:Bind _vm.PlayerSettings.ForceUsingDmcVideoOrigin, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            <ToggleSwitch IsOn="{x:Bind _vm.PlayerSettings.IsMitigationForVideoLoadingEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                           Style="{StaticResource ToggleSwitchNoHeader}"
                           MinWidth="0"
                           HorizontalAlignment="Right"
