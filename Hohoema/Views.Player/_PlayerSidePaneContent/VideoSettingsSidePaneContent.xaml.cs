@@ -77,6 +77,15 @@ public sealed partial class VideoSettingsSidePaneContent : UserControl
 	{
 		CommentFontScaleNumberBox.Value -= CommentFontScaleNumberBox.SmallChange;
 	}
+
+    private void CommentColorSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+		if (CommentColorSelector.SelectedItem is Color color)
+		{
+			if (color.A == 0) { return; }
+            _vm.PlayerSettings.CommentColor = color;
+        }
+    }
 }
 
 public enum CommentNGScoreShareLevel

@@ -696,7 +696,6 @@ public sealed partial class CommentRenderer : UserControl
     private void UpdateRenderFrameData()
     {
         _frameData.CommentDisplayDuration = DefaultDisplayDuration;
-        _frameData.InverseCommentDisplayDurationInMs = 1.0f / (float)DefaultDisplayDuration.TotalMilliseconds;
         _frameData.PlaybackState = MediaPlayer.PlaybackSession.PlaybackState;
         _frameData.CommentDefaultColor = CommentDefaultColor == default ? Colors.WhiteSmoke : CommentDefaultColor;
         _frameData.CurrentVpos = VideoPosition + VideoPositionOffset;
@@ -709,6 +708,7 @@ public sealed partial class CommentRenderer : UserControl
         _frameData.PlaybackRate = (float)MediaPlayer.PlaybackSession.PlaybackRate;
         _frameData.PlaybackRateInverse = 1f / (float)MediaPlayer.PlaybackSession.PlaybackRate;
         _frameData.CommentDisplayPredicate = CommentDisplayPredicate;
+        _frameData.InverseCommentDisplayDurationInMs = 1.0f / (float)(DefaultDisplayDuration * _frameData.PlaybackRate).TotalMilliseconds;
 
         //Debug.WriteLine($"video pos: {_frameData.CurrentVpos}");
     }
@@ -806,7 +806,7 @@ public sealed partial class CommentRenderer : UserControl
                 commentUI.TextColor = commentColor;
                 commentUI.BackTextColor = GetShadowColor(commentColor);
                 commentUI.VideoPosition = comment.VideoPosition;
-                commentUI.EndPosition = comment.VideoPosition + frame.CommentDisplayDuration;
+                commentUI.EndPosition = comment.VideoPosition + frame.CommentDisplayDuration * frame.PlaybackRate;
                 commentUI.TextBGOffsetX = frame.TextBGOffset;
                 commentUI.TextBGOffsetY = frame.TextBGOffset;
                 commentUI.CommentFontSize = commentFontSize;
