@@ -1,7 +1,6 @@
 ﻿#nullable enable
 using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Channel;
-using Hohoema.Models.Niconico.Community;
 using Hohoema.Models.Niconico.Live;
 using Hohoema.Models.Niconico.Mylist;
 using Hohoema.Models.Niconico.Video;
@@ -35,10 +34,6 @@ public static class ShareHelper
             case IChannel channel:
                 uri = new Uri(NiconicoUrls.MakeChannelPageUrl(channel.ChannelId));
                 break;
-            case ICommunity community:
-                uri = new Uri(NiconicoUrls.MakeCommunityPageUrl(community.CommunityId));
-                break;
-
             default:
                 break;
         }
@@ -65,10 +60,6 @@ public static class ShareHelper
         else if (parameter is ILiveContent liveContent)
         {
             return MakeShareText(liveContent.LiveId, "ニコニコ生放送");
-        }
-        else if (parameter is ICommunity communityContent)
-        {
-            return MakeShareText(communityContent.CommunityId, "ニコニミュニティ");
         }
         else
         {

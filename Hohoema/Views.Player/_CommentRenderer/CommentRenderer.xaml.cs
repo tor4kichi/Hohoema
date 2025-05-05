@@ -696,9 +696,8 @@ public sealed partial class CommentRenderer : UserControl
     private void UpdateRenderFrameData()
     {
         _frameData.CommentDisplayDuration = DefaultDisplayDuration;
-        _frameData.InverseCommentDisplayDurationInMs = 1.0f / (float)DefaultDisplayDuration.TotalMilliseconds;
         _frameData.PlaybackState = MediaPlayer.PlaybackSession.PlaybackState;
-        _frameData.CommentDefaultColor = CommentDefaultColor;
+        _frameData.CommentDefaultColor = CommentDefaultColor == default ? Colors.WhiteSmoke : CommentDefaultColor;
         _frameData.CurrentVpos = VideoPosition + VideoPositionOffset;
         _frameData.CanvasWidth = (int)CommentCanvas.ActualWidth;
         _frameData.CanvasHeight = (uint)CommentCanvas.ActualHeight;
@@ -709,6 +708,7 @@ public sealed partial class CommentRenderer : UserControl
         _frameData.PlaybackRate = (float)MediaPlayer.PlaybackSession.PlaybackRate;
         _frameData.PlaybackRateInverse = 1f / (float)MediaPlayer.PlaybackSession.PlaybackRate;
         _frameData.CommentDisplayPredicate = CommentDisplayPredicate;
+        _frameData.InverseCommentDisplayDurationInMs = 1.0f / (float)(DefaultDisplayDuration * _frameData.PlaybackRate).TotalMilliseconds;
 
         //Debug.WriteLine($"video pos: {_frameData.CurrentVpos}");
     }
@@ -806,7 +806,7 @@ public sealed partial class CommentRenderer : UserControl
                 commentUI.TextColor = commentColor;
                 commentUI.BackTextColor = GetShadowColor(commentColor);
                 commentUI.VideoPosition = comment.VideoPosition;
-                commentUI.EndPosition = comment.VideoPosition + frame.CommentDisplayDuration;
+                commentUI.EndPosition = comment.VideoPosition + frame.CommentDisplayDuration * frame.PlaybackRate;
                 commentUI.TextBGOffsetX = frame.TextBGOffset;
                 commentUI.TextBGOffsetY = frame.TextBGOffset;
                 commentUI.CommentFontSize = commentFontSize;
@@ -1138,18 +1138,18 @@ public sealed partial class CommentRenderer : UserControl
         }
         else
         {
-            var baseColor = sourceColor;
-            byte c = (byte)(byte.MaxValue - (byte)(0.299f * baseColor.R + 0.587f * baseColor.G + 0.114f * baseColor.B));
+            Color baseColor = sourceColor;
+            int c = byte.MaxValue - (byte)(0.299f * baseColor.R + 0.587f * baseColor.G + 0.114f * baseColor.B);
 
             // 赤や黄色など多少再度が高い色でも黒側に寄せるよう
             // 127ではなく196をしきい値に利用
-            c = c > 196 ? byte.MaxValue : byte.MinValue;
+            byte shadow = c > 196 ? byte.MaxValue : byte.MinValue;
 
-            var shadowColor = new Color()
+            Color shadowColor = new ()
             {
-                R = c,
-                G = c,
-                B = c,
+                R = shadow,
+                G = shadow,
+                B = shadow,
                 A = byte.MaxValue
             };
 

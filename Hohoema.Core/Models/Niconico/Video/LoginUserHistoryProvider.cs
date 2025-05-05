@@ -22,7 +22,7 @@ public sealed class LoginUserVideoWatchHistoryProvider : ProviderBase
         _videoWatchedRepository = videoWatchedRepository;
     }
 
-    public async Task<VideoWatchHistory.VideoWatchHistoryItem[]> GetHistoryAsync(int page = 0, int pageSize = 100)
+    public async Task<VideoWatchHistoryItem[]> GetHistoryAsync(int page = 0, int pageSize = 100)
     {
         using var releaser = await _niconicoSession.SigninLock.LockAsync();
 
@@ -35,7 +35,7 @@ public sealed class LoginUserVideoWatchHistoryProvider : ProviderBase
 
         if (res.Meta.IsSuccess is false) { throw new HohoemaException("Failed get login user video watch history"); }
 
-        foreach (VideoWatchHistory.VideoWatchHistoryItem history in res.Data.Items)
+        foreach (VideoWatchHistoryItem history in res.Data.Items)
         {
             _ = _videoWatchedRepository.VideoPlayedIfNotWatched(history.WatchId, TimeSpan.MaxValue);
         }

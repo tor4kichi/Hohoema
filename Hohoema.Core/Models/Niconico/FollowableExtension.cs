@@ -1,6 +1,5 @@
 ﻿#nullable enable
 using Hohoema.Models.Niconico.Channel;
-using Hohoema.Models.Niconico.Community;
 using Hohoema.Models.Niconico.Follow;
 using Hohoema.Models.Niconico.Mylist;
 using System;
@@ -17,7 +16,6 @@ public static class FollowableExtension
             Video.ITag tag => tag.Tag,
             IChannel channel => channel.Name,
             IMylist mylist => mylist.Name,
-            ICommunity community => community.Name,
             _ => throw new NotSupportedException(followable?.GetType().Name),
         };
     }

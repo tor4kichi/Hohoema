@@ -41,7 +41,7 @@ public sealed class WatchHistoryManager
     public event EventHandler<WatchHistoryRemovedEventArgs> WatchHistoryRemoved;
     public event EventHandler WatchHistoryAllRemoved;
 
-    public Task<VideoWatchHistory.VideoWatchHistoryItem[]> GetWatchHistoryItemsAsync(int page = 0, int pageSize = 100)
+    public Task<VideoWatchHistoryItem[]> GetWatchHistoryItemsAsync(int page = 0, int pageSize = 100)
     {
         return _LoginUserVideoWatchHistoryProvider.GetHistoryAsync(page, pageSize);
     }

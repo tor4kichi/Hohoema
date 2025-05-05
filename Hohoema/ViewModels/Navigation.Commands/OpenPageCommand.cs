@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.Messaging;
 using DryIoc;
 using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Channel;
-using Hohoema.Models.Niconico.Community;
 using Hohoema.Models.Niconico.Follow;
 using Hohoema.Models.Niconico.Live;
 using Hohoema.Models.Niconico.Mylist;
@@ -12,7 +11,6 @@ using Hohoema.Models.PageNavigation;
 using Hohoema.Models.Pins;
 using Hohoema.Models.Playlist;
 using NiconicoToolkit.Channels;
-using NiconicoToolkit.Community;
 using NiconicoToolkit.Mylist;
 using NiconicoToolkit.User;
 using System;
@@ -69,9 +67,6 @@ public sealed class OpenPageCommand : CommandBase
                     case FollowItemType.Channel:
                         _ = _messenger.OpenPageWithIdAsync(HohoemaPageType.ChannelVideo, (ChannelId)followItem.Id);
                         break;
-                    case FollowItemType.Community:
-                        _ = _messenger.OpenPageWithIdAsync(HohoemaPageType.Community, (CommunityId)followItem.Id);
-                        break;
                     default:
                         break;
                 }
@@ -94,9 +89,6 @@ public sealed class OpenPageCommand : CommandBase
                 break;
             case ILiveContent liveContent:
                 _ = _messenger.OpenPageWithIdAsync(HohoemaPageType.LiveInfomation, liveContent.LiveId);
-                break;
-            case ICommunity communityContent:
-                _ = _messenger.OpenPageWithIdAsync(HohoemaPageType.Community, communityContent.CommunityId);
                 break;
             case IMylist mylistContent:
                 _ = _messenger.OpenPageWithIdAsync(HohoemaPageType.Mylist, mylistContent.MylistId);

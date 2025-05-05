@@ -297,8 +297,6 @@ public sealed partial class App : Application
         viewLocator.RegisterForNavigation<Views.Pages.Hohoema.VideoCache.CacheManagementPage>();
         viewLocator.RegisterForNavigation<Views.Pages.Niconico.Activity.WatchHistoryPage>();
         viewLocator.RegisterForNavigation<Views.Pages.Niconico.Channel.ChannelVideoPage>();
-        viewLocator.RegisterForNavigation<Views.Pages.Niconico.Community.CommunityPage>();
-        viewLocator.RegisterForNavigation<Views.Pages.Niconico.Community.CommunityVideoPage>();
         viewLocator.RegisterForNavigation<Views.Pages.Niconico.Follow.FollowManagePage>();
         viewLocator.RegisterForNavigation<Views.Pages.Niconico.Live.LiveInfomationPage>();
         viewLocator.RegisterForNavigation<Views.Pages.Niconico.Live.TimeshiftPage>();
@@ -526,20 +524,13 @@ public sealed partial class App : Application
         }
 
         Resources["Strings"] = I18NPortable.I18N.Current;
-
         AppearanceSettings appearanceSettings = Container.Resolve<Models.Application.AppearanceSettings>();
         I18NPortable.I18N.Current.Locale = appearanceSettings.Locale ?? I18NPortable.I18N.Current.Languages.FirstOrDefault(x => x.Locale.StartsWith(CultureInfo.CurrentCulture.TwoLetterISOLanguageName)).Locale ?? I18NPortable.I18N.Current.Locale;
-
         CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(I18NPortable.I18N.Current.Locale);
-
-        //Console.WriteLine(settings.AppearanceSettings.Locale);
-        //Console.WriteLine(I18N.Current.Locale);
-        //Console.WriteLine(CultureInfo.CurrentCulture.Name);
-
+        DomandStreamingSession.HttpClientPathToPlayingSession = Container.Resolve<PlayerSettings>().IsMitigationForVideoLoadingEnabled is false;
 
         Resources["IsXbox"] = DeviceTypeHelper.IsXbox;
         Resources["IsMobile"] = DeviceTypeHelper.IsMobile;
-
 
         try
         {

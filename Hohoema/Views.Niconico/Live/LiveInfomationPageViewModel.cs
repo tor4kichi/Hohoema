@@ -5,7 +5,6 @@ using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Helpers;
 using Hohoema.Models.Application;
 using Hohoema.Models.Niconico;
-using Hohoema.Models.Niconico.Community;
 using Hohoema.Models.Niconico.Live;
 using Hohoema.Models.PageNavigation;
 using Hohoema.Models.Pins;
@@ -16,9 +15,9 @@ using Hohoema.ViewModels.Niconico.Share;
 using Hohoema.ViewModels.Pages.Niconico.Video;
 using I18NPortable;
 using NiconicoToolkit;
-using NiconicoToolkit.Community;
 using NiconicoToolkit.Ichiba;
 using NiconicoToolkit.Live;
+using NiconicoToolkit.Live.Cas;
 using NiconicoToolkit.Live.Timeshift;
 using NiconicoToolkit.Recommend;
 using Reactive.Bindings;
@@ -36,16 +35,6 @@ using Windows.UI.Xaml;
 using NiconicoSession = Hohoema.Models.Niconico.NiconicoSession;
 
 namespace Hohoema.ViewModels.Pages.Niconico.Live;
-
-public class LiveCommunityInfo : ICommunity
-{
-    public CommunityId CommunityId { get; set; }
-
-    public string Name { get; set; }
-
-    public string Thumbnail { get; set; }
-    public string Description { get; internal set; }
-}
 
 public class LiveData : ILiveContent, ILiveContentProvider
 {
@@ -299,16 +288,6 @@ public sealed class LiveInfomationPageViewModel : HohoemaPageViewModelBase, IPin
         set { SetProperty(ref _Live, value); }
     }
 
-
-    // コミュニティ放送者情報
-    private LiveCommunityInfo _Community;
-    public LiveCommunityInfo Community
-    {
-        get { return _Community; }
-        private set { SetProperty(ref _Community, value); }
-    }
-
-    
     private DateTime? _ExpiredTime;
     public DateTime? ExpiredTime
     {
@@ -584,7 +563,7 @@ public sealed class LiveInfomationPageViewModel : HohoemaPageViewModelBase, IPin
 
                 // タイムシフト視聴開始の判定処理のため_IsTsPreservedより後にLiveInfoを代入する
                 LiveProgram = programInfo.Data;
-                Live = new LiveData(programInfo.Data, Community?.Name);
+                Live = new LiveData(programInfo.Data, "");
                 LiveId = liveId;
             }
             else
@@ -682,11 +661,11 @@ public sealed class LiveInfomationPageViewModel : HohoemaPageViewModelBase, IPin
 
 
     public ReactiveProperty<bool> IsLiveInfoLoaded { get; } = new ReactiveProperty<bool>(false);
-    private async Task RefreshLiveTagsAsync(IList<NiconicoToolkit.Live.Cas.Tag> liveTags)
+    private async Task RefreshLiveTagsAsync(IList<LiveCasTag> liveTags)
     {
         _LiveTags.Clear();
 
-        Func<NiconicoToolkit.Live.Cas.Tag, LiveTagType, LiveTagViewModel> ConvertToLiveTagVM =
+        Func<LiveCasTag, LiveTagType, LiveTagViewModel> ConvertToLiveTagVM =
             (x, type) => new LiveTagViewModel() { Tag = x.Text, Type = type };
 
         var tags = new[] {

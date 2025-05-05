@@ -509,6 +509,7 @@ NicoScript_Jump = ＠ジャンプ
 DesktopSettings = デスクトップ向けの設定
 SoundVolumeChangeValueWithMouseScroll = マウススクロール音量変化量
 PlayRepeat = ループ再生
+PlayerSettings_IsMitigationForVideoLoadingEnabled = 動画読込の安定性対策
 
 # Likes いいね機能
 NicoLike = ❤ いいね

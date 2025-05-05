@@ -2,7 +2,7 @@
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Playlist;
 using Hohoema.Models.Video;
-using Microsoft.Toolkit.Diagnostics;
+using CommunityToolkit.Diagnostics;
 using NiconicoToolkit.Search;
 using NiconicoToolkit.Search.Video;
 using System;
