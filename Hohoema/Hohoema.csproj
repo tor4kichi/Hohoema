@@ -783,7 +783,7 @@
       <Version>5.0.5</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
-      <Version>6.2.13</Version>
+      <Version>6.2.14</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Services.Store.Engagement">
       <Version>10.1901.28001</Version>
@@ -807,7 +807,7 @@
       <Version>7.1.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.UI.Xaml">
-      <Version>2.7.2</Version>
+      <Version>2.8.7</Version>
     </PackageReference>
     <PackageReference Include="R3">
       <Version>1.2.8</Version>
