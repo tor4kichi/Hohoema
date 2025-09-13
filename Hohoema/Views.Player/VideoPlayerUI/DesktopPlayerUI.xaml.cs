@@ -296,8 +296,8 @@ public sealed partial class DesktopPlayerUI : UserControl, IDraggableAreaAware
     };
 
 
-    public TimeSpan ForwardSeekTime => TimeSpan.FromSeconds(30);
-    public TimeSpan PreviewSeekTime => TimeSpan.FromSeconds(-10);
+    public TimeSpan ForwardSeekTime => TimeSpan.FromSeconds(5);
+    public TimeSpan PreviewSeekTime => TimeSpan.FromSeconds(-5);
 
 
 
