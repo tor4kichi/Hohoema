@@ -663,7 +663,7 @@
                              Margin="0 0 0 16"/>
                   <Grid VerticalAlignment="Bottom"
                         HorizontalAlignment="Stretch">
-                    <TextBlock Text="5" FontSize="15" HorizontalAlignment="Center" />
+                    <TextBlock Text="{x:Bind ForwardSeekTime.TotalSeconds}" FontSize="15" HorizontalAlignment="Center" />
                   </Grid>
                 </Grid>
               </Button>
@@ -683,7 +683,7 @@
                              Margin="0 0 0 16" />
                   <Grid VerticalAlignment="Bottom"
                         HorizontalAlignment="Stretch">
-                    <TextBlock Text="5"
+                    <TextBlock Text="{x:Bind ForwardSeekTime.TotalSeconds}"
                                FontSize="15"
                                HorizontalAlignment="Center" />
                   </Grid>
