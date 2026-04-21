@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.Messaging.Messages;
 using Hohoema.Helpers;
 using Hohoema.Infra;
 using Hohoema.Models.Application;
+using Microsoft.Toolkit.Uwp;
 using NiconicoToolkit.Account;
 using NiconicoToolkit.User;
 using System;
@@ -87,40 +88,54 @@ public sealed class NiconicoSession : ObservableObject
         CoreApplication.Resuming += CoreApplication_Resuming;
     }
 
-
-    private void OnNetworkStatusChanged(object sender)
+    AsyncLock _lock = new AsyncLock();
+    bool _isCheckCompleted = false;
+    private async void OnNetworkStatusChanged(object sender)
     {
         // Note: Resumingのタイミングで NetworkInformation.NetworkStatusChanged += OnNetworkStatusChanged; をやるとExcpetion HRESULT: 
-
         if (skipOnceNetworkStatusChange)
         {
             skipOnceNetworkStatusChange = false;
+            _isCheckCompleted = false;
             return;
         }
 
-        if (Helpers.InternetConnection.IsInternet())
+        using (var release = await _lock.LockAsync())
         {
-            HohoemaAppServiceLevel lastStatus = ServiceStatus;
-            _ = _dispatcherQueue.TryEnqueue(async () =>
+            if (InternetConnection.IsInternet() == false)
             {
-                if (lastStatus == HohoemaAppServiceLevel.LoggedIn)
-                {
-                    NiconicoSessionStatus status = await CheckSignedInStatus();
+                _isCheckCompleted = false;
+            }
 
-                    if (status == NiconicoSessionStatus.Failed)
+            if (_isCheckCompleted) { return; }
+            await ConnectionRetryUtil.TaskWithRetry(() => _dispatcherQueue.EnqueueAsync(async () => 
+            {
+                if (InternetConnection.IsInternet())
+                {
+                    HohoemaAppServiceLevel lastStatus = ServiceStatus;
+
+                    if (lastStatus == HohoemaAppServiceLevel.LoggedIn)
                     {
-                        status = await SignInWithPrimaryAccount();
+                        NiconicoSessionStatus status = await CheckSignedInStatus();
+
+                        if (status == NiconicoSessionStatus.Failed)
+                        {
+                            status = await SignInWithPrimaryAccount();
+                        }
+
+                        if (status == NiconicoSessionStatus.Failed)
+                        {
+                            throw new Exception();
+                        }
                     }
+
+                    _isCheckCompleted = true;
                 }
                 else
                 {
-                    // ログインセッションが時間切れしていた場合、自動でログイン状態に復帰する
-                    //                        await SignInWithPrimaryAccount();
+                    throw new Exception();
                 }
-            });
-        }
-        else
-        {
+            }), retryCount: 10, retryInterval: 3000);
         }
     }
 
