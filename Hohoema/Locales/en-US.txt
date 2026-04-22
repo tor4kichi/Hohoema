@@ -715,6 +715,7 @@ MylistVideoCountDesc = {0} videos
 FollowingsActivityDisplayOptions = New arrival display target
 ActivityType.All = All
 ActivityType.Video = Video posting
+ActivityType.ShortVideo = Short video posting
 ActivityType.Live = Live broadcast starts
 ActivityType.Publish = Content post
 
@@ -1106,6 +1107,9 @@ VideoHistory_DeleteOne_Success = Deleted viewing history
 VideoHistory_DeleteOne_Fail = Failed to delete viewing history
 VideoHistories_AllDelete_Success = Deleted all viewing history
 VideoHistories_AllDeleted_Fail = Failed to delete all viewing history
+VideoContentType.Video = Video
+VideoContentType.ShortVideo = Short video
+
 
 #### Community ####
 CommunityOpenAt = Opening date
