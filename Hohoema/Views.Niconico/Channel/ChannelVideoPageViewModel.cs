@@ -201,6 +201,10 @@ public sealed class ChannelVideoPageViewModel
         if (ChannelId != null)
         {
             await UpdateChannelInfo();
+
+            this.ObserveProperty(x => x.SelectedSortOption, false)
+                .Subscribe(_ => ResetList())
+                .AddTo(_navigationDisposables);
         }
 
         await base.OnNavigatedToAsync(parameters);
@@ -227,10 +231,6 @@ public sealed class ChannelVideoPageViewModel
 
             ChannelVideoPlaylist = new ChannelVideoPlaylist(channelId, new PlaylistId() { Id = channelId, Origin = PlaylistItemsSourceOrigin.ChannelVideos }, "", ChannelProvider);
             SelectedSortOption = ChannelVideoPlaylist.DefaultSortOption;
-
-            this.ObserveProperty(x => x.SelectedSortOption)
-                .Subscribe(_ => ResetList())
-                .AddTo(_navigationDisposables);
         }
         catch
         {

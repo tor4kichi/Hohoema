@@ -24,7 +24,7 @@
     >
 
   <Grid>
-    <videolistPage:VideoItemsListView ItemsSource="{x:Bind _vm.ItemsView}"
+    <videolistPage:VideoItemsListView ItemsSource="{x:Bind _vm.ItemsView, Mode=OneWay}"
                                       ItemCommand="{Binding VideoPlayWithQueueCommand}"
                                       RefreshCommand="{Binding ResetListCommand}"
                                       PlaylistPassToFlyout="{Binding ChannelVideoPlaylist}"
