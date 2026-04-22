@@ -82,75 +82,7 @@ public sealed class NiconicoSession : ObservableObject
 
         _messenger = messenger;
 
-        // Singleton前提でイベント購読
-        NetworkInformation.NetworkStatusChanged += OnNetworkStatusChanged;
-        CoreApplication.Suspending += CoreApplication_Suspending;
-        CoreApplication.Resuming += CoreApplication_Resuming;
     }
-
-    AsyncLock _lock = new AsyncLock();
-    bool _isCheckCompleted = false;
-    private async void OnNetworkStatusChanged(object sender)
-    {
-        // Note: Resumingのタイミングで NetworkInformation.NetworkStatusChanged += OnNetworkStatusChanged; をやるとExcpetion HRESULT: 
-        if (skipOnceNetworkStatusChange)
-        {
-            skipOnceNetworkStatusChange = false;
-            _isCheckCompleted = false;
-            return;
-        }
-
-        using (var release = await _lock.LockAsync())
-        {
-            if (InternetConnection.IsInternet() == false)
-            {
-                _isCheckCompleted = false;
-            }
-
-            if (_isCheckCompleted) { return; }
-            await ConnectionRetryUtil.TaskWithRetry(() => _dispatcherQueue.EnqueueAsync(async () => 
-            {
-                if (InternetConnection.IsInternet())
-                {
-                    HohoemaAppServiceLevel lastStatus = ServiceStatus;
-
-                    if (lastStatus == HohoemaAppServiceLevel.LoggedIn)
-                    {
-                        NiconicoSessionStatus status = await CheckSignedInStatus();
-
-                        if (status == NiconicoSessionStatus.Failed)
-                        {
-                            status = await SignInWithPrimaryAccount();
-                        }
-
-                        if (status == NiconicoSessionStatus.Failed)
-                        {
-                            throw new Exception();
-                        }
-                    }
-
-                    _isCheckCompleted = true;
-                }
-                else
-                {
-                    throw new Exception();
-                }
-            }), retryCount: 10, retryInterval: 3000);
-        }
-    }
-
-    private bool skipOnceNetworkStatusChange;
-
-    private void CoreApplication_Resuming(object sender, object e)
-    {
-        skipOnceNetworkStatusChange = true;
-    }
-
-    private void CoreApplication_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
-    {
-        skipOnceNetworkStatusChange = true;
-    }
-
 
     public const string HohoemaUserAgent = "https://github.com/tor4kichi/Hohoema";
     private readonly IMessenger _messenger;
