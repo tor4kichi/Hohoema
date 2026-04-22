@@ -7,10 +7,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Hohoema.Models.Niconico.Channel;
 
-public sealed class ChannelVideoPlaylist : IUnlimitedPlaylist
+public sealed partial class ChannelVideoPlaylist : ObservableObject, IUnlimitedPlaylist
 {
     private readonly ChannelId _channelId;
     private readonly ChannelProvider _channelProvider;
@@ -19,10 +20,12 @@ public sealed class ChannelVideoPlaylist : IUnlimitedPlaylist
     {
         _channelId = channelId;
         PlaylistId = playlistId;
-        Name = name;
+        _name = name;
         _channelProvider = channelProvider;
     }
-    public string Name { get; }
+
+    [ObservableProperty]
+    string _name;
 
     public PlaylistId PlaylistId { get; }
 
@@ -54,6 +57,7 @@ public sealed class ChannelVideoPlaylist : IUnlimitedPlaylist
     {
         ChannelVideoPlaylistSortOption sort = sortOption as ChannelVideoPlaylistSortOption;
         ChannelVideoResponse items = await _channelProvider.GetChannelVideo(_channelId, pageIndex, sort.SortKey, sort.SortOrder);
+        Name = items.Data.Title;
 
         Guard.IsTrue(items.IsSuccess, nameof(items.IsSuccess));
 

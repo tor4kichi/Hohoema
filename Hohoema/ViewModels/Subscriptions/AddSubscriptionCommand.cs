@@ -212,8 +212,8 @@ public sealed class AddSubscriptionCommand : CommandBase
 
     async Task<string> ResolveChannelName(string id)
     {
-        var info = await _channelProvider.GetChannelInfo(id);
-        return info.Name;
+        var name = await _channelProvider.GetChannelNameWithCacheAsync(id);
+        return name;
     }
 
     async Task<string> ResolveSeriesName(string id)

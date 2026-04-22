@@ -236,7 +236,7 @@ public abstract partial class HohoemaListingPageViewModelBase<ITEM_VM> : Hohoema
 
             ItemsView = new AdvancedCollectionView(items);
             OnPropertyChanged(nameof(ItemsView));
-
+            
             PostResetList();
         }
         catch (Exception e) when (e is not OperationCanceledException)

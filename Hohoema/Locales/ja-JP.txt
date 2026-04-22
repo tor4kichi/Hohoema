@@ -715,6 +715,7 @@ MylistVideoCountDesc = {0}件の動画
 FollowingsActivityDisplayOptions = 新着表示対象
 ActivityType.All = すべて
 ActivityType.Video = 動画投稿
+ActivityType.ShortVideo = ショート動画投稿
 ActivityType.Live = 生放送開始
 ActivityType.Publish = コンテンツ投稿
 
@@ -1106,6 +1107,9 @@ VideoHistory_DeleteOne_Success = 視聴履歴を削除しました
 VideoHistory_DeleteOne_Fail = 視聴履歴の削除に失敗
 VideoHistories_AllDelete_Success = 視聴履歴を全件削除しました
 VideoHistories_AllDeleted_Fail = 視聴履歴の全件削除に失敗
+VideoContentType.Video = 動画
+VideoContentType.ShortVideo = ショート動画
+
 
 #### Community ####
 CommunityOpenAt = 開設日

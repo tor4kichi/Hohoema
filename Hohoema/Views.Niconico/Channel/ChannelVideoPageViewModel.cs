@@ -201,6 +201,10 @@ public sealed class ChannelVideoPageViewModel
         if (ChannelId != null)
         {
             await UpdateChannelInfo();
+
+            this.ObserveProperty(x => x.SelectedSortOption, false)
+                .Subscribe(_ => ResetList())
+                .AddTo(_navigationDisposables);
         }
 
         await base.OnNavigatedToAsync(parameters);
@@ -209,25 +213,24 @@ public sealed class ChannelVideoPageViewModel
 
     async Task UpdateChannelInfo()
     {
+        if (ChannelId == null) { return; }
+
         try
         {
-            var channelInfo = await ChannelProvider.GetChannelInfo(ChannelId.Value);
+            var channelId = ChannelId.Value;
+            //var channelInfo = await ChannelProvider.GetChannelInfo(ChannelId.Value);
 
-            ChannelId = channelInfo.ChannelId;
-            ChannelName = channelInfo.Name;
-            ChannelScreenName = channelInfo.ScreenName;
-            ChannelOpenTime = channelInfo.ParseOpenTime();
-            ChannelUpdateTime = channelInfo.ParseUpdateTime();
-            ChannelInfo = new ChannelInfo() { ChannelId = channelInfo.ChannelId, Name = ChannelName };
+            //ChannelId = channelInfo.ChannelId;
+            //ChannelName = channelInfo.Name;
+            //ChannelScreenName = channelInfo.ScreenName;
+            //ChannelOpenTime = channelInfo.ParseOpenTime();
+            //ChannelUpdateTime = channelInfo.ParseUpdateTime();
+            //ChannelInfo = new ChannelInfo() { ChannelId = channelInfo.ChannelId, Name = ChannelName };
 
             await UpdateFollowChannelAsync(ChannelInfo);
 
-            ChannelVideoPlaylist = new ChannelVideoPlaylist(channelInfo.ChannelId, new PlaylistId() { Id = channelInfo.ChannelId, Origin = PlaylistItemsSourceOrigin.ChannelVideos }, channelInfo.Name, ChannelProvider);
+            ChannelVideoPlaylist = new ChannelVideoPlaylist(channelId, new PlaylistId() { Id = channelId, Origin = PlaylistItemsSourceOrigin.ChannelVideos }, "", ChannelProvider);
             SelectedSortOption = ChannelVideoPlaylist.DefaultSortOption;
-
-            this.ObserveProperty(x => x.SelectedSortOption)
-                .Subscribe(_ => ResetList())
-                .AddTo(_navigationDisposables);
         }
         catch
         {
@@ -314,8 +317,9 @@ public class ChannelVideoLoadingSource : IIncrementalSource<ChannelVideoListItem
     {
         if (_IsEndPage) { return Enumerable.Empty<ChannelVideoListItemViewModel>(); }
 
-        var res = await ChannelProvider.GetChannelVideo(ChannelId, pageIndex, _sortOption.SortKey, _sortOption.SortOrder);
 
+        var res = await ChannelProvider.GetChannelVideo(ChannelId, pageIndex, _sortOption.SortKey, _sortOption.SortOrder);
+        _channelVideoPlaylist.Name = res.Data.Title;
         ct.ThrowIfCancellationRequested();
 
         _IsEndPage = res != null ? (res.Data.Videos.Length < OneTimeLoadCount) : true;

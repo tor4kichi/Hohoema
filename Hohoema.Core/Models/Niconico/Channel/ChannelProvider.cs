@@ -24,23 +24,16 @@ public sealed class ChannelProvider : ProviderBase
         ChannelEntity cached = _channelNameCacheRepository.FindById(strChannelId);
         if (cached == null)
         {
-            ChannelInfo info = await GetChannelInfo(channelId);
-            cached = new ChannelEntity() { ChannelId = strChannelId, ScreenName = info.ScreenName };
+            var info = await _niconicoSession.ToolkitContext.Channel.GetChannelAdmissionAsync(channelId);
+            cached = new ChannelEntity() { ChannelId = strChannelId, ScreenName = info.Data.Configuration.Basic.ScreenName };
             _ = _channelNameCacheRepository.UpdateItem(cached);
         }
 
         return cached.ScreenName;
     }
 
-
     public Task<ChannelVideoResponse> GetChannelVideo(string channelIdOrScreenName, int page, ChannelVideoSortKey? sortKey = null, ChannelVideoSortOrder? sortOrder = null)
     {
         return _niconicoSession.ToolkitContext.Channel.GetChannelVideoAsync(channelIdOrScreenName, page, sortKey, sortOrder);
-    }
-
-    public Task<ChannelInfo> GetChannelInfo(ChannelId channelId)
-    {
-        throw new NotImplementedException("");
-        //return _niconicoSession.ToolkitContext.Channel.GetChannelInfoAsync(channelId);
     }
 }

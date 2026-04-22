@@ -30,7 +30,12 @@
               <controls:AppTitleBar Title="{x:Bind _vm.Title, Mode=OneWay}" />
             </CommandBar.Content>
             <CommandBar.PrimaryCommands>
-
+              <AppBarElementContainer VerticalContentAlignment="Center">
+                <ComboBox ItemsSource="{x:Bind _vm.VideoContentTypeItems}"
+                          SelectedItem="{x:Bind _vm.SelectedVideoContentType, Mode=OneWay}"
+                          ItemTemplate="{StaticResource LocalizedTextItemTemplate}"
+                          SelectionChanged="ComboBox_SelectionChanged" />
+              </AppBarElementContainer>
               <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
                 <i:Interaction.Behaviors>
                   <core:EventTriggerBehavior EventName="Click">
@@ -77,12 +82,10 @@
                 MylistCount="{x:Bind MylistCount, Converter={StaticResource ToUserFriendlyNumber}}"
               />
 
-            <TextBlock HorizontalAlignment="Right" VerticalAlignment="Top" Foreground="#77777777"
-                       Text="{x:Bind LastWatchedAt, Converter={StaticResource DateTimeToString}}"
-                       />
-            <TextBlock HorizontalAlignment="Right" VerticalAlignment="Bottom" FontSize="24" Foreground="#77777777"
-                       Text="{x:Bind UserViewCount}" 
-                       />
+            <TextBlock HorizontalAlignment="Right"
+                       VerticalAlignment="Top"
+                       Foreground="{ThemeResource SystemBaseLowColor}"
+                       Text="{x:Bind LastWatchedAt, Converter={StaticResource DateTimeToString}}" />
           </Grid>
         </DataTemplate>
       </videolistPage:VideoItemsListView.ItemTemplate>

@@ -16,8 +16,8 @@ public sealed class ChannelVideoPlaylistFactory : IPlaylistFactory
 
     public async ValueTask<IPlaylist> Create(PlaylistId playlistId)
     {
-        var info = await _channelProvider.GetChannelInfo(playlistId.Id);
-        return new ChannelVideoPlaylist(info.ChannelId, playlistId, info.Name, _channelProvider);
+        var name = await _channelProvider.GetChannelNameWithCacheAsync(playlistId.Id);
+        return new ChannelVideoPlaylist(playlistId.Id, playlistId, name, _channelProvider);
     }
 
     public IPlaylistSortOption DeserializeSortOptions(string serializedSortOptions)

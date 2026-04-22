@@ -60,6 +60,7 @@ public sealed partial class FollowingsActivityPageViewModel
     {
         ActivityType.Publish,
         ActivityType.Video,
+        ActivityType.ShortVideo,
         ActivityType.Live,
         ActivityType.All,
     }
@@ -448,6 +449,10 @@ public class LoginUserFollowingsActivityTimelineSource : IIncrementalSource<IFol
                 else if (item.Content.Type == Content.ContentType_Video)
                 {
                     return new FollowingsActivityVideoTimeline(item) as IFollowingsActivityItem;
+                }
+                else if (item.Content.Type == "shortVideo")
+                {
+                    return new FollowingsActivityVideoTimeline(item);
                 }
                 else
                 {

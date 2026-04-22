@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.Messaging.Messages;
 using Hohoema.Helpers;
 using Hohoema.Infra;
 using Hohoema.Models.Application;
+using Microsoft.Toolkit.Uwp;
 using NiconicoToolkit.Account;
 using NiconicoToolkit.User;
 using System;
@@ -81,61 +82,7 @@ public sealed class NiconicoSession : ObservableObject
 
         _messenger = messenger;
 
-        // Singleton前提でイベント購読
-        NetworkInformation.NetworkStatusChanged += OnNetworkStatusChanged;
-        CoreApplication.Suspending += CoreApplication_Suspending;
-        CoreApplication.Resuming += CoreApplication_Resuming;
     }
-
-
-    private void OnNetworkStatusChanged(object sender)
-    {
-        // Note: Resumingのタイミングで NetworkInformation.NetworkStatusChanged += OnNetworkStatusChanged; をやるとExcpetion HRESULT: 
-
-        if (skipOnceNetworkStatusChange)
-        {
-            skipOnceNetworkStatusChange = false;
-            return;
-        }
-
-        if (Helpers.InternetConnection.IsInternet())
-        {
-            HohoemaAppServiceLevel lastStatus = ServiceStatus;
-            _ = _dispatcherQueue.TryEnqueue(async () =>
-            {
-                if (lastStatus == HohoemaAppServiceLevel.LoggedIn)
-                {
-                    NiconicoSessionStatus status = await CheckSignedInStatus();
-
-                    if (status == NiconicoSessionStatus.Failed)
-                    {
-                        status = await SignInWithPrimaryAccount();
-                    }
-                }
-                else
-                {
-                    // ログインセッションが時間切れしていた場合、自動でログイン状態に復帰する
-                    //                        await SignInWithPrimaryAccount();
-                }
-            });
-        }
-        else
-        {
-        }
-    }
-
-    private bool skipOnceNetworkStatusChange;
-
-    private void CoreApplication_Resuming(object sender, object e)
-    {
-        skipOnceNetworkStatusChange = true;
-    }
-
-    private void CoreApplication_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
-    {
-        skipOnceNetworkStatusChange = true;
-    }
-
 
     public const string HohoemaUserAgent = "https://github.com/tor4kichi/Hohoema";
     private readonly IMessenger _messenger;

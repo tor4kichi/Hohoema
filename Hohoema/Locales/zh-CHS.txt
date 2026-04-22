@@ -715,6 +715,7 @@ MylistVideoCountDesc = {0}个视频
 FollowingsActivityDisplayOptions = 新到货展示目标
 ActivityType.All = 全部
 ActivityType.Video = 视频发布
+ActivityType.ShortVideo = 短视频发布
 ActivityType.Live = 直播开始
 ActivityType.Publish = 内容帖子
 
@@ -1106,6 +1107,9 @@ VideoHistory_DeleteOne_Success = 删除观看记录
 VideoHistory_DeleteOne_Fail = 无法删除观看记录
 VideoHistories_AllDelete_Success = 删除所有观看记录
 VideoHistories_AllDeleted_Fail = 无法删除所有观看记录
+VideoContentType.Video = 电影
+VideoContentType.ShortVideo = 短视频
+
 
 #### Community ####
 CommunityOpenAt = 成立日期

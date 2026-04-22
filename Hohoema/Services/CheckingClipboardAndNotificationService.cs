@@ -25,7 +25,7 @@ public sealed class CheckingClipboardAndNotificationService : IDisposable
 
     private async void CoreWindow_Activated(Windows.UI.Core.CoreWindow sender, Windows.UI.Core.WindowActivatedEventArgs args)
     {
-        if (args.WindowActivationState == CoreWindowActivationState.PointerActivated)
+        if (args.WindowActivationState == CoreWindowActivationState.CodeActivated)
         {
             NiconicoId? maybeId = await ClipboardHelper.CheckClipboard();
             if (maybeId is not null and NiconicoId id)
