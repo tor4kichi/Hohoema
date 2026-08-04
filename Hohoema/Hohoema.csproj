@@ -32,6 +32,7 @@
     <AppxPackageDir>D:\tor4k\Documents\Hohoema\Packages\</AppxPackageDir>
     <Use64BitCompiler>True</Use64BitCompiler>
     <PackageCertificateThumbprint>005C20F076DE172C51229AB658956258D5024CFB</PackageCertificateThumbprint>
+    <AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
