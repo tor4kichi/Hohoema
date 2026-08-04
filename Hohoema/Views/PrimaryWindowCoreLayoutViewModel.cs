@@ -29,6 +29,7 @@ using Microsoft.Extensions.Logging;
 using NiconicoToolkit;
 using NiconicoToolkit.Live;
 using NiconicoToolkit.Live.Notify;
+using R3;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
@@ -190,10 +191,32 @@ public partial class PrimaryWindowCoreLayoutViewModel : ObservableObject, IRecip
             new NavigateAwareMenuItemViewModel(HohoemaPageType.CacheManagement.Translate(), HohoemaPageType.CacheManagement),
         };
 
-        NiconicoSession.LogIn += NiconicoSession_LogIn;
-        NiconicoSession.LogOut += NiconicoSession_LogOut;
-        NiconicoSession.LogInFailed += NiconicoSession_LogInFailed;
+        DisposableBuilder db = new();
+
+        NiconicoSession.ObservePropertyChanged(x => x.IsLoggedIn)
+            .SubscribeAwait(async (x, ct) => 
+            {
+                IsLoggedIn = x;
+                if (IsLoggedIn && await NiconicoSession.GetLoginUserDetailsAsync() is { } userInfo)
+                {
+                    LoginUserName = userInfo.UserName;
+                    LoginUserIcon = userInfo.UserIconUrl;
+                }
+                else
+                {
+                    LoginUserName = null;
+                    LoginUserIcon = null;
+                }
+            })
+            .AddTo(ref db);
+
+        _disposable = db.Build();
+        //NiconicoSession.LogIn += NiconicoSession_LogIn;
+        //NiconicoSession.LogOut += NiconicoSession_LogOut;
+        //NiconicoSession.LogInFailed += NiconicoSession_LogInFailed;
     }
+
+    IDisposable _disposable;
 
     private void NiconicoSession_LogInFailed(object sender, NiconicoSessionLoginErrorEventArgs e)
     {

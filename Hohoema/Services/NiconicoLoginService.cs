@@ -5,14 +5,21 @@ using Hohoema.Helpers;
 using Hohoema.Models.Niconico;
 using Hohoema.Models.Notification;
 using Hohoema.Views.Dialogs;
+using Hohoema.Views.Niconico;
 using I18NPortable;
+using NiconicoToolkit;
 using NiconicoToolkit.Account;
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
+using Windows.Web.Http;
+using Windows.Web.Http.Filters;
+using Windows.Web.Http.Headers;
 using NiconicoSession = Hohoema.Models.Niconico.NiconicoSession;
 
 namespace Hohoema.Services.Niconico.Account;
+
 
 public sealed class NiconicoLoginService : IDisposable,
     IRecipient<NiconicoSessionLoginRequireTwoFactorAsyncRequestMessage>
@@ -34,6 +41,7 @@ public sealed class NiconicoLoginService : IDisposable,
         // 二要素認証を求められるケースに対応する
         // 起動後の自動ログイン時に二要素認証を要求されることもある
         _messenger.Register<NiconicoSessionLoginRequireTwoFactorAsyncRequestMessage>(this);
+        _loginDialog = new();
     }
 
 
@@ -68,103 +76,78 @@ public sealed class NiconicoLoginService : IDisposable,
             }
         }));
 
+    WebViewAccountLoginDialog _loginDialog;
+
+    public async Task<NiconicoSessionStatus> TryLoginAsync()
+    {
+        await SyncToWindowsHttpClientAsync(_loginDialog.GetWebView2(), new Uri(NiconicoUrls.NicoHomePageUrl), NiconicoSession.ToolkitContext.HttpClient);
+        return await NiconicoSession.CheckSignedInStatus();
+    }
+
     private async Task StartLoginSequence()
     {
-        var dialog = new Dialogs.NiconicoLoginDialog();
+        var webView = _loginDialog.GetWebView2();
+        webView.CoreWebView2.CookieManager.DeleteAllCookies();
+        NiconicoSession.ToolkitContext.HttpClient.DefaultRequestHeaders.Cookie.Clear();
+        var result = await _loginDialog.ShowAsync();
 
+        await SyncToWindowsHttpClientAsync(webView, new Uri(NiconicoUrls.NicoHomePageUrl), NiconicoSession.ToolkitContext.HttpClient);
         var currentStatus = await NiconicoSession.CheckSignedInStatus();
-        if (currentStatus == NiconicoSessionStatus.ServiceUnavailable)
+        Debug.WriteLine(currentStatus);
+    }
+
+    public async Task SyncToWindowsHttpClientAsync(Microsoft.UI.Xaml.Controls.WebView2 webView, Uri targetUri, HttpClient httpClient)
+    {
+        var filter = new HttpBaseProtocolFilter();
+        var winCookieManager = filter.CookieManager;        
+
+        await webView.EnsureCoreWebView2Async();
+        var webViewCookies = await webView.CoreWebView2.CookieManager.GetCookiesAsync(targetUri.AbsoluteUri);
+
+        httpClient.DefaultRequestHeaders.Cookie.Clear();
+        foreach (var wvCookie in webViewCookies)
         {
-            dialog.WarningText = "UnavailableNiconicoService".Translate();
+            var winCookie = new HttpCookiePairHeaderValue(wvCookie.Name, wvCookie.Value);
 
-            NotificationService.ShowLiteInAppNotification("UnavailableNiconicoService".Translate(), DisplayDuration.MoreAttention, Windows.UI.Xaml.Controls.Symbol.Important);
-        }
-        
-        if (await AccountManager.GetPrimaryAccount() is { } account)
-        {
-            dialog.Mail = account.MailOrTel;
-            dialog.Password = "";
+            Debug.WriteLine(winCookie.ToString());
 
-            dialog.IsRememberPassword = true;
-        }
-
-        bool isLoginSuccess = false;
-        bool isCanceled = false;
-        while (!isLoginSuccess)
-        {
-            if (await dialog.ShowAsync() is not Windows.UI.Xaml.Controls.ContentDialogResult.Primary)
-            {
-                isCanceled = true;
-                break;
-            }
-
-            dialog.WarningText = string.Empty;
-
-            var twoFactorAuthLoginCts = new TaskCompletionSource<long>();
-            void NiconicoSession_LogInFailed(object sender, NiconicoSessionLoginErrorEventArgs e)
-            {
-                twoFactorAuthLoginCts?.SetResult(0);
-            }
-
-            void NiconicoSession_LogIn(object sender, NiconicoSessionLoginEventArgs e)
-            {
-                twoFactorAuthLoginCts?.SetResult(0);
-            }
-
-            NiconicoSession.LogIn += NiconicoSession_LogIn;
-            NiconicoSession.LogInFailed += NiconicoSession_LogInFailed;
-            
-            try
-            {
-                var loginResult = await NiconicoSession.SignIn(dialog.Mail, dialog.Password, true);
-                if (loginResult == NiconicoSessionStatus.RequireTwoFactorAuth)
-                {
-                    await twoFactorAuthLoginCts.Task;
-                    loginResult = await NiconicoSession.CheckSignedInStatus();
-                }
-                else
-                {
-                    twoFactorAuthLoginCts.TrySetCanceled();
-                }
-
-                if (loginResult == NiconicoSessionStatus.ServiceUnavailable)
-                {
-                    // サービス障害中
-                    // 何か通知を出す？
-                    NotificationService.ShowLiteInAppNotification("UnavailableNiconicoService".Translate(), DisplayDuration.MoreAttention, Windows.UI.Xaml.Controls.Symbol.Important);
-                    break;
-                }
-                else if (loginResult == NiconicoSessionStatus.Failed)
-                {
-                    dialog.WarningText = "LoginFailed_WrongMailOrPassword".Translate();
-                }
-
-                isLoginSuccess = loginResult == NiconicoSessionStatus.Success;
-            }
-            finally
-            {
-                NiconicoSession.LogIn -= NiconicoSession_LogIn;
-                NiconicoSession.LogInFailed -= NiconicoSession_LogInFailed;
-            }
-        }
-
-        // ログインを選択していた場合にのみアカウント情報を更新する
-        // （キャンセル時は影響を発生させない）
-        if (!isCanceled)
-        {
-            if (await AccountManager.GetPrimaryAccount() is { } primaryAccount)
-            {
-                AccountManager.RemoveAccount(primaryAccount.MailOrTel);
-            }
-
-            AccountManager.SetPrimaryAccountId(dialog.Mail);
-            if (dialog.IsRememberPassword)
-            {
-                await AccountManager.AddOrUpdateAccount(dialog.Mail, dialog.Password);
-            }
+            // Windows.Web.Http の CookieManager に設定
+            //winCookieManager.SetCookie(winCookie);            
+            httpClient.DefaultRequestHeaders.Cookie.Add(winCookie);
         }
     }
 
+    public async Task<HttpClient> SyncToWindowsHttpClientAsync(Microsoft.UI.Xaml.Controls.WebView2 webView, Uri targetUri)
+    {
+        var filter = new HttpBaseProtocolFilter();
+        var winCookieManager = filter.CookieManager;
+
+        await webView.EnsureCoreWebView2Async();
+        var webViewCookies = await webView.CoreWebView2.CookieManager.GetCookiesAsync(targetUri.AbsoluteUri);
+
+        //httpClient.DefaultRequestHeaders.Cookie.Clear();
+        foreach (var wvCookie in webViewCookies)
+        {
+            var cookie = new HttpCookiePairHeaderValue(wvCookie.Name, wvCookie.Value);
+
+            Debug.WriteLine(cookie.ToString());
+
+            // Windows.Web.Http の CookieManager に設定
+            //winCookieManager.SetCookie(winCookie);            
+            //httpClient.DefaultRequestHeaders.Cookie.Add(cookie);
+
+            var winCookie = new HttpCookie(wvCookie.Name, wvCookie.Domain, wvCookie.Path)
+            {
+                Value = wvCookie.Value,
+                HttpOnly = wvCookie.IsHttpOnly,
+                Secure = wvCookie.IsSecure
+            };
+
+            // Windows.Web.Http の CookieManager に設定
+            winCookieManager.SetCookie(winCookie);
+        }
+        return new HttpClient(filter);
+    }
 
     async Task<NiconicoSessionLoginRequireTwoFactorAuthResponse> ShowTwoFactorNumberInputDialogAsync(Uri uri)
     {

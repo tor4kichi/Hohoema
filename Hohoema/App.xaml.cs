@@ -860,12 +860,8 @@ public sealed partial class App : Application
         // ログイン
         try
         {
-            NiconicoSession niconicoSession = Container.Resolve<NiconicoSession>();
-            if (AccountManager.HasPrimaryAccount())
-            {
-                // サインイン処理の待ちを初期化内でしないことで初期画面表示を早める
-                await niconicoSession.SignInWithPrimaryAccount();
-            }
+            var loginService = Container.Resolve<NiconicoLoginService>();
+            await loginService.TryLoginAsync();
         }
         catch
         {

@@ -209,6 +209,9 @@
     <Compile Include="Views.Hohoema\Subscription\EditSubscriptionGroupDialog.xaml.cs">
       <DependentUpon>EditSubscriptionGroupDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views.Niconico\WebViewAccountLoginDialog.xaml.cs">
+      <DependentUpon>WebViewAccountLoginDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views.Player\LivePlayerPageViewModel_CommentSubscribe.cs" />
     <Compile Include="Views\Controls\VideoList\VideoCacheListItem.cs" />
     <Compile Include="Views\Converters\SizeToRectConverter.cs" />
@@ -871,6 +874,10 @@
     <Page Include="Views.Hohoema\LocalMylist\LocalPlaylistPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views.Niconico\WebViewAccountLoginDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views.Player\LegacyVideoPlayerPage.xaml">
       <Generator>MSBuild:Compile</Generator>
