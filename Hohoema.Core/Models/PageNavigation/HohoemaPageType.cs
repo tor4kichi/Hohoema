@@ -5,6 +5,7 @@ namespace Hohoema.Models.PageNavigation;
 
 public enum HohoemaPageType
 {
+    [Obsolete]
     RankingCategoryList,
     RankingCategory,
     UserMylist,

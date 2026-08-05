@@ -28,7 +28,8 @@
   xmlns:service1="using:Hohoema.Models.Notification" 
   xmlns:animations="using:Microsoft.Toolkit.Uwp.UI.Animations" 
   xmlns:uwpBehaviour="using:Microsoft.Toolkit.Uwp.UI.Behaviors"
-  x:Name="UserControlRoot"
+             xmlns:vm="using:Hohoema.ViewModels"
+             x:Name="UserControlRoot"
   mc:Ignorable="d"
   d:DesignHeight="300"
   d:DesignWidth="400"
@@ -342,6 +343,22 @@
                               Command="{Binding MylistPageOpenCommand}"
                               CommandParameter="OwnerMylistManage"
                               />
+            </MenuFlyout>
+          </muxc:NavigationViewItem.ContextFlyout>
+
+        </muxc:NavigationViewItem>
+      </DataTemplate>
+
+      <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=Hohoema.ViewModels.RankingGenreItemsSubItemViewModel, Converter={StaticResource StringToType}}">
+        <muxc:NavigationViewItem MenuItemsSource="{Binding GenreItems}"
+                                 Icon="Flag">
+          <muxc:NavigationViewItem.Content>
+            <TextBlock Text="{Binding Label}" />
+          </muxc:NavigationViewItem.Content>
+
+          <muxc:NavigationViewItem.ContextFlyout>
+            <MenuFlyout>
+              
             </MenuFlyout>
           </muxc:NavigationViewItem.ContextFlyout>
 

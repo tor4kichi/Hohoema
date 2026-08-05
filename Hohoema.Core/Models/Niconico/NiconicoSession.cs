@@ -95,9 +95,9 @@ public sealed class NiconicoSession : ObservableObject
     // Logout 
     // LoginError exception, またはエラー理由のテキスト
 
-    public event EventHandler<NiconicoSessionLoginEventArgs>? LogIn;
-    public event EventHandler? LogOut;
-    public event EventHandler<NiconicoSessionLoginErrorEventArgs>? LogInFailed;
+    //public event EventHandler<NiconicoSessionLoginEventArgs>? LogIn;
+    //public event EventHandler? LogOut;
+    //public event EventHandler<NiconicoSessionLoginErrorEventArgs>? LogInFailed;
 
 
     // ServiceStatusとIsLoggedInは別々に管理する
@@ -200,20 +200,6 @@ public sealed class NiconicoSession : ObservableObject
             }
         }
         catch { return null; }
-    }
-
-    private void HandleLoginError(Exception e)
-    {
-        UpdateServiceStatus();
-
-        LogInFailed?.Invoke(this, new NiconicoSessionLoginErrorEventArgs()
-        {
-            LoginFailedReason = InternetConnection.IsInternet()
-            ? LoginFailedReason.ServiceNotAvailable
-            : LoginFailedReason.OfflineNetwork
-            ,
-            Exception = e,
-        });
     }
 
 //    private async Task<UserDetailResponse> LoginAfterResolveUserDetailAction(NiconicoToolkit.NiconicoContext context)
@@ -388,16 +374,9 @@ public sealed class NiconicoSession : ObservableObject
             IsLoggedIn = false;
 
             UpdateServiceStatus();
-            try
+            if (Helpers.InternetConnection.IsInternet())
             {
-                if (Helpers.InternetConnection.IsInternet())
-                {
-                    result = await ToolkitContext.Account.SignOutAsync();
-                }
-            }
-            finally
-            {
-                LogOut?.Invoke(this, EventArgs.Empty);
+                result = await ToolkitContext.Account.SignOutAsync();
             }
         }
 

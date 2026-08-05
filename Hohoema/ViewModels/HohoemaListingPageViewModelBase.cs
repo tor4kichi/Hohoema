@@ -2,6 +2,7 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Hohoema.Helpers;
 using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Collections;
 using Microsoft.Toolkit.Uwp;
@@ -44,8 +45,10 @@ public abstract partial class HohoemaListingPageViewModelBase<ITEM_VM> : Hohoema
         List<ITEM_VM>? _dividedPresentItemsSource;
         int _firstItemsCount = 0;
 
+        AsyncLock _loadingLock = new();
         protected override async Task<IEnumerable<ITEM_VM>> LoadDataAsync(CancellationToken cancellationToken)
         {
+            using var _ = await _loadingLock.LockAsync();
             _timing++;
             if (_timing == 1)
             {

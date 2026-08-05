@@ -7,6 +7,7 @@ using Hohoema.Models.Niconico.Mylist;
 using Hohoema.Models.Niconico.Mylist.LoginUser;
 using Microsoft.Extensions.Logging;
 using NiconicoToolkit.Mylist;
+using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -20,6 +21,7 @@ namespace Hohoema.Services.Niconico;
 
 public class LoginUserOwnedMylistManager : ObservableObject
 {
+    IDisposable _disposable;
     public LoginUserOwnedMylistManager(
         ILoggerFactory loggerFactory,
         ILocalizeService localizeService,
@@ -38,43 +40,37 @@ public class LoginUserOwnedMylistManager : ObservableObject
         _mylists = new ObservableCollection<LoginUserMylistPlaylist>();
         Mylists = new ReadOnlyObservableCollection<LoginUserMylistPlaylist>(_mylists);
 
-        _niconicoSession.LogIn += async (_, e) =>
-        {
-            _loginUserMylistItemIdRepository.Clear();
-
-            try
+        _disposable = _niconicoSession.ObserveProperty(x => x.IsLoggedIn, false)            
+            .Subscribe(async isLoggedIn =>
             {
-                using (await _mylistSyncLock.LockAsync(default))
+                _loginUserMylistItemIdRepository.Clear();
+
+                if (!isLoggedIn)
                 {
                     IsLoginUserMylistReady = false;
-
-                    await SyncMylistGroups();
-
-                    IsLoginUserMylistReady = true;
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Login user mylist update failed.");
-            }
-        };
-
-        _niconicoSession.LogOut += async (_, e) =>
-        {
-            try
-            {
-                using (await _mylistSyncLock.LockAsync(default))
-                {
-                    IsLoginUserMylistReady = false;
-
+                    foreach (LoginUserMylistPlaylist item in _mylists)
+                    {
+                        RemoveHandleMylistItemChanged(item);
+                    }
                     _mylists.Clear();
+                    return; 
                 }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Logout user mylist update failed.");
-            }
-        };
+                try
+                {
+                    using (await _mylistSyncLock.LockAsync(default))
+                    {
+                        IsLoginUserMylistReady = false;
+
+                        await SyncMylistGroups();
+
+                        IsLoginUserMylistReady = true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Login user mylist update failed.");
+                }
+            });
     }
 
     private readonly AsyncLock _mylistSyncLock = new();

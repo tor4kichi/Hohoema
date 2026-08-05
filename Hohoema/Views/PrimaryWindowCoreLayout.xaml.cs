@@ -444,7 +444,6 @@ public sealed partial class PrimaryWindowCoreLayout : UserControl
 
     private readonly ImmutableHashSet<Type> PreventGoBackPageTypes = new Type[]
     {
-        typeof(RankingCategoryListPage),
         typeof(FollowManagePage),
     }.ToImmutableHashSet();
 
@@ -458,7 +457,7 @@ public sealed partial class PrimaryWindowCoreLayout : UserControl
     
 
 
-    static readonly Type FallbackPageType = typeof(RankingCategoryListPage);
+    static readonly Type FallbackPageType = typeof(RankingCategoryPage);
 
 
     static INavigationParameters MakeNavigationParameter(IEnumerable<KeyValuePair<string, string>> parameters)
