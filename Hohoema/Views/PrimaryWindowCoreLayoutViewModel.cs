@@ -186,7 +186,7 @@ public partial class PrimaryWindowCoreLayoutViewModel : ObservableObject, IRecip
             _pinsMenuSubItemViewModel,
             new SeparatorMenuItemViewModel(),
             _queueMenuItemViewModel,
-            new NavigateAwareMenuItemViewModel(HohoemaPageType.RankingCategoryList.Translate(), HohoemaPageType.RankingCategoryList),
+            new RankingGenreItemsSubItemViewModel(),
             _localMylistMenuSubItemViewModel,
             new SubscriptionMenuItemViewModel(_messenger, _subscriptionManager, _queuePlaylist, _notificationService),
             new NavigateAwareMenuItemViewModel(HohoemaPageType.CacheManagement.Translate(), HohoemaPageType.CacheManagement),
