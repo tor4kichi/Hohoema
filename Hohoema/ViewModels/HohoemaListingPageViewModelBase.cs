@@ -235,7 +235,7 @@ public abstract partial class HohoemaListingPageViewModelBase<ITEM_VM> : Hohoema
                 return;
             }
 
-            var items = new HohoemaIncrementalLoadingCollection(source, pageSize, BeginLoadingItems, onEndLoading: CompleteLoadingItems, OnLodingItemError);
+            var items = new HohoemaIncrementalLoadingCollection(source, pageSize, BeginLoadingItems, CompleteLoadingItems, OnLodingItemError);
 
             ItemsView = new AdvancedCollectionView(items);
             OnPropertyChanged(nameof(ItemsView));
@@ -276,9 +276,10 @@ public abstract partial class HohoemaListingPageViewModelBase<ITEM_VM> : Hohoema
         });
     }
 
-
+    IDisposable? _deferRefresh;
     private void BeginLoadingItems()
     {
+        _deferRefresh = ItemsView?.DeferRefresh();
         HasError = false;
         Error = null;
         NowLoading = true;
@@ -286,6 +287,8 @@ public abstract partial class HohoemaListingPageViewModelBase<ITEM_VM> : Hohoema
 
     private void CompleteLoadingItems()
     {
+        _deferRefresh?.Dispose();
+        _deferRefresh = null;
         NowLoading = false;
         LoadedItemsCount = ItemsView?.Count ?? 0;
         HasItem = LoadedItemsCount > 0 || (ItemsView?.HasMoreItems ?? false);

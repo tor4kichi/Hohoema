@@ -10,5 +10,19 @@ namespace Hohoema.Models.Niconico.Video;
 
 public class VideoRankingSettings : FlagsRepositoryBase
 {
-    
+    public VideoRankingSettings()
+    {
+
+    }
+
+
+    public void SetHiddenRankingGenreIds(List<string> genreIds)
+    {
+        Save(genreIds, "HiddenRankingGenreId");
+    }
+
+    public List<string> GetHiddenRankingGenreIds()
+    {
+        return Read<List<string>>([], "HiddenRankingGenreId");
+    }
 }
