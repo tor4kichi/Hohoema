@@ -195,8 +195,6 @@
     <Compile Include="Models\Niconico\Video\NicoVideoOwner.cs" />
     <Compile Include="Models\Niconico\Video\NicoVideoProvider.cs" />
     <Compile Include="Models\Niconico\Video\NicoVideoQuality.cs" />
-    <Compile Include="Models\Niconico\Video\Ranking\RankingGenreCache.cs" />
-    <Compile Include="Models\Niconico\Video\Ranking\RankingProvider.cs" />
     <Compile Include="Models\Niconico\Video\Series\ISeries.cs" />
     <Compile Include="Models\Niconico\Video\Series\SeriesProvider.cs" />
     <Compile Include="Models\Niconico\Video\VideoCacheSettings_Legacy.cs" />
@@ -351,7 +349,7 @@
       <Version>2.8.7</Version>
     </PackageReference>
     <PackageReference Include="NiconicoToolkit">
-      <Version>0.9.12</Version>
+      <Version>0.9.17</Version>
     </PackageReference>
     <PackageReference Include="ReactiveProperty">
       <Version>7.12.0</Version>
@@ -379,6 +377,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Models\Niconico\Video\Ranking\" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>

@@ -313,7 +313,6 @@ public sealed partial class App : Application
         viewLocator.RegisterForNavigation<Views.Pages.Niconico.User.UserInfoPage>();
         viewLocator.RegisterForNavigation<Views.Pages.Niconico.User.UserVideoPage>();
         viewLocator.RegisterForNavigation<Views.Pages.Niconico.Video.VideoInfomationPage>();
-        viewLocator.RegisterForNavigation<Views.Pages.Niconico.VideoRanking.RankingCategoryListPage>();
         viewLocator.RegisterForNavigation<Views.Pages.Niconico.VideoRanking.RankingCategoryPage>();
 
         viewLocator.RegisterForNavigation<Views.Player.LivePlayerPage>();

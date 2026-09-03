@@ -36,9 +36,9 @@
 
               <AppBarElementContainer VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" IsTabStop="False">
                 <ComboBox x:Name="GenreTagSelector"
-                            ItemsSource="{x:Bind _vm.PickedTags, Mode=OneWay}"
-                            SelectedItem="{x:Bind _vm.SelectedRankingTag.Value, Mode=TwoWay}"
-                            DisplayMemberPath="Label"
+                          ItemsSource="{x:Bind _vm.TrendTags, Mode=OneWay}"
+                          SelectedItem="{x:Bind _vm.SelectedRankingTag.Value, Mode=OneWay}"                          
+                          SelectionChanged="GenreTagSelector_SelectionChanged"
                           XYFocusRight="{x:Bind RankingTermSelector}"
                           VerticalAlignment="Stretch"
                           Margin="0 6"
@@ -128,10 +128,6 @@
                   HorizontalAlignment="Center"
                     />
 
-      <Button Content="ソース切り替えて再試行" Command="{x:Bind _vm.ToggleRankingItemsSourceCommand}"
-              HorizontalAlignment="Center"
-              />
-                
     </StackPanel>
 
     <StackPanel x:Name="PageLoadingErrorLayout" Visibility="Collapsed" Spacing="8" VerticalAlignment="Center" Margin="32">

@@ -21,6 +21,7 @@ using Hohoema.ViewModels.Navigation.Commands;
 using Hohoema.ViewModels.Niconico.Account;
 using Hohoema.ViewModels.Niconico.Live;
 using Hohoema.ViewModels.Niconico.Video;
+using Hohoema.ViewModels.Pages.Niconico.VideoRanking;
 using Hohoema.ViewModels.PrimaryWindowCoreLayout;
 using Hohoema.Views.Pages.Hohoema;
 using I18NPortable;
@@ -165,7 +166,7 @@ public partial class PrimaryWindowCoreLayoutViewModel : ObservableObject, IRecip
             _pinsMenuSubItemViewModel,
             new SeparatorMenuItemViewModel(),
             _queueMenuItemViewModel,
-            new NavigateAwareMenuItemViewModel(HohoemaPageType.RankingCategoryList.Translate(), HohoemaPageType.RankingCategoryList),
+            new RankingGenreItemsSubItemViewModel(),
             new NavigateAwareMenuItemViewModel(HohoemaPageType.FollowingsActivity.Translate(), HohoemaPageType.FollowingsActivity, new NavigationParameters("type=Video")),
             new SubscriptionMenuItemViewModel(_messenger, _subscriptionManager, _queuePlaylist, _notificationService),
             //new NavigateAwareMenuItemViewModel("WatchAfterMylist".Translate(), HohoemaPageType.Mylist, new NavigationParameters(("id", MylistId.WatchAfterMylistId.ToString()))),
@@ -185,7 +186,7 @@ public partial class PrimaryWindowCoreLayoutViewModel : ObservableObject, IRecip
             _pinsMenuSubItemViewModel,
             new SeparatorMenuItemViewModel(),
             _queueMenuItemViewModel,
-            new NavigateAwareMenuItemViewModel(HohoemaPageType.RankingCategoryList.Translate(), HohoemaPageType.RankingCategoryList),
+            new RankingGenreItemsSubItemViewModel(),
             _localMylistMenuSubItemViewModel,
             new SubscriptionMenuItemViewModel(_messenger, _subscriptionManager, _queuePlaylist, _notificationService),
             new NavigateAwareMenuItemViewModel(HohoemaPageType.CacheManagement.Translate(), HohoemaPageType.CacheManagement),
@@ -211,43 +212,9 @@ public partial class PrimaryWindowCoreLayoutViewModel : ObservableObject, IRecip
             .AddTo(ref db);
 
         _disposable = db.Build();
-        //NiconicoSession.LogIn += NiconicoSession_LogIn;
-        //NiconicoSession.LogOut += NiconicoSession_LogOut;
-        //NiconicoSession.LogInFailed += NiconicoSession_LogInFailed;
     }
 
     IDisposable _disposable;
-
-    private void NiconicoSession_LogInFailed(object sender, NiconicoSessionLoginErrorEventArgs e)
-    {
-        IsLoggedIn = false;
-        LoginUserName = null;
-        LoginUserIcon = null;
-
-        _notificationService.ShowLiteInAppNotification_Fail(e.LoginFailedReason.Translate(), Models.Notification.DisplayDuration.MoreAttention);
-    }
-
-    private void NiconicoSession_LogOut(object sender, EventArgs e)
-    {
-        IsLoggedIn = false;
-        LoginUserName = null;
-        LoginUserIcon = null;
-    }
-
-    private async void NiconicoSession_LogIn(object sender, NiconicoSessionLoginEventArgs e)
-    {
-        IsLoggedIn = true;
-        if (await NiconicoSession.GetLoginUserDetailsAsync() is { } userInfo)
-        {            
-            LoginUserName = userInfo.UserName;
-            LoginUserIcon = userInfo.UserIconUrl;
-        }
-        else
-        {
-            LoginUserName = null;
-            LoginUserIcon = null;
-        }
-    }
 
     [ObservableProperty]
     private bool _isLoggedIn;
@@ -363,6 +330,20 @@ public partial class PrimaryWindowCoreLayoutViewModel : ObservableObject, IRecip
     }
 
     #endregion
+}
+
+public sealed class RankingGenreItemsSubItemViewModel : HohoemaListingPageItemBase
+{
+    public List<NavigateAwareMenuItemViewModel> GenreItems { get; }
+
+    public RankingGenreItemsSubItemViewModel()
+    {
+        Label = HohoemaPageType.RankingCategoryList.Translate();
+        GenreItems = NiconicoToolkit.Ranking.Video.RankingGenreConstants.AllGenres
+            .Select(x => new NavigateAwareMenuItemViewModel(x.Name, HohoemaPageType.RankingCategory, 
+                new NavigationParameters().SetRankingGenre(x.Id)))
+            .ToList();
+    }
 }
 
 
@@ -910,7 +891,7 @@ public class LocalMylistItemViewModel : NavigateAwareMenuItemViewModel
 }
 
 
-public sealed class LogginUserLiveSummaryItemViewModel : HohoemaListingPageItemBase
+public sealed class LogginUserLiveSummaryItemViewModel : HohoemaListingPageItemBase, IDisposable
 {
     private readonly NiconicoSession _niconicoSession;
     private readonly ILogger _logger;
@@ -934,6 +915,12 @@ public sealed class LogginUserLiveSummaryItemViewModel : HohoemaListingPageItemB
     public ObservableCollection<LiveContentMenuItemViewModel> Items { get; }
     public OpenLiveContentCommand OpenLiveContentCommand { get; }
 
+    IDisposable _disposable;
+    protected override void OnDispose()
+    {
+        base.OnDispose();
+        _disposable.Dispose();
+    }
     public LogginUserLiveSummaryItemViewModel(NiconicoSession niconicoSession, ILogger logger, OpenLiveContentCommand openLiveContentCommand)
     {
         _niconicoSession = niconicoSession;
@@ -956,8 +943,21 @@ public sealed class LogginUserLiveSummaryItemViewModel : HohoemaListingPageItemB
             _timer.Stop();
         }
 
-        _niconicoSession.LogIn += _niconicoSession_LogIn;
-        _niconicoSession.LogOut += _niconicoSession_LogOut;
+        _disposable = _niconicoSession.ObservePropertyChanged(x => x.IsLoggedIn)
+            .Subscribe(this, (isLoggedIn, s) =>
+            {
+                if (isLoggedIn)
+                {
+                    s._timer.Interval = s._niconicoSession.IsPremiumAccount ? TimeSpan.FromMinutes(1) : TimeSpan.FromMinutes(3);
+                    s._timer.Start();
+                    s.UpdateNotify();
+                }
+                else
+                {
+                    s._timer.Stop();
+                }
+                RefreshItems();
+            });
 
         App.Current.Suspending += Current_Suspending;
         App.Current.Resuming += Current_Resuming;
@@ -1009,18 +1009,6 @@ public sealed class LogginUserLiveSummaryItemViewModel : HohoemaListingPageItemB
         {
             _logger.ZLogError(ex.ToString());
         }
-    }
-
-    private void _niconicoSession_LogOut(object sender, EventArgs e)
-    {
-        _timer.Stop();
-    }
-
-    private void _niconicoSession_LogIn(object sender, NiconicoSessionLoginEventArgs e)
-    {
-        _timer.Interval = e.IsPremium ? TimeSpan.FromMinutes(1) : TimeSpan.FromMinutes(3);
-        _timer.Start();
-        UpdateNotify();
     }
 
     DateTime _nextRefreshAvairableAt = DateTime.Now;

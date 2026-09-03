@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Hohoema.ViewModels.Pages.Niconico.VideoRanking;
+using System.Linq;
 using Windows.UI.Xaml.Controls;
 
 // 空白ページの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234238 を参照してください
@@ -20,4 +21,18 @@ public sealed partial class RankingCategoryPage : Page
     }
 
     private readonly RankingCategoryPageViewModel _vm;
+
+    private void GenreTagSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        var comboBox = (ComboBox)sender;
+        if (comboBox.IsLoaded is false) { return; }
+
+        if (e.AddedItems.FirstOrDefault() is string tag)
+        {
+            if (_vm.SelectedRankingTag.Value != tag)
+            {
+                _vm.SelectedRankingTag.Value = tag;
+            }
+        }
+    }
 }

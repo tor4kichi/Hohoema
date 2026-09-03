@@ -210,6 +210,10 @@
     <Compile Include="Views.Hohoema\Subscription\EditSubscriptionGroupDialog.xaml.cs">
       <DependentUpon>EditSubscriptionGroupDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views.Niconico\VideoRanking\RankingCategoryPage.xaml.cs">
+      <DependentUpon>RankingCategoryPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views.Niconico\VideoRanking\RankingCategoryPageViewModel.cs" />
     <Compile Include="Views.Niconico\WebViewAccountLoginDialog.xaml.cs">
       <DependentUpon>WebViewAccountLoginDialog.xaml</DependentUpon>
     </Compile>
@@ -324,8 +328,6 @@
     <Compile Include="ViewModels\Niconico.Video\Commands\WatchHistoryRemoveAllCommand.cs" />
     <Compile Include="ViewModels\Niconico.Video\Commands\WatchHistoryRemoveItemCommand.cs" />
     <Compile Include="ViewModels\Niconico.Video\VideoListItemControlViewModel.cs" />
-    <Compile Include="Views.Niconico\VideoRanking\RankingCategoryListPageViewModel.cs" />
-    <Compile Include="Views.Niconico\VideoRanking\RankingCategoryPageViewModel.cs" />
     <Compile Include="ViewModels\Niconico.Ranking\Messages\RankingGenreCustomizeEvent.cs" />
     <Compile Include="ViewModels\Niconico.Ranking\FavoriteRankingGenreItemCommand.cs" />
     <Compile Include="ViewModels\Niconico.Ranking\HiddenRankingGenreItemCommand.cs" />
@@ -363,11 +365,9 @@
     <Compile Include="Views.Player\_PlayerSidePaneContent\VideoCommentSidePaneContentViewModel.cs" />
     <Compile Include="Views.Player\VideoPlayerPageViewModel.cs" />
     <Compile Include="Views\PrimaryWindowCoreLayoutViewModel.cs" />
-    <Compile Include="ViewModels\PrimaryWindowCoreLayout\LiveMenuSubPageContent.cs" />
     <Compile Include="ViewModels\PrimaryWindowCoreLayout\MenuItemBase.cs" />
     <Compile Include="ViewModels\PrimaryWindowCoreLayout\MenuItemViewModel.cs" />
     <Compile Include="ViewModels\PrimaryWindowCoreLayout\SeparatorMenuItemViewModel.cs" />
-    <Compile Include="ViewModels\PrimaryWindowCoreLayout\VideoMenuSubPageContent.cs" />
     <Compile Include="ViewModels\PrimaryWindowCoreLayout\QueueMenuItemViewModel.cs" />
     <Compile Include="ViewModels\SelectableItem.cs" />
     <Compile Include="Views.Hohoema\VideoCache\CacheManagementPage.xaml.cs">
@@ -459,12 +459,6 @@
     </Compile>
     <Compile Include="Views\Controls\VideoList\VideoItemsListView.xaml.cs">
       <DependentUpon>VideoItemsListView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views.Niconico\VideoRanking\RankingCategoryListPage.xaml.cs">
-      <DependentUpon>RankingCategoryListPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views.Niconico\VideoRanking\RankingCategoryPage.xaml.cs">
-      <DependentUpon>RankingCategoryPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views.Niconico\Video\VideoInfomationPage.xaml.cs">
       <DependentUpon>VideoInfomationPage.xaml</DependentUpon>
@@ -664,7 +658,6 @@
     <Compile Include="Views\StateTrigger\WindowInWindowViewModeTrigger.cs" />
     <Compile Include="Views\TemplateSelector\ContentTemplateSelector.cs" />
     <Compile Include="Views\TemplateSelector\HohoemaFlyoutTemplateSelector.cs" />
-    <Compile Include="Views\TemplateSelector\MenuSubPageTemplateSelector.cs" />
     <Compile Include="Views\TemplateSelector\NullableTemplateSelector.cs" />
     <Compile Include="Views.Player\_PlayerSidePaneContent\PlayerSidePaneContentTemplateSelector.cs" />
     <Compile Include="Views\TemplateSelector\TypeBasedTemplateSelector.cs" />
@@ -814,10 +807,13 @@
       <Version>2.8.7</Version>
     </PackageReference>
     <PackageReference Include="R3">
-      <Version>1.2.8</Version>
+      <Version>1.3.1</Version>
     </PackageReference>
     <PackageReference Include="ReactiveProperty">
       <Version>7.12.0</Version>
+    </PackageReference>
+    <PackageReference Include="ReactiveProperty.R3">
+      <Version>9.9.0</Version>
     </PackageReference>
     <PackageReference Include="ReactiveProperty.UWP">
       <Version>7.12.0</Version>
@@ -873,6 +869,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views.Hohoema\LocalMylist\LocalPlaylistPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views.Niconico\VideoRanking\RankingCategoryPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -1017,14 +1017,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\Controls\VideoList\VideoItemsListView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views.Niconico\VideoRanking\RankingCategoryListPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views.Niconico\VideoRanking\RankingCategoryPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

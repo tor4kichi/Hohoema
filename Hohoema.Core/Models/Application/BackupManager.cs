@@ -150,9 +150,6 @@ public sealed class BackupManager
                 .ToArray(),
             VideoRankingFiltering = new RankingFilteringBackupEntry
             {
-                HiddenGenres = _videoRankingSettings.HiddenGenres.Select(x => x.ToString()).ToArray(),
-                HiddenTags = _videoRankingSettings.HiddenTags.Select(x => new RankingFilteringBackupGenreTag { Label = x.Label, Genre = x.Genre.ToString(), Tag = x.Tag }).ToArray(),
-                FavoriteTags = _videoRankingSettings.FavoriteTags.Select(x => new RankingFilteringBackupGenreTag { Label = x.Label, Genre = x.Genre.ToString(), Tag = x.Tag }).ToArray(),
             },
 
             VideoListringFiltering = new VideoFilteringBackupEntry
@@ -380,26 +377,7 @@ public sealed class BackupManager
     {
         if (backup.VideoRankingFiltering == null) { return; }
 
-        foreach (string s in backup.VideoRankingFiltering.HiddenGenres)
-        {
-            if (!Enum.TryParse<RankingGenre>(s, out RankingGenre genre)) { continue; }
-
-            _videoRankingSettings.AddHiddenGenre(genre);
-        }
-
-        foreach (RankingFilteringBackupGenreTag s in backup.VideoRankingFiltering.HiddenTags)
-        {
-            if (!Enum.TryParse<RankingGenre>(s.Genre, out RankingGenre genre)) { continue; }
-
-            _videoRankingSettings.AddHiddenTag(genre, s.Tag, s.Label);
-        }
-
-        foreach (RankingFilteringBackupGenreTag s in backup.VideoRankingFiltering.FavoriteTags)
-        {
-            if (!Enum.TryParse<RankingGenre>(s.Genre, out RankingGenre genre)) { continue; }
-
-            _videoRankingSettings.AddFavoriteTag(genre, s.Tag, s.Label);
-        }
+        
     }
 
     

@@ -23,6 +23,7 @@ public class Selectable : ObservableObject
     protected bool IsDisposed { get; private set; } = false;
     public void Dispose()
     {
+        if (IsDisposed) { return; }
         IsDisposed = true;
         
         OnDispose();
