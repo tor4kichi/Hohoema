@@ -7,14 +7,14 @@ namespace Hohoema.Models.VideoCache;
 public static class NicoVideoCacheQualityHelper
 {
     public static NicoVideoQuality QualityIdToCacheQuality(string qualityId)
-    {
+    {        
         return qualityId switch
         {
-            "archive_h264_1080p" => NicoVideoQuality.SuperHigh,
-            "archive_h264_720p" => NicoVideoQuality.High,
-            "archive_h264_480p" => NicoVideoQuality.Midium,
-            "archive_h264_360p" => NicoVideoQuality.Low,
-            "archive_h264_360p_low" => NicoVideoQuality.Mobile,
+            "video-h264-1080p" => NicoVideoQuality.SuperHigh,
+            "video-h264-720p" => NicoVideoQuality.High,
+            "video-h264-480p" => NicoVideoQuality.Midium,
+            "video-h264-360p" => NicoVideoQuality.Low,
+            "video-h264-360p-lowest" => NicoVideoQuality.Mobile,
             _ => NicoVideoQuality.Unknown,
         };
     }
@@ -23,11 +23,11 @@ public static class NicoVideoCacheQualityHelper
     {
         return quality switch
         {
-            NicoVideoQuality.SuperHigh => "archive_h264_1080p",
-            NicoVideoQuality.High => "archive_h264_720p",
-            NicoVideoQuality.Midium => "archive_h264_480p",
-            NicoVideoQuality.Low => "archive_h264_360p",
-            NicoVideoQuality.Mobile => "archive_h264_360p_low",
+            NicoVideoQuality.SuperHigh => "video-h264-1080p",
+            NicoVideoQuality.High => "video-h264-720p",
+            NicoVideoQuality.Midium => "video-h264-480p",
+            NicoVideoQuality.Low => "video-h264-360p",
+            NicoVideoQuality.Mobile => "video-h264-360p-lowest",
             _ => throw new NotSupportedException()
         };
     }

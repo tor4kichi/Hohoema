@@ -370,7 +370,7 @@ public sealed class NicoVideoProvider : ProviderBase
                     };
                 }
 
-                return (watchData.Video.IsDeleted.Value, default);
+                return (watchData.Video.IsDeleted ?? false, default);
             });
         }
 

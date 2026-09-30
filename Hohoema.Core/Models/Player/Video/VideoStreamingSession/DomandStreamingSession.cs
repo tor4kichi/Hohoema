@@ -90,30 +90,30 @@ public sealed class DomandStreamingSession : VideoStreamingSession
 
     protected override async Task<MediaSource> GetPlyaingVideoMediaSource()
     {
-        var res = await _context.Video.VideoWatch.GetDomandHlsAccessRightAsync(
-            _watchApiData.Video.Id,
-            _domand,
-            VideoQuality,
-            AudioQuality,
-            _watchApiData.VideoAds?.AdditionalParams?.WatchTrackId
-            );
+        //var res = await _context.Video.VideoWatch.GetDomandHlsAccessRightAsync(
+        //    _watchApiData.Video.Id,
+        //    _domand,
+        //    VideoQuality,
+        //    AudioQuality,
+        //    _watchApiData.VideoAds?.AdditionalParams?.WatchTrackId
+        //    );
 
-        if (res.IsSuccess is false)
-        { 
-            var lowAudio = _domand.Audios.First(x => x.IsAvailable);
-            Debug.WriteLine($"can't use Audio Level {AudioQuality.Id}, so fallback to {lowAudio.Id}");
-            res = await _context.Video.VideoWatch.GetDomandHlsAccessRightAsync(
-            _watchApiData.Video.Id,
-            _domand,
-            VideoQuality,
-            lowAudio,
-            _watchApiData.VideoAds?.AdditionalParams?.WatchTrackId
-            );
-        }
+        //if (res.IsSuccess is false)
+        //{ 
+        //    var lowAudio = _domand.Audios.First(x => x.IsAvailable);
+        //    Debug.WriteLine($"can't use Audio Level {AudioQuality.Id}, so fallback to {lowAudio.Id}");
+        //    res = await _context.Video.VideoWatch.GetDomandHlsAccessRightAsync(
+        //    _watchApiData.Video.Id,
+        //    _domand,
+        //    VideoQuality,
+        //    lowAudio,
+        //    _watchApiData.VideoAds?.AdditionalParams?.WatchTrackId
+        //    );
+        //}
 
         var amsResult = HttpClientPathToPlayingSession
-            ? await AdaptiveMediaSource.CreateFromUriAsync(new Uri(res.Data.ContentUrl), _context.HttpClient)
-            : await AdaptiveMediaSource.CreateFromUriAsync(new Uri(res.Data.ContentUrl));
+            ? await AdaptiveMediaSource.CreateFromUriAsync(new Uri(_watchApiData.Media.Hls.url), _context.HttpClient)
+            : await AdaptiveMediaSource.CreateFromUriAsync(new Uri(_watchApiData.Media.Hls.url));
         if (amsResult.Status == AdaptiveMediaSourceCreationStatus.Success)
         {
             return MediaSource.CreateFromAdaptiveMediaSource(amsResult.MediaSource);

@@ -326,7 +326,7 @@ public sealed class VideoCacheManager : IDisposable
         // require watch permission
         NicoVideoWatchApiResponse watchData = await _niconicoSession.ToolkitContext.Video.VideoWatch.GetWatchDataAsync(item.VideoId);
         WatchResponse watchApiData = watchData.Data.Response;
-        if (watchApiData?.Media?.Delivery is null)
+        if (watchApiData?.Media?.Domand is null)
         {
             throw new VideoCacheException("VideoCacheItem is can not play, require content access permission. reason : " + watchApiData?.OkReason);
         }
@@ -696,15 +696,7 @@ public sealed class VideoCacheManager : IDisposable
             {
 
             }
-            else if (watchApiData.Media.Delivery is not null and var deliverly)
-            {
-                if (deliverly.Encryption is not null)
-                {
-                    videoSessionOwnershipRentResult.Dispose();
-                    return new VideoCacheDownloadOperationCreationResult(VideoCacheDownloadOperationFailedReason.CanNotCacheEncryptedContent);
-                }
-            }
-            else if (watchApiData.Media.Delivery is null)
+            else if (watchApiData.Media.Domand is null)
             {
                 videoSessionOwnershipRentResult.Dispose();
 
@@ -760,7 +752,7 @@ public sealed class VideoCacheManager : IDisposable
             }
             else
             {
-                NicoVideoQuality[] avairableQualities = watchApiData.Media.Delivery.Movie.Session.Videos.Select(NicoVideoCacheQualityHelper.QualityIdToCacheQuality).ToArray();
+                NicoVideoQuality[] avairableQualities = watchApiData.Media.Domand.Videos.Select(x => NicoVideoCacheQualityHelper.QualityIdToCacheQuality(x.Id)).ToArray();
                 if (avairableQualities.Length == 0) { throw new Infra.HohoemaException("キャッシュ用画質Enumの変換に失敗"); }
 
                 while (avairableQualities.Contains(candidateDownloadingQuality) is false && candidateDownloadingQuality is not NicoVideoQuality.Unknown)

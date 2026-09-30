@@ -774,7 +774,10 @@ public sealed class HohoemaPlaylistPlayer : PlaylistPlayer
                 _smtc.DisplayUpdater.Type = MediaPlaybackType.Video;
                 _smtc.DisplayUpdater.VideoProperties.Title = CurrentPlayingSession.VideoDetails.Title;
                 _smtc.DisplayUpdater.VideoProperties.Subtitle = CurrentPlayingSession.VideoDetails.ProviderName ?? string.Empty; // 投稿者退会済みの場合nullになるのでカバー
-                _smtc.DisplayUpdater.Thumbnail = RandomAccessStreamReference.CreateFromUri(new Uri(CurrentPlayingSession.VideoDetails.ThumbnailUrl));
+                if (!string.IsNullOrEmpty(CurrentPlayingSession.VideoDetails.ThumbnailUrl))
+                {
+                    _smtc.DisplayUpdater.Thumbnail = RandomAccessStreamReference.CreateFromUri(new Uri(CurrentPlayingSession.VideoDetails.ThumbnailUrl));
+                }
                 _smtc.DisplayUpdater.Update();
             });
 
