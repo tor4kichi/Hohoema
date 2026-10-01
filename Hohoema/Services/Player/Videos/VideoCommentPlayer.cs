@@ -590,19 +590,22 @@ public class VideoCommentPlayer : ObservableObject, IDisposable
     void RefreshCurrentPlaybackPositionComment(TimeSpan position)
     {
         // TODO: Commentsにアクセスする際の非同期ロック
-        var currentIndex = CurrentCommentIndex;
-        foreach (var comment in Comments.AsSpan(CurrentCommentIndex))
+        try
         {
-            if (comment.VideoPosition > position)
+            var currentIndex = CurrentCommentIndex;
+            foreach (var comment in Comments.AsSpan(CurrentCommentIndex))
             {
-                CurrentComment = comment;
-                break;
+                if (comment.VideoPosition > position)
+                {
+                    CurrentComment = comment;
+                    break;
+                }
+
+                ++currentIndex;
             }
-
-            ++currentIndex;
+            CurrentCommentIndex = currentIndex;
         }
-
-        CurrentCommentIndex = currentIndex;
+        catch { }
     }
 
     private IVideoComment _CurrentComment;

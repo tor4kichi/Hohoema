@@ -5,7 +5,7 @@ using System;
 namespace Hohoema.Models.VideoCache;
 
 public static class NicoVideoCacheQualityHelper
-{
+{    
     public static NicoVideoQuality QualityIdToCacheQuality(string qualityId)
     {        
         return qualityId switch
@@ -14,8 +14,8 @@ public static class NicoVideoCacheQualityHelper
             "video-h264-720p" => NicoVideoQuality.High,
             "video-h264-480p" => NicoVideoQuality.Midium,
             "video-h264-360p" => NicoVideoQuality.Low,
-            "video-h264-360p-lowest" => NicoVideoQuality.Mobile,
-            _ => NicoVideoQuality.Unknown,
+            "video-h264-360p-lowest" or "video-h264-144p" => NicoVideoQuality.Mobile,
+            _ => NicoVideoQuality.Mobile,
         };
     }
 
