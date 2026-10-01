@@ -49,7 +49,7 @@ public abstract class VideoStreamingSession : IVideoStreamingSession, IDisposabl
         // サムネではContentType=FLV,SWFとなっていても、
         // 実際に渡される動画ストリームのContentTypeがMP4となっている場合がある
 
-        MediaSource mediaSource = await GetPlyaingVideoMediaSource();
+        IMediaPlaybackSource mediaSource = await GetPlyaingVideoMediaSource();
 
         /*
         if (!videoUri.IsFile)
@@ -141,15 +141,13 @@ public abstract class VideoStreamingSession : IVideoStreamingSession, IDisposabl
         if (mediaSource != null)
         {
             player.Source = mediaSource;
-            _MediaSource = mediaSource;
             _PlayingMediaPlayer = player;
-
-            _PlayingMediaPlayer.PlaybackSession.Position = initialPosition;
-
+            // Note: 再生後に再生位置を変更しないと映像と音声がズレることがある
+            _PlayingMediaPlayer.Play();
             OnStartStreaming();
             if (play)
             {
-                _PlayingMediaPlayer.Play();
+                _PlayingMediaPlayer.PlaybackSession.Position = initialPosition;
             }
         }
         else
@@ -158,7 +156,7 @@ public abstract class VideoStreamingSession : IVideoStreamingSession, IDisposabl
         }
     }
 
-    protected abstract Task<MediaSource> GetPlyaingVideoMediaSource();
+    protected abstract Task<IMediaPlaybackSource> GetPlyaingVideoMediaSource();
 
     protected virtual void OnStartStreaming() { }
     protected virtual void OnStopStreaming() { }

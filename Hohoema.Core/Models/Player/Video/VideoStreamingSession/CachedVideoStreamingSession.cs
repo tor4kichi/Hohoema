@@ -3,6 +3,7 @@ using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.VideoCache;
 using System.Threading.Tasks;
 using Windows.Media.Core;
+using Windows.Media.Playback;
 using NiconicoSession = Hohoema.Models.Niconico.NiconicoSession;
 
 namespace Hohoema.Models.Player.Video;
@@ -22,9 +23,9 @@ public class CachedVideoStreamingSession : VideoStreamingSession
         _videoCacheItem = videoCacheItem;
     }
 
-    protected override Task<MediaSource> GetPlyaingVideoMediaSource()
+    protected override async Task<IMediaPlaybackSource> GetPlyaingVideoMediaSource()
     {
-        return _videoCacheItem.GetMediaSourceAsync();
+        return await _videoCacheItem.GetMediaSourceAsync();
     }
 
 

@@ -49,7 +49,7 @@ public class DmcVideoDetails : INicoVideoDetails
     internal DmcVideoDetails(WatchResponse dmcWatchData)
     {
         _res = dmcWatchData;
-        Tags = _res.Tag.Items.Select(x => new NicoVideoTag(x.Name)).ToArray();
+        Tags = _res.Tag?.Items.Select(x => new NicoVideoTag(x.Name)).ToArray() ?? [];
     }
 
 
@@ -86,9 +86,9 @@ public class DmcVideoDetails : INicoVideoDetails
         {
             try
             {
-                if (_res.Media.Delivery != null) 
+                if (_res.Media.Domand.Audios != null) 
                 {
-                    return _res.Media.Delivery.Movie.Audios[0].LoudnessCollection[0].Value.Value;
+                    return _res.Media.Domand.Audios[0].LoudnessCollection[0].Value.Value;
                 }
                 else if (_res.Media.Domand != null)
                 {
@@ -183,9 +183,9 @@ public class PreparePlayVideoResult : INiconicoVideoSessionProvider, INiconicoCo
         _isForceDmc = isForceDmc;
         IsSuccess = _dmcWatchData != null;
 
-        if (_isForceDmc && _dmcWatchData?.Media.Delivery is not null)
+        if (_isForceDmc && _dmcWatchData?.Media.Domand is not null)
         {
-            AvailableQualities = _dmcWatchData.Media.Delivery.Movie.Videos
+            AvailableQualities = _dmcWatchData.Media.Domand.Videos
                     .Select(x => new NicoVideoQualityEntity(x.IsAvailable, QualityIdToNicoVideoQuality(x.Id), x.Id, (int)x.BitRate, (int)x.Width, (int)x.Height) { Label = x.Label })
                     .ToImmutableArray();
         }
@@ -195,9 +195,9 @@ public class PreparePlayVideoResult : INiconicoVideoSessionProvider, INiconicoCo
                     .Select(x => new NicoVideoQualityEntity(x.IsAvailable, QualityIdToNicoVideoQuality(x.Id), x.Id, x.BitRate, x.Width, x.Height) { Label = x.Label })
                     .ToImmutableArray();
         }
-        else if (_dmcWatchData?.Media.Delivery is { } delivery)
+        else if (_dmcWatchData?.Media.Domand is { } delivery)
         {
-            AvailableQualities = delivery.Movie.Videos
+            AvailableQualities = delivery.Videos
                     .Select(x => new NicoVideoQualityEntity(x.IsAvailable, QualityIdToNicoVideoQuality(x.Id), x.Id, (int)x.BitRate, (int)x.Width, (int)x.Height) { Label = x.Label })
                     .ToImmutableArray();
         }        
@@ -246,7 +246,7 @@ public class PreparePlayVideoResult : INiconicoVideoSessionProvider, INiconicoCo
                     streamingSession = domandSession;
                 }
             }
-            else if (_dmcWatchData.Media.Delivery is not null and var delivery)
+            else if (_dmcWatchData.Media.Domand is not null and var delivery)
             {
                 throw new NotSupportedException("DmcWatchResponse.Media.Delivery is not supported");
                 //NicoVideoSessionOwnershipManager.VideoSessionOwnership ownership = await _ownershipManager.TryRentVideoSessionOwnershipAsync(_dmcWatchData.Video.Id, !IsForCacheDownload);
@@ -508,14 +508,14 @@ public class NicoVideoSessionProvider
             {
                 throw new NotSupportedException("視聴不可：視聴ページの取得または解析に失敗");
             }
-            else if (dmcRes.Data.Response.Video.IsDeleted.Value)
+            else if (dmcRes.Data.Response.Video.IsDeleted ?? false)
             {
                 return new PreparePlayVideoResult(rawVideoId, _niconicoSession, PreparePlayVideoFailedReason.Deleted, dmcRes.Data.Response);
             }
             else if (dmcRes.Data.Response.Media.Domand == null)
             {
                 Preview preview = dmcRes.Data.Response.Payment.Preview;
-                if (preview.Premium.IsEnabled.Value)
+                if (preview.Premium.IsEnabled ?? false)
                 {
                     return new PreparePlayVideoResult(rawVideoId, _niconicoSession, PreparePlayVideoFailedReason.NotPlayPermit_RequirePremiumMember, dmcRes.Data.Response);
 
@@ -677,11 +677,11 @@ public static class DmcWatchSessionExtension
             };
         }
 
-        VideoContent dmcVideoContent = dmcWatchData?.Media.Delivery.Movie.Videos.FirstOrDefault(x => x.Id == qualityId);
+        VideoContent dmcVideoContent = dmcWatchData?.Media.Domand.Videos.FirstOrDefault(x => x.Id == qualityId);
         if (dmcVideoContent != null)
         {
-            VideoContent[] qualities = dmcWatchData.Media.Delivery.Movie.Videos;
-            int index = Array.IndexOf(qualities, dmcVideoContent);
+            var qualities = dmcWatchData.Media.Domand.Videos;
+            int index = qualities.IndexOf(dmcVideoContent);
 
             // DmcInfo.Quality の要素数は動画によって1～5個まで様々である
             // また並びは常に先頭が最高画質、最後尾は最低画質（Mobile）となっている
@@ -690,7 +690,7 @@ public static class DmcWatchSessionExtension
             // この差を吸収するため、
             // indexを Dmc_Mobile(6)~Dmc_SuperHigh(2) の空間に変換する
             // (qualities.Count - index - 1) によってDmc_Mobileの場合が 0 になる
-            int nicoVideoQualityIndex = (int)NicoVideoQuality.Mobile - (qualities.Length - index - 1);
+            int nicoVideoQualityIndex = (int)NicoVideoQuality.Mobile - (qualities.Count - index - 1);
             NicoVideoQuality quality = (NicoVideoQuality)nicoVideoQualityIndex;
 
             return quality;
