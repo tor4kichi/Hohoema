@@ -504,33 +504,33 @@ public class NicoVideoSessionProvider
         try
         {
             var dmcRes = await _nicoVideoProvider.GetWatchPageResponseAsync(rawVideoId, noHistory);
-            if (dmcRes.Data.Response.Video is null)
+            if (dmcRes.Video is null)
             {
                 throw new NotSupportedException("視聴不可：視聴ページの取得または解析に失敗");
             }
-            else if (dmcRes.Data.Response.Video.IsDeleted ?? false)
+            else if (dmcRes.Video.IsDeleted ?? false)
             {
-                return new PreparePlayVideoResult(rawVideoId, _niconicoSession, PreparePlayVideoFailedReason.Deleted, dmcRes.Data.Response);
+                return new PreparePlayVideoResult(rawVideoId, _niconicoSession, PreparePlayVideoFailedReason.Deleted, dmcRes);
             }
-            else if (dmcRes.Data.Response.Media.Domand == null)
+            else if (dmcRes.Media.Domand == null)
             {
-                Preview preview = dmcRes.Data.Response.Payment.Preview;
+                Preview preview = dmcRes.Payment.Preview;
                 if (preview.Premium.IsEnabled ?? false)
                 {
-                    return new PreparePlayVideoResult(rawVideoId, _niconicoSession, PreparePlayVideoFailedReason.NotPlayPermit_RequirePremiumMember, dmcRes.Data.Response);
+                    return new PreparePlayVideoResult(rawVideoId, _niconicoSession, PreparePlayVideoFailedReason.NotPlayPermit_RequirePremiumMember, dmcRes);
 
                 }
                 else
                 {
                     return preview.Ppv.IsEnabled.Value
-                        ? new PreparePlayVideoResult(rawVideoId, _niconicoSession, PreparePlayVideoFailedReason.NotPlayPermit_RequirePay, dmcRes.Data.Response)
+                        ? new PreparePlayVideoResult(rawVideoId, _niconicoSession, PreparePlayVideoFailedReason.NotPlayPermit_RequirePay, dmcRes)
                         : preview.Admission.IsEnabled.Value
-                                            ? new PreparePlayVideoResult(rawVideoId, _niconicoSession, PreparePlayVideoFailedReason.NotPlayPermit_RequireChannelMember, dmcRes.Data.Response)
+                                            ? new PreparePlayVideoResult(rawVideoId, _niconicoSession, PreparePlayVideoFailedReason.NotPlayPermit_RequireChannelMember, dmcRes)
                                             : throw new NotSupportedException("視聴不可：不明な理由で視聴不可");
                 }
             }
 
-            return new PreparePlayVideoResult(rawVideoId, _niconicoSession, _nicoVideoSessionOwnershipManager, dmcRes.Data.Response, _playerSettings.ForceUsingDmcVideoOrigin)
+            return new PreparePlayVideoResult(rawVideoId, _niconicoSession, _nicoVideoSessionOwnershipManager, dmcRes, _playerSettings.ForceUsingDmcVideoOrigin)
             {
                 IsForCacheDownload = noHistory
             };

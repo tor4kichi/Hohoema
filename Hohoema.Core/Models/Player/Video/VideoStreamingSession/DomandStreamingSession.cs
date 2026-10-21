@@ -189,39 +189,25 @@ public sealed class DomandStreamingSession : VideoStreamingSession
         return null;
     }
 
+    static bool _fallbackToV4Api = false;
     protected override async Task<IMediaPlaybackSource> GetPlyaingVideoMediaSource()
     {
-        var res = await _context.Video.VideoWatch.GetVariantsDomandHlsAccessRightAsync(
+        DomandHlsAccessRightResponse? res = !_fallbackToV4Api ? await _context.Video.VideoWatch.GetNvApiV1DomandHlsAccessRightAsync(
             _watchApiData.Video.Id,
             _domand,
             _watchApiData.VideoAds?.AdditionalParams?.WatchTrackId
-            );
+            )
+            : null;
 
         bool isVariantsHls = true;
-        if (res.IsSuccess is false)
+        if (res?.IsSuccess != true)
         {
-            res = await _context.Video.VideoWatch.GetDomandHlsAccessRightAsync(
+            _fallbackToV4Api = true;
+            res = await _context.Video.VideoWatch.GetVariantsDomandHlsAccessRightAsync(
                 _watchApiData.Video.Id,
                 _domand,
-                VideoQuality,
-                AudioQuality,
                 _watchApiData.VideoAds?.AdditionalParams?.WatchTrackId
                 );
-            isVariantsHls = false;
-        }
-
-        if (res.IsSuccess is false)
-        {
-            var lowAudio = _domand.Audios.First(x => x.IsAvailable);
-            Debug.WriteLine($"can't use Audio Level {AudioQuality.Id}, so fallback to {lowAudio.Id}");
-            res = await _context.Video.VideoWatch.GetDomandHlsAccessRightAsync(
-                _watchApiData.Video.Id,
-                _domand,
-                VideoQuality,
-                lowAudio,
-                _watchApiData.VideoAds?.AdditionalParams?.WatchTrackId
-                );
-            isVariantsHls = false;
         }
 
         //Uri hlsUri = new(_watchApiData.Media.Hls.url);

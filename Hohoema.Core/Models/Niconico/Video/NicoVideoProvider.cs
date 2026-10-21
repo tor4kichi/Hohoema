@@ -7,6 +7,7 @@ using Hohoema.Models.Application;
 using LiteDB;
 using Microsoft.Extensions.Caching.Memory;
 using NiconicoToolkit.ExtApi.Video;
+using NiconicoToolkit.User;
 using NiconicoToolkit.Video;
 using NiconicoToolkit.Video.Watch;
 using System;
@@ -329,15 +330,36 @@ public sealed class NicoVideoProvider : ProviderBase
         }));
     }
 
-    public async Task<NicoVideoWatchApiResponse> GetWatchPageResponseAsync(VideoId videoId, bool noHisotry = false)
+    static (UserId? loginUserId, string ActionTrackId)? _cachedActionTrackId;
+    public async Task<WatchResponse> GetWatchPageResponseAsync(VideoId videoId, bool noHisotry = false)
     {
         if (_niconicoSession.ServiceStatus.IsOutOfService())
         {
             return null;
         }
 
-        var data = await _niconicoSession.ToolkitContext.Video.VideoWatch.GetWatchDataAsync(videoId);
-        if (data.Data.Response is not null and var watchData)
+        WatchResponse? watchData = null;
+        //{
+        //    var data = await _niconicoSession.ToolkitContext.Video.VideoWatch.GetWatchDataAsync(videoId);
+        //    watchData = data.IsSuccess ? data.Data.Response as WatchResponse : null;
+        //}
+        //if (watchData == null)
+        {
+            if (_cachedActionTrackId is not { } exist || exist.loginUserId != _niconicoSession.UserId)
+            {
+                var actionTrackId = await _niconicoSession.ToolkitContext.Video.VideoWatch.GetActionTrackIdAsync(videoId);
+                _cachedActionTrackId = (_niconicoSession.UserId, actionTrackId);
+            }
+            var res = await _niconicoSession.ToolkitContext.Video.VideoWatch.GetV3WatchDataAsync(videoId, _cachedActionTrackId!.Value.ActionTrackId, !_niconicoSession.IsLoggedIn);
+            watchData = res.Data;
+        }
+
+        if (watchData == null)
+        {
+            var res = await _niconicoSession.ToolkitContext.Video.VideoWatch.GetV4WatchDataAsync(videoId);
+            watchData = res.Data?.Response.Watch.Data;
+        }
+        if (watchData != null)
         {
             _ = UpdateCache(videoId, info =>
             {
@@ -374,7 +396,7 @@ public sealed class NicoVideoProvider : ProviderBase
             });
         }
 
-        return data;
+        return watchData;
     }
 
 
