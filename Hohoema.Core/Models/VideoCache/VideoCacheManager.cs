@@ -324,7 +324,7 @@ public sealed class VideoCacheManager : IDisposable
         }
 
         // require watch permission
-        NicoVideoWatchApiResponse watchData = await _niconicoSession.ToolkitContext.Video.VideoWatch.GetWatchDataAsync(item.VideoId);
+        var watchData = await _niconicoSession.ToolkitContext.Video.VideoWatch.GetWatchDataAsync(item.VideoId);
         WatchResponse watchApiData = watchData.Data.Response;
         if (watchApiData?.Media?.Domand is null)
         {
@@ -690,7 +690,7 @@ public sealed class VideoCacheManager : IDisposable
 
         try
         {
-            NicoVideoWatchApiResponse watchData = await _niconicoSession.ToolkitContext.Video.VideoWatch.GetWatchDataAsync(item.VideoId);
+            var watchData = await _niconicoSession.ToolkitContext.Video.VideoWatch.GetWatchDataAsync(item.VideoId);
             WatchResponse watchApiData = watchData.Data.Response;
             if (watchApiData is null)
             {

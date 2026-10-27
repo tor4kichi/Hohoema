@@ -183,24 +183,13 @@ public class PreparePlayVideoResult : INiconicoVideoSessionProvider, INiconicoCo
         _isForceDmc = isForceDmc;
         IsSuccess = _dmcWatchData != null;
 
-        if (_isForceDmc && _dmcWatchData?.Media.Domand is not null)
-        {
-            AvailableQualities = _dmcWatchData.Media.Domand.Videos
-                    .Select(x => new NicoVideoQualityEntity(x.IsAvailable, QualityIdToNicoVideoQuality(x.Id), x.Id, (int)x.BitRate, (int)x.Width, (int)x.Height) { Label = x.Label })
-                    .ToImmutableArray();
-        }
-        else if (_dmcWatchData?.Media.Domand is { } domand)
+        var domand = _dmcWatchData?.Media.Domand ?? _dmcWatchData?.Media.Contents;
+        if (domand != null)
         {
             AvailableQualities = domand.Videos
-                    .Select(x => new NicoVideoQualityEntity(x.IsAvailable, QualityIdToNicoVideoQuality(x.Id), x.Id, x.BitRate, x.Width, x.Height) { Label = x.Label })
-                    .ToImmutableArray();
+                .Select(x => new NicoVideoQualityEntity(x.IsAvailable, QualityIdToNicoVideoQuality(x.Id), x.Id, (int)x.BitRate, (int)x.Width, (int)x.Height) { Label = x.Label })
+                .ToImmutableArray();
         }
-        else if (_dmcWatchData?.Media.Domand is { } delivery)
-        {
-            AvailableQualities = delivery.Videos
-                    .Select(x => new NicoVideoQualityEntity(x.IsAvailable, QualityIdToNicoVideoQuality(x.Id), x.Id, (int)x.BitRate, (int)x.Width, (int)x.Height) { Label = x.Label })
-                    .ToImmutableArray();
-        }        
         else
         {
             throw new NotSupportedException("DmcWatchResponse.Media.DeliveryLegacy not supported");
@@ -512,19 +501,19 @@ public class NicoVideoSessionProvider
             {
                 return new PreparePlayVideoResult(rawVideoId, _niconicoSession, PreparePlayVideoFailedReason.Deleted, dmcRes);
             }
-            else if (dmcRes.Media.Domand == null)
+            else if (dmcRes.Media?.Domand == null && dmcRes.Media?.Contents == null)
             {
-                Preview preview = dmcRes.Payment.Preview;
-                if (preview.Premium.IsEnabled ?? false)
+                var payment = dmcRes.Payment;
+                if (payment?.Premium.IsEnabled ?? false)
                 {
                     return new PreparePlayVideoResult(rawVideoId, _niconicoSession, PreparePlayVideoFailedReason.NotPlayPermit_RequirePremiumMember, dmcRes);
 
                 }
                 else
                 {
-                    return preview.Ppv.IsEnabled.Value
+                    return payment.Ppv.IsEnabled.Value
                         ? new PreparePlayVideoResult(rawVideoId, _niconicoSession, PreparePlayVideoFailedReason.NotPlayPermit_RequirePay, dmcRes)
-                        : preview.Admission.IsEnabled.Value
+                        : payment.Admission.IsEnabled.Value
                                             ? new PreparePlayVideoResult(rawVideoId, _niconicoSession, PreparePlayVideoFailedReason.NotPlayPermit_RequireChannelMember, dmcRes)
                                             : throw new NotSupportedException("視聴不可：不明な理由で視聴不可");
                 }

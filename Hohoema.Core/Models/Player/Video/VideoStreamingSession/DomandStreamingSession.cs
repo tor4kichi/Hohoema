@@ -191,22 +191,21 @@ public sealed class DomandStreamingSession : VideoStreamingSession
 
     static bool _fallbackToV4Api = false;
     protected override async Task<IMediaPlaybackSource> GetPlyaingVideoMediaSource()
-    {
-        DomandHlsAccessRightResponse? res = !_fallbackToV4Api ? await _context.Video.VideoWatch.GetNvApiV1DomandHlsAccessRightAsync(
+    {        
+        DomandHlsAccessRightResponse? res = !_fallbackToV4Api  ? await _context.Video.VideoWatch.GetVariantsDomandHlsAccessRightAsync(
             _watchApiData.Video.Id,
-            _domand,
-            _watchApiData.VideoAds?.AdditionalParams?.WatchTrackId
-            )
-            : null;
+            _watchApiData.Media,
+            _watchApiData.Client.WatchTrackId
+            ) : null;
 
         bool isVariantsHls = true;
         if (res?.IsSuccess != true)
         {
             _fallbackToV4Api = true;
-            res = await _context.Video.VideoWatch.GetVariantsDomandHlsAccessRightAsync(
+            res = await _context.Video.VideoWatch.GetV4VariantsDomandHlsAccessRightAsync(
                 _watchApiData.Video.Id,
-                _domand,
-                _watchApiData.VideoAds?.AdditionalParams?.WatchTrackId
+                _watchApiData.Media,
+                _watchApiData.Client.WatchTrackId
                 );
         }
 
