@@ -26,26 +26,61 @@ public sealed partial class WebViewAccountLoginDialog : ContentDialog
 {
     public WebViewAccountLoginDialog()
     {
-        this.InitializeComponent();        
+        this.InitializeComponent();
+
+        Opened += WebViewAccountLoginDialog_Opened;
+        Closed += WebViewAccountLoginDialog_Closed;
+        _ = MyWebView.EnsureCoreWebView2Async();
+    }
+
+    private void WebViewAccountLoginDialog_Closed(ContentDialog sender, ContentDialogClosedEventArgs args)
+    {
+        MyWebView.CoreWebView2.NavigationStarting -= CoreWebView2_NavigationStarting;
+        MyWebView.CoreWebView2.NavigationCompleted -= CoreWebView2_NavigationCompleted;
+    }
+
+    // Note: ダイアログを開いた初回のみクリックできないエリアが表示される問題への対処。
+    static bool _isFirstOpen = true;
+    private async void WebViewAccountLoginDialog_Opened(ContentDialog sender, ContentDialogOpenedEventArgs args)
+    {
+        if (_isFirstOpen)
+        {
+            Hide();
+            _isFirstOpen = false;
+        }
     }
 
     public WebView2 GetWebView2() => MyWebView;
 
     public async Task<ContentDialogResult> ShowAsync()
     {
-        _completed = false;        
-        await MyWebView.EnsureCoreWebView2Async();
-        // インストール済みの WebView2 ランタイムのバージョンを取得
-        string versionInfo = CoreWebView2Environment.GetAvailableBrowserVersionString();
-        Debug.WriteLine(versionInfo);
-        // 戻り値の例: "124.0.2478.67"
-        MyWebView.CoreWebView2.NavigationStarting -= CoreWebView2_NavigationStarting;
-        MyWebView.CoreWebView2.NavigationStarting += CoreWebView2_NavigationStarting;        
-        MyWebView.CoreWebView2.NavigationCompleted -= CoreWebView2_NavigationCompleted;
-        MyWebView.CoreWebView2.NavigationCompleted += CoreWebView2_NavigationCompleted;
-        MyWebView.CoreWebView2.Navigate("https://account.nicovideo.jp/spa/login/index.html?sec=header_pc&redirect_uri=https%3A%2F%2Fwww.nicovideo.jp%2F");
-        return await base.ShowAsync();
-    }
+        try
+        {
+            if (_isFirstOpen)
+            {
+                await base.ShowAsync();
+                await MyWebView.EnsureCoreWebView2Async();
+            }
+            _completed = false;
+            // インストール済みの WebView2 ランタイムのバージョンを取得
+            string versionInfo = CoreWebView2Environment.GetAvailableBrowserVersionString();
+            Debug.WriteLine(versionInfo);
+            // 戻り値の例: "124.0.2478.67"
+            MyWebView.CoreWebView2.NavigationStarting -= CoreWebView2_NavigationStarting;
+            MyWebView.CoreWebView2.NavigationStarting += CoreWebView2_NavigationStarting;
+            MyWebView.CoreWebView2.NavigationCompleted -= CoreWebView2_NavigationCompleted;
+            MyWebView.CoreWebView2.NavigationCompleted += CoreWebView2_NavigationCompleted;
+            MyWebView.CoreWebView2.Navigate("https://account.nicovideo.jp/spa/login/index.html?sec=header_pc&redirect_uri=https%3A%2F%2Fwww.nicovideo.jp%2F");
+            MyWebView.Focus(FocusState.Keyboard);
+            return await base.ShowAsync();
+        }
+        catch
+        {
+            throw;
+        }
+    }    
+
+
 
     bool _completed = false;
     private void CoreWebView2_NavigationStarting(Microsoft.Web.WebView2.Core.CoreWebView2 sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationStartingEventArgs args)
@@ -60,6 +95,7 @@ public sealed partial class WebViewAccountLoginDialog : ContentDialog
 
     private void CoreWebView2_NavigationCompleted(Microsoft.Web.WebView2.Core.CoreWebView2 sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs args)
     {
+        MyWebView.Focus(FocusState.Keyboard);
         Debug.WriteLine(args.HttpStatusCode);        
         if (_completed)
         {

@@ -339,11 +339,11 @@ public sealed class NicoVideoProvider : ProviderBase
         }
 
         WatchResponse? watchData = null;
-        //{
-        //    var data = await _niconicoSession.ToolkitContext.Video.VideoWatch.GetWatchDataAsync(videoId);
-        //    watchData = data.IsSuccess ? data.Data.Response as WatchResponse : null;
-        //}
-        //if (watchData == null)
+        {
+            var data = await _niconicoSession.ToolkitContext.Video.VideoWatch.GetWatchDataAsync(videoId);
+            watchData = data.IsSuccess ? data.Data.Response as WatchResponse : null;
+        }
+        if (watchData == null)
         {
             if (_cachedActionTrackId is not { } exist || exist.loginUserId != _niconicoSession.UserId)
             {
@@ -357,7 +357,7 @@ public sealed class NicoVideoProvider : ProviderBase
         if (watchData == null)
         {
             var res = await _niconicoSession.ToolkitContext.Video.VideoWatch.GetV4WatchDataAsync(videoId);
-            watchData = res.Data?.Response.Watch.Data;
+            watchData = res.Data?.Response;
         }
         if (watchData != null)
         {

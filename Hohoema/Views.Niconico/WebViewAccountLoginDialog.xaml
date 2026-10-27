@@ -8,23 +8,27 @@
                xmlns:controls="using:Microsoft.UI.Xaml.Controls"
                xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
                mc:Ignorable="d"
-    SecondaryButtonText="{i18nExt:Localize Key=Cancel}"
-    SecondaryButtonClick="ContentDialog_SecondaryButtonClick"
-  HorizontalAlignment="Stretch"
-  VerticalAlignment="Stretch"
-  MaxHeight="2000"
+    PrimaryButtonText="{i18nExt:Localize Key=Cancel}"
+    PrimaryButtonClick="ContentDialog_SecondaryButtonClick"
   Padding="0"
-  Margin="0">
-
+  Margin="0"
+  CornerRadius="6"
+  RequiresPointer="WhenFocused"
+  AllowFocusOnInteraction="True"
+  IsTabStop="False">
+  <ContentDialog.Resources>
+    <Thickness x:Key="ContentDialogPadding">0</Thickness>
+  </ContentDialog.Resources>
   <Grid >
     <controls:WebView2 x:Name="MyWebView"
+                       AllowFocusOnInteraction="True"
              Background="Transparent"                       
                        Height="600"
                        Width="500"
                        HorizontalContentAlignment="Center"
                        VerticalAlignment="Stretch"
                        ScrollViewer.HorizontalScrollMode="Auto"
-                       ScrollViewer.VerticalScrollMode="Auto"                       
-             />
+                       ScrollViewer.VerticalScrollMode="Auto"
+                       RequiresPointer="WhenFocused" />
   </Grid>
 </ContentDialog>
