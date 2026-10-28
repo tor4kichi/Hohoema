@@ -14,15 +14,14 @@
   Margin="0"
   CornerRadius="6"
   RequiresPointer="WhenFocused"
-  AllowFocusOnInteraction="True"
-  IsTabStop="False">
+  AllowFocusOnInteraction="True">
   <ContentDialog.Resources>
     <Thickness x:Key="ContentDialogPadding">0</Thickness>
   </ContentDialog.Resources>
-  <Grid >
+  <Grid>
     <controls:WebView2 x:Name="MyWebView"
                        AllowFocusOnInteraction="True"
-             Background="Transparent"                       
+                       Background="Transparent"                       
                        Height="600"
                        Width="500"
                        HorizontalContentAlignment="Center"
