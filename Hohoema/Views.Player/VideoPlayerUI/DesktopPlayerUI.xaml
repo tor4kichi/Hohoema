@@ -791,7 +791,7 @@
               <controls:DelayedAutoTriggerButton.CenterContent>
                 <StackPanel Spacing="4">
                   <TextBlock Text="{i18nExt:Localize Key=RecommendedNextVideo}" Opacity="0.7" />
-                  <TextBlock x:Name="RecommendVideoTitle" Text="{x:Bind _vm.VideoEndedRecommendation.NextVideoTitle, Mode=OneWay}" Style="{StaticResource BaseTextBlockStyle}"  />
+                  <TextBlock x:Name="RecommendVideoTitle" Text="{x:Bind _vm.VideoEndedRecommendation.NextVideo.Title, Mode=OneWay}" Style="{StaticResource BaseTextBlockStyle}"  />
                 </StackPanel>
               </controls:DelayedAutoTriggerButton.CenterContent>
               <i:Interaction.Behaviors>

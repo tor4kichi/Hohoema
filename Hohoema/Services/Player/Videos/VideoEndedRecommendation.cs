@@ -3,10 +3,12 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.Application;
+using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Player;
 using Hohoema.Models.Player.Video;
 using Hohoema.Models.Playlist;
+using Hohoema.ViewModels.VideoListPage;
 using NiconicoToolkit.FollowingsActivity;
 using NiconicoToolkit.Video;
 using NiconicoToolkit.Video.Watch;
@@ -18,11 +20,10 @@ using System.Reactive.Disposables;
 using System.Threading.Tasks;
 using Windows.Media.Playback;
 using Windows.System;
-using static NiconicoToolkit.Video.Watch.NicoVideoWatchApiResponse;
 
 namespace Hohoema.Services.Player;
 
-public sealed class VideoEndedRecommendation : ObservableObject, IDisposable,
+public sealed partial class VideoEndedRecommendation : ObservableObject, IDisposable,
     IRecipient<PlaybackStopedMessage>,
     IRecipient<PlaybackStartedMessage>,
     IRecipient<PlaybackFailedMessage>
@@ -32,6 +33,7 @@ public sealed class VideoEndedRecommendation : ObservableObject, IDisposable,
 
     public VideoEndedRecommendation(
         MediaPlayer mediaPlayer,
+        NiconicoSession niconicoSession,
         IMessenger messenger,
         IScheduler scheduler,
         QueuePlaylist queuePlaylist,
@@ -44,6 +46,7 @@ public sealed class VideoEndedRecommendation : ObservableObject, IDisposable,
         )
     {
         _mediaPlayer = mediaPlayer;
+        _niconicoSession = niconicoSession;
         _messenger = messenger;
         _scheduler = scheduler;
         _queuePlaylist = queuePlaylist;
@@ -118,17 +121,15 @@ public sealed class VideoEndedRecommendation : ObservableObject, IDisposable,
             if (_hohoemaPlaylistPlayer.CurrentPlaylistItem == null && _videoRelatedContents?.NextVideo != null)
             {
                 _endedProcessed = true;
-                HasNextVideo = _videoRelatedContents?.NextVideo != null;
-                NextVideoTitle = _videoRelatedContents?.NextVideo?.Label;
+                NextVideo = _videoRelatedContents?.NextVideo;
                 HasRecomend.Value = HasNextVideo && IsEnded.Value;
                 return;
             }
 
             if (_series?.Video.Next is not null and var nextVideo)
             {
-                NextVideoTitle = nextVideo.Title;
+                NextVideo = new VideoListItemControlViewModel(nextVideo);
                 HasRecomend.Value = true;
-                HasNextVideo = true;
 
                 Debug.WriteLine("シリーズ情報から次の動画を提示: " + nextVideo.Title);
                 return;
@@ -143,12 +144,24 @@ public sealed class VideoEndedRecommendation : ObservableObject, IDisposable,
 
             if (_currentVideoDetail != null)
             {
-                _videoRelatedContents ??= await _relatedVideoContentsAggregator.GetRelatedContentsAsync(_currentVideoDetail);
-                HasNextVideo = _videoRelatedContents.NextVideo != null;
-                NextVideoTitle = _videoRelatedContents.NextVideo?.Label;
-                HasRecomend.Value = HasNextVideo && IsEnded.Value;
+                if (_currentVideoDetail is DmcVideoDetails dmcVideo)
+                {
+                    try
+                    {
+                        var lazy = await dmcVideo.GetLazyWatchDataAsync(_niconicoSession.ToolkitContext);
+                        if (lazy.Data?.Series.Video.Next is { } lazyNextVideo)
+                        {
+                            NextVideo = new VideoListItemControlViewModel(lazyNextVideo);
+                            HasRecomend.Value = HasNextVideo && IsEnded.Value;
 
-                Debug.WriteLine("動画情報から次の動画を提示: " + NextVideoTitle);
+                            Debug.WriteLine("動画情報から次の動画を提示: " + NextVideo.Title);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine(ex.ToString());
+                    }
+                }
             }
         };
     }
@@ -169,8 +182,7 @@ public sealed class VideoEndedRecommendation : ObservableObject, IDisposable,
 
         _series = null;
         _videoRelatedContents = null;
-        HasNextVideo = false;
-        NextVideoTitle = null;
+        NextVideo = null;
         _playNext = false;
         _endedProcessed = false;
         HasRecomend.Value = false;
@@ -237,6 +249,7 @@ public sealed class VideoEndedRecommendation : ObservableObject, IDisposable,
     VideoRelatedContents? _videoRelatedContents;
 
     private readonly MediaPlayer _mediaPlayer;
+    private readonly NiconicoSession _niconicoSession;
     private readonly IMessenger _messenger;
     private readonly IScheduler _scheduler;
     private readonly QueuePlaylist _queuePlaylist;
@@ -250,22 +263,13 @@ public sealed class VideoEndedRecommendation : ObservableObject, IDisposable,
 
     public ReactiveProperty<bool> IsEnded { get; }
 
-    public ReactiveProperty<bool> HasRecomend { get; }
+    public ReactiveProperty<bool> HasRecomend { get; }    
 
-    private string _nextVideoTitle;
-    public string NextVideoTitle
-    {
-        get { return _nextVideoTitle; }
-        set { SetProperty(ref _nextVideoTitle, value); }
-    }
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasNextVideo))]
+    VideoListItemControlViewModel? _nextVideo;
 
-
-    private bool _hasNextVideo;
-    public bool HasNextVideo
-    {
-        get { return _hasNextVideo; }
-        set { SetProperty(ref _hasNextVideo, value); }
-    }
+    public bool HasNextVideo => _nextVideo != null;
 
     bool _playNext;
 
@@ -273,14 +277,13 @@ public sealed class VideoEndedRecommendation : ObservableObject, IDisposable,
     public RelayCommand PlayNextVideoCommand => _playNextVideoCommand
         ?? (_playNextVideoCommand = new RelayCommand(() =>
         {
-            if (_videoRelatedContents?.NextVideo != null)
+            if (NextVideo is { } nextVideo)
             {
-                var nextVideo = _videoRelatedContents.NextVideo;
                 _messenger.Send(VideoPlayRequestMessage.PlayVideo(nextVideo.VideoId));
             }
-            else if (_series.Video.Next is not null and var nextVideo)
+            else if (_series.Video.Next is not null and var seriesNextVideo)
             {
-                _messenger.Send(VideoPlayRequestMessage.PlayVideo(nextVideo.Id));
+                _messenger.Send(VideoPlayRequestMessage.PlayVideo(seriesNextVideo.Id));
             }
 
             IsEnded.Value = false;

@@ -3,6 +3,7 @@ using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Player.Comment;
 using Hohoema.Models.Player.Video.Comment;
+using NiconicoToolkit;
 using NiconicoToolkit.Video;
 using NiconicoToolkit.Video.Watch;
 using System;
@@ -125,6 +126,11 @@ public class DmcVideoDetails : INicoVideoDetails
     bool IEquatable<IVideoContent>.Equals(IVideoContent other)
     {
         return VideoId == other.VideoId;
+    }
+
+    public async Task<LazyVideoWatchApiResponse> GetLazyWatchDataAsync(NiconicoContext context)
+    {
+        return await context.Video.VideoWatch.GetLazyVideoWatchAsync(_res.Video.Id, _res.Client.WatchTrackId, _res.Lazy.AuthKey);
     }
 }
 
