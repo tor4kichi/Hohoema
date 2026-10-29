@@ -42,10 +42,18 @@
     <Style TargetType="Button">
       <Setter Property="MinWidth" Value="48" />
       <Setter Property="MinHeight" Value="48" />
+      <Setter Property="BorderBrush"
+              Value="{StaticResource SystemAltMediumLowColor}" />
+      <Setter Property="CornerRadius"
+              Value="4" />
+      <Setter Property="uwpui:FrameworkElementExtensions.Cursor"
+              Value="Hand" />
     </Style>
     <Style TargetType="ToggleButton">
       <Setter Property="MinWidth" Value="48" />
       <Setter Property="MinHeight" Value="48" />
+      <Setter Property="CornerRadius"
+              Value="4" />
     </Style>
 
     <Style TargetType="CommandBar">
@@ -353,15 +361,23 @@
             
             <!-- 左上 -->
             <StackPanel Orientation="Horizontal" uwpControls:DockPanel.Dock="Left"
-                        Margin="32 32 0 0">
+                        Margin="32 32 0 0"
+                        Background="{ThemeResource SystemChromeLowColor}"
+                        CornerRadius="4">
               <!-- 閉じる -->
               <Button x:Name="CloseButton" Command="{x:Bind _vm.PrimaryViewPlayerManager.CloseCommand}" UseSystemFocusVisuals="True" MinWidth="64" MinHeight="64"                                
                       XYFocusDown="{x:Bind LikeToggleButton}"
                       ToolTipService.ToolTip="{i18nExt:Localize Key=Close}"
                       ToolTipService.Placement="Bottom"
                       VerticalAlignment="Top"
-                            >
-                <SymbolIcon Symbol="Clear" />
+                      CornerRadius="4"
+                      uwpui:FrameworkElementExtensions.Cursor="Hand">
+                <SymbolIcon Symbol="Clear" Margin="2 2 0 0">
+                  <SymbolIcon.RenderTransform>
+                    <ScaleTransform ScaleX="1.5"
+                                    ScaleY="1.5" />
+                  </SymbolIcon.RenderTransform>
+                </SymbolIcon>
               </Button>
 
               <!-- メインウィンドウ表示 -->
@@ -449,6 +465,7 @@
               <ToggleButton x:Name="LikeToggleButton" ToolTipService.ToolTip="{i18nExt:Localize Key=NicoLike}" IsChecked="{x:Bind _vm.LikesContext.IsLikes, Mode=TwoWay}" IsEnabled="{Binding LikesContext.NowLikeProcessing, Mode=OneWay, Converter={StaticResource BoolNegation}}" Visibility="Collapsed" 
                         Background="Transparent" Height="48"    
                             uwpControls:DockPanel.Dock="Left"
+                            uwpui:FrameworkElementExtensions.Cursor="Hand"
                         >
                 <ToggleButton.Content>
                   <StackPanel Orientation="Horizontal">
@@ -456,7 +473,9 @@
                   </StackPanel>
                 </ToggleButton.Content>
               </ToggleButton>
-              <DropDownButton Background="Transparent" MinHeight="48">
+              <DropDownButton Background="Transparent" MinHeight="48"
+                              uwpui:FrameworkElementExtensions.Cursor="Hand"
+                              CornerRadius="4">
                 <DropDownButton.Flyout>
                   <MenuFlyout>
 
@@ -493,7 +512,24 @@
           <!-- シークバー -->
           <Grid Margin="0 0 0 0">
             <TextBlock x:Name="SeekDisabledFromNicoScriptText" Text="{i18nExt:Localize Key=DisableSeekFromNicoScript}" Visibility="Collapsed" VerticalAlignment="Bottom" HorizontalAlignment="Center" Opacity="0.6" />
-            <Slider x:Name="SeekBarSlider" Minimum="0.0" Maximum="{x:Bind _vm.VideoInfo.Length, Mode=OneWay, Converter={StaticResource TimeSpanToDoubleConverter}}" Style="{StaticResource VideoProgressBarStyle}" Padding="0 16 0 8" StepFrequency="0.1" LargeChange="30" SmallChange="5" IsThumbToolTipEnabled="True" ThumbToolTipValueConverter="{StaticResource TimeToMovieLengthConverter}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalAlignment="Center" Opacity="0.75" Margin="8 0" />
+            <Slider x:Name="SeekBarSlider"
+                    Minimum="0.0"
+                    Maximum="{x:Bind _vm.VideoInfo.Length, Mode=OneWay, Converter={StaticResource TimeSpanToDoubleConverter}}"
+                    Style="{StaticResource VideoProgressBarStyle}"
+                    Height="40"
+                    Padding="0 16 0 0"
+                    StepFrequency="0.1"
+                    LargeChange="30"
+                    SmallChange="5"
+                    IsThumbToolTipEnabled="True"
+                    ThumbToolTipValueConverter="{StaticResource TimeToMovieLengthConverter}"
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Stretch"
+                    VerticalAlignment="Center"
+                    VerticalContentAlignment="Center"
+                    Opacity="0.75"
+                    Margin="8 0" 
+                    uwpui:FrameworkElementExtensions.Cursor="Hand"/>
 
           </Grid>
           <!-- 動画画質 -->
@@ -649,7 +685,7 @@
               <Slider x:Name="VolumeSlider" Orientation="Horizontal" VerticalAlignment="Center" IsThumbToolTipEnabled="True" ThumbToolTipValueConverter="{StaticResource ToUserFriendlySoubleVolume}" Maximum="1.0" Minimum="0.0" StepFrequency="0.01" SmallChange="0.05" LargeChange="0.1" Height="32" Width="120" ValueChanged="VolumeSlider_ValueChanged" HorizontalAlignment="Right" TabIndex="-1"
                       ToolTipService.ToolTip="{i18nExt:Localize Key=SoundVolume}"
                       Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                      
+                      uwpui:FrameworkElementExtensions.Cursor="Hand"
                       />
               
             </StackPanel>
@@ -791,7 +827,7 @@
               <controls:DelayedAutoTriggerButton.CenterContent>
                 <StackPanel Spacing="4">
                   <TextBlock Text="{i18nExt:Localize Key=RecommendedNextVideo}" Opacity="0.7" />
-                  <TextBlock x:Name="RecommendVideoTitle" Text="{x:Bind _vm.VideoEndedRecommendation.NextVideoTitle, Mode=OneWay}" Style="{StaticResource BaseTextBlockStyle}"  />
+                  <TextBlock x:Name="RecommendVideoTitle" Text="{x:Bind _vm.VideoEndedRecommendation.NextVideo.Title, Mode=OneWay}" Style="{StaticResource BaseTextBlockStyle}"  />
                 </StackPanel>
               </controls:DelayedAutoTriggerButton.CenterContent>
               <i:Interaction.Behaviors>
@@ -838,9 +874,11 @@
               </i:Interaction.Behaviors>
             </Border>
           </Border>
-          <Border x:Name="GoPrevVideoLayout" VerticalAlignment="Center" HorizontalAlignment="Left">
+          <Border x:Name="GoPrevVideoLayout" VerticalAlignment="Center" HorizontalAlignment="Left"
+                  Visibility="{x:Bind _vm.PrevVideoContent, Mode=OneWay, Converter={StaticResource NotNullToVisibility}}">
             <Button MinWidth="24" Height="120" Command="{x:Bind _vm.PlayPreviousCommand}" BorderBrush="{StaticResource HohoemaPlayerBackgroundBrush}" BorderThickness="0 1 1 1"
                     ToolTipService.Placement="Right"
+                    uwpui:FrameworkElementExtensions.Cursor="Hand"
                     >
               <ToolTipService.ToolTip>
                 <StackPanel MaxWidth="240">
@@ -851,9 +889,11 @@
               <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE016;" FontSize="20" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"></TextBlock>
             </Button>
           </Border>
-          <Border x:Name="GoNextVideoLayout" VerticalAlignment="Center" HorizontalAlignment="Right">
+          <Border x:Name="GoNextVideoLayout" VerticalAlignment="Center" HorizontalAlignment="Right"
+                  Visibility="{x:Bind _vm.NextVideoContent, Mode=OneWay, Converter={StaticResource NotNullToVisibility}}">
             <Button MinWidth="24" Height="120" Command="{x:Bind _vm.PlayNextCommand}" BorderBrush="{StaticResource HohoemaPlayerBackgroundBrush}" BorderThickness="1 1 0 1"
                     ToolTipService.Placement="Left"
+                    uwpui:FrameworkElementExtensions.Cursor="Hand"
                     >
               <ToolTipService.ToolTip>
                 <StackPanel MaxWidth="240">

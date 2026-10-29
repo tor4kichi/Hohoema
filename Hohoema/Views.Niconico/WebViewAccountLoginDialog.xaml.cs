@@ -61,6 +61,7 @@ public sealed partial class WebViewAccountLoginDialog : ContentDialog
                 await base.ShowAsync();
                 await MyWebView.EnsureCoreWebView2Async();
             }
+            await Task.Delay(100);
             _completed = false;
             // インストール済みの WebView2 ランタイムのバージョンを取得
             string versionInfo = CoreWebView2Environment.GetAvailableBrowserVersionString();
@@ -93,13 +94,26 @@ public sealed partial class WebViewAccountLoginDialog : ContentDialog
         }       
     }
 
-    private void CoreWebView2_NavigationCompleted(Microsoft.Web.WebView2.Core.CoreWebView2 sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs args)
+    private async void CoreWebView2_NavigationCompleted(Microsoft.Web.WebView2.Core.CoreWebView2 sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs args)
     {
         MyWebView.Focus(FocusState.Keyboard);
         Debug.WriteLine(args.HttpStatusCode);        
         if (_completed)
         {
             Hide();
+        }
+        else
+        {
+            // コントロールにフォーカスを設定する
+            while (!MyWebView.Focus(FocusState.Programmatic))
+            {
+                await Task.Delay(1);
+            }
+            await Task.Delay(500);
+
+            // 必要に応じて、さらにWebView内の特定のHTML要素にフォーカスを当てたい場合
+            // 例: JavaScript経由でページの先頭の入力フォームにフォーカスを移す
+            var str = await MyWebView.CoreWebView2.ExecuteScriptAsync("document.querySelector('input').focus();");
         }
     }
 
