@@ -155,8 +155,8 @@
             <Button Padding="0 0 8 0" BorderThickness="0">
               <StackPanel Orientation="Horizontal">
                 <!-- 投稿者削除に対応するためBindingを利用 -->
-                <Image Source="{Binding VideoDetails.OwnerIconUrl, Mode=OneWay}" Height="48" Width="48" />
-                <TextBlock Text="{x:Bind _vm.VideoDetails.ProviderName, Mode=OneWay}" VerticalAlignment="Center" Margin="8 0 0 0" />
+                <Image Source="{x:Bind _vm.VideoInfo.Owner.IconUrl, Mode=OneWay}" Height="48" Width="48" />
+                <TextBlock Text="{x:Bind _vm.VideoInfo.Owner.ScreenName, Mode=OneWay}" VerticalAlignment="Center" Margin="8 0 0 0" />
               </StackPanel>
               
               <Button.Flyout>
