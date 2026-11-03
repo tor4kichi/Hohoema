@@ -442,6 +442,12 @@ public class VideoInfomationPageViewModel : HohoemaPageViewModelBase, IPinablePa
         set { SetProperty(ref _VideoDetails, value); }
     }
 
+    private LazyVideoWatchApiData _lazyVideo;
+    public LazyVideoWatchApiData LazyVideo
+    {
+        get { return _lazyVideo; }
+        set { SetProperty(ref _lazyVideo, value); }
+    }
 
     private bool _isVideoProviderDeleted;
     public bool IsVideoProviderDeleted
@@ -503,8 +509,9 @@ public class VideoInfomationPageViewModel : HohoemaPageViewModelBase, IPinablePa
             if (NiconicoSession.IsLoggedIn)
             {
                 try
-                {
-                    var owner = await NicoVideoProvider.ResolveVideoOwnerAsync(videoId.Value);
+                {                                   
+                    var owner = VideoInfo.Owner ?? 
+                        await NicoVideoProvider.ResolveVideoOwnerAsync(videoId.Value);
                     FollowContext = VideoInfo.ProviderType switch
                     {
                         OwnerType.User => await FollowContext<IUser>.CreateAsync(_userFollowProvider, owner),
@@ -525,6 +532,22 @@ public class VideoInfomationPageViewModel : HohoemaPageViewModelBase, IPinablePa
             NowLoading.Value = false;
         }
 
+    }
+
+    NicoVideoOwner ConvertLazyVideoOwner(LazyVideoOwner owner)
+    {
+        return new NicoVideoOwner()
+        {
+            OwnerId = owner.Id.ToString(),
+            UserType = owner.OwnerType switch 
+            {
+                "user" => OwnerType.User,
+                "channel" => OwnerType.Channel,
+                _ => OwnerType.User
+            },
+            ScreenName = owner.Name,
+            IconUrl = owner.IconUrl
+        };
     }
 
     public override void OnNavigatedFrom(INavigationParameters parameters)
@@ -645,7 +668,7 @@ public class VideoInfomationPageViewModel : HohoemaPageViewModelBase, IPinablePa
         }
 
         IsLoadFailed.Value = false;
-
+        LazyVideo = null;
         try
         {
             var res = await NicoVideo.PreparePlayVideoAsync(VideoInfo.Id, noHistory: true);
@@ -665,6 +688,15 @@ public class VideoInfomationPageViewModel : HohoemaPageViewModelBase, IPinablePa
             //OwnerIconUrl = details.OwnerIconUrl;
             //IsChannelOwnedVideo = details.IsChannelOwnedVideo;
 
+            if (VideoDetails is DmcVideoDetails dmcDetails)
+            {
+                try
+                {
+                    var lazy = await dmcDetails.GetLazyWatchDataAsync(NiconicoSession.ToolkitContext);
+                    LazyVideo = lazy.Data;
+                }
+                catch { }
+            }
             if (VideoDetails.Series is not null and var series)
             {
                 VideoSeries = new VideoSeriesViewModel(series);

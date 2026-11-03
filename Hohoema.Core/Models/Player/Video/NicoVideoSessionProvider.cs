@@ -50,7 +50,7 @@ public class DmcVideoDetails : INicoVideoDetails
     internal DmcVideoDetails(WatchResponse dmcWatchData)
     {
         _res = dmcWatchData;
-        Tags = _res.Tag?.Items.Select(x => new NicoVideoTag(x.Name)).ToArray() ?? [];
+        Tags = _res.Tags?.Items.Select(x => new NicoVideoTag(x.Name)).ToArray() ?? [];
     }
 
 
@@ -60,7 +60,10 @@ public class DmcVideoDetails : INicoVideoDetails
 
     public NicoVideoTag[] Tags { get; }
 
-    public string ThumbnailUrl => _res.Video.Thumbnail.LargeUrl ?? _res.Video.Thumbnail.MiddleUrl ?? _res.Video.Thumbnail.Url;
+    public string ThumbnailUrl => _res.Video.Thumbnail.LargeUrl 
+            ?? _res.Video.Thumbnail.MiddleUrl 
+            ?? _res.Video.Thumbnail.Url
+        ?? _res.Video.Thumbnail.Player;
 
     public TimeSpan VideoLength => TimeSpan.FromSeconds(_res.Video.Duration);
 

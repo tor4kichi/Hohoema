@@ -22,8 +22,6 @@ using static NiconicoToolkit.Video.Watch.NicoVideoWatchApiResponse;
 namespace Hohoema.Models.Player.Video;
 public sealed class DomandStreamingSession : VideoStreamingSession
 {
-    public static bool HttpClientPathToPlayingSession = true;
-
     private readonly NiconicoContext _context;
     private readonly WatchResponse _watchApiData;
     private readonly WatchDomand _domand;
@@ -202,18 +200,16 @@ public sealed class DomandStreamingSession : VideoStreamingSession
         if (res?.IsSuccess != true)
         {
             _fallbackToV4Api = true;
-            res = await _context.Video.VideoWatch.GetV4VariantsDomandHlsAccessRightAsync(
+            res = await _context.Video.VideoWatch.GetNvApiV1DomandHlsAccessRightAsync(
                 _watchApiData.Video.Id,
-                _watchApiData.Media,
+                _watchApiData.Media.Domand,
                 _watchApiData.Client.WatchTrackId
                 );
         }
 
         //Uri hlsUri = new(_watchApiData.Media.Hls.url);
         Uri hlsUri = new(res.Data.ContentUrl);
-        var amsResult = HttpClientPathToPlayingSession
-            ? await AdaptiveMediaSource.CreateFromUriAsync(hlsUri, _context.HttpClient)
-            : await AdaptiveMediaSource.CreateFromUriAsync(hlsUri);
+        var amsResult = await AdaptiveMediaSource.CreateFromUriAsync(hlsUri, _context.HttpClient);
                     
         if (amsResult.Status == AdaptiveMediaSourceCreationStatus.Success)
         {

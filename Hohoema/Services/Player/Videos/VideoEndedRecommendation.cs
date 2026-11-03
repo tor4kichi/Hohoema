@@ -135,13 +135,6 @@ public sealed partial class VideoEndedRecommendation : ObservableObject, IDispos
                 return;
             }
 
-            if (TryPlaylistEndActionPlayerClosed())
-            {
-                HasRecomend.Value = HasNextVideo && IsEnded.Value;
-                _endedProcessed = true;
-                return;
-            }
-
             if (_currentVideoDetail != null)
             {
                 if (_currentVideoDetail is DmcVideoDetails dmcVideo)
@@ -162,6 +155,13 @@ public sealed partial class VideoEndedRecommendation : ObservableObject, IDispos
                         Debug.WriteLine(ex.ToString());
                     }
                 }
+            }
+
+            if (TryPlaylistEndActionPlayerClosed())
+            {
+                HasRecomend.Value = HasNextVideo && IsEnded.Value;
+                _endedProcessed = true;
+                return;
             }
         };
     }

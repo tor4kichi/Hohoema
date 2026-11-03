@@ -339,6 +339,9 @@ public sealed class NicoVideoProvider : ProviderBase
         }
 
         WatchResponse? watchData = null;
+        // GetWatchDataAsyncだと視聴履歴が記録されない。これは動画情報を見るときだけに使う
+        // 履歴に追加する場合 GetV3WatchDataAsync を利用する
+        if (noHisotry)
         {
             var data = await _niconicoSession.ToolkitContext.Video.VideoWatch.GetWatchDataAsync(videoId);
             watchData = data.IsSuccess ? data.Data.Response as WatchResponse : null;
@@ -347,17 +350,35 @@ public sealed class NicoVideoProvider : ProviderBase
         {
             if (_cachedActionTrackId is not { } exist || exist.loginUserId != _niconicoSession.UserId)
             {
-                var actionTrackId = await _niconicoSession.ToolkitContext.Video.VideoWatch.GetActionTrackIdAsync(videoId);
-                _cachedActionTrackId = (_niconicoSession.UserId, actionTrackId);
+                try
+                {
+                    var actionTrackId = await _niconicoSession.ToolkitContext.Video.VideoWatch.GetActionTrackIdAsync(videoId);
+                    _cachedActionTrackId = (_niconicoSession.UserId, actionTrackId);
+                }
+                catch { }
             }
-            var res = await _niconicoSession.ToolkitContext.Video.VideoWatch.GetV3WatchDataAsync(videoId, _cachedActionTrackId!.Value.ActionTrackId, !_niconicoSession.IsLoggedIn);
-            watchData = res.Data;
+            try
+            {
+                var res = await _niconicoSession.ToolkitContext.Video.VideoWatch.GetV3WatchDataAsync(videoId, _cachedActionTrackId!.Value.ActionTrackId, !_niconicoSession.IsLoggedIn);
+                watchData = res.Data;
+            }
+            catch { }
         }
 
         if (watchData == null)
         {
-            var res = await _niconicoSession.ToolkitContext.Video.VideoWatch.GetV4WatchDataAsync(videoId);
-            watchData = res.Data?.Response;
+            try
+            {
+                var res = await _niconicoSession.ToolkitContext.Video.VideoWatch.GetV4WatchDataAsync(videoId);
+                watchData = res.Data?.Response;
+            }
+            catch { }
+            try
+            {
+                var data = await _niconicoSession.ToolkitContext.Video.VideoWatch.GetWatchDataAsync(videoId);
+                watchData = data.IsSuccess ? data.Data.Response as WatchResponse : null;
+            }
+            catch { }
         }
         if (watchData != null)
         {

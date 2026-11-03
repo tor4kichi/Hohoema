@@ -73,11 +73,6 @@ public class SettingsSidePaneContentViewModel : SidePaneContentViewModelBase
                 VideoCommentTransformConditions.Remove(args.EventArgs.TransformCondition);
             })
             .AddTo(ref db);
-
-        PlayerSettings.ObservePropertyChanged(x => x.IsMitigationForVideoLoadingEnabled, pushCurrentValueOnSubscribe: false)
-            .Subscribe(x => DomandStreamingSession.HttpClientPathToPlayingSession = !x)
-            .AddTo(ref db);
-
         _CompositeDisposable.Add(db.Build());
     }
 

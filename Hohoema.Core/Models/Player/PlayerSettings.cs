@@ -63,7 +63,6 @@ public class PlayerSettings : FlagsRepositoryBase
         _isReverseModeEnable = Read(false, nameof(IsReverseModeEnable));
         _playlistEndAction = Read(PlaylistEndAction.NothingDo, nameof(PlaylistEndAction));
         _autoMoveNextVideoOnPlaylistEmpty = Read(true, nameof(AutoMoveNextVideoOnPlaylistEmpty));
-        _isMitigationForVideoLoadingEnabled = Read(false, nameof(IsMitigationForVideoLoadingEnabled));
     }
 
 
@@ -318,12 +317,5 @@ public class PlayerSettings : FlagsRepositoryBase
     {
         get => Read(false);
         set => Save(value);
-    }
-
-    private bool _isMitigationForVideoLoadingEnabled;
-    public bool IsMitigationForVideoLoadingEnabled
-    {
-        get => _isMitigationForVideoLoadingEnabled;
-        set => SetProperty(ref _isMitigationForVideoLoadingEnabled, value);
     }
 }

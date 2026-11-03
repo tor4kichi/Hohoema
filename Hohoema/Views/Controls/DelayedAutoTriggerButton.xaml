@@ -34,7 +34,7 @@
               Background="Transparent"
               HorizontalAlignment="Center"
                   x:Name="PlayNextVideoButton"
-            Height="88"
+            Height="96"
             uwpControls:DockPanel.Dock="Top"
               >
 
