@@ -50,7 +50,7 @@ public class DmcVideoDetails : INicoVideoDetails
     internal DmcVideoDetails(WatchResponse dmcWatchData)
     {
         _res = dmcWatchData;
-        Tags = _res.tags?.items.Select(x => new NicoVideoTag(x.name)).ToArray() ?? [];
+        Tags = _res.Tags?.Items.Select(x => new NicoVideoTag(x.Name)).ToArray() ?? [];
     }
 
 

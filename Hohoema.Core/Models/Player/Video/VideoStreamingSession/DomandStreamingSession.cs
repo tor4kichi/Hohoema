@@ -200,9 +200,9 @@ public sealed class DomandStreamingSession : VideoStreamingSession
         if (res?.IsSuccess != true)
         {
             _fallbackToV4Api = true;
-            res = await _context.Video.VideoWatch.GetV4VariantsDomandHlsAccessRightAsync(
+            res = await _context.Video.VideoWatch.GetNvApiV1DomandHlsAccessRightAsync(
                 _watchApiData.Video.Id,
-                _watchApiData.Media,
+                _watchApiData.Media.Domand,
                 _watchApiData.Client.WatchTrackId
                 );
         }
