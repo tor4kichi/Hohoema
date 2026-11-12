@@ -187,7 +187,14 @@ public sealed class ChannelVideoPageViewModel
 
         if (parameters.TryGetValue("id", out string id))
         {
-            ChannelId = id;
+            try
+            {
+                ChannelId = id;
+            }
+            catch
+            {
+                ChannelId = await NiconicoSession.ToolkitContext.Channel.GetChannelIdFromChannelScreenNameAsync(id);
+            }
         }
         else if (parameters.TryGetValue("id", out uint nonPrefixId))
         {
@@ -217,15 +224,13 @@ public sealed class ChannelVideoPageViewModel
 
         try
         {
-            var channelId = ChannelId.Value;
-            //var channelInfo = await ChannelProvider.GetChannelInfo(ChannelId.Value);
-
+            var channelId = ChannelId.Value;     
             //ChannelId = channelInfo.ChannelId;
             //ChannelName = channelInfo.Name;
             //ChannelScreenName = channelInfo.ScreenName;
             //ChannelOpenTime = channelInfo.ParseOpenTime();
             //ChannelUpdateTime = channelInfo.ParseUpdateTime();
-            //ChannelInfo = new ChannelInfo() { ChannelId = channelInfo.ChannelId, Name = ChannelName };
+            ChannelInfo = new ChannelInfo() { ChannelId = channelId, Name = ChannelName };
 
             await UpdateFollowChannelAsync(ChannelInfo);
 
@@ -321,7 +326,7 @@ public class ChannelVideoLoadingSource : IIncrementalSource<ChannelVideoListItem
         var res = await ChannelProvider.GetChannelVideo(ChannelId, pageIndex, _sortOption.SortKey, _sortOption.SortOrder);
         _channelVideoPlaylist.Name = res.Data.Title;
         ct.ThrowIfCancellationRequested();
-
+        
         _IsEndPage = res != null ? (res.Data.Videos.Length < OneTimeLoadCount) : true;
 
         if (!res.IsSuccess) { return Enumerable.Empty<ChannelVideoListItemViewModel>(); }
