@@ -89,11 +89,6 @@ public sealed partial class FollowingsActivityPage : Page
     private readonly FollowingsActivityPageViewModel _vm;
     private readonly ApplicationLayoutManager _layoutManager;
     private readonly AppearanceSettings _appearanceSettings;
-
-    private void ActivityTypeSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        _vm.SelectedActivityType = (ActivityType)e.AddedItems[0];
-    }
 }
 
 

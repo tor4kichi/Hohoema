@@ -197,7 +197,7 @@
               <Grid x:Name="MenuPaneDisplayModeLayout">
                 <TextBlock Text="{i18nExt:Localize Key=MenuPaneDisplayMode}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
                 <ComboBox ItemsSource="{x:Bind _vm.PaneDisplayModeItems, Mode=OneWay}" 
-                          SelectedItem="{x:Bind _vm.AppearanceSettings.MenuPaneDisplayMode, Mode=TwoWay}"  
+                          SelectedItem="{x:Bind _vm.AppearanceSettings.MenuPaneDisplayMode, Mode=TwoWay}"
                           HorizontalAlignment="Right" 
                           ItemTemplate="{StaticResource LocalizedTextItemTemplate}"
                           >
@@ -229,7 +229,7 @@
               </Grid>
               <Grid x:Name="AppDisplayModeSettingLayout">
                 <TextBlock Text="{i18nExt:Localize Key=ApplicationInteractionMode}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
-                <ComboBox ItemsSource="{Binding ElementName=PageRoot, Path=OverrideInteractionModeList}" SelectedValue="{Binding AppearanceSettings.OverrideInteractionMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right" IsSynchronizedWithCurrentItem="False">
+                <ComboBox ItemsSource="{Binding ElementName=PageRoot, Path=OverrideInteractionModeList}" SelectedItem="{Binding AppearanceSettings.OverrideInteractionMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right" IsSynchronizedWithCurrentItem="False">
                   <ComboBox.ItemTemplate>
                     <DataTemplate>
                       <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}, FallbackValue={i18nExt:Localize Key=NoSelected}}" />
