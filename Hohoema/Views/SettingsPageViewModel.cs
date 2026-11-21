@@ -23,7 +23,6 @@ using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
@@ -473,14 +472,14 @@ public sealed partial class SettingsPageViewModel : HohoemaPageViewModelBase
         _maxVideoCacheStorageSize = VideoCacheSettings.MaxVideoCacheStorageSize;        
     }
 
-    public ImmutableArray<NicoVideoQuality> AvairableCacheQualities { get; } = new NicoVideoQuality[]
+    public List<NicoVideoQuality> AvairableCacheQualities { get; } = new()
     {
         NicoVideoQuality.SuperHigh,
         NicoVideoQuality.High,
         NicoVideoQuality.Midium,
         NicoVideoQuality.Low,
         NicoVideoQuality.Mobile,
-    }.ToImmutableArray();
+    };
 
     [ObservableProperty]
     private NicoVideoQuality _defaultCacheQuality;

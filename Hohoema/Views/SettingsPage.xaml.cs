@@ -4,7 +4,6 @@ using Hohoema.Models.Application;
 using Hohoema.ViewModels.Pages.Hohoema;
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using Windows.Globalization.NumberFormatting;
 using Windows.UI.Xaml;
@@ -45,13 +44,13 @@ public sealed partial class SettingsPage : Page
 		}
 
 
-		public ImmutableArray<ApplicationInteractionMode?> OverrideInteractionModeList { get; } = new List<ApplicationInteractionMode?>()
+		public List<ApplicationInteractionMode?> OverrideInteractionModeList { get; } = new()
 		{
 			null,
 			ApplicationInteractionMode.Controller,
 			ApplicationInteractionMode.Mouse,
 			ApplicationInteractionMode.Touch,
-		}.ToImmutableArray();
+		};
 
 		public IReadOnlyCollection<string> AvairableLocales { get; } = I18NPortable.I18N.Current.Languages.Select(x => x.Locale).ToList();
 
@@ -63,15 +62,14 @@ public sealed partial class SettingsPage : Page
 #endif
 
 		// アピアランス
-		public IReadOnlyCollection<ElementTheme?> _elementThemeList { get; } =
+		public List<ElementTheme?> _elementThemeList { get; } =
 			Enum.GetValues(typeof(ElementTheme)).Cast<ElementTheme?>()
 			.ToList();
-
-	}
-
+}
 
 
-	public sealed class VideoCacheMaxSizeDoubleGigaByte2NullableLongByteConverter : IValueConverter
+
+public sealed class VideoCacheMaxSizeDoubleGigaByte2NullableLongByteConverter : IValueConverter
 {
 		const double GigaByte = 1000_000_000.0;
 

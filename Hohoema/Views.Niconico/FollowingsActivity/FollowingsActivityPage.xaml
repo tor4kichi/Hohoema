@@ -20,8 +20,9 @@
   xmlns:windowsStateTriggers="using:WindowsStateTriggers"
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" 
   xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors" 
-  xmlns:vm="using:Hohoema.ViewModels.Pages.Niconico.FollowingsActivity" 
-  DataContext="{x:Null}"
+  xmlns:vm="using:Hohoema.ViewModels.Pages.Niconico.FollowingsActivity"
+      xmlns:muxc="using:Windows.UI.Xaml.Controls"
+      DataContext="{x:Null}"
   NavigationCacheMode="Enabled"
   mc:Ignorable="d"
   >
@@ -145,14 +146,13 @@
                     <TextBlock VerticalAlignment="Center" >   
                       <Run Text="{i18nExt:Localize Key=FollowingsActivityDisplayOptions}" />
                     </TextBlock>
-                    <ComboBox x:Name="ActivityTypeSelector"  ItemsSource="{x:Bind _vm.FollowingsActivityTypeList}"
-                              SelectedItem="{Binding SelectedActivityType, Mode=OneWay}"
-                              SelectionChanged="ActivityTypeSelector_SelectionChanged"
+                    <muxc:ComboBox x:Name="ActivityTypeSelector" ItemsSource="{x:Bind _vm.FollowingsActivityTypeList, Mode=OneWay}"
+                              SelectedItem="{x:Bind _vm.SelectedActivityType, Mode=TwoWay}"
                               ItemTemplate="{StaticResource LocalizedTextItemTemplate}"
                               VerticalAlignment="Center"
                               MinWidth="140"
                               >
-                    </ComboBox>
+                    </muxc:ComboBox>
                   </StackPanel>
                 </AppBarElementContainer>
                 <AppBarButton x:Name="ScrollToTopButton" Label="{i18nExt:Localize Key=ReturnToPageTop}" Icon="Up">

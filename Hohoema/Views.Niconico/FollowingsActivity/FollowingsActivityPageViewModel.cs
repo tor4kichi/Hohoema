@@ -22,7 +22,6 @@ using Reactive.Bindings.Extensions;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
@@ -56,15 +55,14 @@ public sealed partial class FollowingsActivityPageViewModel
 
     bool _FollowingsActivityMuteContextTriggersChanged;
 
-    public ImmutableArray<ActivityType> FollowingsActivityTypeList { get; } = new[]
+    public List<ActivityType> FollowingsActivityTypeList { get; } = new()
     {
         ActivityType.Publish,
         ActivityType.Video,
         ActivityType.ShortVideo,
         ActivityType.Live,
         ActivityType.All,
-    }
-    .ToImmutableArray();
+    };
 
     [ObservableProperty]
     ActivityType _selectedActivityType;
